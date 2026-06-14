@@ -148,6 +148,24 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
             if 0 <= idx < len(L):
                 L[idx] += out * gl
                 R[idx] += out * gr
+    elif kind == 'snare':
+        n = int(0.13 * SR)
+        seed = 0x71f3 + base
+        ph = 0.0
+        for i in range(n):
+            t = i / n
+            seed = (1103515245 * seed + 12345) & 0x7FFFFFFF
+            noise = (seed / 0x3FFFFFFF) - 1.0
+            ph += 190.0 * T / SR
+            if ph >= T:
+                ph -= T
+            body = SINE[int(ph)] * 0.35
+            env = (1.0 - t) ** 1.6
+            out = (noise * 0.6 + body) * env * 0.42 * vel
+            idx = base + i
+            if 0 <= idx < len(L):
+                L[idx] += out * gl
+                R[idx] += out * gr
     else:  # 'shaker' / 'hat' — softened, low-level noise so it reads as air, not hiss
         n = int((0.05 if kind == 'hat' else 0.08) * SR)
         seed = 0x2545F4 + base
@@ -248,8 +266,19 @@ class Seq:
         # track. Notes/ornaments that ring PAST this fold back to the start, so the
         # loop point lands exactly on the downbeat — never on a trailing ornament.
         self.loop_beats = None
+        self.swing = 0.0  # 0=straight; ~0.12 pushes off-beat 8ths later (shuffle)
+    def _w(self, beat):
+        # Swing warp: keep down-beats fixed, push the off-beat (x.5) later.
+        if self.swing <= 0.0:
+            return beat
+        w = math.floor(beat); f = beat - w; a = self.swing
+        if f <= 0.5:
+            f = f * (0.5 + a) / 0.5
+        else:
+            f = (0.5 + a) + (f - 0.5) * (0.5 - a) / 0.5
+        return w + f
     def n(self, beat, dur, note, instr, vel=1.0, pan=0.0):
-        self.notes.append((beat * self.spb, dur * self.spb, nf(note), instr, vel, pan))
+        self.notes.append((self._w(beat) * self.spb, dur * self.spb, nf(note), instr, vel, pan))
     def chord(self, beat, dur, notes, instr, vel=1.0, pan=0.0, spread=0.0):
         for k, nt in enumerate(notes):
             pp = pan + (k - (len(notes) - 1) / 2.0) * spread
@@ -258,7 +287,7 @@ class Seq:
         for k, nt in enumerate(notes):
             self.n(beat + k * step, dur, nt, instr, vel, pan)
     def p(self, beat, kind, vel=1.0, pan=0.0):
-        self.perc.append((beat * self.spb, kind, vel, pan))
+        self.perc.append((self._w(beat) * self.spb, kind, vel, pan))
     def total_beats(self):
         return max((s / self.spb + d / self.spb for s, d, *_ in self.notes), default=0.0)
     def render(self):
@@ -305,6 +334,97 @@ def auto_backing(s, prog, bpb=4, pad_vel=0.78, arp_instr='pluck', arp_step=0.5,
             s.p(b0, 'kick', 0.4)
             s.p(b0 + 2, 'shaker', 0.4)
 
+def groove(s, prog, bpb=4, bass='half', comp='arp', perc='backbeat',
+           pad_vel=0.7, pad_spread=0.16, comp_instr='pluck', comp_vel=0.5,
+           comp_lift=1, bass_vel=0.8, pad=True):
+    """Realize a (chord, root) progression with a configurable GROOVE so each track
+    gets its own rhythmic identity (bass pattern + chord-comp rhythm + drum groove)
+    instead of the one-size sustained-pad + bass-1-3 + even-arp of auto_backing."""
+    s.loop_beats = len(prog) * bpb
+    m = len(prog)
+    for bar, (chord, root) in enumerate(prog):
+        b0 = bar * bpb
+        nxt = prog[(bar + 1) % m][1]
+        if pad:
+            s.chord(b0, bpb, chord, 'pad', vel=pad_vel, spread=pad_spread)
+        _gbass(s, b0, bpb, chord, root, nxt, bass, bass_vel)
+        _gcomp(s, b0, bpb, chord, comp, comp_instr, comp_vel, comp_lift)
+        _gperc(s, b0, bpb, perc)
+
+def _gbass(s, b0, bpb, chord, root, nxt, pat, vel):
+    if pat == 'drone':
+        s.n(b0, bpb, root, 'bass', vel)
+    elif pat == 'half':
+        s.n(b0, bpb * 0.5, root, 'bass', vel)
+        s.n(b0 + bpb * 0.5, bpb * 0.5, shift_oct(root, 1), 'bass', vel * 0.8)
+    elif pat == 'quarter':
+        for k in range(bpb):
+            s.n(b0 + k, 0.9, root if k % 2 == 0 else shift_oct(root, 1), 'bass', vel * (0.95 if k % 2 == 0 else 0.78))
+    elif pat == 'eighth':
+        for k in range(bpb * 2):
+            s.n(b0 + k * 0.5, 0.45, root if k % 2 == 0 else shift_oct(root, 1), 'bass', vel * 0.8)
+    elif pat == 'sync':
+        for off, v, hi in [(0, 1.0, False), (1.5, 0.8, True), (2, 0.9, False), (3.5, 0.75, True)]:
+            s.n(b0 + off, 0.5, shift_oct(root, 1) if hi else root, 'bass', vel * v)
+    elif pat == 'walk':
+        seq = [root, shift_oct(chord[1], -1), shift_oct(chord[-1], -1), nxt]
+        for k in range(bpb):
+            s.n(b0 + k, 0.9, seq[k % len(seq)], 'bass', vel * (0.92 if k % 2 == 0 else 0.78))
+
+def _gcomp(s, b0, bpb, chord, pat, instr, vel, lift):
+    cell = [shift_oct(c, lift) for c in chord]
+    nc = len(cell)
+    if pat in ('none', 'pad'):
+        return
+    if pat == 'arp':
+        k = 0; t = b0
+        while t < b0 + bpb - 1e-6:
+            s.n(t, 0.45, cell[k % nc], instr, vel, pan=(-0.22 if k % 2 == 0 else 0.22)); t += 0.5; k += 1
+    elif pat == 'arp_slow':
+        k = 0; t = b0
+        while t < b0 + bpb - 1e-6:
+            s.n(t, 0.9, cell[k % nc], instr, vel, pan=(-0.2 if k % 2 == 0 else 0.2)); t += 1.0; k += 1
+    elif pat == 'stab':
+        for off in [x + 0.5 for x in range(bpb)]:
+            for j, c in enumerate(cell):
+                s.n(b0 + off, 0.22, c, instr, vel, pan=(j - (nc - 1) / 2.0) * 0.12)
+    elif pat == 'roll':
+        for base in (0.0, bpb * 0.5):
+            for j, c in enumerate(cell):
+                s.n(b0 + base + j * 0.07, 1.3, c, instr, vel * 0.8, pan=(j - (nc - 1) / 2.0) * 0.14)
+    elif pat == 'broken':
+        patt = [0, nc - 1, 1, nc - 1]
+        k = 0; t = b0
+        while t < b0 + bpb - 1e-6:
+            s.n(t, 0.45, cell[patt[k % len(patt)] % nc], instr, vel, pan=(-0.18 if k % 2 == 0 else 0.18)); t += 0.5; k += 1
+    elif pat == 'drip':
+        s.n(b0 + 1, 1.4, cell[1 % nc], 'bell', vel, pan=-0.3)
+        s.n(b0 + 3, 1.4, cell[2 % nc], 'bell', vel * 0.85, pan=0.3)
+
+def _gperc(s, b0, bpb, pat):
+    if pat == 'none':
+        return
+    if pat == 'heartbeat':
+        s.p(b0, 'kick', 0.35); s.p(b0 + 2, 'kick', 0.28)
+    elif pat == 'soft':
+        s.p(b0, 'kick', 0.42); s.p(b0 + 2, 'shaker', 0.4)
+    elif pat == 'backbeat':
+        s.p(b0, 'kick', 0.6); s.p(b0 + 2, 'kick', 0.5)
+        s.p(b0 + 1, 'snare', 0.5); s.p(b0 + 3, 'snare', 0.5)
+        for k in (0.5, 1.5, 2.5, 3.5):
+            s.p(b0 + k, 'hat', 0.3)
+    elif pat == 'shaker':
+        s.p(b0, 'kick', 0.4)
+        for k in (0.5, 1.5, 2.5, 3.5):
+            s.p(b0 + k, 'shaker', 0.42)
+        for k in (1, 3):
+            s.p(b0 + k, 'shaker', 0.3)
+    elif pat == 'drive':
+        s.p(b0, 'kick', 0.7); s.p(b0 + 0.75, 'kick', 0.5); s.p(b0 + 2, 'kick', 0.6); s.p(b0 + 2.75, 'kick', 0.45)
+        s.p(b0 + 2, 'snare', 0.55)
+        for k in [x * 0.25 for x in range(bpb * 4)]:
+            s.p(b0 + k, 'hat', 0.22)
+
 def lead(s, mel, instr='lead', vel=0.7, bell_long=True):
     for (beat, dur, note) in mel:
         s.n(beat, dur, note, instr, vel=vel)
@@ -335,7 +455,7 @@ def track_title():
         (['G3', 'Bb3', 'D4', 'F4'], 'G2'), (['C4', 'E4', 'G4', 'Bb4'], 'C3'),
     ] * 2
     prog = prog + to_prog([{"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["A3", "C4", "F4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["D4", "F4", "A4"], "bass": "D3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["G3", "Bb3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4", "Bb4"], "bass": "C3"}])
-    auto_backing(s, prog, bpb=4, perc='light')
+    groove(s, prog, bpb=4, bass='half', comp='broken', perc='soft', pad_vel=0.78, comp_instr='pluck', comp_vel=0.5)
     mel = [
         (0, 1, 'C5'), (1, 1, 'F5'), (2, 1.5, 'A5'), (3.5, .5, 'G5'), (4, 1, 'E5'), (5, 1, 'C5'), (6, 2, 'E5'),
         (8, 1, 'D5'), (9, 1, 'F5'), (10, 1.5, 'A5'), (11.5, .5, 'C6'), (12, 1, 'Bb5'), (13, 1, 'A5'), (14, 2, 'G5'),
@@ -365,8 +485,7 @@ def track_mainmenu():
         (['C4', 'E4', 'G4'], 'C3'), (['D4', 'F#4', 'A4'], 'D3'),
     ]
     prog = prog + to_prog([{"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["B3", "D4", "G4"], "bass": "B2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}])
-    auto_backing(s, prog, bpb=4, pad_vel=0.85, arp_instr='bell', arp_step=1.0,
-                 arp_vel=0.4, arp_lift=1, perc='soft', pad_spread=0.2)
+    groove(s, prog, bpb=4, bass='drone', comp='arp_slow', perc='soft', pad_vel=0.85, comp_instr='bell', comp_vel=0.4, pad_spread=0.2)
     mel = [
         (0, 2, 'D5'), (2, 2, 'B4'), (4, 2, 'C5'), (6, 1, 'E5'), (7, 1, 'D5'),
         (8, 2, 'G4'), (10, 1, 'A4'), (11, 1, 'B4'), (12, 3, 'D5'), (15, 1, 'C5'),
@@ -391,8 +510,7 @@ def track_field():
         (['G3', 'B3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
     ] * 2
     prog = prog + to_prog([{"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["E4", "G4", "B4"], "bass": "E3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
-    auto_backing(s, prog, bpb=4, pad_vel=0.7, arp_instr='pluck', arp_step=0.5,
-                 arp_vel=0.5, arp_lift=1, perc='drive')
+    groove(s, prog, bpb=4, bass='sync', comp='stab', perc='backbeat', pad_vel=0.7, comp_instr='pluck', comp_vel=0.42)
     mel = [
         (0, 1, 'D5'), (1, .5, 'E5'), (1.5, .5, 'F#5'), (2, 1, 'A5'), (3, 1, 'F#5'),
         (4, 1, 'E5'), (5, 1, 'C#5'), (6, 2, 'E5'),
@@ -423,8 +541,8 @@ def track_town():
         (['F3', 'A3', 'C4'], 'F2'), (['G3', 'B3', 'D4'], 'G2'),
     ] * 2
     prog = prog + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "C4"], "bass": "D2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F4", "A4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}])
-    auto_backing(s, prog, bpb=4, pad_vel=0.66, arp_instr='bell', arp_step=0.5,
-                 arp_vel=0.42, arp_lift=1, perc='soft')
+    s.swing = 0.14
+    groove(s, prog, bpb=4, bass='walk', comp='broken', perc='shaker', pad_vel=0.66, comp_instr='bell', comp_vel=0.42)
     mel = [
         (0, 1, 'G4'), (1, 1, 'C5'), (2, 1, 'E5'), (3, 1, 'G5'), (4, 1, 'E5'), (5, 1, 'D5'), (6, 2, 'C5'),
         (8, 1, 'D5'), (9, 1, 'E5'), (10, 1, 'D5'), (11, 1, 'B4'), (12, 1, 'C5'), (13, 1, 'A4'), (14, 2, 'C5'),
@@ -455,16 +573,7 @@ def track_ruins():
     ]
     # sparse: pad + bass + a slow bell arp, NO kick/hat (the 'none' perc)
     prog = prog + to_prog([{"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3", "D4"], "bass": "E2"}])
-    s.loop_beats = len(prog) * 4
-    for bar, (chord, root) in enumerate(prog):
-        b0 = bar * 4
-        s.chord(b0, 4, chord, 'pad', vel=0.85, spread=0.22)
-        s.n(b0, 3.0, root, 'bass', 0.8)
-        s.n(b0 + 2, 2.0, shift_oct(root, 1), 'bass', 0.5)
-        # slow descending bell figure, every half-note
-        cell = [shift_oct(c, 1) for c in chord]
-        for k in range(2):
-            s.n(b0 + k * 2, 1.6, cell[(k) % len(cell)], 'bell', 0.34, pan=(-0.2 if k == 0 else 0.2))
+    groove(s, prog, bpb=4, bass='drone', comp='arp_slow', perc='none', pad_vel=0.85, comp_instr='bell', comp_vel=0.34)
     mel = [
         (0, 3, 'E5'), (3, 1, 'D5'), (4, 2, 'C5'), (6, 2, 'A4'),
         (8, 3, 'D5'), (11, 1, 'C5'), (12, 2, 'B4'), (14, 2, 'G#4'),
@@ -490,13 +599,7 @@ def track_boss():
         (['G3', 'Bb3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
     ] * 2
     prog = prog + to_prog([{"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
-    auto_backing(s, prog, bpb=4, pad_vel=0.72, arp_instr='pluck', arp_step=0.25,
-                 arp_vel=0.36, arp_lift=1, perc='drive')
-    # pumping eighth-note bass for urgency (over the half-note bass auto_backing adds)
-    for bar, (chord, root) in enumerate(prog):
-        b0 = bar * 4
-        for k in range(8):
-            s.n(b0 + k * 0.5, 0.45, root if k % 2 == 0 else shift_oct(root, 1), 'bass', 0.5)
+    groove(s, prog, bpb=4, bass='eighth', comp='stab', perc='drive', pad_vel=0.72, comp_instr='pluck', comp_vel=0.4)
     mel = [
         (0, .5, 'A5'), (.5, .5, 'D6'), (1, 1, 'C6'), (2, 1, 'A5'), (3, 1, 'F5'),
         (4, .5, 'G5'), (4.5, .5, 'A5'), (5, 1, 'Bb5'), (6, 2, 'A5'),
@@ -533,16 +636,7 @@ def track_cave():
     ]
     progA = prog
     prog = progA + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}]) + progA
-    s.loop_beats = len(prog) * 4
-    for bar, (chord, root) in enumerate(prog):
-        b0 = bar * 4
-        s.chord(b0, 4, chord, 'pad', vel=0.9, spread=0.24)
-        s.n(b0, 4.0, root, 'bass', 0.85)             # sustained low drone
-        s.p(b0, 'kick', 0.35)                         # slow heartbeat
-        s.p(b0 + 2, 'kick', 0.28)
-        # sparse bell drips, panned, an octave up
-        s.n(b0 + 1, 1.4, shift_oct(chord[1], 1), 'bell', 0.30, pan=-0.3)
-        s.n(b0 + 3, 1.4, shift_oct(chord[2], 1), 'bell', 0.26, pan=0.3)
+    groove(s, prog, bpb=4, bass='drone', comp='drip', perc='heartbeat', pad_vel=0.9, comp_vel=0.30)
     mel = [
         (0, 3, 'B4'), (3, 1, 'A4'), (4, 4, 'G4'),
         (8, 2, 'A4'), (10, 2, 'C5'), (12, 4, 'B4'),
@@ -567,8 +661,8 @@ def track_forest():
         (['A3', 'C4', 'E4'], 'A2'), (['D4', 'F#4', 'A4'], 'D3'),
     ] * 2
     prog = prog + to_prog([{"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F#4", "A4", "C5"], "bass": "D3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}])
-    auto_backing(s, prog, bpb=4, pad_vel=0.62, arp_instr='bell', arp_step=0.5,
-                 arp_vel=0.36, arp_lift=1, perc='soft')
+    s.swing = 0.08
+    groove(s, prog, bpb=4, bass='quarter', comp='arp', perc='soft', pad_vel=0.62, comp_instr='bell', comp_vel=0.4)
     # G major pentatonic-leaning melody (G A B D E) — open, folk wander
     mel = [
         (0, 1, 'D5'), (1, 1, 'E5'), (2, 1, 'G5'), (3, 1, 'E5'), (4, 1, 'D5'), (5, 1, 'B4'), (6, 2, 'A4'),
