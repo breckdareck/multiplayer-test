@@ -37,6 +37,11 @@ step_values = Dictionary[int, int]({
 })
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("6_sst1")
+base_value = 55.0
+per_level = 5.0
+
 [sub_resource type="Resource" id="Resource_sst_mana"]
 script = ExtResource("6_sst1")
 base_value = 6.0
@@ -53,16 +58,11 @@ script = ExtResource("6_sst1")
 base_value = 1.0
 metadata/_custom_type_script = "uid://dnsex6fyou07d"
 
-[sub_resource type="Resource" id="Resource_dmgpct"]
-script = ExtResource("6_sst1")
-base_value = 55.0
-per_level = 5.0
-
 [sub_resource type="Resource" id="Resource_sst_scaling"]
 script = ExtResource("7_sst1")
-damage_percent_formula = SubResource("Resource_dmgpct")
 mana_cost_formula = SubResource("Resource_sst_mana")
 cooldown_formula = SubResource("Resource_sst_cd")
+damage_percent_formula = SubResource("Resource_dmgpct")
 max_targets_formula = SubResource("Resource_sst_targets")
 max_hits_formula = SubResource("Resource_sst_hits")
 cast_time_formula = SubResource("Resource_sst_cast")

@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://ccu3ra0orwind" path="res://resources/Abilities/Sword/Upgrades/U_CC_RazorWind.tres" id="12_rw"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="13_aud"]
 [ext_resource type="Resource" uid="uid://ucctempest3" path="res://resources/Abilities/Sword/Upgrades/U_CC_Tempest.tres" id="14_te"]
-[ext_resource type="Resource" uid="uid://uccwhirlwind3" path="res://resources/Abilities/Sword/Upgrades/U_CC_Whirlwind.tres" id="15_wh"]
+[ext_resource type="Resource" uid="uid://0bki76c3iala" path="res://resources/Abilities/Sword/Upgrades/U_CC_Whirlwind.tres" id="15_wh"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ajojy"]
 size = Vector2(56, 20)

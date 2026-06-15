@@ -13,19 +13,19 @@
 [ext_resource type="Resource" uid="uid://c2nyy23ei00jc" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_WideSpread.tres" id="13_fok3"]
 [ext_resource type="Resource" uid="uid://cuspl1ny1rci" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_HamstringFan.tres" id="14_fok4"]
 [ext_resource type="Resource" uid="uid://c6my6s7pqv21q" path="res://resources/Abilities/Dagger/Upgrades/U_FOK_RazorFan.tres" id="15_fok5"]
-[ext_resource type="Script" uid="uid://alslowonhit2026a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
+[ext_resource type="Script" uid="uid://br3bwogi16n2a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lk7a1"]
 size = Vector2(120, 46)
 
 [sub_resource type="Resource" id="Resource_lk7a1"]
 script = ExtResource("2_lk7a2")
-sfx_path = "res://assets/sounds/generated/dagger_throw.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_lk7a1")
 hit_box_position_data = Vector2(60, -10)
-logic_script = ExtResource("90_slowhit")
 animation_name = "attack_2"
+sfx_path = "res://assets/sounds/generated/dagger_throw.wav"
+logic_script = ExtResource("90_slowhit")
 is_projectile = true
 projectile_scene = ExtResource("2_obq5c")
 projectile_speed = 280.0

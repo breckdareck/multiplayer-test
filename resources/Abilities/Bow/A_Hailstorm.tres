@@ -13,19 +13,19 @@
 [ext_resource type="Resource" uid="uid://dmtnk4sc6xi77" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
 [ext_resource type="Resource" uid="uid://y3epx7mng13s" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
 [ext_resource type="Resource" uid="uid://dldwvu35db2e4" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
-[ext_resource type="Script" uid="uid://alweakenonhit2026a" path="res://scripts/Abilities/AL_WeakenOnHit.gd" id="90_weakhit"]
+[ext_resource type="Script" path="res://scripts/Abilities/AL_WeakenOnHit.gd" id="90_weakhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)
 
 [sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_strf2")
-sfx_path = "res://assets/sounds/generated/bow_volley.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -23)
-logic_script = ExtResource("90_weakhit")
 animation_name = "attack_2"
+sfx_path = "res://assets/sounds/generated/bow_volley.wav"
+logic_script = ExtResource("90_weakhit")
 hit_vfx = "phys_impact"
 is_projectile = true
 projectile_scene = ExtResource("2_strf3")

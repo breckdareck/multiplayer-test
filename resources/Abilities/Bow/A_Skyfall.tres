@@ -13,19 +13,19 @@
 [ext_resource type="Resource" uid="uid://bx1xin36u3n5f" path="res://resources/Abilities/Bow/Upgrades/U_SKY_Torrent.tres" id="13_to"]
 [ext_resource type="Resource" uid="uid://6tnkxa4x6cfy" path="res://resources/Abilities/Bow/Upgrades/U_SKY_MeteorShafts.tres" id="14_ms"]
 [ext_resource type="Resource" uid="uid://dcqkhtub70nl4" path="res://resources/Abilities/Bow/Upgrades/U_SKY_GroundingFall.tres" id="15_df"]
-[ext_resource type="Script" uid="uid://alslowonhit2026a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
+[ext_resource type="Script" uid="uid://br3bwogi16n2a" path="res://scripts/Abilities/AL_SlowOnHit.gd" id="90_slowhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)
 
 [sub_resource type="Resource" id="Resource_vrq40"]
 script = ExtResource("2_arrn2")
-sfx_path = "res://assets/sounds/generated/bow_volley.wav"
 target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_aa4ap")
 hit_box_position_data = Vector2(80, -10)
-logic_script = ExtResource("90_slowhit")
 animation_name = "attack_2"
+sfx_path = "res://assets/sounds/generated/bow_volley.wav"
+logic_script = ExtResource("90_slowhit")
 is_projectile = true
 projectile_scene = ExtResource("2_arrn3")
 projectile_speed = 200.0

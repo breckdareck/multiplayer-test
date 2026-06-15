@@ -2,7 +2,6 @@
 
 [ext_resource type="Texture2D" uid="uid://s6hatufpmvvv" path="res://assets/sprites/Abilities/generated_px/Bow/A_SunderingArrow.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]
-[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="30_proj"]
 [ext_resource type="Script" uid="uid://bi7ye1sswjc40" path="res://scripts/Abilities/AL_SunderingArrow.gd" id="3_al"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="4_ad"]
 [ext_resource type="Script" uid="uid://dnsex6fyou07d" path="res://scripts/Resources/AbilitySystem/AbilityScalingFormula.gd" id="5_asf"]
@@ -14,6 +13,7 @@
 [ext_resource type="Resource" uid="uid://vjccrkdgk62k" path="res://resources/Abilities/Bow/Upgrades/U_SDR_crushing_sundering.tres" id="12_upg"]
 [ext_resource type="Resource" uid="uid://8mbw5gwfwasn" path="res://resources/Abilities/Bow/Upgrades/U_SDR_refunding_sundering.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="30_proj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
 size = Vector2(220, 36)
@@ -24,11 +24,11 @@ target_type = 1
 hit_box_shape_data = SubResource("RectangleShape2D_hit")
 hit_box_position_data = Vector2(110, -18)
 animation_name = "attack_2"
+sfx_path = "res://assets/sounds/generated/bow_snipe.wav"
+logic_script = ExtResource("3_al")
 is_projectile = true
 projectile_scene = ExtResource("30_proj")
 projectile_speed = 260.0
-sfx_path = "res://assets/sounds/generated/bow_snipe.wav"
-logic_script = ExtResource("3_al")
 
 [sub_resource type="Resource" id="Resource_cast"]
 script = ExtResource("5_asf")

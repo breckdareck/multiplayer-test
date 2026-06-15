@@ -33,6 +33,11 @@ script = ExtResource("5_asf")
 script = ExtResource("5_asf")
 base_value = 12.0
 
+[sub_resource type="Resource" id="Resource_dmgpct"]
+script = ExtResource("5_asf")
+base_value = 56.0
+per_level = 6.0
+
 [sub_resource type="Resource" id="Resource_mana"]
 script = ExtResource("5_asf")
 base_value = 5.0
@@ -46,16 +51,11 @@ base_value = 1.0
 script = ExtResource("5_asf")
 base_value = 1.0
 
-[sub_resource type="Resource" id="Resource_dmgpct"]
-script = ExtResource("5_asf")
-base_value = 56.0
-per_level = 6.0
-
 [sub_resource type="Resource" id="Resource_scaling"]
 script = ExtResource("7_asd")
-damage_percent_formula = SubResource("Resource_dmgpct")
 mana_cost_formula = SubResource("Resource_mana")
 cooldown_formula = SubResource("Resource_cd")
+damage_percent_formula = SubResource("Resource_dmgpct")
 max_targets_formula = SubResource("Resource_tgts")
 max_hits_formula = SubResource("Resource_hits")
 cast_time_formula = SubResource("Resource_cast")
