@@ -541,7 +541,7 @@ corner_radius_bottom_left = 6
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_e24jv")
-bgm_path = "res://assets/music/emberwilds_forest.ogg"
+bgm_path = "res://assets/music/emberwilds_near_wilds.ogg"
 display_name = "The Near-Wilds"
 camera_top_padding = 180
 

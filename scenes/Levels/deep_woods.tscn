@@ -513,7 +513,7 @@ size = Vector2(32, 9)
 [node name="Game3" type="Node2D"]
 modulate = Color(0.75, 0.7, 0.85, 1)
 script = ExtResource("1_gfksk")
-bgm_path = "res://assets/music/emberwilds_forest.ogg"
+bgm_path = "res://assets/music/emberwilds_deep_woods.ogg"
 display_name = "The Deep Woods"
 
 [node name="VillageBackground" parent="." instance=ExtResource("bg_village")]

@@ -47,6 +47,11 @@ var _boss: Node = null
 var _boss_health: Node = null
 var _rescan_accum: float = 0.0
 
+## Boss combat music: started on bind, swapped at the enrage threshold, and the
+## map's normal BGM restored on unbind. Client-side (music is never networked).
+var _boss_music_on: bool = false
+var _boss_enrage_music: bool = false
+
 #endregion
 
 
@@ -72,6 +77,7 @@ func _process(delta: float) -> void:
 			_unbind()
 			return
 		_refresh_bar()
+		_maybe_swap_enrage()
 	elif visible:
 		# Binding went stale (boss freed) — hide.
 		_unbind()
@@ -141,13 +147,56 @@ func _bind(boss: Node) -> void:
 		subtitle_label.text = subtitle
 		subtitle_label.visible = subtitle != ""
 	visible = true
+	_start_boss_music(ed)
 	_refresh_bar()
 
 
 func _unbind() -> void:
+	if _boss_music_on:
+		_boss_music_on = false
+		_boss_enrage_music = false
+		var map_node: Node = MapManager.get_current_visible_map()
+		if is_instance_valid(map_node):
+			var mp = map_node.get("bgm_path")
+			if mp is String and not mp.is_empty():
+				AudioManager.play_song(mp)
 	_boss = null
 	_boss_health = null
 	visible = false
+
+
+## Start this boss's combat track (client-side). Restored to the map BGM on unbind.
+func _start_boss_music(ed) -> void:
+	if ed == null:
+		return
+	var v = ed.get("boss_bgm")
+	var combat: String = v if v is String else ""
+	if combat.is_empty():
+		return
+	_boss_music_on = true
+	_boss_enrage_music = false
+	AudioManager.play_song(combat)
+
+
+## At/below the boss's swap-health fraction, swap to its enrage track (once).
+func _maybe_swap_enrage() -> void:
+	if not _boss_music_on or _boss_enrage_music or not is_instance_valid(_boss):
+		return
+	var ed = _boss.get("enemy_data")
+	if ed == null:
+		return
+	var v = ed.get("enrage_bgm")
+	var enrage: String = v if v is String else ""
+	if enrage.is_empty():
+		return
+	var swap_at: float = 0.5
+	var sv = ed.get("boss_bgm_swap_health")
+	if sv is float or sv is int:
+		swap_at = float(sv)
+	var maximum: float = float(maxi(1, _boss_health.max_health))
+	if float(_boss_health.current_health) / maximum <= swap_at:
+		_boss_enrage_music = true
+		AudioManager.play_song(enrage)
 
 #endregion
 

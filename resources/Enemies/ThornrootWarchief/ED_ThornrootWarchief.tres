@@ -60,5 +60,6 @@ phase_health_thresholds = Array[float]([0.66, 0.33])
 enrage_health_threshold = 0.2
 special_attack_radius = 130.0
 special_attacks = Array[ExtResource("4_bad")]([SubResource("Resource_rush")])
+boss_bgm = "res://assets/music/emberwilds_boss3.ogg"
 item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

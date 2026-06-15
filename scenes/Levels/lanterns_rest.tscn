@@ -947,7 +947,7 @@ color = Color(1, 0.82, 0.45, 1)
 
 [node name="Town" type="Node2D"]
 script = ExtResource("1_as7l3")
-bgm_path = "res://assets/music/emberwilds_town.ogg"
+bgm_path = "res://assets/music/emberwilds_lanterns_rest.ogg"
 display_name = "Lantern's Rest"
 camera_top_padding = 200
 camera_bottom_padding = -130

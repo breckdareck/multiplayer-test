@@ -62,9 +62,21 @@ INSTR = {
     'pluck':  dict(wave='saw',  detune=4,  a=0.005, d=0.18, s=0.40, r=0.22, lp0=0.40, lp1=0.09, gain=0.50, h=None),
     'lead':   dict(wave='saw',  detune=5,  a=0.025, d=0.10, s=0.80, r=0.28, lp0=0.26, lp1=0.16, gain=0.52, h=None),
     'bell':   dict(wave='sine', detune=0,  a=0.003, d=0.55, s=0.0,  r=0.35, lp0=1.0,  lp1=1.0,  gain=0.26, h=[1.0, 0.42, 0.18, 0.07]),
-    'pad':    dict(wave='saw',  detune=11, a=0.40,  d=0.4,  s=0.7,  r=1.1,  lp0=0.13, lp1=0.09, gain=0.30, h=None),
+    'pad':    dict(wave='saw',  detune=11, a=0.40,  d=0.4,  s=0.7,  r=1.1,  lp0=0.13, lp1=0.09, gain=0.24, h=None),
     'bass':   dict(wave='tri',  detune=0,  a=0.006, d=0.12, s=0.85, r=0.16, lp0=0.40, lp1=0.26, gain=0.70, h=None),
     'soft':   dict(wave='tri',  detune=3,  a=0.02,  d=0.20, s=0.70, r=0.40, lp0=0.55, lp1=0.30, gain=0.50, h=None),
+    # bowed-strings (ruins): saw + vibrato, slow swell, reedy and mournful.
+    'viol':   dict(wave='saw',  detune=6,  a=0.11,  d=0.15, s=0.88, r=0.50, lp0=0.30, lp1=0.20, gain=0.46, h=None, vib=0.007, vibr=5.5),
+    # hollow flute/ocarina (cave): sine + odd partials + vibrata, breathy and eerie.
+    'hollow': dict(wave='sine', detune=0,  a=0.05,  d=0.10, s=0.85, r=0.45, lp0=1.0,  lp1=1.0,  gain=0.54, h=[1.0, 0.0, 0.22, 0.0, 0.08], vib=0.006, vibr=4.6),
+    # glassy celesta (ruins comp): brighter, more partials than the plain bell.
+    'glass':  dict(wave='sine', detune=0,  a=0.002, d=0.6,  s=0.0,  r=0.4,  lp0=1.0,  lp1=1.0,  gain=0.30, h=[1.0, 0.6, 0.35, 0.22, 0.14, 0.09]),
+    # pipe-organ chord wash (ruins): drawbar sine harmonics, churchy, steady.
+    'organ':  dict(wave='sine', detune=2,  a=0.25,  d=0.30, s=0.90, r=0.80, lp0=0.9,  lp1=0.8,  gain=0.26, h=[1.0, 0.5, 0.0, 0.42, 0.0, 0.25]),
+    # vocal 'aah' choir lead (ruins melody): vowel-shaped sine + vibrato + swell.
+    'choir':  dict(wave='sine', detune=5,  a=0.14,  d=0.20, s=0.85, r=0.60, lp0=0.7,  lp1=0.55, gain=0.42, h=[1.0, 0.55, 0.80, 0.45, 0.25, 0.12], vib=0.008, vibr=5.0),
+    # dark hollow drone-wash (cave): detuned low sines, very filtered, no buzz.
+    'darkpad':dict(wave='sine', detune=9,  a=0.50,  d=0.40, s=0.70, r=1.20, lp0=0.40, lp1=0.30, gain=0.34, h=None),
 }
 
 def adsr(i, n, a, d, s, r):
@@ -100,14 +112,17 @@ def render_note(L, R, start, dur, freq, instr, vel=1.0, pan=0.0):
     inv_body = 1.0 / max(1, body)
     sum_hg = sum(hg)
     nvoice = len(freqs)
+    vib = p.get('vib', 0.0)
+    vstep = 2.0 * math.pi * p.get('vibr', 5.0) / SR
     for i in range(n):
+        vmul = 1.0 + vib * math.sin(vstep * i) if vib > 0.0 else 1.0
         smp = 0.0
         for hi in range(len(hg)):
             ph = phases[hi]
             inc = incs[hi]
             g = hg[hi]
             for v in range(nvoice):
-                ph[v] += inc[v]
+                ph[v] += inc[v] * vmul
                 if ph[v] >= T:
                     ph[v] -= T
                 i0 = int(ph[v])
@@ -143,7 +158,7 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
             if ph >= T:
                 ph -= T
             env = (1.0 - t) ** 2
-            out = SINE[int(ph)] * env * 0.85 * vel
+            out = SINE[int(ph)] * env * 1.05 * vel
             idx = base + i
             if 0 <= idx < len(L):
                 L[idx] += out * gl
@@ -161,7 +176,7 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
                 ph -= T
             body = SINE[int(ph)] * 0.35
             env = (1.0 - t) ** 1.6
-            out = (noise * 0.6 + body) * env * 0.42 * vel
+            out = (noise * 0.7 + body) * env * 0.78 * vel
             idx = base + i
             if 0 <= idx < len(L):
                 L[idx] += out * gl
@@ -176,7 +191,7 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
             if ph >= T:
                 ph -= T
             env = (1.0 - t) ** 1.7
-            out = SINE[int(ph)] * env * 0.68 * vel
+            out = SINE[int(ph)] * env * 0.9 * vel
             idx = base + i
             if 0 <= idx < len(L):
                 L[idx] += out * gl
@@ -185,7 +200,7 @@ def render_perc(L, R, start, kind, vel=1.0, pan=0.0):
         n = int((0.05 if kind == 'hat' else 0.08) * SR)
         seed = 0x2545F4 + base
         lp = 0.0
-        g = (0.09 if kind == 'hat' else 0.055) * vel
+        g = (0.30 if kind == 'hat' else 0.20) * vel
         for i in range(n):
             seed = (1103515245 * seed + 12345) & 0x7FFFFFFF
             noise = (seed / 0x3FFFFFFF) - 1.0
@@ -223,13 +238,15 @@ def _allpass(buf, delay, fb):
         di = (di + 1) % delay
     return out
 
-def reverb(buf, amount=0.20):
-    wet = _comb(buf, 1557, 0.76, 1.0)
-    wet = _comb(wet, 1617, 0.78, 1.0)
-    wet = _comb(wet, 1491, 0.74, 1.0)
-    wet = _allpass(wet, 225, 0.5)
-    wet = _allpass(wet, 556, 0.5)
-    return [buf[i] * (1 - amount) + wet[i] * amount * 0.25 for i in range(len(buf))]
+def reverb(buf, amount=0.20, size=1.0):
+    def _sz(d): return max(1, int(d * size))
+    def _fb(fb): return min(0.93, 1.0 - (1.0 - fb) / size)
+    wet = _comb(buf, _sz(1557), _fb(0.76), 1.0)
+    wet = _comb(wet, _sz(1617), _fb(0.78), 1.0)
+    wet = _comb(wet, _sz(1491), _fb(0.74), 1.0)
+    wet = _allpass(wet, _sz(225), 0.5)
+    wet = _allpass(wet, _sz(556), 0.5)
+    return [buf[i] * (1 - amount) + wet[i] * amount * 0.30 for i in range(len(buf))]
 
 def lowpass(buf, fc):
     """One-pole lowpass; cascade for steeper roll-off."""
@@ -241,11 +258,11 @@ def lowpass(buf, fc):
         out[i] = y
     return out
 
-def finalize(L, R, loop_len):
-    L = reverb(L); R = reverb(R)
-    # Mellow: 2-pole ~5.2 kHz lowpass tames osc/bell harshness + reverb fizz.
-    L = lowpass(lowpass(L, 5200), 5200)
-    R = lowpass(lowpass(R, 5200), 5200)
+def finalize(L, R, loop_len, rev_amount=0.20, rev_size=1.0, tone=5200):
+    L = reverb(L, rev_amount, rev_size); R = reverb(R, rev_amount, rev_size)
+    # Per-track 2-pole lowpass = the master 'tone'/brightness of this track.
+    L = lowpass(lowpass(L, tone), tone)
+    R = lowpass(lowpass(R, tone), tone)
     # Seamless loop: the music body is exactly loop_len samples, but note releases +
     # reverb decay spill PAST it. Fold that overhang back onto the start (wrap-add) so
     # the last bar's tail continues into the first bar — exactly what happens on the
@@ -282,6 +299,9 @@ class Seq:
         # loop point lands exactly on the downbeat — never on a trailing ornament.
         self.loop_beats = None
         self.swing = 0.0  # 0=straight; ~0.12 pushes off-beat 8ths later (shuffle)
+        self.rev_amount = 0.20   # reverb WET mix
+        self.rev_size = 1.0      # reverb room size / decay (1=small room, ~2=cathedral)
+        self.tone = 5200         # master lowpass cutoff Hz = brightness of the whole mix
     def _w(self, beat):
         # Swing warp: keep down-beats fixed, push the off-beat (x.5) later.
         if self.swing <= 0.0:
@@ -310,13 +330,13 @@ class Seq:
         # for the final notes' releases + reverb decay, which finalize() folds back.
         loop_beats = self.loop_beats if self.loop_beats is not None else self.total_beats()
         loop = int(round(loop_beats * self.spb * SR))
-        length = loop + int(3.0 * SR)
+        length = loop + int((3.0 + (self.rev_size - 1.0) * 2.0) * SR)
         L = [0.0] * length; R = [0.0] * length
         for s, d, f, instr, vel, pan in self.notes:
             render_note(L, R, s, d, f, instr, vel, pan)
         for s, kind, vel, pan in self.perc:
             render_perc(L, R, s, kind, vel, pan)
-        return finalize(L, R, loop)
+        return finalize(L, R, loop, self.rev_amount, self.rev_size, self.tone)
 
 def auto_backing(s, prog, bpb=4, pad_vel=0.78, arp_instr='pluck', arp_step=0.5,
                  arp_vel=0.5, arp_lift=0, perc='light', pad_spread=0.16):
@@ -349,9 +369,31 @@ def auto_backing(s, prog, bpb=4, pad_vel=0.78, arp_instr='pluck', arp_step=0.5,
             s.p(b0, 'kick', 0.4)
             s.p(b0 + 2, 'shaker', 0.4)
 
+def _gpad(s, b0, bpb, chord, instr, vel, spread, mode):
+    if mode == 'none':
+        return
+    if mode == 'low':            # open root+fifth, held — no full-chord up/down move
+        s.n(b0, bpb, chord[0], instr, vel, pan=-0.12)
+        s.n(b0, bpb, chord[-1], instr, vel * 0.85, pan=0.12)
+    elif mode == 'stab':         # one short chord hit on the downbeat (off the wash)
+        s.chord(b0, 0.5, chord, instr, vel, spread=spread)
+    elif mode == 'half':         # chord on beats 1 and 3 (oom-pah)
+        s.chord(b0, bpb * 0.5, chord, instr, vel, spread=spread)
+        s.chord(b0 + bpb * 0.5, bpb * 0.5, chord, instr, vel * 0.9, spread=spread)
+    elif mode == 'pulse':        # chord re-struck every beat (driving)
+        for k in range(bpb):
+            s.chord(b0 + k, 0.9, chord, instr, vel * 0.82, spread=spread)
+    elif mode == 'swell':        # staggered entry — root first, upper notes ramp in
+        for j, c in enumerate(chord):
+            s.n(b0 + j * 0.3, bpb - j * 0.3, c, instr, vel * (0.78 + 0.06 * j),
+                pan=(j - (len(chord) - 1) / 2.0) * spread)
+    else:                        # 'block' — full chord held the whole bar
+        s.chord(b0, bpb, chord, instr, vel, spread=spread)
+
+
 def groove(s, prog, bpb=4, bass='half', comp='arp', perc='backbeat',
            pad_vel=0.7, pad_spread=0.16, comp_instr='pluck', comp_vel=0.5,
-           comp_lift=1, bass_vel=0.8, pad=True):
+           comp_lift=1, bass_vel=0.8, pad=True, pad_instr='pad', pad_mode='block'):
     """Realize a (chord, root) progression with a configurable GROOVE so each track
     gets its own rhythmic identity (bass pattern + chord-comp rhythm + drum groove)
     instead of the one-size sustained-pad + bass-1-3 + even-arp of auto_backing."""
@@ -361,7 +403,7 @@ def groove(s, prog, bpb=4, bass='half', comp='arp', perc='backbeat',
         b0 = bar * bpb
         nxt = prog[(bar + 1) % m][1]
         if pad:
-            s.chord(b0, bpb, chord, 'pad', vel=pad_vel, spread=pad_spread)
+            _gpad(s, b0, bpb, chord, pad_instr, pad_vel, pad_spread, pad_mode)
         _gbass(s, b0, bpb, chord, root, nxt, bass, bass_vel)
         _gcomp(s, b0, bpb, chord, comp, comp_instr, comp_vel, comp_lift)
         _gperc(s, b0, bpb, perc)
@@ -479,7 +521,7 @@ def track_title():
         (['G3', 'Bb3', 'D4', 'F4'], 'G2'), (['C4', 'E4', 'G4', 'Bb4'], 'C3'),
     ] * 2
     prog = prog + to_prog([{"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["A3", "C4", "F4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["D4", "F4", "A4"], "bass": "D3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["G3", "Bb3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4", "Bb4"], "bass": "C3"}])
-    groove(s, prog, bpb=4, bass='half', comp='broken', perc='soft', pad_vel=0.78, comp_instr='pluck', comp_vel=0.5)
+    groove(s, prog, bpb=4, bass='half', comp='broken', perc='soft', pad_vel=0.78, comp_instr='pluck', comp_vel=0.5, pad_mode='swell')
     mel = [
         (0, 1, 'C5'), (1, 1, 'F5'), (2, 1.5, 'A5'), (3.5, .5, 'G5'), (4, 1, 'E5'), (5, 1, 'C5'), (6, 2, 'E5'),
         (8, 1, 'D5'), (9, 1, 'F5'), (10, 1.5, 'A5'), (11.5, .5, 'C6'), (12, 1, 'Bb5'), (13, 1, 'A5'), (14, 2, 'G5'),
@@ -509,7 +551,7 @@ def track_mainmenu():
         (['C4', 'E4', 'G4'], 'C3'), (['D4', 'F#4', 'A4'], 'D3'),
     ]
     prog = prog + to_prog([{"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["B3", "D4", "G4"], "bass": "B2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "D4", "F#4"], "bass": "D3"}])
-    groove(s, prog, bpb=4, bass='drone', comp='arp_slow', perc='soft', pad_vel=0.85, comp_instr='bell', comp_vel=0.4, pad_spread=0.2)
+    groove(s, prog, bpb=4, bass='drone', comp='arp_slow', perc='soft', pad_vel=0.85, comp_instr='bell', comp_vel=0.4, pad_spread=0.2, pad_mode='low')
     mel = [
         (0, 2, 'D5'), (2, 2, 'B4'), (4, 2, 'C5'), (6, 1, 'E5'), (7, 1, 'D5'),
         (8, 2, 'G4'), (10, 1, 'A4'), (11, 1, 'B4'), (12, 3, 'D5'), (15, 1, 'C5'),
@@ -534,7 +576,7 @@ def track_field():
         (['G3', 'B3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
     ] * 2
     prog = prog + to_prog([{"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["D4", "F#4", "A4"], "bass": "D3"}, {"chord": ["E4", "G4", "B4"], "bass": "E3"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
-    groove(s, prog, bpb=4, bass='sync', comp='stab', perc='backbeat', pad_vel=0.7, comp_instr='pluck', comp_vel=0.42)
+    groove(s, prog, bpb=4, bass='sync', comp='stab', perc='backbeat', pad_vel=0.7, comp_instr='pluck', comp_vel=0.42, pad_mode='stab')
     mel = [
         (0, 1, 'D5'), (1, .5, 'E5'), (1.5, .5, 'F#5'), (2, 1, 'A5'), (3, 1, 'F#5'),
         (4, 1, 'E5'), (5, 1, 'C#5'), (6, 2, 'E5'),
@@ -554,135 +596,9 @@ def track_field():
     return s
 
 # ==========================================================================
-# TRACK: Town (meadows) — cozy, light, pastoral. C major / 104 BPM. Music-box.
+# TRACK: Town — cozy, welcoming settlement. G major / 108 BPM. Soft flute + music-box.
 # ==========================================================================
 def track_town():
-    s = Seq(104)
-    prog = [
-        (['C4', 'E4', 'G4'], 'C3'), (['G3', 'B3', 'D4'], 'G2'),
-        (['A3', 'C4', 'E4'], 'A2'), (['F3', 'A3', 'C4'], 'F2'),
-        (['C4', 'E4', 'G4'], 'C3'), (['G3', 'B3', 'D4'], 'G2'),
-        (['F3', 'A3', 'C4'], 'F2'), (['G3', 'B3', 'D4'], 'G2'),
-    ] * 2
-    prog = prog + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "C4"], "bass": "D2"}, {"chord": ["G3", "B3", "D4"], "bass": "G2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F4", "A4"], "bass": "D3"}, {"chord": ["G3", "B3", "D4", "F4"], "bass": "G2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}])
-    s.swing = 0.14
-    groove(s, prog, bpb=4, bass='walk', comp='broken', perc='shaker', pad_vel=0.66, comp_instr='bell', comp_vel=0.42)
-    mel = [
-        (0, 1, 'G4'), (1, 1, 'C5'), (2, 1, 'E5'), (3, 1, 'G5'), (4, 1, 'E5'), (5, 1, 'D5'), (6, 2, 'C5'),
-        (8, 1, 'D5'), (9, 1, 'E5'), (10, 1, 'D5'), (11, 1, 'B4'), (12, 1, 'C5'), (13, 1, 'A4'), (14, 2, 'C5'),
-        (16, 1, 'E5'), (17, 1, 'G5'), (18, 1, 'A5'), (19, 1, 'G5'), (20, 1, 'E5'), (21, 1, 'C5'), (22, 2, 'D5'),
-        (24, 1, 'C5'), (25, 1, 'A4'), (26, 1, 'F5'), (27, 1, 'E5'), (28, 1, 'D5'), (29, 1, 'B4'), (30, 2, 'C5'),
-        (32, 1, 'G4'), (33, 1, 'C5'), (34, 1, 'E5'), (35, 1, 'D5'), (36, 1, 'E5'), (37, 1, 'G5'), (38, 2, 'E5'),
-        (40, 1, 'D5'), (41, 1, 'F5'), (42, 1, 'A5'), (43, 1, 'G5'), (44, 1, 'E5'), (45, 1, 'D5'), (46, 2, 'C5'),
-        (48, 1, 'A4'), (49, 1, 'C5'), (50, 1, 'F5'), (51, 1, 'E5'), (52, 1, 'D5'), (53, 1, 'C5'), (54, 2, 'B4'),
-        (56, 1, 'C5'), (57, 1, 'D5'), (58, 1, 'E5'), (59, 1, 'D5'), (60, 1, 'B4'), (61, 1, 'D5'), (62, 2, 'C5'),
-    ]
-    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 1, "note": "E5"}, {"beat": 1, "dur": 1, "note": "C5"}, {"beat": 2, "dur": 1.5, "note": "A4"}, {"beat": 3.5, "dur": 0.5, "note": "B4"}, {"beat": 4, "dur": 1, "note": "C5"}, {"beat": 5, "dur": 1, "note": "A4"}, {"beat": 6, "dur": 2, "note": "F4"}, {"beat": 8, "dur": 1, "note": "A4"}, {"beat": 9, "dur": 1, "note": "C5"}, {"beat": 10, "dur": 1.5, "note": "D5"}, {"beat": 11.5, "dur": 0.5, "note": "C5"}, {"beat": 12, "dur": 1, "note": "B4"}, {"beat": 13, "dur": 1, "note": "D5"}, {"beat": 14, "dur": 2, "note": "G5"}, {"beat": 16, "dur": 1, "note": "E5"}, {"beat": 17, "dur": 1, "note": "C5"}, {"beat": 18, "dur": 1.5, "note": "A4"}, {"beat": 19.5, "dur": 0.5, "note": "B4"}, {"beat": 20, "dur": 1, "note": "C5"}, {"beat": 21, "dur": 1, "note": "B4"}, {"beat": 22, "dur": 2, "note": "G#4"}, {"beat": 24, "dur": 1, "note": "A4"}, {"beat": 25, "dur": 1, "note": "C5"}, {"beat": 26, "dur": 1.5, "note": "F5"}, {"beat": 27.5, "dur": 0.5, "note": "E5"}, {"beat": 28, "dur": 1, "note": "D5"}, {"beat": 29, "dur": 1, "note": "F5"}, {"beat": 30, "dur": 2, "note": "A5"}, {"beat": 32, "dur": 1, "note": "G5"}, {"beat": 33, "dur": 1, "note": "F5"}, {"beat": 34, "dur": 1, "note": "D5"}, {"beat": 35, "dur": 1, "note": "B4"}, {"beat": 36, "dur": 1.5, "note": "C5"}, {"beat": 37.5, "dur": 0.5, "note": "D5"}, {"beat": 38, "dur": 2, "note": "E5"}]), 64)
-    lead(s, mel, instr='soft', vel=0.6)
-    return s
-
-# ==========================================================================
-# TRACK: Ruins — ancient, mysterious, sparse + a little mournful. A minor /
-# 76 BPM. Pad + slow bass + bell, no drive. (Replaces a town/ruins theme.)
-# ==========================================================================
-def track_ruins():
-    s = Seq(76)
-    prog = [
-        (['A3', 'C4', 'E4'], 'A2'), (['F3', 'A3', 'C4'], 'F2'),
-        (['G3', 'B3', 'D4'], 'G2'), (['E3', 'G3', 'B3'], 'E2'),
-        (['A3', 'C4', 'E4'], 'A2'), (['D3', 'F3', 'A3'], 'D2'),
-        (['G3', 'B3', 'D4'], 'G2'), (['E3', 'G3', 'B3'], 'E2'),
-        (['F3', 'A3', 'C4'], 'F2'), (['C4', 'E4', 'G4'], 'C3'),
-        (['D3', 'F3', 'A3'], 'D2'), (['E3', 'G3', 'B3'], 'E2'),
-    ]
-    # sparse: pad + bass + a slow bell arp, NO kick/hat (the 'none' perc)
-    prog = prog + to_prog([{"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["E3", "G#3", "B3"], "bass": "E2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["E3", "G#3", "B3", "D4"], "bass": "E2"}])
-    groove(s, prog, bpb=4, bass='toll', comp='roll', perc='ritual', pad_vel=0.85, comp_instr='bell', comp_vel=0.30)
-    # distant high temple bell — a sparse toll every 2 bars for ancient air
-    for _b in range(0, len(prog), 2):
-        s.n(_b * 4, 2.5, shift_oct(prog[_b][0][-1], 2), 'bell', 0.20, pan=0.15)
-    mel = [
-        (0, 3, 'E5'), (3, 1, 'D5'), (4, 2, 'C5'), (6, 2, 'A4'),
-        (8, 3, 'D5'), (11, 1, 'C5'), (12, 2, 'B4'), (14, 2, 'G#4'),
-        (16, 2, 'A4'), (18, 2, 'C5'), (20, 2, 'E5'), (22, 2, 'D5'),
-        (24, 3, 'C5'), (27, 1, 'B4'), (28, 4, 'A4'),
-        (32, 2, 'C5'), (34, 2, 'F5'), (36, 2, 'E5'), (38, 2, 'C5'),
-        (40, 2, 'D5'), (42, 2, 'B4'), (44, 4, 'A4'),
-    ]
-    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 2, "note": "A4"}, {"beat": 2, "dur": 1.5, "note": "D5"}, {"beat": 3.5, "dur": 0.5, "note": "C5"}, {"beat": 4, "dur": 3, "note": "E5"}, {"beat": 7, "dur": 1, "note": "C5"}, {"beat": 8, "dur": 2, "note": "A4"}, {"beat": 10, "dur": 2, "note": "F4"}, {"beat": 12, "dur": 2, "note": "G4"}, {"beat": 14, "dur": 1.5, "note": "E4"}, {"beat": 15.5, "dur": 0.5, "note": "G4"}, {"beat": 16, "dur": 2, "note": "A4"}, {"beat": 18, "dur": 1.5, "note": "D5"}, {"beat": 19.5, "dur": 0.5, "note": "F5"}, {"beat": 20, "dur": 2, "note": "E5"}, {"beat": 22, "dur": 2, "note": "G#4"}, {"beat": 24, "dur": 3, "note": "A4"}, {"beat": 27, "dur": 1, "note": "C5"}, {"beat": 28, "dur": 1.5, "note": "B4"}, {"beat": 29.5, "dur": 0.5, "note": "G#4"}, {"beat": 30, "dur": 2, "note": "A4"}]), 48)
-    lead(s, mel, instr='soft', vel=0.6, bell_long=False)
-    return s
-
-# ==========================================================================
-# TRACK: Boss — urgent, driving, dramatic. D minor / 140 BPM. Pumping bass,
-# 16th arps, harmonic-minor tension (C# over the A chord).
-# ==========================================================================
-def track_boss():
-    s = Seq(140)
-    prog = [
-        (['D4', 'F4', 'A4'], 'D2'), (['Bb3', 'D4', 'F4'], 'Bb2'),
-        (['C4', 'E4', 'G4'], 'C3'), (['A3', 'C#4', 'E4'], 'A2'),
-        (['D4', 'F4', 'A4'], 'D2'), (['Bb3', 'D4', 'F4'], 'Bb2'),
-        (['G3', 'Bb3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
-    ] * 2
-    prog = prog + to_prog([{"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
-    groove(s, prog, bpb=4, bass='eighth', comp='stab', perc='drive', pad_vel=0.72, comp_instr='pluck', comp_vel=0.4)
-    mel = [
-        (0, .5, 'A5'), (.5, .5, 'D6'), (1, 1, 'C6'), (2, 1, 'A5'), (3, 1, 'F5'),
-        (4, .5, 'G5'), (4.5, .5, 'A5'), (5, 1, 'Bb5'), (6, 2, 'A5'),
-        (8, .5, 'F5'), (8.5, .5, 'G5'), (9, 1, 'A5'), (10, 1, 'D5'), (11, 1, 'F5'),
-        (12, .5, 'E5'), (12.5, .5, 'F5'), (13, 1, 'G5'), (14, 2, 'E5'),
-        (16, .5, 'A5'), (16.5, .5, 'D6'), (17, 1, 'C6'), (18, 1, 'A5'), (19, 1, 'Bb5'),
-        (20, 1, 'A5'), (21, 1, 'G5'), (22, 2, 'F5'),
-        (24, .5, 'D5'), (24.5, .5, 'F5'), (25, .5, 'A5'), (25.5, .5, 'C6'), (26, 1, 'D6'), (27, 1, 'C#6'),
-        (28, 1, 'D6'), (29, 1, 'A5'), (30, 2, 'D6'),
-        (32, .5, 'D6'), (32.5, .5, 'C6'), (33, 1, 'A5'), (34, 1, 'D6'), (35, 1, 'C6'),
-        (36, .5, 'A5'), (36.5, .5, 'F5'), (37, 1, 'A5'), (38, 2, 'D6'),
-        (40, .5, 'Bb5'), (40.5, .5, 'A5'), (41, 1, 'G5'), (42, 1, 'F5'), (43, 1, 'D5'),
-        (44, 1, 'F5'), (45, 1, 'G5'), (46, 2, 'A5'),
-        (48, .5, 'A5'), (48.5, .5, 'D6'), (49, 1, 'C6'), (50, 1, 'A5'), (51, 1, 'Bb5'),
-        (52, 1, 'C6'), (53, 1, 'D6'), (54, 2, 'C#6'),
-        (56, .5, 'D6'), (56.5, .5, 'A5'), (57, .5, 'F5'), (57.5, .5, 'A5'), (58, 1, 'D6'), (59, 1, 'C#6'),
-        (60, 1, 'D6'), (61, 1, 'A5'), (62, 2, 'D6'),
-    ]
-    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 0.5, "note": "D5"}, {"beat": 0.5, "dur": 0.5, "note": "D5"}, {"beat": 1, "dur": 0.5, "note": "Bb4"}, {"beat": 1.5, "dur": 0.5, "note": "D5"}, {"beat": 2, "dur": 1, "note": "G5"}, {"beat": 3, "dur": 0.5, "note": "F5"}, {"beat": 3.5, "dur": 0.5, "note": "D5"}, {"beat": 4, "dur": 0.5, "note": "E5"}, {"beat": 4.5, "dur": 0.5, "note": "E5"}, {"beat": 5, "dur": 0.5, "note": "C#5"}, {"beat": 5.5, "dur": 0.5, "note": "E5"}, {"beat": 6, "dur": 1.5, "note": "A5"}, {"beat": 7.5, "dur": 0.5, "note": "G5"}, {"beat": 8, "dur": 0.5, "note": "F5"}, {"beat": 8.5, "dur": 0.5, "note": "Bb4"}, {"beat": 9, "dur": 0.5, "note": "D5"}, {"beat": 9.5, "dur": 0.5, "note": "F5"}, {"beat": 10, "dur": 1, "note": "Bb5"}, {"beat": 11, "dur": 0.5, "note": "A5"}, {"beat": 11.5, "dur": 0.5, "note": "F5"}, {"beat": 12, "dur": 0.5, "note": "E5"}, {"beat": 12.5, "dur": 0.5, "note": "G5"}, {"beat": 13, "dur": 0.5, "note": "C5"}, {"beat": 13.5, "dur": 0.5, "note": "E5"}, {"beat": 14, "dur": 1.5, "note": "C6"}, {"beat": 15.5, "dur": 0.5, "note": "G5"}, {"beat": 16, "dur": 2, "note": "A5"}, {"beat": 18, "dur": 1, "note": "F5"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 1, "note": "F5"}, {"beat": 21, "dur": 1, "note": "A5"}, {"beat": 22, "dur": 2, "note": "D5"}, {"beat": 24, "dur": 1.5, "note": "C5"}, {"beat": 25.5, "dur": 0.5, "note": "F5"}, {"beat": 26, "dur": 1, "note": "A5"}, {"beat": 27, "dur": 1, "note": "C6"}, {"beat": 28, "dur": 2, "note": "G5"}, {"beat": 30, "dur": 1, "note": "E5"}, {"beat": 31, "dur": 1, "note": "C5"}, {"beat": 32, "dur": 0.5, "note": "D5"}, {"beat": 32.5, "dur": 0.5, "note": "F5"}, {"beat": 33, "dur": 0.5, "note": "Bb5"}, {"beat": 33.5, "dur": 0.5, "note": "A5"}, {"beat": 34, "dur": 1, "note": "F5"}, {"beat": 35, "dur": 0.5, "note": "D5"}, {"beat": 35.5, "dur": 0.5, "note": "F5"}, {"beat": 36, "dur": 0.5, "note": "E5"}, {"beat": 36.5, "dur": 0.5, "note": "G5"}, {"beat": 37, "dur": 0.5, "note": "C6"}, {"beat": 37.5, "dur": 0.5, "note": "Bb5"}, {"beat": 38, "dur": 1, "note": "G5"}, {"beat": 39, "dur": 0.5, "note": "E5"}, {"beat": 39.5, "dur": 0.5, "note": "G5"}, {"beat": 40, "dur": 1, "note": "A5"}, {"beat": 41, "dur": 0.5, "note": "F5"}, {"beat": 41.5, "dur": 0.5, "note": "D5"}, {"beat": 42, "dur": 1, "note": "F5"}, {"beat": 43, "dur": 0.5, "note": "E5"}, {"beat": 43.5, "dur": 0.5, "note": "C#5"}, {"beat": 44, "dur": 0.5, "note": "D5"}, {"beat": 44.5, "dur": 0.5, "note": "E5"}, {"beat": 45, "dur": 0.5, "note": "F5"}, {"beat": 45.5, "dur": 0.5, "note": "G5"}, {"beat": 46, "dur": 1.5, "note": "A5"}, {"beat": 47.5, "dur": 0.5, "note": "G5"}, {"beat": 48, "dur": 0.5, "note": "D5"}, {"beat": 48.5, "dur": 0.5, "note": "D5"}, {"beat": 49, "dur": 0.5, "note": "Bb4"}, {"beat": 49.5, "dur": 0.5, "note": "D5"}, {"beat": 50, "dur": 1, "note": "G5"}, {"beat": 51, "dur": 0.5, "note": "Bb5"}, {"beat": 51.5, "dur": 0.5, "note": "G5"}, {"beat": 52, "dur": 0.5, "note": "F5"}, {"beat": 52.5, "dur": 0.5, "note": "D5"}, {"beat": 53, "dur": 0.5, "note": "Bb4"}, {"beat": 53.5, "dur": 0.5, "note": "D5"}, {"beat": 54, "dur": 1, "note": "F5"}, {"beat": 55, "dur": 1, "note": "D5"}, {"beat": 56, "dur": 0.5, "note": "A5"}, {"beat": 56.5, "dur": 0.5, "note": "A5"}, {"beat": 57, "dur": 0.5, "note": "F5"}, {"beat": 57.5, "dur": 0.5, "note": "A5"}, {"beat": 58, "dur": 1, "note": "D6"}, {"beat": 59, "dur": 0.5, "note": "C6"}, {"beat": 59.5, "dur": 0.5, "note": "A5"}, {"beat": 60, "dur": 0.5, "note": "G5"}, {"beat": 60.5, "dur": 0.5, "note": "E5"}, {"beat": 61, "dur": 0.5, "note": "C#5"}, {"beat": 61.5, "dur": 0.5, "note": "E5"}, {"beat": 62, "dur": 1, "note": "G5"}, {"beat": 63, "dur": 1, "note": "A5"}]), 64)
-    lead(s, mel, vel=0.66)
-    return s
-
-# ==========================================================================
-# TRACK: Cave — dark, deep, ominous, very sparse. E minor (phrygian-ish) /
-# 84 BPM. Low pad drone + deep bass + slow bell drips + a soft heartbeat kick.
-# ==========================================================================
-def track_cave():
-    s = Seq(84)
-    prog = [
-        (['E3', 'G3', 'B3'], 'E2'), (['C3', 'E3', 'G3'], 'C2'),
-        (['D3', 'F3', 'A3'], 'D2'), (['E3', 'G3', 'B3'], 'E2'),
-        (['F3', 'A3', 'C4'], 'F2'), (['C3', 'E3', 'G3'], 'C2'),
-        (['B2', 'D3', 'F3'], 'B1'), (['E3', 'G3', 'B3'], 'E2'),
-    ]
-    progA = prog
-    prog = progA + to_prog([{"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["A3", "C4", "E4"], "bass": "A2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["D3", "F#3", "A3"], "bass": "D2"}, {"chord": ["B3", "D4", "F#4"], "bass": "B2"}, {"chord": ["E3", "G3", "B3"], "bass": "E2"}]) + progA
-    groove(s, prog, bpb=4, bass='creep', comp='drip', perc='heartbeat', pad_vel=0.9, comp_vel=0.30)
-    # deep sub-drone under the creep — the cave's underground rumble
-    for _b, (_ch, _rt) in enumerate(prog):
-        s.n(_b * 4, 4.0, shift_oct(_rt, -1), 'bass', 0.30)
-    mel = [
-        (0, 3, 'B4'), (3, 1, 'A4'), (4, 4, 'G4'),
-        (8, 2, 'A4'), (10, 2, 'C5'), (12, 4, 'B4'),
-        (16, 3, 'E5'), (19, 1, 'D5'), (20, 4, 'C5'),
-        (24, 2, 'B4'), (26, 2, 'G4'), (28, 4, 'E4'),
-    ]
-    melA = mel
-    mel = melA + offset_mel(to_mel([{"beat": 0, "dur": 3, "note": "E4"}, {"beat": 3, "dur": 1, "note": "A4"}, {"beat": 4, "dur": 4, "note": "C5"}, {"beat": 10, "dur": 2, "note": "A4"}, {"beat": 12, "dur": 4, "note": "F4"}, {"beat": 16, "dur": 3, "note": "A4"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 4, "note": "F#4"}, {"beat": 26, "dur": 2, "note": "F#4"}, {"beat": 28, "dur": 2, "note": "F#4"}, {"beat": 30, "dur": 2, "note": "E4"}]), 32) + offset_mel(melA, 64)
-    lead(s, mel, instr='soft', vel=0.5, bell_long=False)
-    return s
-
-# ==========================================================================
-# TRACK: Forest — flowing, woodland wander, gentle and folk-ish. G major /
-# 108 BPM. Flute-like soft lead, pentatonic motion, light steps.
-# ==========================================================================
-def track_forest():
     s = Seq(108)
     prog = [
         (['G3', 'B3', 'D4'], 'G2'), (['D4', 'F#4', 'A4'], 'D3'),
@@ -708,6 +624,342 @@ def track_forest():
     lead(s, mel, instr='soft', vel=0.56)
     return s
 
+# ==========================================================================
+# TRACK: Ruins — ancient, lonely, brooding (not a cathedral). D minor / 68 BPM.
+# Solo cello over a low bowed-pad drone, deep toll, cold harp glints.
+# ==========================================================================
+def track_ruins():
+    # Ancient ruins: lonely and brooding, NOT a cathedral. A solo cello over a low
+    # bowed-pad drone with a deep contrabass toll and a few cold harp glints.
+    # D natural minor (with a harmonic-minor C# tension) in a slow 4/4 — weathered.
+    s = Seq(68)
+    s.rev_amount = 0.32; s.rev_size = 1.5; s.tone = 5000
+    prog = [
+        (['D3', 'F3', 'A3'], 'D2'), (['Bb2', 'D3', 'F3'], 'Bb1'),
+        (['F3', 'A3', 'C4'], 'F2'), (['C3', 'E3', 'G3'], 'C2'),
+        (['D3', 'F3', 'A3'], 'D2'), (['G2', 'Bb2', 'D3'], 'G1'),
+        (['A2', 'C#3', 'E3'], 'A1'), (['D3', 'F3', 'A3'], 'D2'),
+        (['F3', 'A3', 'C4'], 'F2'), (['C3', 'E3', 'G3'], 'C2'),
+        (['G2', 'Bb2', 'D3'], 'G1'), (['D3', 'F3', 'A3'], 'D2'),
+        (['Bb2', 'D3', 'F3'], 'Bb1'), (['A2', 'C#3', 'E3'], 'A1'),
+        (['D3', 'F3', 'A3'], 'D2'), (['A2', 'C#3', 'E3', 'G3'], 'A1'),
+    ]
+    groove(s, prog, bpb=4, bass='toll', comp='none', perc='none',
+           pad=True, pad_mode='low', pad_vel=0.42, pad_instr='darkpad', pad_spread=0.14)
+    # cold harp glints — irregular, off the grid (no rolling arpeggio wash)
+    for (_b, _n, _p) in [(2.5, 'A4', -0.25), (7.0, 'D5', 0.25), (13.5, 'F4', -0.2),
+                         (20.0, 'A4', 0.2), (26.5, 'C5', -0.25), (34.0, 'D5', 0.25),
+                         (43.5, 'A4', -0.2), (52.0, 'F4', 0.25), (58.5, 'E4', -0.2)]:
+        s.n(_b, 1.6, _n, 'glass', 0.17, pan=_p)
+    mel = [
+        (0, 3, 'D4'), (3, 1, 'F4'), (4, 4, 'E4'),
+        (8, 2, 'F4'), (10, 2, 'A4'), (12, 3, 'G4'), (15, 1, 'F4'),
+        (16, 4, 'D4'), (20, 2, 'C4'), (22, 2, 'D4'),
+        (24, 3, 'A4'), (27, 1, 'G4'), (28, 4, 'F4'),
+        (32, 2, 'A4'), (34, 2, 'Bb4'), (36, 4, 'A4'),
+        (40, 2, 'G4'), (42, 2, 'F4'), (44, 3, 'E4'), (47, 1, 'D4'),
+        (48, 4, 'F4'), (52, 2, 'E4'), (54, 2, 'D4'),
+        (56, 3, 'C4'), (59, 1, 'D4'), (60, 4, 'D4'),
+    ]
+    lead(s, mel, instr='viol', vel=0.5, bell_long=False)
+    return s
+
+# ==========================================================================
+# TRACK: Boss — urgent, driving, dramatic. D minor / 132 BPM. Pumping bass,
+# 16th arps, harmonic-minor tension (C# over the A chord).
+# ==========================================================================
+def track_boss():
+    s = Seq(132)
+    prog = [
+        (['D4', 'F4', 'A4'], 'D2'), (['Bb3', 'D4', 'F4'], 'Bb2'),
+        (['C4', 'E4', 'G4'], 'C3'), (['A3', 'C#4', 'E4'], 'A2'),
+        (['D4', 'F4', 'A4'], 'D2'), (['Bb3', 'D4', 'F4'], 'Bb2'),
+        (['G3', 'Bb3', 'D4'], 'G2'), (['A3', 'C#4', 'E4'], 'A2'),
+    ] * 2
+    prog = prog + to_prog([{"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["F3", "A3", "C4"], "bass": "F2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["C4", "E4", "G4"], "bass": "C3"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4"], "bass": "A2"}, {"chord": ["G3", "Bb3", "D4"], "bass": "G2"}, {"chord": ["Bb3", "D4", "F4"], "bass": "Bb2"}, {"chord": ["D4", "F4", "A4"], "bass": "D2"}, {"chord": ["A3", "C#4", "E4", "G4"], "bass": "A2"}])
+    groove(s, prog, bpb=4, bass='eighth', comp='stab', perc='drive', pad_vel=0.66, comp_instr='pluck', comp_vel=0.36, pad_mode='pulse')
+    mel = [
+        (0, .5, 'A5'), (.5, .5, 'D6'), (1, 1, 'C6'), (2, 1, 'A5'), (3, 1, 'F5'),
+        (4, .5, 'G5'), (4.5, .5, 'A5'), (5, 1, 'Bb5'), (6, 2, 'A5'),
+        (8, .5, 'F5'), (8.5, .5, 'G5'), (9, 1, 'A5'), (10, 1, 'D5'), (11, 1, 'F5'),
+        (12, .5, 'E5'), (12.5, .5, 'F5'), (13, 1, 'G5'), (14, 2, 'E5'),
+        (16, .5, 'A5'), (16.5, .5, 'D6'), (17, 1, 'C6'), (18, 1, 'A5'), (19, 1, 'Bb5'),
+        (20, 1, 'A5'), (21, 1, 'G5'), (22, 2, 'F5'),
+        (24, .5, 'D5'), (24.5, .5, 'F5'), (25, .5, 'A5'), (25.5, .5, 'C6'), (26, 1, 'D6'), (27, 1, 'C#6'),
+        (28, 1, 'D6'), (29, 1, 'A5'), (30, 2, 'D6'),
+        (32, .5, 'D6'), (32.5, .5, 'C6'), (33, 1, 'A5'), (34, 1, 'D6'), (35, 1, 'C6'),
+        (36, .5, 'A5'), (36.5, .5, 'F5'), (37, 1, 'A5'), (38, 2, 'D6'),
+        (40, .5, 'Bb5'), (40.5, .5, 'A5'), (41, 1, 'G5'), (42, 1, 'F5'), (43, 1, 'D5'),
+        (44, 1, 'F5'), (45, 1, 'G5'), (46, 2, 'A5'),
+        (48, .5, 'A5'), (48.5, .5, 'D6'), (49, 1, 'C6'), (50, 1, 'A5'), (51, 1, 'Bb5'),
+        (52, 1, 'C6'), (53, 1, 'D6'), (54, 2, 'C#6'),
+        (56, .5, 'D6'), (56.5, .5, 'A5'), (57, .5, 'F5'), (57.5, .5, 'A5'), (58, 1, 'D6'), (59, 1, 'C#6'),
+        (60, 1, 'D6'), (61, 1, 'A5'), (62, 2, 'D6'),
+    ]
+    mel = mel + offset_mel(to_mel([{"beat": 0, "dur": 0.5, "note": "D5"}, {"beat": 0.5, "dur": 0.5, "note": "D5"}, {"beat": 1, "dur": 0.5, "note": "Bb4"}, {"beat": 1.5, "dur": 0.5, "note": "D5"}, {"beat": 2, "dur": 1, "note": "G5"}, {"beat": 3, "dur": 0.5, "note": "F5"}, {"beat": 3.5, "dur": 0.5, "note": "D5"}, {"beat": 4, "dur": 0.5, "note": "E5"}, {"beat": 4.5, "dur": 0.5, "note": "E5"}, {"beat": 5, "dur": 0.5, "note": "C#5"}, {"beat": 5.5, "dur": 0.5, "note": "E5"}, {"beat": 6, "dur": 1.5, "note": "A5"}, {"beat": 7.5, "dur": 0.5, "note": "G5"}, {"beat": 8, "dur": 0.5, "note": "F5"}, {"beat": 8.5, "dur": 0.5, "note": "Bb4"}, {"beat": 9, "dur": 0.5, "note": "D5"}, {"beat": 9.5, "dur": 0.5, "note": "F5"}, {"beat": 10, "dur": 1, "note": "Bb5"}, {"beat": 11, "dur": 0.5, "note": "A5"}, {"beat": 11.5, "dur": 0.5, "note": "F5"}, {"beat": 12, "dur": 0.5, "note": "E5"}, {"beat": 12.5, "dur": 0.5, "note": "G5"}, {"beat": 13, "dur": 0.5, "note": "C5"}, {"beat": 13.5, "dur": 0.5, "note": "E5"}, {"beat": 14, "dur": 1.5, "note": "C6"}, {"beat": 15.5, "dur": 0.5, "note": "G5"}, {"beat": 16, "dur": 2, "note": "A5"}, {"beat": 18, "dur": 1, "note": "F5"}, {"beat": 19, "dur": 1, "note": "D5"}, {"beat": 20, "dur": 1, "note": "F5"}, {"beat": 21, "dur": 1, "note": "A5"}, {"beat": 22, "dur": 2, "note": "D5"}, {"beat": 24, "dur": 1.5, "note": "C5"}, {"beat": 25.5, "dur": 0.5, "note": "F5"}, {"beat": 26, "dur": 1, "note": "A5"}, {"beat": 27, "dur": 1, "note": "C6"}, {"beat": 28, "dur": 2, "note": "G5"}, {"beat": 30, "dur": 1, "note": "E5"}, {"beat": 31, "dur": 1, "note": "C5"}, {"beat": 32, "dur": 0.5, "note": "D5"}, {"beat": 32.5, "dur": 0.5, "note": "F5"}, {"beat": 33, "dur": 0.5, "note": "Bb5"}, {"beat": 33.5, "dur": 0.5, "note": "A5"}, {"beat": 34, "dur": 1, "note": "F5"}, {"beat": 35, "dur": 0.5, "note": "D5"}, {"beat": 35.5, "dur": 0.5, "note": "F5"}, {"beat": 36, "dur": 0.5, "note": "E5"}, {"beat": 36.5, "dur": 0.5, "note": "G5"}, {"beat": 37, "dur": 0.5, "note": "C6"}, {"beat": 37.5, "dur": 0.5, "note": "Bb5"}, {"beat": 38, "dur": 1, "note": "G5"}, {"beat": 39, "dur": 0.5, "note": "E5"}, {"beat": 39.5, "dur": 0.5, "note": "G5"}, {"beat": 40, "dur": 1, "note": "A5"}, {"beat": 41, "dur": 0.5, "note": "F5"}, {"beat": 41.5, "dur": 0.5, "note": "D5"}, {"beat": 42, "dur": 1, "note": "F5"}, {"beat": 43, "dur": 0.5, "note": "E5"}, {"beat": 43.5, "dur": 0.5, "note": "C#5"}, {"beat": 44, "dur": 0.5, "note": "D5"}, {"beat": 44.5, "dur": 0.5, "note": "E5"}, {"beat": 45, "dur": 0.5, "note": "F5"}, {"beat": 45.5, "dur": 0.5, "note": "G5"}, {"beat": 46, "dur": 1.5, "note": "A5"}, {"beat": 47.5, "dur": 0.5, "note": "G5"}, {"beat": 48, "dur": 0.5, "note": "D5"}, {"beat": 48.5, "dur": 0.5, "note": "D5"}, {"beat": 49, "dur": 0.5, "note": "Bb4"}, {"beat": 49.5, "dur": 0.5, "note": "D5"}, {"beat": 50, "dur": 1, "note": "G5"}, {"beat": 51, "dur": 0.5, "note": "Bb5"}, {"beat": 51.5, "dur": 0.5, "note": "G5"}, {"beat": 52, "dur": 0.5, "note": "F5"}, {"beat": 52.5, "dur": 0.5, "note": "D5"}, {"beat": 53, "dur": 0.5, "note": "Bb4"}, {"beat": 53.5, "dur": 0.5, "note": "D5"}, {"beat": 54, "dur": 1, "note": "F5"}, {"beat": 55, "dur": 1, "note": "D5"}, {"beat": 56, "dur": 0.5, "note": "A5"}, {"beat": 56.5, "dur": 0.5, "note": "A5"}, {"beat": 57, "dur": 0.5, "note": "F5"}, {"beat": 57.5, "dur": 0.5, "note": "A5"}, {"beat": 58, "dur": 1, "note": "D6"}, {"beat": 59, "dur": 0.5, "note": "C6"}, {"beat": 59.5, "dur": 0.5, "note": "A5"}, {"beat": 60, "dur": 0.5, "note": "G5"}, {"beat": 60.5, "dur": 0.5, "note": "E5"}, {"beat": 61, "dur": 0.5, "note": "C#5"}, {"beat": 61.5, "dur": 0.5, "note": "E5"}, {"beat": 62, "dur": 1, "note": "G5"}, {"beat": 63, "dur": 1, "note": "A5"}]), 64)
+    mel = [(b, d, shift_oct(nt, -1)) for (b, d, nt) in mel]
+    lead(s, mel, vel=0.66)
+    return s
+
+# ==========================================================================
+# TRACK: Cave — dark, deep, very open and quiet. E phrygian / 80 BPM. Low pad
+# drone + sub-bass sweep + a few long lonely notes; almost no motion.
+# ==========================================================================
+def track_cave():
+    # Deep cave: quiet, eerie, very open. A low pad drone + sub-bass + a sweep pedal
+    # with only a handful of long, lonely notes and a few cold glints. E phrygian
+    # (the F-natural b2) for dread. No steady arpeggio, almost no motion.
+    s = Seq(80)
+    s.rev_amount = 0.50; s.rev_size = 2.1; s.tone = 2900
+    prog = [
+        (['E3', 'G3', 'B3'], 'E2'), (['F3', 'A3', 'C4'], 'F2'),
+        (['E3', 'G3', 'B3'], 'E2'), (['C3', 'E3', 'G3'], 'C2'),
+        (['E3', 'G3', 'B3'], 'E2'), (['D3', 'F3', 'A3'], 'D2'),
+        (['B2', 'D3', 'F3'], 'B1'), (['E3', 'G3', 'B3'], 'E2'),
+    ] * 2
+    groove(s, prog, bpb=4, bass='drone', comp='none', perc='none',
+           pad=True, pad_mode='low', pad_vel=0.32, pad_instr='darkpad', pad_spread=0.1)
+    n = len(prog) * 4
+    # deep tonic sweep pedal — the cave's underground rumble
+    for _pb in range(0, n, 4):
+        s.n(_pb, 4.3, 'E1', 'subdrone', 0.5)
+    # sub-bass octave under each bar
+    for _b, (_ch, _rt) in enumerate(prog):
+        s.n(_b * 4, 4.0, shift_oct(_rt, -1), 'bass', 0.24)
+    # rare, irregular cold glints — a few only, far apart
+    for (_pb, _pn, _p) in [(6, 'F5', -0.2), (21, 'B4', 0.25), (38, 'C5', -0.25), (55, 'F5', 0.2)]:
+        s.n(_pb, 2.4, _pn, 'glass', 0.11, pan=_p)
+    # distant, soft boom — slow, every 4 bars
+    for _bm in range(0, n, 16):
+        s.p(_bm, 'tom', 0.5)
+    # very sparse, long, low eerie line — fewer notes, lots of empty air
+    mel = [
+        (3, 6, 'B4'),
+        (14, 5, 'E4'),
+        (26, 7, 'G4'),
+        (39, 5, 'F4'),
+        (50, 6, 'E4'),
+        (60, 4, 'B4'),
+    ]
+    lead(s, mel, instr='hollow', vel=0.44, bell_long=False)
+    return s
+
+# ==========================================================================
+# TRACK: Forest — open-air woodland, bright and spacious. D major / 100 BPM.
+# Airy pan-flute over a flowing harp + warm strings, no drums.
+# ==========================================================================
+def track_forest():
+    # Open-air woodland wander: bright, spacious D major. Airy pan-flute lead over a
+    # flowing harp and a warm string wash, NO drums (the space is the rhythm).
+    # Deliberately distinct from the cozy town tune: higher, opener, longer notes.
+    s = Seq(100)
+    s.rev_amount = 0.30; s.rev_size = 1.4; s.tone = 6200
+    A = [
+        (['D4', 'F#4', 'A4'], 'D2'), (['A3', 'C#4', 'E4'], 'A2'),
+        (['B3', 'D4', 'F#4'], 'B2'), (['G3', 'B3', 'D4'], 'G2'),
+        (['D4', 'F#4', 'A4'], 'D2'), (['G3', 'B3', 'D4'], 'G2'),
+        (['E3', 'G3', 'B3'], 'E2'), (['A3', 'C#4', 'E4'], 'A2'),
+    ]
+    B = [
+        (['B3', 'D4', 'F#4'], 'B2'), (['G3', 'B3', 'D4'], 'G2'),
+        (['D4', 'F#4', 'A4'], 'D3'), (['A3', 'C#4', 'E4'], 'A2'),
+        (['E3', 'G3', 'B3'], 'E2'), (['A3', 'C#4', 'E4'], 'A2'),
+        (['B3', 'D4', 'F#4'], 'B2'), (['A3', 'C#4', 'E4', 'G4'], 'A2'),
+    ]
+    prog = A + A + B
+    groove(s, prog, bpb=4, bass='half', comp='arp', perc='none',
+           pad_vel=0.58, comp_instr='bell', comp_vel=0.36, pad_spread=0.22)
+    mel = [
+        (0, 2, 'A5'), (2, 1, 'B5'), (3, 1, 'A5'),
+        (4, 2, 'F#5'), (6, 2, 'E5'),
+        (8, 1.5, 'D5'), (9.5, .5, 'E5'), (10, 2, 'F#5'), (12, 1, 'E5'), (13, 1, 'D5'), (14, 2, 'B4'),
+        (16, 2, 'D5'), (18, 1, 'F#5'), (19, 1, 'A5'), (20, 2, 'B5'), (22, 2, 'A5'),
+        (24, 1, 'F#5'), (25, 1, 'E5'), (26, 2, 'D5'), (28, 2, 'E5'), (30, 2, 'F#5'),
+        (32, 2, 'A5'), (34, 2, 'B5'), (36, 1.5, 'D6'), (37.5, .5, 'B5'), (38, 2, 'A5'),
+        (40, 2, 'F#5'), (42, 1, 'E5'), (43, 1, 'F#5'), (44, 2, 'E5'), (46, 2, 'D5'),
+        (48, 2, 'F#5'), (50, 1, 'A5'), (51, 1, 'B5'), (52, 2, 'A5'), (54, 2, 'F#5'),
+        (56, 1, 'E5'), (57, 1, 'D5'), (58, 2, 'E5'), (60, 1, 'D5'), (61, 1, 'B4'), (62, 2, 'A4'),
+    ]
+    mel = mel + offset_mel([
+        (0, 2, 'D5'), (2, 2, 'F#5'), (4, 2, 'E5'), (6, 2, 'D5'),
+        (8, 1, 'B4'), (9, 1, 'D5'), (10, 2, 'E5'), (12, 2, 'F#5'), (14, 2, 'A5'),
+        (16, 2, 'B5'), (18, 2, 'A5'), (20, 2, 'F#5'), (22, 2, 'E5'),
+        (24, 1, 'D5'), (25, 1, 'E5'), (26, 2, 'F#5'), (28, 2, 'E5'), (30, 2, 'D5'),
+    ], 64)
+    lead(s, mel, instr='soft', vel=0.6, bell_long=False)
+    return s
+
+# ==========================================================================
+# BOSS VARIANTS — five alternate boss themes to pick from. Distinct tempo,
+# mode, meter, groove and lead instrument each.
+# ==========================================================================
+def track_boss2():
+    # "Iron Onslaught" — militaristic E-minor march. Relentless distortion-guitar
+    # riff over synth-brass stabs and a driving synth bass. 138 BPM.
+    s = Seq(138)
+    s.rev_amount = 0.16; s.rev_size = 1.0; s.tone = 5200
+    Em=(['E3','G3','B3'],'E2'); C=(['C3','E3','G3'],'C2'); G=(['G3','B3','D4'],'G2')
+    D=(['D3','F#3','A3'],'D2'); Am=(['A3','C4','E4'],'A2'); B=(['B2','D#3','F#3'],'B1')
+    A8=[Em,C,G,D,Em,Am,B,Em]; B8=[C,G,Am,Em,C,D,B,Em]
+    prog=A8+B8+A8
+    groove(s, prog, bpb=4, bass='eighth', comp='stab', perc='drive',
+           pad_vel=0.62, comp_instr='pluck', comp_vel=0.4, pad_mode='pulse')
+    main=[
+        (0,.5,'E5'),(0.5,.5,'B4'),(1,1,'E5'),(2,1,'G5'),(3,1,'F#5'),
+        (4,.5,'E5'),(4.5,.5,'G5'),(5,1,'C6'),(6,1,'B5'),(7,1,'G5'),
+        (8,1,'D5'),(9,1,'G5'),(10,1,'B5'),(11,1,'A5'),
+        (12,.5,'F#5'),(12.5,.5,'A5'),(13,1,'D5'),(14,2,'E5'),
+        (16,.5,'E5'),(16.5,.5,'B4'),(17,1,'G5'),(18,1,'E5'),(19,1,'B5'),
+        (20,1,'A5'),(21,1,'C6'),(22,1,'A5'),(23,1,'E5'),
+        (24,.5,'D#5'),(24.5,.5,'F#5'),(25,1,'B5'),(26,1,'A5'),(27,1,'F#5'),
+        (28,1,'G5'),(29,1,'F#5'),(30,2,'E5'),
+        (32,.5,'B5'),(32.5,.5,'E5'),(33,1,'G5'),(34,1,'B5'),(35,1,'C6'),
+        (36,1,'B5'),(37,1,'A5'),(38,2,'G5'),
+        (40,.5,'A5'),(40.5,.5,'C6'),(41,1,'B5'),(42,1,'G5'),(43,1,'E5'),
+        (44,1,'F#5'),(45,1,'A5'),(46,2,'B5'),
+        (48,1,'C6'),(49,1,'B5'),(50,1,'G5'),(51,1,'A5'),
+        (52,.5,'F#5'),(52.5,.5,'D#5'),(53,1,'F#5'),(54,2,'B5'),
+        (56,1,'E5'),(57,1,'G5'),(58,1,'B5'),(59,1,'A5'),(60,1,'G5'),(61,1,'F#5'),(62,2,'E5'),
+    ]
+    mel=main+offset_mel([(b,d,n) for (b,d,n) in main if b<32],64)
+    lead(s, mel, vel=0.64, bell_long=False)
+    return s
+
+def track_boss3():
+    # "Vertigo Waltz" — a fast, spinning dark waltz in C minor. Sweeping strings
+    # over a gothic church-organ, 3/4 at 162 BPM. Dramatic and vertiginous.
+    s = Seq(162)
+    s.rev_amount = 0.30; s.rev_size = 1.5; s.tone = 5600
+    Cm=(['C3','Eb3','G3'],'C2'); Ab=(['Ab2','C3','Eb3'],'Ab1'); Eb=(['Eb3','G3','Bb3'],'Eb2')
+    G=(['G2','B2','D3'],'G1'); Fm=(['F3','Ab3','C4'],'F2'); Bb=(['Bb2','D3','F3'],'Bb1')
+    A8=[Cm,Ab,Fm,G,Cm,Ab,G,Cm]; B8=[Eb,Bb,Fm,Cm,Ab,Fm,G,Cm]
+    prog=A8+B8+A8
+    groove(s, prog, bpb=3, bass='quarter', comp='arp', perc='ritual',
+           pad_vel=0.5, comp_instr='organ', comp_vel=0.32, pad_instr='organ', pad_mode='block')
+    for _bar in range(len(prog)):
+        b0=_bar*3
+        s.p(b0+1,'shaker',0.3); s.p(b0+2,'shaker',0.28)
+    main=[
+        (0,1,'G5'),(1,1,'Eb5'),(2,1,'C5'),
+        (3,1.5,'D5'),(4.5,.5,'Eb5'),(5,1,'G5'),
+        (6,1,'Ab5'),(7,1,'G5'),(8,1,'F5'),
+        (9,1,'Eb5'),(10,1,'D5'),(11,1,'C5'),
+        (12,1,'C5'),(13,1,'Eb5'),(14,1,'G5'),
+        (15,1.5,'Ab5'),(16.5,.5,'G5'),(17,1,'F5'),
+        (18,1,'D5'),(19,1,'F5'),(20,1,'Ab5'),
+        (21,2,'G5'),(23,1,'D5'),
+        (24,1,'Eb5'),(25,1,'G5'),(26,1,'Bb5'),
+        (27,1.5,'C6'),(28.5,.5,'Bb5'),(29,1,'G5'),
+        (30,1,'F5'),(31,1,'Ab5'),(32,1,'C6'),
+        (33,1,'Bb5'),(34,1,'G5'),(35,1,'F5'),
+        (36,1,'Ab5'),(37,1,'G5'),(38,1,'F5'),
+        (39,1,'Eb5'),(40,1,'D5'),(41,1,'Eb5'),
+        (42,1,'F5'),(43,1,'D5'),(44,1,'B4'),
+        (45,2,'C5'),(47,1,'G4'),
+    ]
+    mel=main+offset_mel([(b,d,n) for (b,d,n) in main if b<24],48)
+    lead(s, mel, instr='viol', vel=0.56, bell_long=False)
+    return s
+
+def track_boss4():
+    # "Doomcrusher" — slow, heavy, crushing. Half-time D-minor groove, a low
+    # synth-brass riff over pulsing strings. 120 BPM, all weight, no rush.
+    s = Seq(120)
+    s.rev_amount = 0.18; s.rev_size = 1.1; s.tone = 4600
+    Dm=(['D3','F3','A3'],'D2'); Bb=(['Bb2','D3','F3'],'Bb1'); F=(['F3','A3','C4'],'F2')
+    C=(['C3','E3','G3'],'C2'); Gm=(['G2','Bb2','D3'],'G1'); A=(['A2','C#3','E3'],'A1')
+    A8=[Dm,Dm,Bb,C,Dm,Dm,Gm,A]; B8=[F,C,Dm,Bb,Gm,A,Dm,A]
+    prog=A8+B8+A8
+    groove(s, prog, bpb=4, bass='quarter', comp='none', perc='drive',
+           pad_vel=0.55, pad_mode='pulse')
+    main=[
+        (0,1,'D4'),(1,1,'D4'),(2,.5,'F4'),(2.5,.5,'D4'),(3,1,'A4'),
+        (4,1,'Bb4'),(5,1,'A4'),(6,2,'F4'),
+        (8,1,'D4'),(9,1,'D4'),(10,.5,'C5'),(10.5,.5,'A4'),(11,1,'F4'),
+        (12,1,'G4'),(13,1,'A4'),(14,2,'D5'),
+        (16,1,'D4'),(17,1,'D4'),(18,.5,'F4'),(18.5,.5,'D4'),(19,1,'A4'),
+        (20,1,'Bb4'),(21,1,'C5'),(22,2,'D5'),
+        (24,1,'A4'),(25,1,'F4'),(26,1,'G4'),(27,1,'A4'),
+        (28,.5,'C#5'),(28.5,.5,'E5'),(29,1,'A4'),(30,2,'D5'),
+        (32,1,'F4'),(33,1,'A4'),(34,1,'C5'),(35,1,'A4'),
+        (36,1,'G4'),(37,1,'F4'),(38,2,'A4'),
+        (40,1,'D4'),(41,.5,'F4'),(41.5,.5,'A4'),(42,1,'D5'),(43,1,'C5'),
+        (44,1,'Bb4'),(45,1,'A4'),(46,2,'F4'),
+        (48,1,'G4'),(49,1,'Bb4'),(50,1,'D5'),(51,1,'Bb4'),
+        (52,1,'A4'),(53,.5,'C#5'),(53.5,.5,'E5'),(54,2,'A4'),
+        (56,1,'D5'),(57,1,'C5'),(58,1,'A4'),(59,1,'F4'),(60,1,'E4'),(61,1,'D4'),(62,2,'D4'),
+    ]
+    mel=main+offset_mel([(b,d,n) for (b,d,n) in main if b<32],64)
+    lead(s, mel, vel=0.7, bell_long=False)
+    return s
+
+def track_boss5():
+    # "Frenzy" — fast synthwave boss. Busy 16th saw-lead lines over a square-synth
+    # arp and a pumping synth bass. A harmonic minor (G# bite). 160 BPM.
+    s = Seq(160)
+    s.rev_amount = 0.22; s.rev_size = 1.0; s.tone = 6000
+    Am=(['A3','C4','E4'],'A2'); F=(['F3','A3','C4'],'F2'); Dm=(['D3','F3','A3'],'D2')
+    E=(['E3','G#3','B3'],'E2'); G=(['G3','B3','D4'],'G2'); C=(['C3','E3','G3'],'C2')
+    A8=[Am,F,Dm,E,Am,F,E,Am]; B8=[C,G,Dm,Am,F,E,Am,E]
+    prog=A8+B8+A8
+    groove(s, prog, bpb=4, bass='eighth', comp='arp', perc='drive',
+           pad_vel=0.48, comp_instr='pluck', comp_vel=0.38, pad_mode='pulse')
+    main=[
+        (0,.5,'A5'),(0.5,.5,'C6'),(1,.5,'B5'),(1.5,.5,'A5'),(2,1,'E5'),(3,1,'A5'),
+        (4,.5,'F5'),(4.5,.5,'A5'),(5,1,'C6'),(6,1,'A5'),(7,1,'F5'),
+        (8,.5,'D5'),(8.5,.5,'F5'),(9,.5,'A5'),(9.5,.5,'D6'),(10,1,'C6'),(11,1,'A5'),
+        (12,.5,'G#5'),(12.5,.5,'B5'),(13,1,'E5'),(14,2,'A5'),
+        (16,.5,'A5'),(16.5,.5,'C6'),(17,.5,'B5'),(17.5,.5,'A5'),(18,1,'E5'),(19,1,'A5'),
+        (20,.5,'F5'),(20.5,.5,'A5'),(21,1,'C6'),(22,1,'B5'),(23,1,'A5'),
+        (24,.5,'G#5'),(24.5,.5,'B5'),(25,1,'D6'),(26,1,'C6'),(27,1,'B5'),
+        (28,.5,'A5'),(28.5,.5,'G#5'),(29,1,'B5'),(30,2,'A5'),
+        (32,.5,'C6'),(32.5,.5,'E6'),(33,1,'D6'),(34,1,'C6'),(35,1,'A5'),
+        (36,.5,'G5'),(36.5,.5,'B5'),(37,1,'D6'),(38,2,'C6'),
+        (40,.5,'A5'),(40.5,.5,'C6'),(41,1,'B5'),(42,1,'A5'),(43,1,'F5'),
+        (44,.5,'E5'),(44.5,.5,'G#5'),(45,1,'B5'),(46,2,'E6'),
+        (48,1,'A5'),(49,.5,'G#5'),(49.5,.5,'A5'),(50,1,'B5'),(51,1,'C6'),
+        (52,.5,'D6'),(52.5,.5,'C6'),(53,1,'B5'),(54,2,'A5'),
+        (56,.5,'E5'),(56.5,.5,'A5'),(57,.5,'C6'),(57.5,.5,'B5'),(58,1,'A5'),(59,1,'G#5'),(60,1,'A5'),(61,1,'E5'),(62,2,'A5'),
+    ]
+    mel=main+offset_mel([(b,d,n) for (b,d,n) in main if b<32],64)
+    lead(s, mel, vel=0.6, bell_long=False)
+    return s
+
+def track_boss6():
+    # "Last Stand" — epic orchestral finale. Heroic brass lead over swelling strings
+    # and choir stabs with timpani booms. D harmonic minor, 146 BPM. Grand.
+    s = Seq(146)
+    s.rev_amount = 0.32; s.rev_size = 1.6; s.tone = 5800
+    Dm=(['D3','F3','A3'],'D2'); Bb=(['Bb2','D3','F3'],'Bb1'); Gm=(['G2','Bb2','D3'],'G1')
+    A=(['A2','C#3','E3'],'A1'); F=(['F3','A3','C4'],'F2'); C=(['C3','E3','G3'],'C2')
+    A8=[Dm,Bb,Gm,A,Dm,Gm,A,Dm]; B8=[F,C,Bb,Gm,Dm,A,Dm,A]
+    prog=A8+B8+A8
+    groove(s, prog, bpb=4, bass='quarter', comp='stab', perc='drive',
+           pad_vel=0.6, comp_instr='pluck', comp_vel=0.4, pad_mode='swell')
+    for _bar in range(len(prog)):
+        s.p(_bar*4,'tom',0.6)
+    main=[
+        (0,1,'D5'),(1,1,'A5'),(2,2,'D6'),
+        (4,1,'C#6'),(5,1,'A5'),(6,2,'D6'),
+        (8,1,'Bb5'),(9,1,'A5'),(10,1,'G5'),(11,1,'F5'),
+        (12,1,'A5'),(13,1,'C#6'),(14,2,'D6'),
+        (16,1,'D5'),(17,1,'F5'),(18,2,'A5'),
+        (20,1,'G5'),(21,1,'Bb5'),(22,2,'A5'),
+        (24,1,'A5'),(25,1,'C#6'),(26,1,'E6'),(27,1,'D6'),
+        (28,1,'C#6'),(29,1,'A5'),(30,2,'D6'),
+        (32,1,'F5'),(33,1,'A5'),(34,2,'C6'),
+        (36,1,'Bb5'),(37,1,'G5'),(38,2,'Bb5'),
+        (40,1,'C6'),(41,1,'Bb5'),(42,1,'A5'),(43,1,'G5'),
+        (44,1,'A5'),(45,1,'C#6'),(46,2,'D6'),
+        (48,1,'D6'),(49,1,'C#6'),(50,1,'Bb5'),(51,1,'A5'),
+        (52,1,'G5'),(53,1,'A5'),(54,2,'Bb5'),
+        (56,1,'A5'),(57,1,'G5'),(58,1,'F5'),(59,1,'E5'),(60,1,'F5'),(61,1,'A5'),(62,2,'D6'),
+    ]
+    mel=main+offset_mel([(b,d,n) for (b,d,n) in main if b<32],64)
+    lead(s, mel, vel=0.62, bell_long=False)
+    return s
+
+
 TRACKS = {
     'title': track_title,
     'mainmenu': track_mainmenu,
@@ -717,6 +969,11 @@ TRACKS = {
     'boss': track_boss,
     'cave': track_cave,
     'forest': track_forest,
+    'boss2': track_boss2,
+    'boss3': track_boss3,
+    'boss4': track_boss4,
+    'boss5': track_boss5,
+    'boss6': track_boss6,
 }
 
 def main():

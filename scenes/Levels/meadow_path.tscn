@@ -511,6 +511,7 @@ sources/2 = SubResource("TileSetAtlasSource_kgokg")
 
 [node name="MeadowPath" type="Node2D"]
 script = ExtResource("1_mdkud")
+bgm_path = "res://assets/music/emberwilds_meadow_path.ogg"
 display_name = "Slime Meadow"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]

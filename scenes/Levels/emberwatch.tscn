@@ -508,6 +508,7 @@ sources/2 = SubResource("TileSetAtlasSource_kgokg")
 
 [node name="Emberwatch" type="Node2D"]
 script = ExtResource("1_83xtj")
+bgm_path = "res://assets/music/emberwilds_emberwatch.ogg"
 display_name = "Emberwatch"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]

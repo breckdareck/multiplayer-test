@@ -140,5 +140,13 @@ func get_special_attacks() -> Array[BossAttackData]:
 ## bosses keep working unchanged. Author new attacks here in the inspector.
 @export var special_attacks: Array[BossAttackData] = []
 
+## Boss combat music (client-side, driven by boss_hp_bar.gd). When this boss's
+## HP bar appears, boss_bgm starts; once HP drops to boss_bgm_swap_health it
+## swaps to enrage_bgm (if set). The map's normal BGM is restored when the
+## fight ends. Empty boss_bgm = keep the map music (no dedicated boss track).
+@export_file("*.ogg", "*.mp3", "*.wav") var boss_bgm: String = ""
+@export_file("*.ogg", "*.mp3", "*.wav") var enrage_bgm: String = ""
+@export var boss_bgm_swap_health: float = 0.5
+
 @export_category("Drops")
 @export var item_drops: Array[ItemDropResource] = []

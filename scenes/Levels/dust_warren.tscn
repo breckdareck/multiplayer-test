@@ -583,6 +583,7 @@ region = Rect2(145, 52, 14, 12)
 
 [node name="DustWarren" type="Node2D"]
 script = ExtResource("1_7pt6d")
+bgm_path = "res://assets/music/emberwilds_dust_warren.ogg"
 display_name = "The Dust Warren"
 
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]

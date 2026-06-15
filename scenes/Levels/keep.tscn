@@ -581,7 +581,7 @@ region = Rect2(145, 52, 14, 12)
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_vhnxn")
-bgm_path = "res://assets/music/emberwilds_field.ogg"
+bgm_path = "res://assets/music/emberwilds_keep.ogg"
 display_name = "The Warded Keep"
 camera_top_padding = 180
 
