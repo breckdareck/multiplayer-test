@@ -591,10 +591,6 @@ limit_smoothed = true
 position_smoothing_enabled = true
 position_smoothing_speed = 4.0
 
-[node name="RespawnTimer" type="Timer" parent="."]
-wait_time = 2.0
-one_shot = true
-
 [node name="CoyoteTimer" type="Timer" parent="."]
 wait_time = 0.15
 one_shot = true

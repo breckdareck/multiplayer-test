@@ -15,8 +15,13 @@ func set_player(player) -> void:
 	_player = player
 
 func _on_respawn_button_pressed():
-	if is_instance_valid(_player):
-		_player.respawn.rpc()
+	# Prefer the bound body, but fall back to the live local body if that ref is
+	# stale (e.g. a recreate map-swap freed the body this popup was bound to). The
+	# fallback guarantees the button always revives the current character instead of
+	# silently no-op'ing on a freed node.
+	var target = _player if is_instance_valid(_player) else MapManager.my_player_node
+	if is_instance_valid(target):
+		target.respawn.rpc()
 	hide()
 	InputManager.set_input_locked(false)
 

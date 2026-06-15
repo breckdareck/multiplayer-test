@@ -311,10 +311,10 @@ focus the player's target.
 
 ### 8.5 Death & respawn
 
-On 0 HP the player enters a Death state, a **2-second** RespawnTimer runs, then
-the server respawns them at the current map's spawn point with **full HP/MP** and
-brief invulnerability. **No death penalty** — no EXP loss, no item/durability
-loss. (MMO-lite, friendly to co-op hunting.)
+On 0 HP the player enters a Death state and a death popup appears with a
+**Respawn** button. On confirm, the server respawns them at the current map's
+spawn point with **full HP/MP** and brief invulnerability. **No death penalty** —
+no EXP loss, no item/durability loss. (MMO-lite, friendly to co-op hunting.)
 
 ## 9. Progression systems
 

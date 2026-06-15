@@ -210,11 +210,16 @@ func _on_player_died(_killer: Node) -> void:
 	# under the popup. Local-only cosmetics.
 	AudioManager.play_ui_sfx("res://assets/sounds/generated/death_sting.wav")
 	_fade_death_vignette(0.55, 0.6)
-	# Show death popup
+	# Show death popup — ALWAYS (re)bind it to the CURRENT local body. The popup is
+	# a child of the persistent HUD, so it survives map changes, but a map swap that
+	# RECREATES the body (travel to a non-resident map) replaces `player` with a new
+	# node and frees the old one. Binding only on creation left the popup pointing at
+	# the freed body, so its Respawn button called respawn() on an invalid node and
+	# silently no-op'd — the host stayed dead. Re-binding here tracks the live body.
 	if not is_instance_valid(death_popup_instance):
 		death_popup_instance = death_popup_scene.instantiate()
 		add_child(death_popup_instance)
-		death_popup_instance.set_player(player)
+	death_popup_instance.set_player(player)
 	death_popup_instance.show()
 
 func _on_health_changed(new_health: int, _max_health: int) -> void:

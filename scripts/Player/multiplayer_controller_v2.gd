@@ -141,7 +141,6 @@ var _weapon_signatures: Array = []
 @onready var state_machine = $StateMachine
 @onready var coyote_timer: Timer = $CoyoteTimer
 @onready var drop_timer: Timer = $DropTimer
-@onready var respawn_timer: Timer = $RespawnTimer
 @onready var basic_attack_hitbox: CollisionShape2D = $Hitbox/BasicAttackHitbox
 @onready var projectile_spawn_location: Marker2D = $ProjectileSpawnLocation
 const GAME_MENU_SCENE = preload("res://scenes/UI/game_menu.tscn")
@@ -413,17 +412,11 @@ func cleanup_before_removal():
 	set_process(false)
 	set_physics_process(false)
 
-	# Disconnect all signals to prevent callbacks during cleanup
-	if health_component and health_component.died.is_connected(_on_player_died):
-		health_component.died.disconnect(_on_player_died)
-
 	# Stop timers
 	if is_instance_valid(drop_timer):
 		drop_timer.stop()
 	if is_instance_valid(coyote_timer):
 		coyote_timer.stop()
-	if has_node("RespawnTimer"):
-		$RespawnTimer.stop()
 
 	
 #=============================================================================
@@ -543,9 +536,6 @@ func _setup_signals() -> void:
 	if multiplayer.is_server():
 		if is_instance_valid(drop_timer):
 			drop_timer.timeout.connect(_on_drop_timer_timeout)
-
-		if is_instance_valid(respawn_timer):
-			respawn_timer.timeout.connect(respawn)
 
 
 ## Read the current map's camera_limit_* from its MapBase root and apply to
@@ -938,12 +928,6 @@ func _load_data(data: Dictionary) -> void:
 #=============================================================================
 # SIGNAL HANDLERS
 #=============================================================================
-
-func _on_player_died(_killer: Node) -> void:
-	if _is_being_cleaned_up:
-		return
-	respawn_timer.start()
-
 
 func _on_drop_timer_timeout() -> void:
 	if _is_being_cleaned_up:
