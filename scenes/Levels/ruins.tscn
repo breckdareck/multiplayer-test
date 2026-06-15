@@ -586,20 +586,20 @@ target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
 position = Vector2(201, -156)
 
 [node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(120, -157)
+position = Vector2(-466, -157)
 target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
 
 [node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(99, -156)
+position = Vector2(-440, -156)
 
 [node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-466, -157)
+position = Vector2(-7, -513)
 target_map_id = "three_terraces"
 target_spawn_point_name = "Hub_Terraces_Spawn"
 
 [node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-442, -157)
+position = Vector2(17, -513)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-119, -285)
@@ -1048,6 +1048,46 @@ one_way_collision = true
 one_way_collision_margin = 32.0
 debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 
+[node name="Platform6" type="StaticBody2D" parent="Platforms"]
+position = Vector2(115, -223)
+scale = Vector2(0.7, 0.7)
+collision_layer = 4
+collision_mask = 2
+collision_priority = 5.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform6"]
+texture = ExtResource("5_1le8d")
+region_enabled = true
+region_rect = Rect2(272, 144, 48, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Platform6"]
+position = Vector2(-9.1552734e-05, -5.714284)
+scale = Vector2(0.99999976, 0.99999976)
+shape = SubResource("RectangleShape2D_nlgqw")
+one_way_collision = true
+one_way_collision_margin = 32.0
+debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
+
+[node name="Platform7" type="StaticBody2D" parent="Platforms"]
+position = Vector2(147, -223)
+scale = Vector2(0.7, 0.7)
+collision_layer = 4
+collision_mask = 2
+collision_priority = 5.0
+
+[node name="Sprite2D" type="Sprite2D" parent="Platforms/Platform7"]
+texture = ExtResource("5_1le8d")
+region_enabled = true
+region_rect = Rect2(272, 144, 48, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platforms/Platform7"]
+position = Vector2(-9.1552734e-05, -5.714284)
+scale = Vector2(0.99999976, 0.99999976)
+shape = SubResource("RectangleShape2D_nlgqw")
+one_way_collision = true
+one_way_collision_margin = 32.0
+debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
+
 [node name="StallRoof" type="StaticBody2D" parent="Platforms"]
 position = Vector2(129, 87)
 scale = Vector2(0.7, 0.7)
@@ -1183,6 +1223,27 @@ position = Vector2(0, -5)
 shape = SubResource("RectangleShape2D_bke2l")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="Ropes/Rope2"]
+offset_left = -2.0
+offset_top = -32.0
+offset_right = 2.0
+offset_bottom = 22.0
+texture = SubResource("AtlasTexture_8us8u")
+patch_margin_top = 1
+patch_margin_bottom = 1
+axis_stretch_vertical = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Rope4" type="Area2D" parent="Ropes"]
+position = Vector2(15, -467)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/Rope4"]
+position = Vector2(0, -5)
+shape = SubResource("RectangleShape2D_bke2l")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/Rope4"]
 offset_left = -2.0
 offset_top = -32.0
 offset_right = 2.0
