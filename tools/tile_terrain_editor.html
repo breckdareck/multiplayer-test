@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tile role tagger — Country Village (depth-shaded)</title>
+<style>
+  :root { --bg:#1b1b1f; --panel:#26262c; --line:#3a3a44; --text:#e9e9ef; --muted:#a4a4b2; --accent:#5dcaa5; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.5 system-ui,Segoe UI,Roboto,sans-serif; }
+  header { padding:14px 18px; border-bottom:1px solid var(--line); }
+  h1 { margin:0 0 4px; font-size:18px; font-weight:600; }
+  .hint { color:var(--muted); font-size:13px; max-width:980px; }
+  .hint b { color:var(--text); font-weight:600; }
+  .wrap { display:flex; gap:18px; padding:16px 18px; align-items:flex-start; flex-wrap:wrap; }
+  .palette { width:250px; flex:none; }
+  .grp { margin-bottom:12px; }
+  .grp h3 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:600; }
+  .roles { display:flex; flex-wrap:wrap; gap:6px; }
+  .role { cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--text);
+          padding:5px 9px; border-radius:7px; font-size:12px; user-select:none; display:flex; align-items:center; gap:6px; }
+  .role .sw { width:11px; height:11px; border-radius:2px; border:1px solid #555; }
+  .role.active { outline:2px solid var(--accent); border-color:var(--accent); }
+  .role .n { color:var(--muted); font-variant-numeric:tabular-nums; }
+  .stage { flex:1; min-width:380px; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .btn { cursor:pointer; border:1px solid var(--line); background:var(--panel); color:var(--text); padding:6px 12px; border-radius:7px; font-size:13px; }
+  .btn:hover { border-color:var(--accent); }
+  .btn.on { outline:2px solid var(--accent); border-color:var(--accent); }
+  .status { color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums; min-height:18px; }
+  .scroll { overflow:auto; max-height:62vh; border:1px solid var(--line); border-radius:10px; background:#0d0d10; padding:10px; }
+  .sheetbox { position:relative; }
+  .sheetbox img { display:block; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .grid { position:absolute; inset:0; display:grid; }
+  .cell { border:0.5px solid rgba(255,255,255,.10); position:relative; cursor:pointer; }
+  .cell:hover { box-shadow: inset 0 0 0 2px var(--accent); }
+  .cell .lab { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+               font-size:9px; font-weight:700; color:#fff; text-shadow:0 1px 2px #000,0 0 2px #000; pointer-events:none; }
+  textarea { width:100%; height:200px; background:#0d0d10; color:var(--text); border:1px solid var(--line);
+             border-radius:8px; padding:10px; font:12px/1.5 ui-monospace,Consolas,monospace; resize:vertical; }
+  .foot { font-size:12px; color:var(--muted); margin-top:6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tile role tagger — Country Village (depth-shaded terrain)</h1>
+  <div class="hint">
+    The ground is <b>depth-shaded</b>: grass on top &rarr; stone underneath &rarr; fades to a black core.
+    Pick a role on the left, then <b>click or drag</b> tiles to tag them (a role can hold several variants).
+    Right-click a tile to clear it. <b>Essential:</b> the grass-top edges + corners, the stone body (left / fill / right),
+    and the single <b>black core</b>. Optional: stone underside, inner corners, and decor (switch to the Props sheet).
+    When done, <b>Copy JSON</b> and paste it back to me.
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="palette" id="palette"></div>
+
+  <div class="stage">
+    <div class="bar">
+      <button class="btn on" data-sheet="tileset" id="sheet_tileset">Tileset (ground)</button>
+      <button class="btn" data-sheet="props" id="sheet_props">Props (decor)</button>
+      <button class="btn" id="erase">Erase</button>
+      <label style="color:var(--muted);font-size:13px;">Zoom <input type="range" min="2" max="6" value="3" id="zoom"></label>
+      <button class="btn" id="clearSheet">Clear sheet</button>
+      <button class="btn" id="copy">Copy JSON</button>
+      <button class="btn" id="download">Download JSON</button>
+      <span class="status" id="status"></span>
+    </div>
+    <div class="scroll">
+      <div class="sheetbox" id="sheetbox">
+        <img id="sheetimg" alt="tileset">
+        <div class="grid" id="grid"></div>
+      </div>
+    </div>
+    <div class="foot" id="counts"></div>
+    <textarea id="out" readonly spellcheck="false"></textarea>
+  </div>
+</div>
+
+<script>
+const TILE = 16;
+const SHEETS = { tileset: 'tile_labeler_sheet.png', props: 'tile_labeler_props.png' };
+const SOURCE_OF = { tileset: 1, props: 2 };
+const ROLES = [
+  ['Grass top', '#5a9e2f', [['grass_top_left','gTL'],['grass_top','gT'],['grass_top_right','gTR'],['grass_top_single','gT1']]],
+  ['Stone body (under grass)', '#9c6b3f', [['stone_left','sL'],['stone_fill','sF'],['stone_right','sR'],['stone_single','sC']]],
+  ['Stone underside (optional)', '#7d7d7d', [['stone_bottom_left','sBL'],['stone_bottom','sB'],['stone_bottom_right','sBR'],['stone_bottom_single','sB1']]],
+  ['Inner corners (optional)', '#8a6cd0', [['inner_tl','iTL'],['inner_tr','iTR'],['inner_bl','iBL'],['inner_br','iBR']]],
+  ['Black core', '#3a3a44', [['black_core','blk']]],
+  ['Decoration — no collision (Props sheet)', '#1d9e75', [['deco_tree','tree'],['deco_bush','bush'],['deco_rock','rock'],['deco_cave','cave'],['deco_other','etc']]],
+];
+const COLOR = {}, ABBR = {};
+ROLES.forEach(([, c, items]) => items.forEach(([k, a]) => { COLOR[k] = c; ABBR[k] = a; }));
+
+const state = { sheet:'tileset', role:'grass_top', erase:false, zoom:3, down:false, cols:0, rows:0, assign:{ tileset:{}, props:{} } };
+const el = id => document.getElementById(id);
+
+function buildPalette() {
+  const p = el('palette'); p.innerHTML = '';
+  for (const [name, color, items] of ROLES) {
+    const g = document.createElement('div'); g.className = 'grp'; g.innerHTML = `<h3>${name}</h3>`;
+    const row = document.createElement('div'); row.className = 'roles';
+    for (const [key, abbr] of items) {
+      const b = document.createElement('div');
+      b.className = 'role' + (key === state.role ? ' active' : ''); b.dataset.role = key;
+      b.innerHTML = `<span class="sw" style="background:${color}"></span>${abbr} <span class="n" id="cnt_${key}"></span>`;
+      b.onclick = () => { state.role = key; state.erase = false; el('erase').classList.remove('on'); refreshActive(); };
+      row.appendChild(b);
+    }
+    g.appendChild(row); p.appendChild(g);
+  }
+}
+function refreshActive() { document.querySelectorAll('.role').forEach(r => r.classList.toggle('active', r.dataset.role === state.role && !state.erase)); }
+
+function loadSheet() {
+  const img = el('sheetimg');
+  img.onload = () => { state.cols = Math.round(img.naturalWidth / TILE); state.rows = Math.round(img.naturalHeight / TILE); layout(); };
+  img.src = SHEETS[state.sheet];
+}
+function layout() {
+  const cell = TILE * state.zoom, img = el('sheetimg');
+  img.style.width = (state.cols * cell) + 'px'; img.style.height = (state.rows * cell) + 'px';
+  const grid = el('grid');
+  grid.style.gridTemplateColumns = `repeat(${state.cols}, ${cell}px)`;
+  grid.style.gridTemplateRows = `repeat(${state.rows}, ${cell}px)`;
+  grid.innerHTML = '';
+  for (let r = 0; r < state.rows; r++) for (let c = 0; c < state.cols; c++) {
+    const d = document.createElement('div'); d.className = 'cell'; d.dataset.c = c; d.dataset.r = r;
+    d.innerHTML = '<span class="lab"></span>';
+    d.addEventListener('mousedown', e => { e.preventDefault(); state.down = true; (e.button === 2) ? clearCell(c, r) : paint(c, r); });
+    d.addEventListener('mouseenter', () => { if (state.down) paint(c, r); el('status').textContent = `${c}, ${r}` + (cur(c, r) ? ` — ${cur(c, r)}` : ''); });
+    d.addEventListener('contextmenu', e => e.preventDefault());
+    grid.appendChild(d); renderCell(c, r, d);
+  }
+  updateOut();
+}
+function cur(c, r) { return state.assign[state.sheet][c + ',' + r]; }
+function cellEl(c, r) { return el('grid').children[r * state.cols + c]; }
+function renderCell(c, r, d) { d = d || cellEl(c, r); if (!d) return; const role = cur(c, r);
+  d.style.background = role ? hexA(COLOR[role], .62) : 'transparent'; d.querySelector('.lab').textContent = role ? ABBR[role] : ''; }
+function paint(c, r) { if (state.erase) return clearCell(c, r); state.assign[state.sheet][c + ',' + r] = state.role; renderCell(c, r); updateOut(); }
+function clearCell(c, r) { delete state.assign[state.sheet][c + ',' + r]; renderCell(c, r); updateOut(); }
+function hexA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+
+function buildJSON() {
+  const out = { tile_size: TILE, model: 'depth-shaded: grass_top -> stone -> black_core', roles: {} };
+  for (const sheet of ['tileset', 'props']) {
+    const byRole = {};
+    for (const [k, role] of Object.entries(state.assign[sheet])) { const [c, r] = k.split(',').map(Number); (byRole[role] ||= []).push([c, r]); }
+    for (const role in byRole) byRole[role].sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+    if (Object.keys(byRole).length) out.roles[sheet === 'tileset' ? 'source_1_tileset' : 'source_2_props'] = byRole;
+  }
+  return out;
+}
+function updateOut() {
+  el('out').value = JSON.stringify(buildJSON(), null, 2);
+  const counts = {};
+  for (const sheet of ['tileset', 'props']) for (const role of Object.values(state.assign[sheet])) counts[role] = (counts[role] || 0) + 1;
+  document.querySelectorAll('.role').forEach(rl => { const s = el('cnt_' + rl.dataset.role); if (s) s.textContent = counts[rl.dataset.role] ? '(' + counts[rl.dataset.role] + ')' : ''; });
+  el('counts').textContent = `Tagged — tileset: ${Object.keys(state.assign.tileset).length}, props: ${Object.keys(state.assign.props).length}`;
+}
+
+document.addEventListener('mouseup', () => state.down = false);
+el('zoom').oninput = e => { state.zoom = +e.target.value; layout(); };
+el('erase').onclick = () => { state.erase = !state.erase; el('erase').classList.toggle('on', state.erase); refreshActive(); };
+el('clearSheet').onclick = () => { state.assign[state.sheet] = {}; layout(); };
+for (const s of ['tileset', 'props']) el('sheet_' + s).onclick = () => {
+  state.sheet = s; el('sheet_tileset').classList.toggle('on', s === 'tileset'); el('sheet_props').classList.toggle('on', s === 'props'); loadSheet();
+};
+el('copy').onclick = () => { const ta = el('out'); ta.select(); try { navigator.clipboard.writeText(ta.value); } catch (e) { document.execCommand('copy'); } el('status').textContent = 'copied JSON'; };
+el('download').onclick = () => { const b = new Blob([el('out').value], { type:'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'tile_roles.json'; a.click(); };
+
+buildPalette(); loadSheet();
+</script>
+</body>
+</html>
