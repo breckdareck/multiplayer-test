@@ -30,6 +30,9 @@ const MAP_SCENES = {
 	"three_terraces": "res://scenes/Levels/three_terraces.tscn",
 	"thornroot": "res://scenes/Levels/thornroot.tscn",
 	"dust_warren": "res://scenes/Levels/dust_warren.tscn",
+	"gen_open": "res://scenes/Levels/gen_open.tscn",
+	"gen_tower": "res://scenes/Levels/gen_tower.tscn",
+	"gen_cliffs": "res://scenes/Levels/gen_cliffs.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -52,6 +55,9 @@ const MAP_DISPLAY_NAMES = {
 	"three_terraces": "Windmill Terraces",
 	"thornroot": "Thornroot Hollow",
 	"dust_warren": "The Dust Warren",
+	"gen_open": "Gen open",
+	"gen_tower": "Gen tower",
+	"gen_cliffs": "Gen cliffs",
 }
 
 const DEFAULT_MAP = "lanterns_rest"
@@ -91,6 +97,19 @@ const ACTIVATION_WAKE_RADIUS := 960.0
 const ACTIVATION_SLEEP_RADIUS := 1280.0
 var _activation_scan_accum := 0.0
 var _warm_evict_accum := 0.0
+
+# --- Global spawn tick (MapleStory-style population model, ADR 0015) ---
+## The single server-wide spawn clock. Enemy spawners do NOT respawn on per-enemy
+## timers; instead they replenish their map up to its player-scaled capacity once
+## per tick. The value is our own gameplay choice (NOT tied to MapleStory's 7.56 s
+## cadence) — tune this one number to make respawns snappier/slower. See
+## docs/adr/0015-population-driven-enemy-spawning.md and
+## docs/maplestory_spawn_mechanics.md.
+const SPAWN_TICK_INTERVAL := 5.0
+## Emitted server-only every SPAWN_TICK_INTERVAL. EnemySpawner connects to this to
+## replenish missing monsters up to the current (player-count-scaled) cap.
+signal spawn_tick
+var _spawn_tick_accum := 0.0
 
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
@@ -237,6 +256,13 @@ func _process(delta: float) -> void:
 	if _warm_evict_accum >= WARM_EVICT_INTERVAL:
 		_warm_evict_accum = 0.0
 		_evict_cold_maps()
+	# Global spawn clock — must run before the activation-scan early-return below.
+	# Spawners on a zero-occupant map compute a cap of 0 and no-op (hibernation),
+	# so firing this on every-map is cheap.
+	_spawn_tick_accum += delta
+	if _spawn_tick_accum >= SPAWN_TICK_INTERVAL:
+		_spawn_tick_accum = 0.0
+		spawn_tick.emit()
 	_activation_scan_accum += delta
 	if _activation_scan_accum < ACTIVATION_SCAN_INTERVAL:
 		return
@@ -283,6 +309,23 @@ func _scan_map_activation(map_id: String) -> void:
 		elif nearest_sq > sleep_sq:
 			enemy.activation_sleep()
 		# else: in the hysteresis band — leave the current state unchanged.
+
+
+## Server-only. Fire an immediate capacity replenish on every EnemySpawner under
+## one map (used when an agent enters, so the map doesn't stay sparse until the
+## next global spawn_tick). Spawners self-register to the "EnemySpawners" group on
+## setup; restricting to descendants of this map keeps it per-map.
+func _replenish_map_spawners(map_id: String) -> void:
+	if not multiplayer.is_server():
+		return
+	var data: Dictionary = active_maps.get(map_id, {})
+	var map_instance = data.get("scene_instance")
+	if not is_instance_valid(map_instance):
+		return
+	for spawner in get_tree().get_nodes_in_group("EnemySpawners"):
+		if is_instance_valid(spawner) and map_instance.is_ancestor_of(spawner) \
+				and spawner.has_method("replenish_now"):
+			spawner.replenish_now()
 
 
 ## Gather enemy nodes under a map's Enemies container. Matched by the "Enemies"
@@ -786,6 +829,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	# than waiting up to ACTIVATION_SCAN_INTERVAL, so spawning in next to a mob
 	# never shows a frozen enemy.
 	_scan_map_activation(map_id)
+	# ...and replenish this map's spawners now, so a re-entered (or freshly
+	# warmed) map fills to its solo cap immediately instead of staying sparse for
+	# up to one SPAWN_TICK_INTERVAL. Idempotent and respects the over-cap rule.
+	_replenish_map_spawners(map_id)
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):
