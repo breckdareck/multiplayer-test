@@ -690,8 +690,8 @@ func load_inventory_rpc(inventory_data: Dictionary):
 	if not is_inside_tree():
 		pending_inventory_data = inventory_data
 		return
-	
-	await _ensure_slots_initialized()
+
+	_ensure_slots_initialized()
 	
 	if equipment_component:
 		equipment_component.set_silent_mode(true)
@@ -840,7 +840,7 @@ func request_transfer_item(from_addr: String, to_addr: String, requesting_owner_
 		return
 
 	if slots_data.is_empty():
-		await _ensure_slots_initialized()
+		_ensure_slots_initialized()
 
 	# Resolve against OUR OWN model — never another player's views/slots.
 	var from_sd := resolve_slot_data(from_addr)

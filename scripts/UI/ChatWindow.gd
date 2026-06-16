@@ -13,11 +13,11 @@ func _ready():
 
 
 ## Player-adjustable chat font size (options menu -> UserConfig).
-func _apply_text_size(size: int) -> void:
-	history.add_theme_font_size_override("normal_font_size", size)
-	history.add_theme_font_size_override("bold_font_size", size)
-	history.add_theme_font_size_override("italics_font_size", size)
-	input_line.add_theme_font_size_override("font_size", size)
+func _apply_text_size(text_size: int) -> void:
+	history.add_theme_font_size_override("normal_font_size", text_size)
+	history.add_theme_font_size_override("bold_font_size", text_size)
+	history.add_theme_font_size_override("italics_font_size", text_size)
+	input_line.add_theme_font_size_override("font_size", text_size)
 
 func _on_input_line_focus_entered():
 	InputManager.set_input_locked(true)

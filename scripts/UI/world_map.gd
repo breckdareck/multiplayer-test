@@ -276,15 +276,15 @@ func _make_enemy_row(e: Dictionary) -> Control:
 	fsb.set_corner_radius_all(6)
 	frame.add_theme_stylebox_override("panel", fsb)
 	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var tr := TextureRect.new()
-	tr.custom_minimum_size = Vector2(46, 46)
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var tex_rect := TextureRect.new()
+	tex_rect.custom_minimum_size = Vector2(46, 46)
+	tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	var tex := _enemy_tex(e.get("sf", ""))
 	if tex:
-		tr.texture = tex
-	frame.add_child(tr)
+		tex_rect.texture = tex
+	frame.add_child(tex_rect)
 	row.add_child(frame)
 
 	var col := VBoxContainer.new()

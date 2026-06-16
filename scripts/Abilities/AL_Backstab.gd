@@ -89,7 +89,7 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 	# a full-health target (the assassin-opener payoff: hit the fresh, unaware
 	# target hardest).
 	var bonus: float = BACKSTAB_BONUS_PCT
-	var lethal_applied: bool = false
+	var _lethal_applied: bool = false
 	var ability_comp = owner_node.get("ability_component")
 	if ability_comp and ability != null and ability_comp.has_method("get_ability_upgrade_magnitude"):
 		# Sharper Backstab (T1): flat increase to the from-behind bonus fraction.
@@ -97,12 +97,12 @@ func execute(owner_node: Node, ability: AbilityData, _level_stats: AbilityLevelD
 		var fullhp_mult: float = ability_comp.get_ability_upgrade_magnitude(ability.ability_id, "backstab_fullhp_mult")
 		if fullhp_mult > 0.0 and _is_full_health(target):
 			bonus *= fullhp_mult
-			lethal_applied = true
+			_lethal_applied = true
 
 	# Fold the bonus into the whole hit. combat resets this to 1.0 in
 	# end_ability_attack so it never bleeds into the next cast.
 	combat.pending_ability_damage_multiplier = 1.0 + bonus
-	#print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if lethal_applied else ""])
+	#print("Backstab from behind: +%.0f%% damage%s" % [bonus * 100.0, " (LETHAL — full-HP target)" if _lethal_applied else ""])
 
 
 ## Crippling Backstab (T3): the hit also slows the target. Fires per landed hit

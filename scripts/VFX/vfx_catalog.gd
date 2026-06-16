@@ -131,7 +131,7 @@ static func build_frames(def: Dictionary) -> SpriteFrames:
 	var row: int = int(def.get("row", 0))
 	if fw <= 0 or fh <= 0:
 		return null
-	var cols: int = int(tex.get_width() / fw)
+	var cols: int = int(tex.get_width() / float(fw))
 	if cols <= 0:
 		return null
 

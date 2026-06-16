@@ -406,10 +406,10 @@ func _format_ago(unix: int) -> String:
 	if secs < 60:
 		return "%ds ago" % maxi(secs, 0)
 	if secs < 3600:
-		return "%dm ago" % (secs / 60)
+		return "%dm ago" % int(secs / 60.0)
 	if secs < 86400:
-		return "%dh ago" % (secs / 3600)
-	return "%dd ago" % (secs / 86400)
+		return "%dh ago" % int(secs / 3600.0)
+	return "%dd ago" % int(secs / 86400.0)
 
 
 ## Writes/refreshes a bot's roster identity (personality, class, last_seen).
@@ -1767,7 +1767,7 @@ func _handle_navpath_command(args: Array) -> String:
 		lines.append("  target loot at %s" % str(Vector2i(brain.target_loot.global_position)))
 	lines.append("  nav goal: %s" % str(Vector2i(nav._nav_goal)) if nav._nav_goal.is_finite() else "  nav goal: none")
 	lines.append("  on_floor: %s  in_ladder: %s  climbing: %s" % [
-		p.is_on_floor() if is_instance_valid(p) else "?", p.is_in_ladder_zone() if is_instance_valid(p) else "?", nav.is_climbing()])
+		str(p.is_on_floor()) if is_instance_valid(p) else "?", str(p.is_in_ladder_zone()) if is_instance_valid(p) else "?", nav.is_climbing()])
 	var path: PackedInt64Array = nav._nav_path
 	if path.is_empty():
 		lines.append("  waypoint path: none (direct navigation / no route)")

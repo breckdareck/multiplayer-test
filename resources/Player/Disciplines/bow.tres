@@ -23,7 +23,7 @@
 [ext_resource type="Resource" uid="uid://c1ipq54swfey7" path="res://resources/Abilities/Bow/A_MarkOfTheHunt.tres" id="21_mark_o"]
 [ext_resource type="Resource" uid="uid://dw4pnxjthx1x8" path="res://resources/Abilities/Bow/A_SunderingArrow.tres" id="22_sunder"]
 [ext_resource type="Resource" uid="uid://w66hekevsve1" path="res://resources/Abilities/Bow/A_WindRider.tres" id="23_wind_r"]
-[ext_resource type="Resource" uid="uid://bowgalepier01x" path="res://resources/Abilities/Bow/A_Gale_Pierce.tres" id="24_galepi"]
+[ext_resource type="Resource" uid="uid://c73lo8xtowd87" path="res://resources/Abilities/Bow/A_Gale_Pierce.tres" id="24_galepi"]
 
 [resource]
 script = ExtResource("1_eu6w6")

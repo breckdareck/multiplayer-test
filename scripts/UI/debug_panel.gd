@@ -475,8 +475,8 @@ func _needs_server(line: String) -> bool:
 	var cmd_name: String = parts[0].to_lower()
 	# Resolve one alias hop so the routing decision matches the real command.
 	if _aliases.has(cmd_name):
-		var exp: PackedStringArray = String(_aliases[cmd_name]).split(" ", false)
-		if not exp.is_empty(): cmd_name = exp[0].to_lower()
+		var expanded: PackedStringArray = String(_aliases[cmd_name]).split(" ", false)
+		if not expanded.is_empty(): cmd_name = expanded[0].to_lower()
 	return not LOCAL_ONLY_CMDS.has(cmd_name)
 
 

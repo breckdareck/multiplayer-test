@@ -198,12 +198,12 @@ func configure_owner_sync_visibility(target_peers: PackedInt32Array) -> void:
 	_sync_visible_peers = new_set
 
 
-func _apply_sync_visibility(sync: MultiplayerSynchronizer, peer_id: int, visible: bool) -> void:
+func _apply_sync_visibility(sync: MultiplayerSynchronizer, peer_id: int, visible_to_peer: bool) -> void:
 	# set_visibility_for errors ("peers_info has no p_peer") for an absent peer;
 	# the host (peer 1) is always valid. Mirrors MapManager._set_visibility_for_node.
 	if peer_id != 1 and peer_id not in multiplayer.get_peers():
 		return
-	sync.set_visibility_for(peer_id, visible)
+	sync.set_visibility_for(peer_id, visible_to_peer)
 	sync.update_visibility(peer_id)
 
 

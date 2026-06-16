@@ -218,7 +218,7 @@ func _play_windup(enemy: EnemyBase) -> void:
 			# A hold frame must leave STRIKE frames after it. Unset (-1) or at/past the
 			# last frame defaults to a MID frame so there's always a strike to play.
 			if _hold_target_frame < 0 or _hold_target_frame >= fc - 1:
-				_hold_target_frame = clampi(int(fc / 2), 0, maxi(0, fc - 2))
+				_hold_target_frame = clampi(int(fc / 2.0), 0, maxi(0, fc - 2))
 			_strike_last_frame = maxi(0, fc - 1)
 			_hold_fps = sf.get_animation_speed(anim) if sf != null else 0.0
 			_hold_frame_count = fc
