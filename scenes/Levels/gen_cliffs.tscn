@@ -1,9 +1,8 @@
-[gd_scene load_steps=18 format=4 uid="uid://c5n5r62ejsv22"]
+[gd_scene load_steps=17 format=4 uid="uid://c5n5r62ejsv22"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_76n2i"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_kt7l5"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_1le8d"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="6_bx66n"]
@@ -527,30 +526,6 @@ camera_bottom_padding = -105
 [node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("..")
 script = ExtResource("2_rrhmt")
-
-[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(222, -157)
-target_map_id = "ember_meadows"
-target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
-
-[node name="Ruins_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(201, -156)
-
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-466, -157)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
-
-[node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-440, -156)
-
-[node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, -513)
-target_map_id = "three_terraces"
-target_spawn_point_name = "Hub_Terraces_Spawn"
-
-[node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, -513)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(-119, -285)

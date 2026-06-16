@@ -1,24 +1,17 @@
-[gd_scene load_steps=48 format=4]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]
+[gd_scene load_steps=28 format=4 uid="uid://bjbk84dibv2qi"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_76n2i"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_kt7l5"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_1le8d"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="6_bx66n"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="7_r5cd5"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="9_pjyxy"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://p1gtmn7fct13" path="res://scenes/NPC/Minifolks/bird.tscn" id="10_bird4"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="10_bunny4"]
-[ext_resource type="PackedScene" uid="uid://b31vj57j18ae2" path="res://scenes/NPC/Minifolks/deer.tscn" id="10_deer4"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="10_fox4"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("4_kt7l5")
@@ -484,10 +477,20 @@ texture = ExtResource("6_bx66n")
 14:8/0 = 0
 13:9/0 = 0
 14:9/0 = 0
+14:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4, -8, -4)
+14:9/0/physics_layer_1/polygon_0/one_way = true
 15:9/0 = 0
+15:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4, -8, -4)
+15:9/0/physics_layer_1/polygon_0/one_way = true
 16:9/0 = 0
+16:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -4, -8, -4)
+16:9/0/physics_layer_1/polygon_0/one_way = true
 17:9/0 = 0
+17:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -3, 8, 1, -8, -4)
+17:9/0/physics_layer_1/polygon_0/one_way = true
 18:9/0 = 0
+18:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -3, -6, -2, -6, 2, -8, 1)
+18:9/0/physics_layer_1/polygon_0/one_way = true
 13:10/0 = 0
 14:10/0 = 0
 15:10/0 = 0
@@ -501,15 +504,25 @@ texture = ExtResource("6_bx66n")
 6:11/0 = 0
 7:11/0 = 0
 8:11/0 = 0
+8:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-3, -7, 4, -7, 7, -4, -6, -4)
+8:11/0/physics_layer_1/polygon_0/one_way = true
 10:11/0 = 0
+10:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -5, 8, -5, 8, -1, -8, -1)
+10:11/0/physics_layer_1/polygon_0/one_way = true
 11:11/0 = 0
+11:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -5, -1, -5, -1, -1, -8, -1)
+11:11/0/physics_layer_1/polygon_0/one_way = true
 12:11/0 = 0
 13:11/0 = 0
 14:11/0 = 0
 15:11/0 = 0
 16:11/0 = 0
 17:11/0 = 0
+17:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(2, -7, 8, -7, 8, -4, -1, -4)
+17:11/0/physics_layer_1/polygon_0/one_way = true
 18:11/0 = 0
+18:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -7, -7, -7, -4, -4, -8, -4)
+18:11/0/physics_layer_1/polygon_0/one_way = true
 
 [sub_resource type="TileSet" id="TileSet_lbhrr"]
 physics_layer_0/collision_layer = 1
@@ -522,58 +535,12 @@ sources/2 = SubResource("TileSetAtlasSource_kgokg")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_fik1o"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ylsnt"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
-size = Vector2(48.571487, 5.714283)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v70l"]
-size = Vector2(14, 35)
+[sub_resource type="RectangleShape2D" id="RectShape_L0"]
+size = Vector2(10, 73)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nk4qt"]
 atlas = ExtResource("4_kt7l5")
 region = Rect2(145, 52, 14, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_p47w5"]
-size = Vector2(14, 21)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3lgvg"]
-size = Vector2(14, 45)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ylsnt"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_bke2l"]
-atlas = SubResource("CompressedTexture2D_ylsnt")
-region = Rect2(145, 52, 14, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
-size = Vector2(4, 54)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fik1o"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_p47w5"]
-atlas = SubResource("CompressedTexture2D_fik1o")
-region = Rect2(145, 52, 4, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bke2l"]
-size = Vector2(4, 54)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4opky"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8us8u"]
-atlas = SubResource("CompressedTexture2D_4opky")
-region = Rect2(145, 52, 4, 12)
-
-
-[sub_resource type="RectangleShape2D" id="RectShape_L0"]
-size = Vector2(10, 73)
 
 [sub_resource type="RectangleShape2D" id="RectShape_L1"]
 size = Vector2(10, 73)
@@ -596,12 +563,15 @@ size = Vector2(10, 57)
 [sub_resource type="RectangleShape2D" id="RectShape_L7"]
 size = Vector2(10, 57)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n0wwb"]
+size = Vector2(10, 42.5)
+
 [node name="Game4" type="Node2D"]
 script = ExtResource("1_p8yym")
 bgm_path = "res://assets/music/emberwilds_ruins.ogg"
 display_name = "Gen tower"
-camera_top_padding = 430
-camera_bottom_padding = -105
+camera_top_padding = 760
+camera_bottom_padding = 0
 
 [node name="VillageBackground" parent="." instance=ExtResource("2_fik1o")]
 
@@ -617,7 +587,7 @@ limit_enabled = false
 position_smoothing_enabled = true
 
 [node name="PlayerSpawn" type="Marker2D" parent="."]
-position = Vector2(-39, 115)
+position = Vector2(463, 391)
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2(-119, -269)
@@ -631,14 +601,13 @@ tile_map_data = PackedByteArray("AAABADIAAgAEAAsAAAAEADIAAgACAAsAAAAHADIAAgAEAAs
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Background2" type="TileMapLayer" parent="TileMap"]
-tile_map_data = PackedByteArray("")
 z_index = -2
 use_parent_material = true
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Platform" type="TileMapLayer" parent="TileMap"]
 use_parent_material = true
-tile_map_data = PackedByteArray("AAAEAC4AAQARAAkAAAAFAC4AAQASAAkAAAAGAC4AAQASAAkAAAAHAC4AAQASAAkAAAAIAC4AAQASAAkAAAAJAC4AAQASAAkAAAAKAC4AAQASAAkAAAALAC4AAQASAAkAAAAMAC4AAQASAAkAAAANAC4AAQASAAkAAAAOAC4AAQASAAkAAAAPAC4AAQASAAkAAAAQAC4AAQASAAkAAAARAC4AAQASAAkAAAASAC4AAQASAAkAAAATAC4AAQASAAkAAAAUAC4AAQATAAkAAAAPACoAAQARAAkAAAAQACoAAQASAAkAAAARACoAAQASAAkAAAASACoAAQASAAkAAAATACoAAQASAAkAAAAUACoAAQASAAkAAAAVACoAAQASAAkAAAAWACoAAQASAAkAAAAXACoAAQASAAkAAAAYACoAAQASAAkAAAAZACoAAQASAAkAAAAaACoAAQASAAkAAAAbACoAAQASAAkAAAAcACoAAQASAAkAAAAdACoAAQASAAkAAAAeACoAAQASAAkAAAAfACoAAQASAAkAAAAgACoAAQATAAkAAAAdACUAAQARAAkAAAAeACUAAQASAAkAAAAfACUAAQASAAkAAAAgACUAAQASAAkAAAAhACUAAQASAAkAAAAiACUAAQASAAkAAAAjACUAAQASAAkAAAAkACUAAQASAAkAAAAlACUAAQASAAkAAAAmACUAAQASAAkAAAAnACUAAQASAAkAAAAoACUAAQASAAkAAAApACUAAQASAAkAAAAqACUAAQASAAkAAAArACUAAQASAAkAAAAsACUAAQASAAkAAAAtACUAAQASAAkAAAAuACUAAQASAAkAAAAvACUAAQASAAkAAAAwACUAAQASAAkAAAAxACUAAQASAAkAAAAyACUAAQATAAkAAAASAB8AAQARAAkAAAATAB8AAQASAAkAAAAUAB8AAQASAAkAAAAVAB8AAQASAAkAAAAWAB8AAQASAAkAAAAXAB8AAQASAAkAAAAYAB8AAQASAAkAAAAZAB8AAQASAAkAAAAaAB8AAQASAAkAAAAbAB8AAQASAAkAAAAcAB8AAQASAAkAAAAdAB8AAQASAAkAAAAeAB8AAQASAAkAAAAfAB8AAQASAAkAAAAgAB8AAQASAAkAAAAhAB8AAQASAAkAAAAiAB8AAQASAAkAAAAjAB8AAQASAAkAAAAkAB8AAQASAAkAAAAlAB8AAQASAAkAAAAmAB8AAQASAAkAAAAnAB8AAQASAAkAAAAoAB8AAQASAAkAAAApAB8AAQATAAkAAAAEAB8AAQARAAkAAAAFAB8AAQASAAkAAAAGAB8AAQASAAkAAAAHAB8AAQASAAkAAAAIAB8AAQASAAkAAAAJAB8AAQASAAkAAAAKAB8AAQASAAkAAAALAB8AAQASAAkAAAAMAB8AAQASAAkAAAANAB8AAQATAAkAAAAFABkAAQARAAkAAAAGABkAAQASAAkAAAAHABkAAQASAAkAAAAIABkAAQASAAkAAAAJABkAAQASAAkAAAAKABkAAQASAAkAAAALABkAAQASAAkAAAAMABkAAQASAAkAAAANABkAAQASAAkAAAAOABkAAQASAAkAAAAPABkAAQASAAkAAAAQABkAAQASAAkAAAARABkAAQASAAkAAAASABkAAQASAAkAAAATABkAAQASAAkAAAAUABkAAQASAAkAAAAVABkAAQASAAkAAAAWABkAAQASAAkAAAAXABkAAQASAAkAAAAYABkAAQASAAkAAAAZABkAAQASAAkAAAAaABkAAQASAAkAAAAbABkAAQASAAkAAAAcABkAAQATAAkAAAARABUAAQARAAkAAAASABUAAQASAAkAAAATABUAAQASAAkAAAAUABUAAQASAAkAAAAVABUAAQASAAkAAAAWABUAAQASAAkAAAAXABUAAQASAAkAAAAYABUAAQASAAkAAAAZABUAAQASAAkAAAAaABUAAQASAAkAAAAbABUAAQASAAkAAAAcABUAAQASAAkAAAAdABUAAQASAAkAAAAeABUAAQASAAkAAAAfABUAAQASAAkAAAAgABUAAQASAAkAAAAhABUAAQATAAkAAAAcABEAAQARAAkAAAAdABEAAQASAAkAAAAeABEAAQASAAkAAAAfABEAAQASAAkAAAAgABEAAQASAAkAAAAhABEAAQASAAkAAAAiABEAAQASAAkAAAAjABEAAQASAAkAAAAkABEAAQASAAkAAAAlABEAAQASAAkAAAAmABEAAQASAAkAAAAnABEAAQASAAkAAAAoABEAAQASAAkAAAApABEAAQASAAkAAAAqABEAAQASAAkAAAArABEAAQASAAkAAAAsABEAAQASAAkAAAAtABEAAQASAAkAAAAuABEAAQASAAkAAAAvABEAAQASAAkAAAAwABEAAQASAAkAAAAxABEAAQASAAkAAAAyABEAAQATAAkAAAAZAAsAAQARAAkAAAAaAAsAAQASAAkAAAAbAAsAAQASAAkAAAAcAAsAAQASAAkAAAAdAAsAAQASAAkAAAAeAAsAAQASAAkAAAAfAAsAAQASAAkAAAAgAAsAAQASAAkAAAAhAAsAAQASAAkAAAAiAAsAAQASAAkAAAAjAAsAAQASAAkAAAAkAAsAAQASAAkAAAAlAAsAAQASAAkAAAAmAAsAAQASAAkAAAAnAAsAAQASAAkAAAAoAAsAAQASAAkAAAApAAsAAQASAAkAAAAqAAsAAQASAAkAAAArAAsAAQASAAkAAAAsAAsAAQASAAkAAAAtAAsAAQASAAkAAAAuAAsAAQASAAkAAAAvAAsAAQASAAkAAAAwAAsAAQASAAkAAAAxAAsAAQASAAkAAAAyAAsAAQATAAkAAAA=")
+tile_map_data = PackedByteArray("AAAEAC4AAQARAAkAAAAFAC4AAQASAAkAAAAGAC4AAQASAAkAAAAHAC4AAQASAAkAAAAIAC4AAQASAAkAAAAJAC4AAQASAAkAAAAKAC4AAQASAAkAAAALAC4AAQASAAkAAAAMAC4AAQASAAkAAAANAC4AAQASAAkAAAAOAC4AAQASAAkAAAAPAC4AAQASAAkAAAAQAC4AAQASAAkAAAARAC4AAQASAAkAAAASAC4AAQASAAkAAAATAC4AAQASAAkAAAAUAC4AAQATAAkAAAAPACoAAQARAAkAAAAQACoAAQASAAkAAAARACoAAQASAAkAAAASACoAAQASAAkAAAATACoAAQASAAkAAAAUACoAAQASAAkAAAAVACoAAQASAAkAAAAWACoAAQASAAkAAAAXACoAAQASAAkAAAAYACoAAQASAAkAAAAZACoAAQASAAkAAAAaACoAAQASAAkAAAAbACoAAQASAAkAAAAcACoAAQASAAkAAAAdACoAAQASAAkAAAAeACoAAQASAAkAAAAfACoAAQASAAkAAAAgACoAAQATAAkAAAAdACUAAQARAAkAAAAeACUAAQASAAkAAAAfACUAAQASAAkAAAAgACUAAQASAAkAAAAhACUAAQASAAkAAAAiACUAAQASAAkAAAAjACUAAQASAAkAAAAkACUAAQASAAkAAAAlACUAAQASAAkAAAAmACUAAQASAAkAAAAnACUAAQASAAkAAAAoACUAAQASAAkAAAApACUAAQASAAkAAAAqACUAAQASAAkAAAArACUAAQASAAkAAAAsACUAAQASAAkAAAAtACUAAQASAAkAAAAuACUAAQASAAkAAAAvACUAAQASAAkAAAAwACUAAQASAAkAAAAxACUAAQASAAkAAAAyACUAAQATAAkAAAASAB8AAQARAAkAAAATAB8AAQASAAkAAAAUAB8AAQASAAkAAAAVAB8AAQASAAkAAAAWAB8AAQASAAkAAAAXAB8AAQASAAkAAAAYAB8AAQASAAkAAAAZAB8AAQASAAkAAAAaAB8AAQASAAkAAAAbAB8AAQASAAkAAAAcAB8AAQASAAkAAAAdAB8AAQASAAkAAAAeAB8AAQASAAkAAAAfAB8AAQASAAkAAAAgAB8AAQASAAkAAAAhAB8AAQASAAkAAAAiAB8AAQASAAkAAAAjAB8AAQASAAkAAAAkAB8AAQASAAkAAAAlAB8AAQASAAkAAAAmAB8AAQASAAkAAAAnAB8AAQASAAkAAAAoAB8AAQASAAkAAAApAB8AAQATAAkAAAAEAB8AAQARAAkAAAAFAB8AAQASAAkAAAAGAB8AAQASAAkAAAAHAB8AAQASAAkAAAAIAB8AAQASAAkAAAAJAB8AAQASAAkAAAAKAB8AAQASAAkAAAALAB8AAQASAAkAAAAMAB8AAQASAAkAAAANAB8AAQATAAkAAAAFABkAAQARAAkAAAAGABkAAQASAAkAAAAHABkAAQASAAkAAAAIABkAAQASAAkAAAAJABkAAQASAAkAAAAKABkAAQASAAkAAAALABkAAQASAAkAAAAMABkAAQASAAkAAAANABkAAQASAAkAAAAOABkAAQASAAkAAAAPABkAAQASAAkAAAAQABkAAQASAAkAAAARABkAAQASAAkAAAASABkAAQASAAkAAAATABkAAQASAAkAAAAUABkAAQASAAkAAAAVABkAAQASAAkAAAAWABkAAQASAAkAAAAXABkAAQASAAkAAAAYABkAAQASAAkAAAAZABkAAQASAAkAAAAaABkAAQASAAkAAAAbABkAAQASAAkAAAAcABkAAQATAAkAAAARABUAAQARAAkAAAASABUAAQASAAkAAAATABUAAQASAAkAAAAUABUAAQASAAkAAAAVABUAAQASAAkAAAAWABUAAQASAAkAAAAXABUAAQASAAkAAAAYABUAAQASAAkAAAAZABUAAQASAAkAAAAaABUAAQASAAkAAAAbABUAAQASAAkAAAAcABUAAQASAAkAAAAdABUAAQASAAkAAAAeABUAAQASAAkAAAAfABUAAQASAAkAAAAgABUAAQASAAkAAAAhABUAAQATAAkAAAAcABEAAQARAAkAAAAdABEAAQASAAkAAAAeABEAAQASAAkAAAAfABEAAQASAAkAAAAgABEAAQASAAkAAAAhABEAAQASAAkAAAAiABEAAQASAAkAAAAjABEAAQASAAkAAAAkABEAAQASAAkAAAAlABEAAQASAAkAAAAmABEAAQASAAkAAAAnABEAAQASAAkAAAAoABEAAQASAAkAAAApABEAAQASAAkAAAAqABEAAQASAAkAAAArABEAAQASAAkAAAAsABEAAQASAAkAAAAtABEAAQASAAkAAAAuABEAAQASAAkAAAAvABEAAQASAAkAAAAwABEAAQASAAkAAAAxABEAAQASAAkAAAAyABEAAQATAAkAAAAZAAsAAQARAAkAAAAaAAsAAQASAAkAAAAbAAsAAQASAAkAAAAcAAsAAQASAAkAAAAdAAsAAQASAAkAAAAeAAsAAQASAAkAAAAfAAsAAQASAAkAAAAgAAsAAQASAAkAAAAhAAsAAQASAAkAAAAiAAsAAQASAAkAAAAjAAsAAQASAAkAAAAkAAsAAQASAAkAAAAlAAsAAQASAAkAAAAmAAsAAQASAAkAAAAnAAsAAQASAAkAAAAoAAsAAQASAAkAAAApAAsAAQASAAkAAAAqAAsAAQASAAkAAAArAAsAAQASAAkAAAAsAAsAAQASAAkAAAAtAAsAAQASAAkAAAAuAAsAAQASAAkAAAAvAAsAAQASAAkAAAAwAAsAAQASAAkAAAAxAAsAAQASAAkAAAAyAAsAAQATAAkAAAAiAC4AAQARAAkAAAAjAC4AAQASAAkAAAAkAC4AAQASAAkAAAAlAC4AAQASAAkAAAAmAC4AAQASAAkAAAAnAC4AAQASAAkAAAAoAC4AAQASAAkAAAApAC4AAQASAAkAAAAqAC4AAQASAAkAAAArAC4AAQASAAkAAAAsAC4AAQASAAkAAAAtAC4AAQASAAkAAAAuAC4AAQASAAkAAAAvAC4AAQASAAkAAAAwAC4AAQASAAkAAAAxAC4AAQASAAkAAAAyAC4AAQATAAkAAAAXAC4AAQARAAkAAAAfAC4AAQATAAkAAAAeAC4AAQASAAkAAAAdAC4AAQASAAkAAAAcAC4AAQASAAkAAAAbAC4AAQASAAkAAAAaAC4AAQASAAkAAAAZAC4AAQASAAkAAAAYAC4AAQASAAkAAAAmABoAAQARAAkAAAAnABoAAQASAAkAAAAoABoAAQASAAkAAAApABoAAQASAAkAAAAqABoAAQASAAkAAAArABoAAQASAAkAAAAsABoAAQASAAkAAAAtABoAAQASAAkAAAAuABoAAQASAAkAAAAvABoAAQASAAkAAAAwABoAAQATAAkAAAAiABcAAQARAAkAAAAjABcAAQASAAkAAAAkABcAAQATAAkAAAAjABgAAQARAAkAAAAkABgAAQASAAkAAAAlABgAAQATAAkAAAAkABkAAQARAAkAAAAlABkAAQASAAkAAAAmABkAAQATAAkAAAAhABYAAQARAAkAAAAiABYAAQASAAkAAAAjABYAAQATAAkAAAAjACoAAQARAAkAAAAkACoAAQASAAkAAAAlACoAAQATAAkAAAAoACoAAQARAAkAAAApACoAAQASAAkAAAAqACoAAQATAAkAAAAtACoAAQARAAkAAAAuACoAAQASAAkAAAAvACoAAQATAAkAAAA=")
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Mid" type="TileMapLayer" parent="TileMap"]
@@ -647,9 +616,8 @@ tile_map_data = PackedByteArray("AAAAADMAAQARAAUAAAAAADQAAQARAAYAAAAAADUAAQARAAY
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Killzone" parent="." instance=ExtResource("7_r5cd5")]
-position = Vector2(-119, 300)
-monitoring = false
-monitorable = false
+position = Vector2(334.99997, 663.99994)
+rotation = -0.00033880927
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
@@ -659,159 +627,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 position = Vector2(-119, -269)
 
 [node name="Ladders" type="Node2D" parent="."]
-
-[node name="Ropes" type="Node2D" parent="."]
-
-[node name="Players" type="Node2D" parent="."]
-
-[node name="Enemies" type="Node2D" parent="."]
-
-[node name="Projectiles" type="Node2D" parent="."]
-
-[node name="ItemDrops" type="Node2D" parent="."]
-
-[node name="GlobalDropHandler" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -119.0
-offset_top = -269.0
-offset_right = -119.0
-offset_bottom = -269.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("9_pjyxy")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-
-
-
-[node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
-enemy_scene = ExtResource("gen_slime")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14"), NodePath("M15"), NodePath("M16"), NodePath("M17"), NodePath("M18"), NodePath("M19"), NodePath("M20"), NodePath("M21"), NodePath("M22"), NodePath("M23"), NodePath("M24"), NodePath("M25"), NodePath("M26"), NodePath("M27"), NodePath("M28"), NodePath("M29"), NodePath("M30"), NodePath("M31"), NodePath("M32"), NodePath("M33"), NodePath("M34"), NodePath("M35"), NodePath("M36")]
-spawn_container = NodePath("../Enemies")
-pool_size = 37
-
-[node name="M0" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(-47, 531)
-
-[node name="M1" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(17, 531)
-
-[node name="M2" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(81, 531)
-
-[node name="M3" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(145, 531)
-
-[node name="M4" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(209, 531)
-
-[node name="M5" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(273, 531)
-
-[node name="M6" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(337, 531)
-
-[node name="M7" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(401, 531)
-
-[node name="M8" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(465, 531)
-
-[node name="M9" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(529, 531)
-
-[node name="M10" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(593, 531)
-
-[node name="M11" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(657, 531)
-
-[node name="M12" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(-15, 451)
-
-[node name="M13" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(97, 451)
-
-[node name="M14" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(161, 387)
-
-[node name="M15" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(273, 387)
-
-[node name="M16" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(385, 387)
-
-[node name="M17" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(385, 307)
-
-[node name="M18" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(497, 307)
-
-[node name="M19" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(609, 307)
-
-[node name="M20" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(-15, 211)
-
-[node name="M21" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(97, 211)
-
-[node name="M22" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(209, 211)
-
-[node name="M23" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(321, 211)
-
-[node name="M24" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(433, 211)
-
-[node name="M25" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(1, 115)
-
-[node name="M26" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(113, 115)
-
-[node name="M27" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(225, 115)
-
-[node name="M28" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(193, 51)
-
-[node name="M29" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(305, 51)
-
-[node name="M30" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(369, -13)
-
-[node name="M31" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(481, -13)
-
-[node name="M32" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(593, -13)
-
-[node name="M33" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(321, -109)
-
-[node name="M34" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(433, -109)
-
-[node name="M35" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(545, -109)
-
-[node name="M36" type="Marker2D" parent="SlimeSpawner0"]
-position = Vector2(657, -109)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="SlimeSpawner0" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
-enemy_spawner = NodePath("..")
 
 [node name="L0" type="Area2D" parent="Ladders"]
 position = Vector2(417, -57)
@@ -964,3 +779,233 @@ texture = SubResource("AtlasTexture_nk4qt")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="L8" type="Area2D" parent="Ladders"]
+position = Vector2(371, 38)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L8"]
+position = Vector2(0, -15.25)
+shape = SubResource("RectangleShape2D_n0wwb")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L8"]
+offset_left = -7.0
+offset_top = -36.0
+offset_right = 7.0
+offset_bottom = 6.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="L9" type="Area2D" parent="Ladders"]
+position = Vector2(195, 102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L9"]
+position = Vector2(0, -15.25)
+shape = SubResource("RectangleShape2D_n0wwb")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L9"]
+offset_left = -7.0
+offset_top = -36.0
+offset_right = 7.0
+offset_bottom = 6.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="L10" type="Area2D" parent="Ladders"]
+position = Vector2(138, 438)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L10"]
+position = Vector2(0, -15.25)
+shape = SubResource("RectangleShape2D_n0wwb")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L10"]
+offset_left = -7.0
+offset_top = -36.0
+offset_right = 7.0
+offset_bottom = 6.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="L11" type="Area2D" parent="Ladders"]
+position = Vector2(625, 438)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L11"]
+position = Vector2(0, -15.25)
+shape = SubResource("RectangleShape2D_n0wwb")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L11"]
+offset_left = -7.0
+offset_top = -36.0
+offset_right = 7.0
+offset_bottom = 6.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Ropes" type="Node2D" parent="."]
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -119.0
+offset_top = -269.0
+offset_right = -119.0
+offset_bottom = -269.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("9_pjyxy")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("gen_slime")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14"), NodePath("M15"), NodePath("M16"), NodePath("M17"), NodePath("M18"), NodePath("M19"), NodePath("M20"), NodePath("M21"), NodePath("M22"), NodePath("M23"), NodePath("M24"), NodePath("M25"), NodePath("M26"), NodePath("M27"), NodePath("M28"), NodePath("M29"), NodePath("M30"), NodePath("M31"), NodePath("M32"), NodePath("M33"), NodePath("M34"), NodePath("M35"), NodePath("M36")]
+spawn_container = NodePath("../Enemies")
+pool_size = 37
+
+[node name="M0" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(-47, 531)
+
+[node name="M1" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(17, 531)
+
+[node name="M2" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(81, 531)
+
+[node name="M3" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(145, 531)
+
+[node name="M4" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(209, 531)
+
+[node name="M5" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(273, 531)
+
+[node name="M6" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(337, 531)
+
+[node name="M7" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(401, 531)
+
+[node name="M8" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(465, 531)
+
+[node name="M9" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(529, 531)
+
+[node name="M10" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(593, 531)
+
+[node name="M11" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(657, 531)
+
+[node name="M12" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(-15, 451)
+
+[node name="M13" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(97, 451)
+
+[node name="M14" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(161, 387)
+
+[node name="M15" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(273, 387)
+
+[node name="M16" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(385, 387)
+
+[node name="M17" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(385, 307)
+
+[node name="M18" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(497, 307)
+
+[node name="M19" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(609, 307)
+
+[node name="M20" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(-15, 211)
+
+[node name="M21" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(97, 211)
+
+[node name="M22" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(209, 211)
+
+[node name="M23" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(321, 211)
+
+[node name="M24" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(433, 211)
+
+[node name="M25" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(1, 115)
+
+[node name="M26" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(113, 115)
+
+[node name="M27" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(225, 115)
+
+[node name="M28" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(193, 51)
+
+[node name="M29" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(305, 51)
+
+[node name="M30" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(369, -13)
+
+[node name="M31" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(481, -13)
+
+[node name="M32" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(593, -13)
+
+[node name="M33" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(321, -109)
+
+[node name="M34" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(433, -109)
+
+[node name="M35" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(545, -109)
+
+[node name="M36" type="Marker2D" parent="SlimeSpawner0"]
+position = Vector2(657, -109)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="SlimeSpawner0" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
