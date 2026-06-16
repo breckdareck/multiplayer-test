@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=4 uid="uid://bawoapgmo5nsg"]
+[gd_scene load_steps=41 format=4 uid="uid://bawoapgmo5nsg"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
@@ -15,6 +15,8 @@
 [ext_resource type="PackedScene" uid="uid://dqirvq2t4dhx6" path="res://scenes/NPC/Beastmen/lion_knight.tscn" id="e_lion_knight"]
 [ext_resource type="PackedScene" uid="uid://dolpinlm1tsc0" path="res://scenes/NPC/Beastmen/panda_warrior.tscn" id="e_panda_warrior"]
 [ext_resource type="PackedScene" uid="uid://c6qy8yi07kf2x" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="e_shadow_fox"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("6_dosu4")
@@ -644,142 +646,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="BearWarrior" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-600, 36)
-respawnable = true
-
-[node name="BearWarrior2" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-520, 36)
-respawnable = true
-
-[node name="BearWarrior3" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-440, 36)
-respawnable = true
-
-[node name="DarkBunny4" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(-360, 36)
-respawnable = true
-
-[node name="DarkBunny5" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(-280, 36)
-respawnable = true
-
-[node name="DarkBunny6" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(-200, 36)
-respawnable = true
-
-[node name="LionKnight7" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(-120, 36)
-respawnable = true
-
-[node name="LionKnight8" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(-40, 36)
-respawnable = true
-
-[node name="LionKnight9" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(40, 36)
-respawnable = true
-
-[node name="AdamantCrawler10" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(120, 36)
-respawnable = true
-
-[node name="AdamantCrawler11" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(200, 36)
-respawnable = true
-
-[node name="AdamantCrawler12" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(280, 36)
-respawnable = true
-
-[node name="PandaWarrior13" parent="Enemies" instance=ExtResource("e_panda_warrior")]
-position = Vector2(360, 36)
-respawnable = true
-
-[node name="PandaWarrior14" parent="Enemies" instance=ExtResource("e_panda_warrior")]
-position = Vector2(440, 36)
-respawnable = true
-
-[node name="ShadowFox15" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(520, 36)
-respawnable = true
-
-[node name="ShadowFox16" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(600, 36)
-respawnable = true
-
-[node name="ShadowFox17" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(-380, 4)
-respawnable = true
-
-[node name="Clone_17" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-276, 4)
-respawnable = true
-
-[node name="Clone_18" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-220, -28)
-respawnable = true
-
-[node name="Clone_19" parent="Enemies" instance=ExtResource("e_bear_warrior")]
-position = Vector2(-116, -28)
-respawnable = true
-
-[node name="Clone_20" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(-60, -60)
-respawnable = true
-
-[node name="Clone_21" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(44, -60)
-respawnable = true
-
-[node name="Clone_22" parent="Enemies" instance=ExtResource("e_dark_bunny")]
-position = Vector2(100, -92)
-respawnable = true
-
-[node name="Clone_23" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(204, -92)
-respawnable = true
-
-[node name="Clone_24" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(260, -124)
-respawnable = true
-
-[node name="Clone_25" parent="Enemies" instance=ExtResource("e_lion_knight")]
-position = Vector2(364, -124)
-respawnable = true
-
-[node name="Clone_26" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(420, -156)
-respawnable = true
-
-[node name="Clone_27" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(524, -156)
-respawnable = true
-
-[node name="Clone_28" parent="Enemies" instance=ExtResource("e_adamant_crawler")]
-position = Vector2(260, -188)
-respawnable = true
-
-[node name="Clone_29" parent="Enemies" instance=ExtResource("e_panda_warrior")]
-position = Vector2(364, -188)
-respawnable = true
-
-[node name="Clone_30" parent="Enemies" instance=ExtResource("e_panda_warrior")]
-position = Vector2(100, -220)
-respawnable = true
-
-[node name="Clone_31" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(204, -220)
-respawnable = true
-
-[node name="Clone_32" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(-60, -252)
-respawnable = true
-
-[node name="Clone_33" parent="Enemies" instance=ExtResource("e_shadow_fox")]
-position = Vector2(44, -252)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -976,3 +842,184 @@ target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
 
 [node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-580, 16)
+
+
+[node name="BearWarriorSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_bear_warrior")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-600, 26)
+
+[node name="M1" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-520, 26)
+
+[node name="M2" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-440, 26)
+
+[node name="M3" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-276, -6)
+
+[node name="M4" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-220, -38)
+
+[node name="M5" type="Marker2D" parent="BearWarriorSpawner"]
+position = Vector2(-116, -38)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="BearWarriorSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dreol0pnnwvme")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="DarkBunnySpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_dark_bunny")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-360, 26)
+
+[node name="M1" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-280, 26)
+
+[node name="M2" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-200, 26)
+
+[node name="M3" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-60, -70)
+
+[node name="M4" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(44, -70)
+
+[node name="M5" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(100, -102)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="DarkBunnySpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://ce1gj48yfxtud")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="LionKnightSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_lion_knight")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(-120, 26)
+
+[node name="M1" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(-40, 26)
+
+[node name="M2" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(40, 26)
+
+[node name="M3" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(204, -102)
+
+[node name="M4" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(260, -134)
+
+[node name="M5" type="Marker2D" parent="LionKnightSpawner"]
+position = Vector2(364, -134)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="LionKnightSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dqirvq2t4dhx6")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="AdamantCrawlerSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_adamant_crawler")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(120, 26)
+
+[node name="M1" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(200, 26)
+
+[node name="M2" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(280, 26)
+
+[node name="M3" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(420, -166)
+
+[node name="M4" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(524, -166)
+
+[node name="M5" type="Marker2D" parent="AdamantCrawlerSpawner"]
+position = Vector2(260, -198)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="AdamantCrawlerSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://co7gditu46kn8")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="PandaWarriorSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_panda_warrior")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3")]
+spawn_container = NodePath("../Enemies")
+pool_size = 4
+
+[node name="M0" type="Marker2D" parent="PandaWarriorSpawner"]
+position = Vector2(360, 26)
+
+[node name="M1" type="Marker2D" parent="PandaWarriorSpawner"]
+position = Vector2(440, 26)
+
+[node name="M2" type="Marker2D" parent="PandaWarriorSpawner"]
+position = Vector2(364, -198)
+
+[node name="M3" type="Marker2D" parent="PandaWarriorSpawner"]
+position = Vector2(100, -230)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="PandaWarriorSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dolpinlm1tsc0")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="ShadowFoxSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_shadow_fox")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(520, 26)
+
+[node name="M1" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(600, 26)
+
+[node name="M2" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-380, -6)
+
+[node name="M3" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(204, -230)
+
+[node name="M4" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-60, -262)
+
+[node name="M5" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(44, -262)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="ShadowFoxSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://c6qy8yi07kf2x")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")

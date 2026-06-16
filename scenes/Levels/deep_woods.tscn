@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=4 uid="uid://wkfowd2qg5dn"]
+[gd_scene load_steps=22 format=4 uid="uid://wkfowd2qg5dn"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_gfksk"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="1_l73hv"]
@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" uid="uid://c6qy8yi07kf2x" path="res://scenes/NPC/Minifolks/shadow_fox.tscn" id="10_obygc"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="12_1vulb"]
 [ext_resource type="PackedScene" uid="uid://nmee6p2r58au" path="res://scenes/Levels/village_background_dark.tscn" id="bg_village"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m14ue"]
 texture = ExtResource("3_m5hrh")
@@ -618,94 +620,6 @@ debug_color = Color(3.3691525e-05, 0.84129226, 0.98081356, 0.41960785)
 [node name="Enemies" type="Node2D" parent="."]
 position = Vector2(830, -33)
 
-[node name="DarkBunny" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2420, 32)
-respawnable = true
-
-[node name="DarkBunny2" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2484, 32)
-respawnable = true
-
-[node name="DarkBunny3" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2613, 15)
-respawnable = true
-
-[node name="DarkBunny4" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2768, 15)
-respawnable = true
-
-[node name="DarkBunny5" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2842, 15)
-respawnable = true
-
-[node name="DarkBunny6" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-2933, 30)
-respawnable = true
-
-[node name="DarkBunny7" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-3119, 30)
-respawnable = true
-
-[node name="DarkBunny10" parent="Enemies" instance=ExtResource("9_j2jkv")]
-position = Vector2(-3284, 30)
-respawnable = true
-
-[node name="ShadowFox" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2570, 17)
-respawnable = true
-
-[node name="ShadowFox2" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2734, 17)
-respawnable = true
-
-[node name="ShadowFox3" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2877, 17)
-respawnable = true
-
-[node name="ShadowFox4" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2640, 17)
-respawnable = true
-
-[node name="ShadowFox5" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2804, 17)
-respawnable = true
-
-[node name="ShadowFox6" parent="Enemies" instance=ExtResource("10_obygc")]
-position = Vector2(-2688, 17)
-respawnable = true
-
-[node name="FireSlime" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3099, 30)
-respawnable = true
-
-[node name="FireSlime2" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3257, 31)
-respawnable = true
-
-[node name="FireSlime3" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3055, 30)
-respawnable = true
-
-[node name="FireSlime4" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3213, 31)
-respawnable = true
-
-[node name="FireSlime5" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3018, 30)
-respawnable = true
-
-[node name="FireSlime6" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3176, 31)
-respawnable = true
-
-[node name="FireSlime7" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-2982, 30)
-respawnable = true
-
-[node name="FireSlime8" parent="Enemies" instance=ExtResource("10_e6cox")]
-position = Vector2(-3140, 31)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -724,3 +638,109 @@ script = ExtResource("12_1vulb")
 metadata/_edit_use_anchors_ = true
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+
+[node name="DarkBunnySpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("9_j2jkv")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7")]
+spawn_container = NodePath("../Enemies")
+pool_size = 8
+
+[node name="M0" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-1590, -11)
+
+[node name="M1" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-1654, -11)
+
+[node name="M2" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-1783, -28)
+
+[node name="M3" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-1938, -28)
+
+[node name="M4" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-2012, -28)
+
+[node name="M5" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-2103, -13)
+
+[node name="M6" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-2289, -13)
+
+[node name="M7" type="Marker2D" parent="DarkBunnySpawner"]
+position = Vector2(-2454, -13)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="DarkBunnySpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://ce1gj48yfxtud")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="ShadowFoxSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("10_obygc")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-1740, -26)
+
+[node name="M1" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-1904, -26)
+
+[node name="M2" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-2047, -26)
+
+[node name="M3" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-1810, -26)
+
+[node name="M4" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-1974, -26)
+
+[node name="M5" type="Marker2D" parent="ShadowFoxSpawner"]
+position = Vector2(-1858, -26)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="ShadowFoxSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://c6qy8yi07kf2x")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="FireSlimeSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("10_e6cox")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7")]
+spawn_container = NodePath("../Enemies")
+pool_size = 8
+
+[node name="M0" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2269, -13)
+
+[node name="M1" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2427, -12)
+
+[node name="M2" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2225, -13)
+
+[node name="M3" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2383, -12)
+
+[node name="M4" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2188, -13)
+
+[node name="M5" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2346, -12)
+
+[node name="M6" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2152, -13)
+
+[node name="M7" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-2310, -12)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="FireSlimeSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bvjs3vxpdjkfj")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")

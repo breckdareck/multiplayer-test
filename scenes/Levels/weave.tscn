@@ -1,4 +1,4 @@
-[gd_scene load_steps=49 format=4 uid="uid://d36no2delfxwa"]
+[gd_scene load_steps=51 format=4 uid="uid://d36no2delfxwa"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
@@ -11,6 +11,8 @@
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="24_8rrl5"]
 [ext_resource type="PackedScene" uid="uid://5oi0b5vosx3q" path="res://scenes/NPC/astral_slime.tscn" id="e_astral_slime"]
 [ext_resource type="PackedScene" uid="uid://cywi7283fngxu" path="res://scenes/NPC/Minifolks/celestial_hare.tscn" id="e_celestial_hare"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("6_dosu4")
@@ -700,134 +702,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="CelestialHare" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-374.4, 36)
-respawnable = true
-
-[node name="CelestialHare2" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-291.2, 36)
-respawnable = true
-
-[node name="CelestialHare3" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-208, 36)
-respawnable = true
-
-[node name="CelestialHare4" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-124.8, 36)
-respawnable = true
-
-[node name="CelestialHare5" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-41.6, 36)
-respawnable = true
-
-[node name="AstralSlime6" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(41.6, 36)
-respawnable = true
-
-[node name="AstralSlime7" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(124.8, 36)
-respawnable = true
-
-[node name="AstralSlime8" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(208, 36)
-respawnable = true
-
-[node name="AstralSlime9" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(291.2, 36)
-respawnable = true
-
-[node name="AstralSlime10" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(374.4, 36)
-respawnable = true
-
-[node name="Clone_10" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-296, -12)
-respawnable = true
-
-[node name="Clone_11" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-216, -12)
-respawnable = true
-
-[node name="Clone_12" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(264, -12)
-respawnable = true
-
-[node name="Clone_13" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-296, -60)
-respawnable = true
-
-[node name="Clone_14" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(240, -60)
-respawnable = true
-
-[node name="Clone_15" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(-232, -108)
-respawnable = true
-
-[node name="Clone_16" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(-152, -108)
-respawnable = true
-
-[node name="Clone_17" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(256, -108)
-respawnable = true
-
-[node name="Clone_18" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(-128, -156)
-respawnable = true
-
-[node name="Clone_19" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(108, -156)
-respawnable = true
-
-[node name="Clone_20" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(196, -156)
-respawnable = true
-
-[node name="Clone_21" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-200, -204)
-respawnable = true
-
-[node name="Clone_22" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(264, -204)
-respawnable = true
-
-[node name="Clone_23" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-280, -252)
-respawnable = true
-
-[node name="Clone_24" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-200, -252)
-respawnable = true
-
-[node name="Clone_25" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(40, -252)
-respawnable = true
-
-[node name="Clone_26" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(120, -252)
-respawnable = true
-
-[node name="Clone_27" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(-276, -300)
-respawnable = true
-
-[node name="Clone_28" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(-188, -300)
-respawnable = true
-
-[node name="Clone_29" parent="Enemies" instance=ExtResource("e_astral_slime")]
-position = Vector2(168, -300)
-respawnable = true
-
-[node name="Clone_30" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(-152, -348)
-respawnable = true
-
-[node name="Clone_31" parent="Enemies" instance=ExtResource("e_celestial_hare")]
-position = Vector2(248, -348)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -1149,3 +1023,126 @@ texture = SubResource("AtlasTexture_lloqb")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+
+[node name="CelestialHareSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_celestial_hare")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14"), NodePath("M15"), NodePath("M16")]
+spawn_container = NodePath("../Enemies")
+pool_size = 17
+
+[node name="M0" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-374, 26)
+
+[node name="M1" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-291, 26)
+
+[node name="M2" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-208, 26)
+
+[node name="M3" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-125, 26)
+
+[node name="M4" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-42, 26)
+
+[node name="M5" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-296, -22)
+
+[node name="M6" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-216, -22)
+
+[node name="M7" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(264, -22)
+
+[node name="M8" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-296, -70)
+
+[node name="M9" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(240, -70)
+
+[node name="M10" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(196, -166)
+
+[node name="M11" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-200, -214)
+
+[node name="M12" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(264, -214)
+
+[node name="M13" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-280, -262)
+
+[node name="M14" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-200, -262)
+
+[node name="M15" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(-152, -358)
+
+[node name="M16" type="Marker2D" parent="CelestialHareSpawner"]
+position = Vector2(248, -358)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="CelestialHareSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://cywi7283fngxu")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="AstralSlimeSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_astral_slime")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14")]
+spawn_container = NodePath("../Enemies")
+pool_size = 15
+
+[node name="M0" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(42, 26)
+
+[node name="M1" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(125, 26)
+
+[node name="M2" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(208, 26)
+
+[node name="M3" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(291, 26)
+
+[node name="M4" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(374, 26)
+
+[node name="M5" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(-232, -118)
+
+[node name="M6" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(-152, -118)
+
+[node name="M7" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(256, -118)
+
+[node name="M8" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(-128, -166)
+
+[node name="M9" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(108, -166)
+
+[node name="M10" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(40, -262)
+
+[node name="M11" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(120, -262)
+
+[node name="M12" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(-276, -310)
+
+[node name="M13" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(-188, -310)
+
+[node name="M14" type="Marker2D" parent="AstralSlimeSpawner"]
+position = Vector2(168, -310)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="AstralSlimeSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://5oi0b5vosx3q")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")

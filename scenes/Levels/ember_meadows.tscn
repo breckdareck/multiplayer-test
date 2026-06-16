@@ -637,30 +637,6 @@ shape = SubResource("WorldBoundaryShape2D_j018g")
 [node name="Enemies" type="Node2D" parent="."]
 position = Vector2(830, -33)
 
-[node name="GoblinWarrior" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(838, -15)
-respawnable = true
-
-[node name="GoblinWarrior2" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(869.80005, -15)
-respawnable = true
-
-[node name="GoblinWarrior3" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(901.6, -15)
-respawnable = true
-
-[node name="GoblinWarrior4" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(933.4, -15)
-respawnable = true
-
-[node name="GoblinWarrior5" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(965.19995, -15)
-respawnable = true
-
-[node name="GoblinWarrior6" parent="Enemies" instance=ExtResource("15_mkfku")]
-position = Vector2(997, -15)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -722,3 +698,35 @@ texture = SubResource("AtlasTexture_blkch")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+
+[node name="GoblinWarriorSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("16_mxmss")
+enemy_scene = ExtResource("15_mkfku")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
+spawn_container = NodePath("../Enemies")
+pool_size = 6
+
+[node name="M0" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1668, -58)
+
+[node name="M1" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1700, -58)
+
+[node name="M2" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1732, -58)
+
+[node name="M3" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1763, -58)
+
+[node name="M4" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1795, -58)
+
+[node name="M5" type="Marker2D" parent="GoblinWarriorSpawner"]
+position = Vector2(1827, -58)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="GoblinWarriorSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bj7nxg5um1rn6")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("18_y6jw5")
+enemy_spawner = NodePath("..")

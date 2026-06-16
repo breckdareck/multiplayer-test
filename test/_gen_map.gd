@@ -174,8 +174,9 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	ext += '\n[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]'
 	text = header + ext + text.substr(nl)
 
-	# Snap every spawn marker to exactly 1 tile above the ground surface at its column
-	# (ruins-clone offset: root = tile*16 - 218,285), so monsters never spawn in the air.
+	# Snap every spawn marker to exactly 1 tile above the ground surface at its column.
+	# Markers live in root space; the cloned TileMap sits at (-119,-269), so a tile (col,row)
+	# is at world (col*16 - 119, row*16 - 269). Centre the pin in the tile (+8 x).
 	var surf := {}
 	for cell in m["ground"]:
 		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
@@ -184,7 +185,7 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	for i in range(10):
 		var col := int(w * (i + 1) / 11.0)
 		if not surf.has(col): continue
-		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, col * 16 - 218, (surf[col] - 1) * 16 - 285]
+		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, col * 16 - 111, (surf[col] - 1) * 16 - 269]
 		locs.append('NodePath("M%d")' % idx)
 		idx += 1
 	var blk := '\n\n[node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]'
@@ -196,10 +197,10 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	blk += '\nscript = ExtResource("gen_msp")\nenemy_spawner = NodePath("..")'
 	text += blk
 
-	# Reposition PlayerSpawn onto the floor (left side).
+	# Reposition PlayerSpawn onto the floor (left side), same (-119,-269) clone offset.
 	var ps := text.find('[node name="PlayerSpawn"')
 	if ps != -1:
-		var spawn_pos := 'position = Vector2(%d, %d)' % [80, (FLOOR_Y - 2) * 16]
+		var spawn_pos := 'position = Vector2(%d, %d)' % [5 * 16 - 119, (FLOOR_Y - 2) * 16 - 269]
 		var posln := text.find("position = ", ps)
 		var nxt := text.find("\n[node ", ps)
 		if posln != -1 and (nxt == -1 or posln < nxt):

@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=4 uid="uid://8oant7tng6dr"]
+[gd_scene load_steps=45 format=4 uid="uid://8oant7tng6dr"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" uid="uid://bvjs3vxpdjkfj" path="res://scenes/NPC/fire_slime.tscn" id="e_fire_slime"]
 [ext_resource type="PackedScene" uid="uid://tbl7yfcl3xwe" path="res://scenes/NPC/Minifolks/runed_boar.tscn" id="e_runed_boar"]
 [ext_resource type="PackedScene" uid="uid://oarco6h8le8s" path="res://scenes/NPC/Minifolks/wild_boar.tscn" id="e_wild_boar"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("6_dosu4")
@@ -668,198 +670,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="RunedBoar" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-502.15384, 36)
-respawnable = true
-
-[node name="RunedBoar2" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-418.46155, 36)
-respawnable = true
-
-[node name="RunedBoar3" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-334.76923, 36)
-respawnable = true
-
-[node name="RunedBoar4" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-251.07692, 36)
-respawnable = true
-
-[node name="FireSlime5" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-167.38461, 36)
-respawnable = true
-
-[node name="FireSlime6" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-83.69231, 36)
-respawnable = true
-
-[node name="FireSlime7" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(0, 36)
-respawnable = true
-
-[node name="FireSlime8" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(83.69231, 36)
-respawnable = true
-
-[node name="EmberFox9" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(167.38461, 36)
-respawnable = true
-
-[node name="EmberFox10" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(251.07692, 36)
-respawnable = true
-
-[node name="EmberFox11" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(334.76923, 36)
-respawnable = true
-
-[node name="EmberFox12" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(418.46155, 36)
-respawnable = true
-
-[node name="WildBoar13" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(502.15384, 36)
-respawnable = true
-
-[node name="WildBoar14" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-437.0909, -12)
-respawnable = true
-
-[node name="WildBoar15" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-351.27274, -12)
-respawnable = true
-
-[node name="Clone_15" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-265.45456, -12)
-respawnable = true
-
-[node name="Clone_16" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-179.63637, -12)
-respawnable = true
-
-[node name="Clone_17" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-93.818184, -12)
-respawnable = true
-
-[node name="Clone_18" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(-8, -12)
-respawnable = true
-
-[node name="Clone_19" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(77.818184, -12)
-respawnable = true
-
-[node name="Clone_20" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(163.63637, -12)
-respawnable = true
-
-[node name="Clone_21" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(249.45454, -12)
-respawnable = true
-
-[node name="Clone_22" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(335.27274, -12)
-respawnable = true
-
-[node name="Clone_23" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(421.0909, -12)
-respawnable = true
-
-[node name="Clone_24" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(-360, -60)
-respawnable = true
-
-[node name="Clone_25" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(-280, -60)
-respawnable = true
-
-[node name="Clone_26" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(-200, -60)
-respawnable = true
-
-[node name="Clone_27" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-120, -60)
-respawnable = true
-
-[node name="Clone_28" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-40, -60)
-respawnable = true
-
-[node name="Clone_29" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(40, -60)
-respawnable = true
-
-[node name="Clone_30" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(120, -60)
-respawnable = true
-
-[node name="Clone_31" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(200, -60)
-respawnable = true
-
-[node name="Clone_32" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(280, -60)
-respawnable = true
-
-[node name="Clone_33" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(360, -60)
-respawnable = true
-
-[node name="Clone_34" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-295, -108)
-respawnable = true
-
-[node name="Clone_35" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-213, -108)
-respawnable = true
-
-[node name="Clone_36" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-131, -108)
-respawnable = true
-
-[node name="Clone_37" parent="Enemies" instance=ExtResource("e_fire_slime")]
-position = Vector2(-49, -108)
-respawnable = true
-
-[node name="Clone_38" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(33, -108)
-respawnable = true
-
-[node name="Clone_39" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(115, -108)
-respawnable = true
-
-[node name="Clone_40" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(197, -108)
-respawnable = true
-
-[node name="Clone_41" parent="Enemies" instance=ExtResource("e_ember_fox")]
-position = Vector2(279, -108)
-respawnable = true
-
-[node name="Clone_42" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-213.33333, -156)
-respawnable = true
-
-[node name="Clone_43" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-128, -156)
-respawnable = true
-
-[node name="Clone_44" parent="Enemies" instance=ExtResource("e_wild_boar")]
-position = Vector2(-42.666668, -156)
-respawnable = true
-
-[node name="Clone_45" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(42.666668, -156)
-respawnable = true
-
-[node name="Clone_46" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(128, -156)
-respawnable = true
-
-[node name="Clone_47" parent="Enemies" instance=ExtResource("e_runed_boar")]
-position = Vector2(213.33333, -156)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -1105,3 +915,200 @@ texture = SubResource("AtlasTexture_y1ngx")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+
+[node name="RunedBoarSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_runed_boar")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14")]
+spawn_container = NodePath("../Enemies")
+pool_size = 15
+
+[node name="M0" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-502, 26)
+
+[node name="M1" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-418, 26)
+
+[node name="M2" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-335, 26)
+
+[node name="M3" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-251, 26)
+
+[node name="M4" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-265, -22)
+
+[node name="M5" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-180, -22)
+
+[node name="M6" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-94, -22)
+
+[node name="M7" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(-8, -22)
+
+[node name="M8" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(120, -70)
+
+[node name="M9" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(200, -70)
+
+[node name="M10" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(280, -70)
+
+[node name="M11" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(360, -70)
+
+[node name="M12" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(43, -166)
+
+[node name="M13" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(128, -166)
+
+[node name="M14" type="Marker2D" parent="RunedBoarSpawner"]
+position = Vector2(213, -166)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="RunedBoarSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://tbl7yfcl3xwe")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="FireSlimeSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_fire_slime")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-167, 26)
+
+[node name="M1" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-84, 26)
+
+[node name="M2" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(0, 26)
+
+[node name="M3" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(84, 26)
+
+[node name="M4" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(78, -22)
+
+[node name="M5" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(164, -22)
+
+[node name="M6" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(249, -22)
+
+[node name="M7" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(335, -22)
+
+[node name="M8" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-295, -118)
+
+[node name="M9" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-213, -118)
+
+[node name="M10" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-131, -118)
+
+[node name="M11" type="Marker2D" parent="FireSlimeSpawner"]
+position = Vector2(-49, -118)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="FireSlimeSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bvjs3vxpdjkfj")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="EmberFoxSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_ember_fox")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(167, 26)
+
+[node name="M1" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(251, 26)
+
+[node name="M2" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(335, 26)
+
+[node name="M3" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(418, 26)
+
+[node name="M4" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(421, -22)
+
+[node name="M5" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(-360, -70)
+
+[node name="M6" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(-280, -70)
+
+[node name="M7" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(-200, -70)
+
+[node name="M8" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(33, -118)
+
+[node name="M9" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(115, -118)
+
+[node name="M10" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(197, -118)
+
+[node name="M11" type="Marker2D" parent="EmberFoxSpawner"]
+position = Vector2(279, -118)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="EmberFoxSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bichmn1gb8cd2")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="WildBoarSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_wild_boar")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(502, 26)
+
+[node name="M1" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-437, -22)
+
+[node name="M2" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-351, -22)
+
+[node name="M3" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-120, -70)
+
+[node name="M4" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-40, -70)
+
+[node name="M5" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(40, -70)
+
+[node name="M6" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-213, -166)
+
+[node name="M7" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-128, -166)
+
+[node name="M8" type="Marker2D" parent="WildBoarSpawner"]
+position = Vector2(-43, -166)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="WildBoarSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://oarco6h8le8s")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")

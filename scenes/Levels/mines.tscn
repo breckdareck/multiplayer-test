@@ -1,4 +1,4 @@
-[gd_scene load_steps=50 format=4 uid="uid://cbn1cpi76flwa"]
+[gd_scene load_steps=52 format=4 uid="uid://cbn1cpi76flwa"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_vhnxn"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="3_kc88y"]
@@ -14,6 +14,8 @@
 [ext_resource type="PackedScene" uid="uid://dppxdoxl4kf2k" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="e_rabbit_wizard"]
 [ext_resource type="PackedScene" uid="uid://cppmohti6r7s0" path="res://scenes/NPC/war_goblin.tscn" id="e_war_goblin"]
 [ext_resource type="PackedScene" uid="uid://wjbryq6x0qx5" path="res://scenes/NPC/Beastmen/wolf_pathfinder.tscn" id="e_wolf_pathfinder"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("6_dosu4")
@@ -684,210 +686,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="WolfPathfinder" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-720, 36)
-respawnable = true
-
-[node name="WolfPathfinder2" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-624, 36)
-respawnable = true
-
-[node name="WolfPathfinder3" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-528, 36)
-respawnable = true
-
-[node name="WolfPathfinder4" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-432, 36)
-respawnable = true
-
-[node name="MithrilHare5" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(-336, 36)
-respawnable = true
-
-[node name="MithrilHare6" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(-240, 36)
-respawnable = true
-
-[node name="MithrilHare7" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(-144, 36)
-respawnable = true
-
-[node name="DeerDruid8" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(-48, 36)
-respawnable = true
-
-[node name="DeerDruid9" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(48, 36)
-respawnable = true
-
-[node name="DeerDruid10" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(144, 36)
-respawnable = true
-
-[node name="RabbitWizard11" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(240, 36)
-respawnable = true
-
-[node name="RabbitWizard12" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(336, 36)
-respawnable = true
-
-[node name="RabbitWizard13" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(432, 36)
-respawnable = true
-
-[node name="WarGoblin14" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(528, 36)
-respawnable = true
-
-[node name="WarGoblin15" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(624, 36)
-respawnable = true
-
-[node name="WarGoblin16" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(720, 36)
-respawnable = true
-
-[node name="Clone_16" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-632, -12)
-respawnable = true
-
-[node name="Clone_17" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-552, -12)
-respawnable = true
-
-[node name="Clone_18" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-472, -12)
-respawnable = true
-
-[node name="Clone_19" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(472, -28)
-respawnable = true
-
-[node name="Clone_20" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(552, -28)
-respawnable = true
-
-[node name="Clone_21" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(632, -28)
-respawnable = true
-
-[node name="Clone_22" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(-620, -60)
-respawnable = true
-
-[node name="Clone_23" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(-516, -60)
-respawnable = true
-
-[node name="Clone_24" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(480, -60)
-respawnable = true
-
-[node name="Clone_25" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(576, -60)
-respawnable = true
-
-[node name="Clone_26" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(672, -60)
-respawnable = true
-
-[node name="Clone_27" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(-16, -60)
-respawnable = true
-
-[node name="Clone_28" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(80, -60)
-respawnable = true
-
-[node name="Clone_29" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(-688, -124)
-respawnable = true
-
-[node name="Clone_30" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(-592, -124)
-respawnable = true
-
-[node name="Clone_31" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(472, -108)
-respawnable = true
-
-[node name="Clone_32" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(552, -108)
-respawnable = true
-
-[node name="Clone_33" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(632, -108)
-respawnable = true
-
-[node name="Clone_34" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-664, -140)
-respawnable = true
-
-[node name="Clone_35" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(560, -140)
-respawnable = true
-
-[node name="Clone_36" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(656, -140)
-respawnable = true
-
-[node name="Clone_37" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(-72, -156)
-respawnable = true
-
-[node name="Clone_38" parent="Enemies" instance=ExtResource("e_mithril_hare")]
-position = Vector2(8, -156)
-respawnable = true
-
-[node name="Clone_39" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(88, -156)
-respawnable = true
-
-[node name="Clone_40" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(-632, -204)
-respawnable = true
-
-[node name="Clone_41" parent="Enemies" instance=ExtResource("e_deer_druid")]
-position = Vector2(477.33334, -204)
-respawnable = true
-
-[node name="Clone_42" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(568, -204)
-respawnable = true
-
-[node name="Clone_43" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(658.6667, -204)
-respawnable = true
-
-[node name="Clone_44" parent="Enemies" instance=ExtResource("e_rabbit_wizard")]
-position = Vector2(-652, -236)
-respawnable = true
-
-[node name="Clone_45" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(-548, -236)
-respawnable = true
-
-[node name="Clone_46" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(464, -252)
-respawnable = true
-
-[node name="Clone_47" parent="Enemies" instance=ExtResource("e_war_goblin")]
-position = Vector2(560, -252)
-respawnable = true
-
-[node name="Clone_48" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(656, -252)
-respawnable = true
-
-[node name="Clone_49" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(-52, -252)
-respawnable = true
-
-[node name="Clone_50" parent="Enemies" instance=ExtResource("e_wolf_pathfinder")]
-position = Vector2(36, -252)
-respawnable = true
-
 [node name="Projectiles" type="Node2D" parent="."]
 
 [node name="ItemDrops" type="Node2D" parent="."]
@@ -1198,3 +996,222 @@ target_spawn_point_name = "DustWarren_Mines_Portal_Spawn"
 
 [node name="Mines_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-713, 16)
+
+
+[node name="WolfPathfinderSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_wolf_pathfinder")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14")]
+spawn_container = NodePath("../Enemies")
+pool_size = 15
+
+[node name="M0" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-720, 26)
+
+[node name="M1" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-624, 26)
+
+[node name="M2" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-528, 26)
+
+[node name="M3" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-432, 26)
+
+[node name="M4" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-632, -22)
+
+[node name="M5" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-552, -22)
+
+[node name="M6" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-472, -22)
+
+[node name="M7" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(472, -38)
+
+[node name="M8" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(552, -118)
+
+[node name="M9" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(632, -118)
+
+[node name="M10" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-664, -150)
+
+[node name="M11" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(560, -150)
+
+[node name="M12" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(656, -262)
+
+[node name="M13" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(-52, -262)
+
+[node name="M14" type="Marker2D" parent="WolfPathfinderSpawner"]
+position = Vector2(36, -262)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="WolfPathfinderSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://wjbryq6x0qx5")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="MithrilHareSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_mithril_hare")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(-336, 26)
+
+[node name="M1" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(-240, 26)
+
+[node name="M2" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(-144, 26)
+
+[node name="M3" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(552, -38)
+
+[node name="M4" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(632, -38)
+
+[node name="M5" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(-620, -70)
+
+[node name="M6" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(656, -150)
+
+[node name="M7" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(-72, -166)
+
+[node name="M8" type="Marker2D" parent="MithrilHareSpawner"]
+position = Vector2(8, -166)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="MithrilHareSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dvymxl60snfn8")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="DeerDruidSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_deer_druid")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(-48, 26)
+
+[node name="M1" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(48, 26)
+
+[node name="M2" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(144, 26)
+
+[node name="M3" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(-516, -70)
+
+[node name="M4" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(480, -70)
+
+[node name="M5" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(576, -70)
+
+[node name="M6" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(88, -166)
+
+[node name="M7" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(-632, -214)
+
+[node name="M8" type="Marker2D" parent="DeerDruidSpawner"]
+position = Vector2(477, -214)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="DeerDruidSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://b7uy8wgb0j1t3")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="RabbitWizardSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_rabbit_wizard")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(240, 26)
+
+[node name="M1" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(336, 26)
+
+[node name="M2" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(432, 26)
+
+[node name="M3" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(672, -70)
+
+[node name="M4" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(-16, -70)
+
+[node name="M5" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(80, -70)
+
+[node name="M6" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(568, -214)
+
+[node name="M7" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(659, -214)
+
+[node name="M8" type="Marker2D" parent="RabbitWizardSpawner"]
+position = Vector2(-652, -246)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="RabbitWizardSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dppxdoxl4kf2k")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="WarGoblinSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("e_war_goblin")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(528, 26)
+
+[node name="M1" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(624, 26)
+
+[node name="M2" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(720, 26)
+
+[node name="M3" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(-688, -134)
+
+[node name="M4" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(-592, -134)
+
+[node name="M5" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(472, -118)
+
+[node name="M6" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(-548, -246)
+
+[node name="M7" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(464, -262)
+
+[node name="M8" type="Marker2D" parent="WarGoblinSpawner"]
+position = Vector2(560, -262)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="WarGoblinSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://cppmohti6r7s0")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")

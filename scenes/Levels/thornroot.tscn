@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=4 uid="uid://1dtpk2tpjrgy"]
+[gd_scene load_steps=29 format=4 uid="uid://1dtpk2tpjrgy"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_aj8v8"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_j2nq3"]
@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://scenes/NPC/thornroot_warchief.tscn" id="21_boss1"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="22_64xxr"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="23_6eojl"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("5_172bj")
@@ -614,114 +616,6 @@ debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
 [node name="Enemies" type="Node2D" parent="."]
 
-[node name="Mob_0" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-432, 32)
-respawnable = true
-
-[node name="Mob_1" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-336, 32)
-respawnable = true
-
-[node name="Mob_2" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-240, 32)
-respawnable = true
-
-[node name="Mob_3" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-144, 32)
-respawnable = true
-
-[node name="Mob_4" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-48, 32)
-respawnable = true
-
-[node name="Mob_5" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(48, 32)
-respawnable = true
-
-[node name="Mob_6" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(144, 32)
-respawnable = true
-
-[node name="Mob_7" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(240, 32)
-respawnable = true
-
-[node name="Mob_8" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(336, 32)
-respawnable = true
-
-[node name="Mob_9" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(432, 32)
-respawnable = true
-
-[node name="Mob_10" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-384, 31)
-respawnable = true
-
-[node name="Mob_11" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-292, 31)
-respawnable = true
-
-[node name="Mob_12" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(328, -16)
-respawnable = true
-
-[node name="Mob_13" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-304, -64)
-respawnable = true
-
-[node name="Mob_14" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(283, -16)
-respawnable = true
-
-[node name="Mob_15" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-40, -64)
-respawnable = true
-
-[node name="Mob_16" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-387, -128)
-respawnable = true
-
-[node name="Mob_17" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-268, -128)
-respawnable = true
-
-[node name="Mob_18" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(296, -128)
-respawnable = true
-
-[node name="Mob_19" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(-344, -176)
-respawnable = true
-
-[node name="Mob_20" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(232, -128)
-respawnable = true
-
-[node name="Mob_21" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(358, -130)
-respawnable = true
-
-[node name="Mob_22" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-88, -160)
-respawnable = true
-
-[node name="Mob_23" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(24, -160)
-respawnable = true
-
-[node name="Mob_24" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(-290, -176)
-respawnable = true
-
-[node name="Mob_25" parent="Enemies" instance=ExtResource("20_10gp4")]
-position = Vector2(260, -208)
-respawnable = true
-
-[node name="Mob_26" parent="Enemies" instance=ExtResource("10_enev1")]
-position = Vector2(368, -208)
-respawnable = true
-
 [node name="ThornrootWarchief" parent="Enemies" instance=ExtResource("21_boss1")]
 position = Vector2(0, 32)
 respawnable = true
@@ -899,3 +793,111 @@ mouse_filter = 1
 script = ExtResource("22_64xxr")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+
+[node name="CaveGoblinSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("10_enev1")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13")]
+spawn_container = NodePath("../Enemies")
+pool_size = 14
+
+[node name="M0" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-432, 22)
+
+[node name="M1" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-240, 22)
+
+[node name="M2" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-48, 22)
+
+[node name="M3" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(144, 22)
+
+[node name="M4" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(336, 22)
+
+[node name="M5" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-384, 21)
+
+[node name="M6" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(328, -26)
+
+[node name="M7" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(283, -26)
+
+[node name="M8" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-387, -138)
+
+[node name="M9" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(296, -138)
+
+[node name="M10" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(232, -138)
+
+[node name="M11" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-88, -170)
+
+[node name="M12" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(-290, -186)
+
+[node name="M13" type="Marker2D" parent="CaveGoblinSpawner"]
+position = Vector2(368, -218)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="CaveGoblinSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://cnes7f1n2altk")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="TuskBruteSpawner" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("20_10gp4")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12")]
+spawn_container = NodePath("../Enemies")
+pool_size = 13
+
+[node name="M0" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-336, 22)
+
+[node name="M1" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-144, 22)
+
+[node name="M2" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(48, 22)
+
+[node name="M3" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(240, 22)
+
+[node name="M4" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(432, 22)
+
+[node name="M5" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-292, 21)
+
+[node name="M6" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-304, -74)
+
+[node name="M7" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-40, -74)
+
+[node name="M8" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-268, -138)
+
+[node name="M9" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(-344, -186)
+
+[node name="M10" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(358, -140)
+
+[node name="M11" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(24, -170)
+
+[node name="M12" type="Marker2D" parent="TuskBruteSpawner"]
+position = Vector2(260, -218)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="TuskBruteSpawner" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://b3drshokinfof")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
