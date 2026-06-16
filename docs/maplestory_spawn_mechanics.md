@@ -77,25 +77,38 @@ system was extended to match MapleStory's cadence rather than rebuilt.
 
 | MapleStory concept | Emberwilds implementation |
 | :--- | :--- |
-| **Spawn-point cap** (§1) | `EnemySpawner.pool_size` — the spawner's fixed enemy pool *is* the physical spawn-point cap (the 100% / full-party value). |
-| **Fixed tick** (§1) | `MapManager.SPAWN_TICK_INTERVAL`, **5.0 s** (our own cadence, not MapleStory's 7.56 s) — a single server-only global clock that emits `MapManager.spawn_tick`. Every `EnemySpawner` replenishes its map on that one signal — there is no per-enemy respawn timer anymore. |
-| **Player-count scaling** (§2) | `EnemySpawner._current_capacity()` — `floor(pool_size × pct)`, `pct = clamp(0.75 + 0.05·(occupants−1), 0.75, 1.0)`. Occupancy is read from `MapManager.get_players_on_map(map_id)`. Because this game uses **bots as ambient population** (Erenshor pattern), bots count as occupants by default (`count_bots_as_players`, toggleable). |
-| **Hibernation freeze** (§3) | Already provided by the ADR 0007 proximity-activation scanner: a zero-agent map sleeps every enemy (`activation_sleep`), and `_current_capacity()` returns **0** for zero occupants, so the tick never spawns and **never despawns** — survivors stay frozen. |
-| **Re-entry unfreeze** (§3) | `MapManager._finalize_player_spawn` → `_replenish_map_spawners(map_id)` fires an immediate replenish the moment an agent arrives, so a re-entered map fills to 75% without waiting up to 7.56 s. |
-| **Over-cap / spawn debt** (§4) | `_replenish()` only ever *adds* enemies (`to_spawn = cap − alive`, clamped to ≥0). When `alive ≥ cap` it spawns nothing and despawns nothing, so a party's leftover over-population is fully killable and corrects down naturally as it's cleared. |
+| **Spawn-point cap** (§1) | Each `EnemySpawner` owns one mob type + its spawn-point markers (mirroring MapleStory's *typed* points); its `pool_size` is that type's contribution to the **map's total** spawn points. |
+| **Fixed tick** (§1) | `MapManager.SPAWN_TICK_INTERVAL`, **5.0 s** (our own cadence, not MapleStory's 7.56 s) — a single server-only clock. Each tick MapManager fills every map up to its cap (`replenish_map_population`); no per-enemy respawn timers. |
+| **Player-count scaling** (§2) | Applied to the **map-wide total**, not per spawner: `floor(total_pool × pct)`, `pct = clamp(0.75 + 0.05·(occupants−1), 0.75, 1.0)`. The deficit fills **random empty spawn points** across all spawners. Bots count as occupants by default (`MapManager.SPAWN_COUNT_BOTS`). *Why map-wide:* `floor(6×0.75)=4` barely moves with players; `floor(20×0.75)=15` ramps smoothly. |
+| **Hibernation freeze** (§3) | Already provided by the ADR 0007 proximity scanner: a zero-agent map sleeps every enemy, and the cap is **0** at zero occupants, so the tick never spawns and **never despawns** — survivors stay frozen. |
+| **Re-entry unfreeze** (§3) | `MapManager._finalize_player_spawn` → `replenish_map_population(map_id)` fires the moment an agent arrives, so a re-entered map fills to its solo cap without waiting a tick. |
+| **Over-cap / spawn debt** (§4) | `replenish_map_population` only ever *adds* (`deficit = map_cap − total_alive`, filled when positive); never despawns. A party's leftover over-population is fully killable and corrects down as it's cleared. |
 
 ### Notable differences (intentional)
 
-- **`pool_size` is now the full-party cap, not the always-alive count.** A solo
-  player sees `floor(0.75 × pool_size)` enemies. Authors who want a given *solo*
-  density should set `pool_size ≈ desired_solo_count / 0.75`.
+- **The cap is map-wide, not per spawner.** A solo player sees
+  `floor(0.75 × total_pool)` enemies across the whole map. Authors who want a given
+  *solo* density should size the summed pools to `desired_solo_count / 0.75`. This
+  is why a map's `EnemySpawner`s are best read as one population: they share a
+  single budget. A boss/set-piece spawner can opt out with `exclude_from_map_cap`
+  (it just stays full).
 - **Hibernation persistence is bounded by the warm pool.** MapleStory freezes an
   empty map indefinitely; here, a fully-empty map is evicted ~20 s after its last
   agent leaves (ADR 0007 warm-pool evictor) and re-instantiated cold on the next
   visit, so the over-cap "bonus wave" only survives while the map stays warm.
 - **Bots are occupants.** Unlike MapleStory's human-only count, roaming bots raise
   the cap by default, so a bot-populated map is denser — matching the
-  living-world design goal. Set `count_bots_as_players = false` per spawner to
-  restore human-only scaling.
-- Scaling and the whole feature are per-spawner toggleable via
-  `enable_population_scaling` (default on).
+  living-world design goal. Flip `MapManager.SPAWN_COUNT_BOTS` for human-only.
+
+### Inspecting it in-game
+
+The dev console (backtick) has a `spawns` command:
+
+- `spawns` — toggle a visual overlay drawing every spawn-point marker on the
+  current map, a per-spawner `alive/pool` label, and a **MAP-wide headline**
+  (`total alive / map cap · occ`) — the number the cap actually acts on.
+  (`spawns on`/`off` to force a state.)
+- `spawns report` — print the map-wide cap + per-spawner breakdown as text.
+
+Density is server-side, so the numbers read true on the host; on a remote client
+the markers still draw but density shows `host-only`.

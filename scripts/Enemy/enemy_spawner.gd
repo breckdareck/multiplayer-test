@@ -20,17 +20,17 @@ class_name EnemySpawner
 ## not a per-enemy delay. Kept only so existing scene files load unchanged.
 @export var respawn_delay: float = 3.0
 
-@export_group("Population Scaling (MapleStory model)")
-## Scale the live monster cap with map occupancy: solo = 75% of pool_size, rising
-## +5%/occupant to 100% at a full party (6). Turn off to keep the whole pool alive
-## regardless of headcount (the pre-overhaul behaviour).
-@export var enable_population_scaling: bool = true
-## Count bots as occupants for capacity scaling. Bots are ambient population in
-## this game (Erenshor pattern), so a bot-populated map is denser by default. Set
-## false to scale on real players only.
-@export var count_bots_as_players: bool = true
+@export_group("Population (MapleStory model)")
+## When true, this spawner is managed independently of the map population budget
+## and simply keeps its WHOLE pool alive — use for bosses / set-piece spawns that
+## must always be present. When false (default), it contributes its spawn points
+## to the MAP-WIDE cap, which MapManager scales by occupancy and fills by picking
+## random empty points across every spawner on the map. See ADR 0015.
+@export var exclude_from_map_cap: bool = false
 
 ## MapleStory capacity curve: pct = clamp(SOLO + STEP*(occupants-1), SOLO, 1.0).
+## Applied by MapManager to the MAP's TOTAL spawn-point pool, not per spawner —
+## floor(6*0.75) barely scales, but floor(20*0.75) across the whole map does.
 const _SOLO_CAPACITY_PCT := 0.75
 const _PER_OCCUPANT_STEP := 0.05
 
@@ -77,16 +77,14 @@ func _setup_spawner() -> void:
 
 	_create_pool()
 
-	# Drive respawns off the single global spawn clock (MapleStory model) instead
-	# of per-enemy timers. The group lets MapManager fire an immediate replenish
-	# on this spawner when an agent enters its map.
+	# This spawner contributes its pool to the MAP-WIDE population budget, which
+	# MapManager computes and fills once per global spawn tick (ADR 0015). Register
+	# so MapManager can find us, then ask for an immediate fill so a freshly-loaded
+	# map isn't empty until the next tick (0 if the map has no occupants yet).
 	add_to_group("EnemySpawners")
-	if not MapManager.spawn_tick.is_connected(_on_spawn_tick):
-		MapManager.spawn_tick.connect(_on_spawn_tick)
-
-	# Initial fill to the current player-scaled cap (0 if the map is empty — it
-	# fills the instant an agent arrives, via _replenish_map_spawners).
-	replenish_now()
+	var map_id := _get_map_id()
+	if map_id != "":
+		MapManager.replenish_map_population(map_id)
 
 func _create_pool() -> void:
 	if not _validate_exports():
@@ -154,53 +152,56 @@ func _on_enemy_ready_for_pooling(enemy: EnemyBase) -> void:
 		_dormant.append(enemy)
 
 
-# --- Tick-driven replenish + capacity (MapleStory model) ---
-# See docs/maplestory_spawn_mechanics.md. Respawns ride MapManager's single
-# global spawn_tick; the map's live cap scales with occupancy; over-cap waves left
-# by a departing party are kept (never despawned) and corrected only as they die.
+# --- Map-driven population (MapleStory model, ADR 0015) ------------------------
+# This spawner is intentionally "dumb": it owns a typed pool of enemies and its
+# spawn-point markers, and exposes alive/room so MapManager can run ONE map-wide
+# cap across every spawner (floor(map_total * pct)) and fill random empty points.
+# Respawns ride MapManager's global spawn tick; over-cap waves left by a departing
+# party are kept (we never despawn) and corrected only as they die.
 
-## Server-only. Replenish missing monsters up to the current player-scaled cap.
-## Called on every global spawn_tick AND immediately when an agent enters the map.
-func replenish_now() -> void:
-	if not _is_initialized or not is_multiplayer_authority():
+## Total spawn-point capacity this spawner contributes (its pool size). Falls back
+## to the export before the pool is built (e.g. on a client, or pre-setup).
+func get_pool_capacity() -> int:
+	return _pool.size() if not _pool.is_empty() else pool_size
+
+
+## How many of this spawner's enemies are currently alive (out in the world).
+func get_alive_count() -> int:
+	return maxi(0, _pool.size() - _dormant.size())
+
+
+## Parked enemies available to (re)spawn — i.e. this spawner's empty spawn points.
+func free_room() -> int:
+	return _dormant.size()
+
+
+## Spawn a single parked enemy at a random spawn point. Returns false if none were
+## available. MapManager calls this to fill the map's population budget.
+func spawn_one() -> bool:
+	if not is_multiplayer_authority() or _dormant.is_empty():
+		return false
+	var enemy: Node = _dormant.pop_back()
+	if not is_instance_valid(enemy):
+		return false
+	# Slight stagger so a refilled wave doesn't pop in a single frame.
+	var timer: SceneTreeTimer = get_tree().create_timer(randf_range(0.05, 0.45))
+	timer.timeout.connect(_spawn_enemy.bind(enemy))
+	return true
+
+
+## Keep this spawner's WHOLE pool alive (used when exclude_from_map_cap is set).
+func fill_to_pool() -> void:
+	if not is_multiplayer_authority():
 		return
-	_replenish()
-
-
-func _on_spawn_tick() -> void:
-	replenish_now()
-
-
-func _replenish() -> void:
-	if _pool.is_empty():
-		return
-	var cap := _current_capacity()
-	var alive := _pool.size() - _dormant.size()
-	var to_spawn := cap - alive
-	# to_spawn <= 0 -> at/over cap: spawn nothing and (critically) despawn nothing,
-	# so an over-populated map left by a party stays fully killable ("spawn debt").
-	if to_spawn <= 0:
-		return
-	var n: int = mini(to_spawn, _dormant.size())
-	for i in n:
-		var enemy: Node = _dormant.pop_back()
-		if not is_instance_valid(enemy):
-			continue
-		# Slight per-enemy stagger so a refilled wave doesn't pop in one frame.
-		var timer: SceneTreeTimer = get_tree().create_timer(randf_range(0.05, 0.45))
-		timer.timeout.connect(_spawn_enemy.bind(enemy))
-
-
-## The number of monsters allowed alive right now, given map occupancy.
-func _current_capacity() -> int:
-	if not enable_population_scaling:
-		return _pool.size()
-	return capacity_for(_pool.size(), _occupant_count())
+	while not _dormant.is_empty():
+		if not spawn_one():
+			break
 
 
 ## Pure capacity curve (MapleStory model), extracted for testing. Returns how many
 ## of `pool` monsters may be alive with `occupants` agents on the map: 0 when empty
 ## (hibernation), else floor(pool * pct) with pct ramping 75%->100% across a party.
+## MapManager applies this to the MAP's TOTAL pool, not per spawner.
 static func capacity_for(pool: int, occupants: int) -> int:
 	if occupants <= 0:
 		return 0 # hibernation: an empty map spawns nothing (and never despawns)
@@ -212,13 +213,22 @@ static func capacity_for(pool: int, occupants: int) -> int:
 	return maxi(1, int(floor(pool * pct)))
 
 
-func _occupant_count() -> int:
-	var map_id := _get_map_id()
-	if map_id == "":
-		return 0
-	if count_bots_as_players:
-		return MapManager.get_players_on_map(map_id).size()
-	return MapManager.get_real_players_on_map(map_id).size()
+## Snapshot for the `spawns` dev overlay. Per-spawner alive/pool + spawn-point
+## world positions; the MAP-level cap/occupancy lives on MapManager
+## (get_map_population_summary). `alive` is server-authoritative (0 on a client);
+## `spawn_locations` and `pool` are readable on any peer (authored scene data).
+func get_population_report() -> Dictionary:
+	var locs: Array[Vector2] = []
+	for m in spawn_locations:
+		if is_instance_valid(m):
+			locs.append(m.global_position)
+	return {
+		"name": name,
+		"pool": get_pool_capacity(),
+		"alive": get_alive_count(),
+		"spawn_locations": locs,
+		"excluded": exclude_from_map_cap,
+	}
 
 
 ## The runtime map id, by walking up to the "Map_<id>" wrapper MapManager builds.

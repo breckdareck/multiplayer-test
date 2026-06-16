@@ -51,6 +51,7 @@ var _draft: String = ""
 var _suggestion_matches: PackedStringArray = []
 var _suggestion_token_start: int = 0
 var _resizing: bool = false
+var _spawn_overlay: Node2D = null   # live DebugSpawnOverlay (the `spawns` command)
 
 
 func _ready() -> void:
@@ -544,6 +545,7 @@ func _register_commands() -> void:
 	# Enemies (host-only; spawned enemy is server-side and visible to clients
 	# via the normal MultiplayerSpawner path on the map).
 	_register("enemy", "enemy spawn <name> [count] | enemy list", _cmd_enemy, _complete_enemy_args)
+	_register("spawns", "spawns [on|off] — toggle the spawn-point + density overlay; 'spawns report' for a text breakdown (ADR 0015).", _cmd_spawns, _complete_spawns)
 
 	# Bot subsystem passthroughs
 	_register("watch-bot", "watch-bot <id|name|off> — camera-follow a bot. Host-only.", _cmd_watch_bot, _complete_bot_target)
@@ -1271,6 +1273,86 @@ func _cmd_navdraw(args: Array) -> String:
 		"paths": _layer_paths_check.set_pressed_no_signal(want)
 		"info":  _layer_info_check.set_pressed_no_signal(want)
 	return "navdraw.%s = %s" % [first, "on" if want else "off"]
+
+
+# --- Spawn density / spawn-point overlay (ADR 0015) -------------------------
+
+func _cmd_spawns(args: Array) -> String:
+	if not args.is_empty() and String(args[0]).to_lower() in ["report", "list", "r"]:
+		return _spawns_report()
+
+	var want: bool
+	if args.is_empty():
+		want = not is_instance_valid(_spawn_overlay)
+	else:
+		var a := String(args[0]).to_lower()
+		if a in ["on", "true", "1"]:
+			want = true
+		elif a in ["off", "false", "0"]:
+			want = false
+		else:
+			return "Usage: spawns [on|off|report]"
+
+	if not want:
+		if is_instance_valid(_spawn_overlay):
+			_spawn_overlay.queue_free()
+		_spawn_overlay = null
+		return "spawns overlay = off."
+
+	if is_instance_valid(_spawn_overlay):
+		return "spawns overlay already on. ('spawns report' for a text breakdown.)"
+	var map = MapManager.current_map_instance
+	if not is_instance_valid(map):
+		return "[color=#ff8888]spawns: no current map to draw on.[/color]"
+	_spawn_overlay = (load("res://scripts/UI/debug_spawn_overlay.gd") as GDScript).new()
+	map.add_child(_spawn_overlay)
+	return "spawns overlay = on — spawn-point markers + live density per spawner. 'spawns report' for text."
+
+
+func _spawns_report() -> String:
+	if not multiplayer.is_server():
+		return "[color=#ff8888]spawns report: host-only (density is server-side). The overlay still shows markers on a client.[/color]"
+	var map_id: String = MapManager.current_map_id
+	if map_id == "":
+		map_id = MapManager.get_player_map(_acting_id())
+	var s: Dictionary = MapManager.get_map_population_summary(map_id)
+	if s.is_empty():
+		return "spawns: no current map."
+	var spawners: Array = s.spawners
+	if spawners.is_empty():
+		return "spawns: no spawners on '%s'." % map_id
+
+	var map_cap := int(s.map_cap)
+	var total_alive := int(s.total_alive)
+	# The headline: ONE map-wide cap across all spawn points (ADR 0015), so the
+	# 75%->100% occupancy ramp is meaningful even with small per-spawner pools.
+	var lines: PackedStringArray = [
+		"[b]Spawn density — %s[/b]   occ:%d" % [map_id, int(s.occupants)],
+		"  [b]MAP[/b] %s  [b]%d/%d[/b] alive  (pool %d)" % [
+			_density_bar(total_alive, map_cap), total_alive, map_cap, int(s.total_pool)],
+	]
+	for r in spawners:
+		var excluded: bool = r.get("excluded", false)
+		var tag: String = "  [color=#caa]always-full[/color]" if excluded else ""
+		lines.append("    [color=#9fd]%s[/color]  %d/%d  (%d pts)%s" % [
+			String(r.get("name", "?")), int(r.get("alive", 0)), int(r.get("pool", 0)),
+			r.get("spawn_locations", []).size(), tag])
+	return "\n".join(lines)
+
+
+## A tiny [####----] fill bar for alive-vs-capacity, color-graded by fullness.
+func _density_bar(alive: int, cap: int) -> String:
+	var width := 10
+	var filled := 0 if cap <= 0 else clampi(int(round(float(alive) / float(cap) * width)), 0, width)
+	var frac := 0.0 if cap <= 0 else float(alive) / float(cap)
+	var color := "#7fd97f" if frac < 0.9 else ("#e8d24a" if frac <= 1.0 else "#e87a5a")
+	return "[color=%s]%s%s[/color]" % [color, "█".repeat(filled), "░".repeat(width - filled)]
+
+
+func _complete_spawns(prior_args: PackedStringArray, _t: String) -> PackedStringArray:
+	if prior_args.is_empty():
+		return PackedStringArray(["on", "off", "report"])
+	return PackedStringArray()
 
 
 func _cmd_bot(args: Array) -> String:

@@ -106,10 +106,14 @@ var _warm_evict_accum := 0.0
 ## docs/adr/0015-population-driven-enemy-spawning.md and
 ## docs/maplestory_spawn_mechanics.md.
 const SPAWN_TICK_INTERVAL := 5.0
-## Emitted server-only every SPAWN_TICK_INTERVAL. EnemySpawner connects to this to
-## replenish missing monsters up to the current (player-count-scaled) cap.
+## Emitted server-only after each map-wide population replenish (a notification
+## seam for tooling/overlays). The actual respawn work is driven directly by
+## replenish_map_population below, not by listeners of this signal.
 signal spawn_tick
 var _spawn_tick_accum := 0.0
+## Count bots as occupants when scaling a map's monster cap. Bots are ambient
+## population in this game (ADR 0011), so a bot-busy map is denser by default.
+const SPAWN_COUNT_BOTS := true
 
 # Server-side tracking
 var active_maps: Dictionary = {} ## {map_id: {scene_instance, player_ids: []}}
@@ -257,11 +261,13 @@ func _process(delta: float) -> void:
 		_warm_evict_accum = 0.0
 		_evict_cold_maps()
 	# Global spawn clock — must run before the activation-scan early-return below.
-	# Spawners on a zero-occupant map compute a cap of 0 and no-op (hibernation),
-	# so firing this on every-map is cheap.
+	# A zero-occupant map yields a cap of 0 and no-ops (hibernation), so running
+	# this over every map each tick is cheap.
 	_spawn_tick_accum += delta
 	if _spawn_tick_accum >= SPAWN_TICK_INTERVAL:
 		_spawn_tick_accum = 0.0
+		for map_id in active_maps.keys():
+			replenish_map_population(map_id)
 		spawn_tick.emit()
 	_activation_scan_accum += delta
 	if _activation_scan_accum < ACTIVATION_SCAN_INTERVAL:
@@ -311,21 +317,98 @@ func _scan_map_activation(map_id: String) -> void:
 		# else: in the hysteresis band — leave the current state unchanged.
 
 
-## Server-only. Fire an immediate capacity replenish on every EnemySpawner under
-## one map (used when an agent enters, so the map doesn't stay sparse until the
-## next global spawn_tick). Spawners self-register to the "EnemySpawners" group on
-## setup; restricting to descendants of this map keeps it per-map.
-func _replenish_map_spawners(map_id: String) -> void:
-	if not multiplayer.is_server():
+## Server-only. Bring one map's monster population up to its MAP-WIDE cap
+## (MapleStory model, ADR 0015). The cap scales ONE budget across the map's total
+## spawn points — floor(total_pool * pct(occupants)) — not per spawner, so the
+## 75%->100% ramp is meaningful even when individual spawners are small. The
+## deficit is filled by picking random empty spawn points across every spawner
+## (MapleStory's "randomly select which points to activate"). Over-cap waves are
+## never despawned. Spawners flagged exclude_from_map_cap (bosses) self-fill.
+## Called on the global spawn tick, on map entry, and when a spawner finishes setup.
+func replenish_map_population(map_id: String) -> void:
+	if not multiplayer.is_server() or not map_id in active_maps:
 		return
-	var data: Dictionary = active_maps.get(map_id, {})
-	var map_instance = data.get("scene_instance")
+	var map_instance = active_maps[map_id].scene_instance
 	if not is_instance_valid(map_instance):
 		return
+
+	var capped: Array = []
+	var total_pool := 0
+	var total_alive := 0
 	for spawner in get_tree().get_nodes_in_group("EnemySpawners"):
-		if is_instance_valid(spawner) and map_instance.is_ancestor_of(spawner) \
-				and spawner.has_method("replenish_now"):
-			spawner.replenish_now()
+		if not (is_instance_valid(spawner) and map_instance.is_ancestor_of(spawner) \
+				and spawner.has_method("get_pool_capacity")):
+			continue
+		if spawner.exclude_from_map_cap:
+			spawner.fill_to_pool() # always-present (boss / set-piece)
+			continue
+		capped.append(spawner)
+		total_pool += spawner.get_pool_capacity()
+		total_alive += spawner.get_alive_count()
+	if capped.is_empty():
+		return
+
+	var occupants := _spawn_occupant_count(map_id)
+	var map_cap: int = EnemySpawner.capacity_for(total_pool, occupants)
+	var deficit := map_cap - total_alive
+	# deficit <= 0 -> at/over cap: add nothing, despawn nothing (spawn debt).
+	if deficit <= 0:
+		return
+
+	# Build the set of empty spawn points (one entry per free slot) and fill a
+	# random subset, so density is shared across spawners by their open capacity.
+	var slots: Array = []
+	for spawner in capped:
+		for _i in spawner.free_room():
+			slots.append(spawner)
+	slots.shuffle()
+	var n: int = mini(deficit, slots.size())
+	for i in n:
+		slots[i].spawn_one()
+
+
+## Occupants on a map for spawn scaling (bots included per SPAWN_COUNT_BOTS).
+func _spawn_occupant_count(map_id: String) -> int:
+	var ids: Array = active_maps[map_id].get("player_ids", [])
+	if SPAWN_COUNT_BOTS:
+		return ids.size()
+	var n := 0
+	for pid in ids:
+		if not BotManager.is_bot(pid):
+			n += 1
+	return n
+
+
+## Read-only map population snapshot for dev tooling (the `spawns` command /
+## DebugSpawnOverlay). Server-only — clients get an empty dict. Mirrors the cap
+## math in replenish_map_population without mutating anything.
+func get_map_population_summary(map_id: String) -> Dictionary:
+	if not multiplayer.is_server() or not map_id in active_maps:
+		return {}
+	var map_instance = active_maps[map_id].scene_instance
+	if not is_instance_valid(map_instance):
+		return {}
+	var spawners: Array = []
+	var total_pool := 0
+	var total_alive := 0
+	for spawner in get_tree().get_nodes_in_group("EnemySpawners"):
+		if not (is_instance_valid(spawner) and map_instance.is_ancestor_of(spawner) \
+				and spawner.has_method("get_population_report")):
+			continue
+		var rep: Dictionary = spawner.get_population_report()
+		spawners.append(rep)
+		if not rep.get("excluded", false):
+			total_pool += int(rep.get("pool", 0))
+			total_alive += int(rep.get("alive", 0))
+	var occupants := _spawn_occupant_count(map_id)
+	return {
+		"map_id": map_id,
+		"occupants": occupants,
+		"total_pool": total_pool,
+		"total_alive": total_alive,
+		"map_cap": EnemySpawner.capacity_for(total_pool, occupants),
+		"spawners": spawners,
+	}
 
 
 ## Gather enemy nodes under a map's Enemies container. Matched by the "Enemies"
@@ -829,10 +912,10 @@ func _finalize_player_spawn(player_id: int, map_id: String, spawn_point_name: St
 	# than waiting up to ACTIVATION_SCAN_INTERVAL, so spawning in next to a mob
 	# never shows a frozen enemy.
 	_scan_map_activation(map_id)
-	# ...and replenish this map's spawners now, so a re-entered (or freshly
-	# warmed) map fills to its solo cap immediately instead of staying sparse for
-	# up to one SPAWN_TICK_INTERVAL. Idempotent and respects the over-cap rule.
-	_replenish_map_spawners(map_id)
+	# ...and fill this map's population to its (now-occupied) cap immediately, so a
+	# re-entered or freshly-warmed map isn't sparse for up to one SPAWN_TICK_INTERVAL.
+	# Idempotent and respects the over-cap rule.
+	replenish_map_population(map_id)
 
 
 func _spawn_player_on_server_map(player_id: int, map_id: String, spawn_point_name: String = ""):

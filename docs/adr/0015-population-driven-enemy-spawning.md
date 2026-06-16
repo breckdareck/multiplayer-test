@@ -2,10 +2,13 @@
 
 ## Status
 
-Accepted (2026-06-15). Live in `scripts/Enemy/enemy_spawner.gd` and
-`scripts/Managers/map_manager.gd`. Builds directly on the proximity-activation
-half of [ADR 0007](0007-map-residency-and-enemy-activation.md); the user-facing
-mechanics it implements are catalogued in
+Accepted (2026-06-15). **Revised 2026-06-16**: the capacity cap was lifted from
+per-spawner to **map-wide** — the decision text below describes the live model; see
+[Revision](#revision-2026-06-16--cap-lifted-from-per-spawner-to-map-wide). Live in
+`scripts/Enemy/enemy_spawner.gd` and `scripts/Managers/map_manager.gd`. Builds
+directly on the proximity-activation half of
+[ADR 0007](0007-map-residency-and-enemy-activation.md); the user-facing mechanics
+it implements are catalogued in
 [docs/maplestory_spawn_mechanics.md](../maplestory_spawn_mechanics.md).
 
 ## Context
@@ -36,66 +39,80 @@ the *spawn* side.
 Adopt MapleStory's population model, but with our own cadence number rather than
 copying its exact clock.
 
-### 1. `pool_size` becomes the spawn-point cap, not the always-alive count
+### 1. Each spawner's pool is its typed contribution to the map's spawn points
 
-A spawner's pool is reinterpreted as the **physical spawn-point capacity** — the
-100% / full-party value. How many of those are actually alive is decided by the
-capacity curve below. A pool member is "alive" exactly while it is checked out of
-the spawner's `_dormant` list; death returns it to `_dormant`. So
-`alive == _pool.size() - _dormant.size()`.
+`EnemySpawner` stays the authoring unit: one mob type + its spawn-point markers
+in the scene (mirroring MapleStory's *typed* spawn points). A spawner's
+`pool_size` is the number of physical spawn points it contributes. How many are
+alive is decided by the **map-wide** cap (§3), not per spawner. A pool member is
+"alive" exactly while checked out of the spawner's `_dormant` list; death returns
+it. So `spawner.get_alive_count() == _pool.size() - _dormant.size()`. Spawners are
+intentionally "dumb" — they expose `get_pool_capacity()`, `get_alive_count()`,
+`free_room()`, `spawn_one()` and let MapManager run the budget.
 
 ### 2. One global respawn tick on `MapManager`
 
 `MapManager` owns a single server-only clock, `SPAWN_TICK_INTERVAL`, accumulated
-in `_process` and emitted as the `spawn_tick` signal. Every `EnemySpawner`
-connects to it and, on each tick, replenishes its own map up to the current cap.
-There are no per-enemy respawn timers anymore.
+in `_process`. On each tick it brings **every active map** up to its cap
+(`replenish_map_population`) and then emits `spawn_tick` as a notification seam.
+There are no per-enemy respawn timers and spawners do not self-schedule.
 
 - **The interval is a gameplay choice, set to `5.0 s`.** It is deliberately *not*
   tied to MapleStory's 7.56 s (which is itself 7 × a 1.08 s engine heartbeat) —
   we owe nothing to that engine's clock. 5 s preserves the feel of the old 3–5 s
   per-enemy delay while making respawns arrive as a coherent wave. It is a single
   named constant; retune freely.
-- The tick is emitted **before** the activation-scan early-return in `_process`
-  so it fires every frame-budget cycle, and spawners on a zero-occupant map
-  compute a cap of 0 and no-op, so a global broadcast is cheap.
+- The tick runs **before** the activation-scan early-return in `_process`; a
+  zero-occupant map yields a cap of 0 and no-ops (hibernation), so running it over
+  every map each tick is cheap.
 
-### 3. Capacity scales with map occupancy
+### 3. ONE cap scales the whole map's spawn points (not per spawner)
 
-`EnemySpawner.capacity_for(pool, occupants)` is a pure function:
+The cap is applied to the map's **total** spawn-point pool, summed across every
+spawner, via the pure curve:
 
 ```
-occupants <= 0            -> 0                       # hibernation
-else  floor(pool * clamp(0.75 + 0.05*(occupants-1), 0.75, 1.0)), min 1
+EnemySpawner.capacity_for(total_pool, occupants):
+  occupants <= 0            -> 0                       # hibernation
+  else  floor(total_pool * clamp(0.75 + 0.05*(occupants-1), 0.75, 1.0)), min 1
 ```
 
-Solo = 75% of the pool, rising +5%/occupant to 100% at a party of six, matching
-MapleStory's published table (`floor` reproduces its 30→22/25/28 values). The
-`min 1` keeps a tiny pool (e.g. a lone-boss spawner) from being scaled out of
-existence. Occupancy is read from `MapManager.get_players_on_map(map_id)`.
+Solo = 75% of the map total, rising +5%/occupant to 100% at a party of six,
+matching MapleStory's published table (`floor` reproduces its 30→22/25/28). This
+is the crux: applying the scalar per spawner throws away each spawner's fractional
+part, so on small pools the occupancy ramp barely moves (`floor(6·0.75)=4` for
+several steps). Summing first recovers it — `floor(12·0.75)=9` vs `4+4=8` — so the
+ramp is meaningful even with small per-spawner pools (test:
+`test_map_wide_cap_beats_summed_per_spawner_floors`).
 
-**Bots count as occupants by default** (`count_bots_as_players`, per-spawner
-toggle). Bots are this game's ambient population
-([ADR 0011](0011-bot-ambient-population.md)); having them raise the cap makes a
-bot-busy map denser, which is the living-world goal. The whole behaviour is
-gated by `enable_population_scaling` (default on); off = the old always-full pool.
+`replenish_map_population(map_id)` computes `deficit = map_cap - total_alive`,
+then fills `deficit` **random empty spawn points** chosen across all spawners
+(build one entry per free slot, `shuffle`, take `deficit`). That's MapleStory's
+"the server randomly selects which physical spawn points to activate," and it
+shares density across mob types in proportion to their open capacity.
+
+**Bots count as occupants by default** (`MapManager.SPAWN_COUNT_BOTS`). Bots are
+this game's ambient population ([ADR 0011](0011-bot-ambient-population.md)); having
+them raise the cap makes a bot-busy map denser, the living-world goal. A spawner
+flagged `exclude_from_map_cap` (bosses / set-pieces) is *not* in the budget and
+simply keeps its whole pool alive (`fill_to_pool`).
 
 ### 4. Over-cap / "spawn debt" falls out for free
 
-`_replenish()` only ever *adds* (`to_spawn = cap - alive`, clamped to ≥0); it
-never despawns. So if a party fills a map to 28 and leaves, a solo entrant (cap
-22) keeps all 28 — fully killable for full reward — and the map self-corrects
-down only as those extras die (no respawn until `alive < cap`). This is exactly
-MapleStory's spawn-debt behaviour, achieved by the clamp alone.
+`replenish_map_population` only ever *adds* (`deficit = map_cap - total_alive`,
+filled only when positive); it never despawns. So if a party fills a map to 28 and
+leaves, a solo entrant (cap 22) keeps all 28 — fully killable for full reward — and
+the map self-corrects down only as those extras die (no respawn until
+`total_alive < map_cap`). Exactly MapleStory's spawn-debt behaviour.
 
 ### 5. Hibernation reuses ADR 0007
 
-A zero-occupant map already sleeps every enemy via the proximity scanner. With
-capacity 0 at zero occupants and a replenish that never despawns, survivors stay
-frozen in place until re-entry — no new freeze logic needed. On entry,
-`_finalize_player_spawn` calls `_replenish_map_spawners(map_id)` (spawners found
-via the `EnemySpawners` group, filtered to the map's subtree) for an immediate
-fill to 75%, so a re-entered map isn't sparse for up to one tick.
+A zero-occupant map already sleeps every enemy via the proximity scanner. With a
+cap of 0 at zero occupants and a replenish that never despawns, survivors stay
+frozen until re-entry — no new freeze logic. On entry, `_finalize_player_spawn`
+calls `replenish_map_population(map_id)` for an immediate fill to the solo cap, so
+a re-entered map isn't sparse for up to one tick. A spawner also requests a fill
+once its deferred setup completes, covering freshly-loaded maps.
 
 ## Considered Options
 
@@ -112,14 +129,21 @@ fill to 75%, so a re-entered map isn't sparse for up to one tick.
 - **Despawn over-cap monsters when a party leaves.** Rejected: punishes the solo
   entrant and contradicts the (desirable) MapleStory bonus-wave behaviour the
   clamp gives for free.
+- **Per-spawner capacity (the original form of this ADR).** Rejected on review:
+  flooring each small spawner independently makes the occupancy ramp nearly
+  inert and lumpy. Replaced by the map-wide cap — see the Revision.
+- **Collapse to a single map-wide spawner.** Rejected: loses the per-spawner
+  authoring unit (one typed mob + its markers grouped in the scene, mirroring
+  MapleStory's typed spawn points). The map-wide *cap* gives the benefit without
+  the authoring cost.
 
 ## Consequences
 
-- **Solo density dropped to 75% of `pool_size`.** Existing maps were authored
-  with `pool_size` = intended-alive-count, so solo play is now lighter on them.
-  Authors wanting a specific solo count should set `pool_size ≈ desired / 0.75`.
-  (No map `pool_size` values were changed in this ADR — a follow-up balance pass
-  owns that.)
+- **Solo density dropped to 75% of the map's total pool.** Existing maps were
+  authored with each `pool_size` = intended-alive-count, so solo play is now
+  lighter. Authors wanting a specific solo *map* count should size the summed
+  pools to `desired / 0.75`. (No map `pool_size` values were changed here — a
+  follow-up balance pass owns that.)
 - **Over-cap persistence is bounded by the warm pool.** MapleStory freezes an
   empty map indefinitely; here ADR 0007's evictor frees a fully-empty map ~20 s
   after its last agent leaves, so the leftover bonus wave only survives while the
@@ -128,7 +152,35 @@ fill to 75%, so a re-entered map isn't sparse for up to one tick.
   reshaping of already-server-authoritative spawning.
 - `respawn_delay` is retained as a deprecated, unused `@export` so existing scene
   files load unchanged; it no longer affects anything.
-- New constant `MapManager.SPAWN_TICK_INTERVAL` and signal `spawn_tick` are the
-  single tuning/extension seam. Unit coverage:
-  `test/enemy/test_spawn_capacity.gd` (curve table, hibernation, full-party clamp,
-  min-1 floor, spawn-debt invariant).
+- New constant `MapManager.SPAWN_TICK_INTERVAL`, `MapManager.SPAWN_COUNT_BOTS`,
+  and the `replenish_map_population` / `get_map_population_summary` methods are the
+  tuning/extension seam. Unit coverage: `test/enemy/test_spawn_capacity.gd` (curve
+  table, hibernation, full-party clamp, min-1 floor, spawn-debt invariant,
+  map-wide-beats-per-spawner, report shape).
+- **Dev tooling:** the console `spawns` command (`scripts/UI/debug_panel.gd`)
+  toggles a `DebugSpawnOverlay` (`scripts/UI/debug_spawn_overlay.gd`) that draws
+  each spawner's spawn-point markers, a per-spawner `alive/pool` label, and a
+  MAP-wide headline (`total alive / map cap · occ`); `spawns report` prints the
+  same as text. They read `EnemySpawner.get_population_report()` (per-spawner) and
+  `MapManager.get_map_population_summary()` (map cap) — both server-authoritative,
+  so numbers are host-only; markers still draw on a client.
+
+## Revision (2026-06-16) — cap lifted from per-spawner to map-wide
+
+The first form of this ADR applied `capacity_for` **per spawner**. On review that
+was wrong for the same reason MapleStory uses a map-wide cap: flooring a small
+pool independently makes the occupancy scalar nearly inert and lumpy —
+`floor(6·0.75)=4` stays 4 across several player counts, and a map's scaling is the
+sum of those coarse steps. MapleStory instead caps the map's **total** spawn
+points and fills random empty ones.
+
+Changed to match: `pool_size` is now a spawner's *contribution* to the map total;
+`MapManager.replenish_map_population` sums all (non-excluded) spawners' pools,
+applies `capacity_for(total_pool, occupants)` once, and fills the deficit across
+random empty spawn points. Spawners became "dumb" (`get_pool_capacity` /
+`get_alive_count` / `free_room` / `spawn_one` / `fill_to_pool`); the per-spawner
+`enable_population_scaling` + `count_bots_as_players` exports were removed (bots now
+counted map-wide via `SPAWN_COUNT_BOTS`), replaced by a single
+`exclude_from_map_cap` flag for always-present boss/set-piece spawns. The pure
+`capacity_for` curve and its tests are unchanged — only its *input* moved from one
+spawner's pool to the map total.
