@@ -190,6 +190,7 @@ func _emit(m: Dictionary) -> void:
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	text = _replace_layer(text, "Background2", "")
 	text = text.replace('display_name = "The Ruins"', 'display_name = "Gen %s"' % m["name"])
+	text = _strip_clone_clutter(text)
 	text = _inject_playable(text, m)
 	if m["name"] == "tower": text = _inject_ladders(text)
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
@@ -455,3 +456,27 @@ func _find_ladder_atlas(text: String) -> String:
 	if ti == -1: return ""
 	var s := ti + key.length()
 	return text.substr(s, text.find('"', s) - s)
+
+## Strip clutter inherited from the cloned template that doesn't belong in a fresh map:
+## the crate StaticBodies under "Platforms" (the generated map uses the Platform tile
+## layer instead), and the cloned portals + their *_Portal_Spawn markers (they point at
+## the TEMPLATE's neighbours, not this map's).
+func _strip_clone_clutter(text: String) -> String:
+	text = _clear_children(text, "Platforms")
+	var portal_id := _find_ext_id(text, "res://scenes/Gameplay/portal.tscn")
+	var nre := RegEx.new(); nre.compile('\\[node name="([^"]+)"([^\\]]*)\\]')
+	var ms := nre.search_all(text)
+	var remove := {}
+	for m in ms:
+		var nm := m.get_string(1); var attrs := m.get_string(2)
+		if (portal_id != "" and attrs.find('instance=ExtResource("%s")' % portal_id) != -1) or nm.ends_with("_Portal_Spawn"):
+			remove[nm] = true
+	var spans := []
+	for i in ms.size():
+		var nm := ms[i].get_string(1); var parent := _attr(ms[i].get_string(2), "parent")
+		if remove.has(nm) or remove.has(parent):
+			var bend = text.length() if i + 1 >= ms.size() else ms[i + 1].get_start()
+			spans.append([ms[i].get_start(), bend])
+	spans.sort_custom(func(a, b): return a[0] > b[0])
+	for s in spans: text = text.substr(0, s[0]) + text.substr(s[1])
+	return text
