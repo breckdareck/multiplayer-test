@@ -96,13 +96,9 @@ func _tower() -> Dictionary:
 		elif x0 > int(width * 0.55): dir = -1
 		else: dir = 1 if rng.randf() < 0.5 else -1
 		var nx := clampi(x0 + dir * rng.randi_range(11, 20), 2, width - 9)
-		# A small decorative ledge ONLY in the biggest gaps (dy>=6), at cur_y-3 = exactly 3
-		# tiles from BOTH the branch below and the branch above. So it's never within 2 tiles
-		# of another platform (no flush stacking, no "I can almost jump up" tease). Smaller
-		# gaps get nothing — there's no room for a properly-separated ledge.
-		if ny > 9 and dy >= 6:
-			var stx := clampi(int((x0 + nx) / 2.0) + dir * 3, 2, width - 5)
-			_seg(plat, stx, stx + 3, cur_y - 3)
+		# NO between-branch ledges: the gaps (4-6 tiles) are too small to give a tiny platform
+		# >=3 clear tiles from BOTH neighbours, so any one reads as touching/too-close. The
+		# climb is the ladders; canopy variety comes from the same-level side off-shoots.
 		cur_x = nx
 		cur_y = ny
 	return {"name": "tower", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
