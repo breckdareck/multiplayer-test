@@ -408,7 +408,7 @@ func _inject_ladders(text: String) -> String:
 	for i in TOWER_LADDERS.size():
 		var L = TOWER_LADDERS[i]
 		var x: int = L[2] * 16 - 111
-		var top_y: int = L[0] * 16 - 269 - 6
+		var top_y: int = L[0] * 16 - 269 - 1     # poke only 1px above the branch (like ruins)
 		var bottom_y: int = L[1] * 16 - 269 - 24
 		var h: int = bottom_y - top_y
 		var cy: int = int((top_y + bottom_y) / 2.0)

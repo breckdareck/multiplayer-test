@@ -165,7 +165,7 @@ func _connectors_for(name: String, layers: Array, minx: int, miny: int) -> Array
 		for t in MANUAL_CONNECTORS[name]:
 			out.append({
 				"x": (t[2] - minx) * 16 + 8,
-				"y_top": (t[0] - miny) * 16 - 6,
+				"y_top": (t[0] - miny) * 16 - 1,
 				"y_bottom": (t[1] - miny) * 16 - 24,
 				"type": "ladder",
 			})
@@ -239,7 +239,7 @@ func _infer_connectors(layers: Array, minx: int, miny: int) -> Array:
 			if col == -1: col = picks[li]
 			conns.append({
 				"x": (col - minx) * 16 + 8,
-				"y_top": (u[0] - miny) * 16 - 6,
+				"y_top": (u[0] - miny) * 16 - 1,
 				"y_bottom": (lo_seg[0] - miny) * 16 - 24,
 				"type": "ladder",
 			})
