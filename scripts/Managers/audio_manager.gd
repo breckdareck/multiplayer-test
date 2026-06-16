@@ -87,14 +87,29 @@ func play_sfx(sfx_path: String, global_position: Vector2 = Vector2.ZERO, volume_
 
 	var sfx_player = AudioStreamPlayer2D.new()
 	sfx_player.stream = sfx_stream
-	sfx_player.global_position = global_position
 	sfx_player.volume_db = volume_db
 	sfx_player.bus = "SFX"
 	sfx_player.pitch_scale = random_pitch_for(sfx_path)
-	add_child(sfx_player)
+	# Parent the emitter INTO the local visible map, not into AudioManager.
+	# Maps each run in their own SubViewport / World2D and the player's Camera2D
+	# (the only audio listener) lives there. An AudioStreamPlayer2D added to this
+	# autoload sits in the root viewport instead — which has no camera, so its
+	# listener falls back to world origin (0,0). With max_distance defaulting to
+	# 2000px, that silences any SFX emitted far from origin (e.g. Deep Woods,
+	# authored out at x ≈ -1900 to -3300). Hosting it in the current map puts it
+	# in the same world as the player's camera, so distance is measured from the
+	# listener and SFX are audible on every map regardless of authoring origin.
+	var host: Node = MapManager.get_current_visible_map()
+	if not is_instance_valid(host):
+		host = self  # no map loaded yet (login/menu) — fall back to the autoload
+	host.add_child(sfx_player)
+	# global_position must be set AFTER reparenting — it resolves against the new
+	# parent's transform (the map root, authored at its own origin).
+	sfx_player.global_position = global_position
 	sfx_player.play()
 	await sfx_player.finished
-	sfx_player.queue_free()
+	if is_instance_valid(sfx_player):
+		sfx_player.queue_free()
 
 # Plays a NON-positional SFX locally (UI clicks, death sting, etc.).
 # play_sfx uses an AudioStreamPlayer2D, which attenuates with distance from the
