@@ -26,7 +26,7 @@ const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
 ## matching the approved climb. Each hangs from the upper branch with its bottom dangling
 ## ~1.5 tiles above the lower platform.
 const TOWER_LADDERS := [
-	[11, 17, 33], [25, 32, 7], [25, 31, 23], [31, 42, 18],
+	[11, 17, 33], [25, 31, 7], [25, 31, 23], [31, 42, 18],
 	[31, 37, 35], [37, 42, 30], [46, 51, 6], [46, 51, 18],
 ]
 
@@ -77,14 +77,16 @@ func _tower() -> Dictionary:
 		var ln := rng.randi_range(16, 26)
 		var x0 := clampi(cur_x, 2, width - 3 - ln)
 		_seg(plat, x0, x0 + ln, cur_y)
-		# Side off-shoot: a smaller ledge jutting out to ONE SIDE (a perch), offset so it
-		# never sits directly on top of the branch.
+		# Side off-shoot: a smaller ledge to ONE SIDE at the SAME LEVEL as the branch (a few
+		# tiles of horizontal gap, so you hop across to it). Same level = never vertically
+		# adjacent to (or a jump-tease above) another platform.
 		if rng.randf() < 0.35:
 			var sl := rng.randi_range(6, 10)
 			var sdir := 1 if rng.randf() < 0.5 else -1
 			var sbase := (x0 + ln) if sdir > 0 else (x0 - sl)
 			var sx := clampi(sbase + sdir * rng.randi_range(1, 5), 2, width - 3 - sl)
-			_seg(plat, sx, sx + sl, cur_y - rng.randi_range(-1, 2))
+			var _oy := rng.randi_range(0, 2)   # consumed (not used): keeps the approved layout seed-stable
+			_seg(plat, sx, sx + sl, cur_y)      # off-shoot at the SAME level as its branch
 		# Choose the next (higher) branch: shift sideways by a real amount (biased away
 		# from the walls) so two branches are never stacked directly on top of each other.
 		var dy := rng.randi_range(4, 6)
@@ -94,12 +96,13 @@ func _tower() -> Dictionary:
 		elif x0 > int(width * 0.55): dir = -1
 		else: dir = 1 if rng.randf() < 0.5 else -1
 		var nx := clampi(x0 + dir * rng.randi_range(11, 20), 2, width - 9)
-		# A single small STEPPING STONE between this branch and the next, mid-height and
-		# offset toward the next branch, so it reads as a hop-up (the only time a platform
-		# sits above another). Also on the Platform layer (via _seg).
-		if ny > 9:
+		# A small decorative ledge ONLY in the biggest gaps (dy>=6), at cur_y-3 = exactly 3
+		# tiles from BOTH the branch below and the branch above. So it's never within 2 tiles
+		# of another platform (no flush stacking, no "I can almost jump up" tease). Smaller
+		# gaps get nothing — there's no room for a properly-separated ledge.
+		if ny > 9 and dy >= 6:
 			var stx := clampi(int((x0 + nx) / 2.0) + dir * 3, 2, width - 5)
-			_seg(plat, stx, stx + 3, cur_y - maxi(2, int(dy / 2.0)))
+			_seg(plat, stx, stx + 3, cur_y - 3)
 		cur_x = nx
 		cur_y = ny
 	return {"name": "tower", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
