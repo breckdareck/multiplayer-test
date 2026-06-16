@@ -93,14 +93,35 @@ func _physics_process(delta: float) -> void:
 func _handle_popping(delta: float) -> void:
 	# Apply gravity
 	velocity.y += gravity * delta
-	
-	# Move and slide
-	move_and_slide()
-	
+
+	# Defensive: never carry a non-finite velocity into the next frame.
+	if not velocity.is_finite():
+		velocity = Vector2.ZERO
+
+	# Move manually instead of move_and_slide() so we can validate the
+	# collision normal before sliding along it. When an item spawns
+	# overlapping geometry (e.g. an enemy dies on a StaticBody2D crate
+	# platform), the solver reports a degenerate contact whose normal
+	# normalizes to (nan, nan); move_and_slide() would slide along it and
+	# spam "normal must be normalized". Doing the move ourselves lets us
+	# skip the bad normal.
+	var on_floor := false
+	var collision := move_and_collide(velocity * delta)
+	if collision:
+		var normal := collision.get_normal()
+		if normal.is_finite() and not normal.is_zero_approx():
+			velocity = velocity.slide(normal)
+			# An upward-facing surface counts as floor.
+			if normal.dot(Vector2.UP) > 0.7:
+				on_floor = true
+		else:
+			# Degenerate/overlapping contact: stop rather than slide on NaN.
+			velocity = Vector2.ZERO
+
 	# Apply friction when on ground
-	if is_on_floor():
+	if on_floor:
 		velocity.x *= ground_friction
-		
+
 		# If we've been on ground for a bit and velocity is low, settle
 		if state_timer > min_settle_time and abs(velocity.x) < 20 and abs(velocity.y) < 20:
 			##print("DroppedItem settling after ", state_timer, " seconds")
