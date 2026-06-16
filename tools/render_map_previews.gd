@@ -17,6 +17,22 @@ const MAPS := [
 	"weave", "dust_warren", "thornroot", "ember_meadows", "warlord",
 	"meadow_path", "three_terraces", "gen_open", "gen_tower", "gen_cliffs",
 ]
+
+## Hand-placed connectors for specific maps (overrides auto-inference). Each entry is
+## [upper_branch_row, lower_platform_row, column] in tile coords; the ladder hangs from
+## the upper branch with its bottom dangling ~1.5 tiles above the lower platform.
+const MANUAL_CONNECTORS := {
+	"gen_tower": [
+		[11, 17, 33],   # top -> 30-32
+		[25, 32, 7],    # 25-27 -> 24
+		[25, 31, 23],   # 25-27 -> 21-23
+		[31, 42, 18],   # 21-23 -> 15-17 (long)
+		[31, 37, 35],   # 21-23 -> 18-20
+		[37, 42, 30],   # 18-20 -> 15-17
+		[46, 51, 6],    # 13-14 -> floor (left)
+		[46, 51, 18],   # 13-14 -> floor (right)
+	],
+}
 const OUT_DIR := "res://docs/map_previews"
 # Distinct pin colours, assigned per enemy type in order of first appearance.
 const PALETTE := [
@@ -139,7 +155,127 @@ func _render(name: String, imgs: Dictionary) -> Dictionary:
 		"name": name, "png": "%s.png" % name,
 		"img_w": img.get_width(), "img_h": img.get_height(),
 		"spawners": spawners,
+		"connectors": _connectors_for(name, layers, minx, miny),
 	}
+
+## Hand-placed connectors if the map has an entry, else the auto-inferred ones.
+func _connectors_for(name: String, layers: Array, minx: int, miny: int) -> Array:
+	if MANUAL_CONNECTORS.has(name):
+		var out := []
+		for t in MANUAL_CONNECTORS[name]:
+			out.append({
+				"x": (t[2] - minx) * 16 + 8,
+				"y_top": (t[0] - miny) * 16 - 6,
+				"y_bottom": (t[1] - miny) * 16 - 24,
+				"type": "ladder",
+			})
+		return out
+	return _infer_connectors(layers, minx, miny)
+
+# --- connector inference ------------------------------------------------------
+
+## Propose where ropes/ladders should go: for each wide platform, find the nearest
+## wide surface 3-9 tiles below that overlaps it horizontally, and put a connector in
+## the overlap. Returns image-pixel rects {x, y_top, y_bottom, type}. Map-agnostic.
+func _infer_connectors(layers: Array, minx: int, miny: int) -> Array:
+	# Occupancy of every platform/ground tile + the walkable surface rows (so we pick
+	# wide branches as the "top" a ladder hangs from).
+	var occupied := {}
+	var surf_rows := {}
+	var ground_top := {}
+	for cells in layers:
+		for c in cells:
+			occupied[c] = true
+			var src: int = cells[c][0]
+			var ax: Vector2i = cells[c][1]
+			if src == 1 and ax.y == 9 and ax.x >= 17 and ax.x <= 19:   # one-way platform tiles
+				if not surf_rows.has(c.y): surf_rows[c.y] = {}
+				surf_rows[c.y][c.x] = true
+			elif not ground_top.has(c.x) or c.y < ground_top[c.x]:
+				ground_top[c.x] = c.y
+	for col in ground_top:
+		var r: int = ground_top[col]
+		if not surf_rows.has(r): surf_rows[r] = {}
+		surf_rows[r][col] = true
+	# group each row's columns into contiguous segments [row, x0, x1]; map each surface
+	# cell to its segment so we can identify the platform directly below any column.
+	var segs := []
+	var seg_of := {}
+	for r in surf_rows:
+		var xs = surf_rows[r].keys(); xs.sort()
+		var s: int = xs[0]; var p: int = xs[0]
+		for k in range(1, xs.size()):
+			if xs[k] == p + 1:
+				p = xs[k]
+			else:
+				_add_seg(segs, seg_of, r, s, p); s = xs[k]; p = xs[k]
+		_add_seg(segs, seg_of, r, s, p)
+	# Each platform hangs a ladder down to EACH distinct platform directly below it — the
+	# first surface hit scanning straight down a column, 3-12 tiles below. Scanning a
+	# single column guarantees no pass-through; doing it across the whole platform gives a
+	# ladder on each side that sits over a DIFFERENT lower platform (so e.g. the 25-27
+	# branch drops one to the ledge toward 24 and another down to 21-23). Ladder hangs
+	# from the platform; bottom dangles ~1.5 tiles above the lower one (jump-grab).
+	var conns := []
+	for u in segs:
+		if u[2] - u[1] + 1 < 6: continue        # only wide fighting branches drop ladders
+		var mid := int((u[1] + u[2]) / 2.0)
+		var picks := {}                          # lower_seg_idx -> column (deduped)
+		# left end: first column (scanning inward from the left) that overhangs a platform
+		for c in range(u[1], mid + 1):
+			var lo := _first_below(occupied, seg_of, c, u[0])
+			if lo[0] != -1:
+				if not picks.has(lo[0]): picks[lo[0]] = c
+				break
+		# right end: first column scanning inward from the right
+		for c in range(u[2], mid - 1, -1):
+			var lo := _first_below(occupied, seg_of, c, u[0])
+			if lo[0] != -1:
+				if not picks.has(lo[0]): picks[lo[0]] = c
+				break
+		for li in picks:
+			var lo_seg = segs[li]
+			var col := _overlap_col(u, lo_seg, occupied)   # centre the ladder in the overlap
+			if col == -1: col = picks[li]
+			conns.append({
+				"x": (col - minx) * 16 + 8,
+				"y_top": (u[0] - miny) * 16 - 6,
+				"y_bottom": (lo_seg[0] - miny) * 16 - 24,
+				"type": "ladder",
+			})
+	return conns
+
+## The platform (seg index) + row directly below column `c` starting at row `urow`,
+## but only if it is 3-12 tiles down (closer = jumpable, no ladder). Else [-1, -1].
+func _first_below(occupied: Dictionary, seg_of: Dictionary, c: int, urow: int) -> Array:
+	for rr in range(urow + 1, urow + 13):
+		if occupied.has(Vector2i(c, rr)):
+			if rr - urow >= 3: return [seg_of.get(Vector2i(c, rr), -1), rr]
+			return [-1, -1]
+	return [-1, -1]
+
+## The clean column nearest the CENTRE of where `u` overhangs `lo` (scanning straight
+## down hits `lo` first — never through an intermediate platform). -1 if none.
+func _overlap_col(u: Array, lo: Array, occupied: Dictionary) -> int:
+	var ox0: int = maxi(u[1], lo[1])
+	var ox1: int = mini(u[2], lo[2])
+	if ox1 < ox0: return -1
+	var center := int((ox0 + ox1) / 2.0)
+	var best := -1
+	var bestd := 99999
+	for c in range(ox0, ox1 + 1):
+		var hit := -1
+		for rr in range(u[0] + 1, lo[0] + 1):
+			if occupied.has(Vector2i(c, rr)): hit = rr; break
+		if hit == lo[0]:
+			var d: int = absi(c - center)
+			if d < bestd: bestd = d; best = c
+	return best
+
+func _add_seg(segs: Array, seg_of: Dictionary, r: int, x0: int, x1: int) -> void:
+	var idx := segs.size()
+	segs.append([r, x0, x1])
+	for c in range(x0, x1 + 1): seg_of[Vector2i(c, r)] = idx
 
 # --- scene-text helpers -------------------------------------------------------
 

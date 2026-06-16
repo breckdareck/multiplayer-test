@@ -30,6 +30,30 @@ def hex2rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
+LADDER_COL = (210, 168, 96)   # warm wood
+ROPE_COL = (232, 212, 158)    # pale rope
+
+
+def draw_ladder(d, x, y0, y1):
+    w = 7
+    d.line([(x - w, y0), (x - w, y1)], fill=LADDER_COL + (255,), width=3)
+    d.line([(x + w, y0), (x + w, y1)], fill=LADDER_COL + (255,), width=3)
+    yy = y0 + 7
+    while yy < y1:
+        d.line([(x - w, yy), (x + w, yy)], fill=LADDER_COL + (255,), width=3)
+        yy += 13
+
+
+def draw_rope(d, x, y0, y1):
+    pts, yy, t = [], y0, 0
+    while yy <= y1:
+        pts.append((x + (4 if t % 2 == 0 else -4), yy))
+        yy += 9
+        t += 1
+    pts.append((x, y1))
+    d.line(pts, fill=ROPE_COL + (255,), width=3, joint="curve")
+
+
 def annotate(entry):
     name = entry["name"]
     base = Image.open(os.path.join(PREV, entry["png"])).convert("RGBA")
@@ -58,6 +82,14 @@ def annotate(entry):
     d = ImageDraw.Draw(overlay)
     fnum = font(BOLD, 12)
 
+    # Proposed connectors (ropes/ladders) — drawn under the pins.
+    conns = entry.get("connectors", [])
+    for cn in conns:
+        x = cn["x"] * SCALE + pad_l
+        yt = cn["y_top"] * SCALE + pad_t
+        yb = cn["y_bottom"] * SCALE + pad_t
+        (draw_ladder if cn["type"] == "ladder" else draw_rope)(d, x, yt, yb)
+
     # Pins, numbered in spawn-order.
     for i, (x, y, col) in enumerate(pins, 1):
         cx, cy = x + pad_l, y + pad_t
@@ -73,10 +105,14 @@ def annotate(entry):
         g["pool"] += sp["pool_size"]
     total = sum(g["points"] for g in groups.values())
 
+    n_lad = sum(1 for c in conns if c["type"] == "ladder")
+    n_rope = sum(1 for c in conns if c["type"] == "rope")
+    conn_rows = (1 if n_lad else 0) + (1 if n_rope else 0)
+
     fh, fs, fr = font(BOLD, 18), font(BOLD, 12), font(REG, 14)
     pad, sw, rowh = 12, 16, 26
     panel_w = 320
-    panel_h = pad * 2 + 24 + 22 + len(groups) * rowh
+    panel_h = pad * 2 + 24 + 22 + (len(groups) + conn_rows) * rowh
     px, py = 12, 12
     d.rounded_rectangle([px, py, px + panel_w, py + panel_h], radius=10,
                         fill=(18, 21, 29, 228), outline=(255, 255, 255, 45), width=1)
@@ -90,6 +126,12 @@ def annotate(entry):
         d.text((tx + sw + 9, ty - 1), f"{enemy}   ×{g['points']}   (pool {g['pool']})",
                font=fr, fill=(235, 238, 242, 255))
         ty += rowh
+    if n_lad:
+        draw_ladder(d, tx + sw // 2, ty + 1, ty + sw - 1)
+        d.text((tx + sw + 9, ty - 1), f"Ladder  ×{n_lad}  (proposed)", font=fr, fill=(235, 238, 242, 255)); ty += rowh
+    if n_rope:
+        draw_rope(d, tx + sw // 2, ty + 1, ty + sw - 1)
+        d.text((tx + sw + 9, ty - 1), f"Rope  ×{n_rope}  (proposed)", font=fr, fill=(235, 238, 242, 255)); ty += rowh
 
     out = Image.alpha_composite(base, overlay).convert("RGB")
     path = os.path.join(PREV, f"{name}_annotated.png")

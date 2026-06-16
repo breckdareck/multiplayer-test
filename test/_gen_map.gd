@@ -22,9 +22,18 @@ const LOOKUP := {
 	22:[[2,8]], 11:[[6,8]], 255:[[18,6]],
 }
 const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
+## Hand-placed tower ladders [upper_branch_row, lower_platform_row, column] (tile coords),
+## matching the approved climb. Each hangs from the upper branch with its bottom dangling
+## ~1.5 tiles above the lower platform.
+const TOWER_LADDERS := [
+	[11, 17, 33], [25, 32, 7], [25, 31, 23], [31, 42, 18],
+	[31, 37, 35], [37, 42, 30], [46, 51, 6], [46, 51, 18],
+]
 
 func _init() -> void:
-	for m in [_open(), _tower(), _cliffs()]:
+	# Only the tower this pass — gen_open is hand-edited and must NOT be clobbered,
+	# and gen_cliffs is fine as-is. Add _open()/_cliffs() back here to regen those.
+	for m in [_tower()]:
 		_emit(m)
 		print("WROTE gen_", m["name"], "  ", m["width"], "x", m["bottom"])
 	quit()
@@ -43,23 +52,64 @@ func _open() -> Dictionary:
 	return {"name": "open", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
 
 func _tower() -> Dictionary:
-	var width := 40; var bottom := 88
-	var floor_y := bottom - 6
-	var ground := {}; var plat := {}
+	# Forest-of-Ellinia style: an ORGANIC vertical climb of branch platforms at varied
+	# lengths / heights / offsets (seeded RNG, so it reads as a canopy, not a grid). A
+	# meandering ascent "spine" you can follow up, dressed with overlapping canopy
+	# clumps and dead-end side off-shoots for fullness. No solid walls — branches float
+	# in the dark. Tall gaps are left clear for a rope/ladder (wired next pass). NB: this
+	# sheet has no curved/sloped branch tiles, so branches are flat segments, not arcs.
+	var width := 54
+	var bottom := 55
+	var floor_y := bottom - 4
+	var ground := {}
+	var plat := {}
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 98765431    # change this int for a differently-shaped tower
+
+	# Solid forest floor at the base.
 	for x in range(width):
 		for y in range(floor_y, bottom + 1): ground[Vector2i(x, y)] = true
-	for y in range(6, floor_y):
-		for wx in [0, 1, width - 2, width - 1]: ground[Vector2i(wx, y)] = true
-	var left := true; var ly := floor_y - 4
-	while ly > 12:
-		var x0: int; var x1: int
-		if left: x0 = 2; x1 = int(width * 0.66)
-		else: x0 = int(width * 0.34); x1 = width - 2
-		for x in range(x0, x1):
-			ground[Vector2i(x, ly)] = true; ground[Vector2i(x, ly + 1)] = true
-		left = not left; ly -= 5
-	_shelf(plat, {}, 9, [[14, 26]])
+
+	var cur_x := rng.randi_range(4, 12)
+	var cur_y := floor_y - rng.randi_range(4, 6)
+	while cur_y > 9:
+		# Main branch: WIDE enough to fight on, with varied length + meandering position.
+		var ln := rng.randi_range(16, 26)
+		var x0 := clampi(cur_x, 2, width - 3 - ln)
+		_seg(plat, x0, x0 + ln, cur_y)
+		# Side off-shoot: a smaller ledge jutting out to ONE SIDE (a perch), offset so it
+		# never sits directly on top of the branch.
+		if rng.randf() < 0.35:
+			var sl := rng.randi_range(6, 10)
+			var sdir := 1 if rng.randf() < 0.5 else -1
+			var sbase := (x0 + ln) if sdir > 0 else (x0 - sl)
+			var sx := clampi(sbase + sdir * rng.randi_range(1, 5), 2, width - 3 - sl)
+			_seg(plat, sx, sx + sl, cur_y - rng.randi_range(-1, 2))
+		# Choose the next (higher) branch: shift sideways by a real amount (biased away
+		# from the walls) so two branches are never stacked directly on top of each other.
+		var dy := rng.randi_range(4, 6)
+		var ny := cur_y - dy
+		var dir := 0
+		if x0 < int(width * 0.35): dir = 1
+		elif x0 > int(width * 0.55): dir = -1
+		else: dir = 1 if rng.randf() < 0.5 else -1
+		var nx := clampi(x0 + dir * rng.randi_range(11, 20), 2, width - 9)
+		# A single small STEPPING STONE between this branch and the next, mid-height and
+		# offset toward the next branch, so it reads as a hop-up (the only time a platform
+		# sits above another). Also on the Platform layer (via _seg).
+		if ny > 9:
+			var stx := clampi(int((x0 + nx) / 2.0) + dir * 3, 2, width - 5)
+			_seg(plat, stx, stx + 3, cur_y - maxi(2, int(dy / 2.0)))
+		cur_x = nx
+		cur_y = ny
 	return {"name": "tower", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
+
+func _seg(plat: Dictionary, x0: int, x1: int, y: int) -> void:
+	for x in range(x0, x1):
+		var role := "M"
+		if x == x0: role = "L"
+		elif x == x1 - 1: role = "R"
+		plat[Vector2i(x, y)] = role
 
 func _cliffs() -> Dictionary:
 	var width := 150; var bottom := 40
@@ -141,6 +191,7 @@ func _emit(m: Dictionary) -> void:
 	text = _replace_layer(text, "Background2", "")
 	text = text.replace('display_name = "The Ruins"', 'display_name = "Gen %s"' % m["name"])
 	text = _inject_playable(text, m)
+	if m["name"] == "tower": text = _inject_ladders(text)
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
 	w.store_string(text); w.close()
 
@@ -163,6 +214,9 @@ func _emit(m: Dictionary) -> void:
 ## Add a new-style enemy spawner (pool + spawn_tick model) and put the spawn point
 ## on the floor. Keeps the cloned ruins' Players/Enemies/GlobalDropHandler.
 func _inject_playable(text: String, m: Dictionary) -> String:
+	# Drop any EnemySpawner inherited from the cloned template (ruins now has its own,
+	# converted spawners) so only the one we inject remains.
+	text = _strip_clone_spawners(text)
 	# ext_resources for the spawner scripts + slime, after the header; bump load_steps.
 	var nl := text.find("\n")
 	var header := text.substr(0, nl)
@@ -174,23 +228,38 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	ext += '\n[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]'
 	text = header + ext + text.substr(nl)
 
-	# Snap every spawn marker to exactly 1 tile above the ground surface at its column.
-	# Markers live in root space; the cloned TileMap sits at (-119,-269), so a tile (col,row)
-	# is at world (col*16 - 119, row*16 - 269). Centre the pin in the tile (+8 x).
+	# Spawn spots: sample the base ground floor AND every wide platform floor, so enemies
+	# populate the whole map (a tower's upper floors, not just the base). Markers live in
+	# root space; the cloned TileMap sits at (-119,-269), so tile (col,row) -> world
+	# (col*16-119, row*16-269); centre x (+8) and sit 1 tile above the surface.
 	var surf := {}
 	for cell in m["ground"]:
 		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
+	var base_y := 0
+	for v in surf.values(): base_y = maxi(base_y, v)
 	var w := int(m["width"])
+	var spots := []
+	for col in range(4, w - 4, 4):
+		if surf.get(col, -999) >= base_y - 1:                 # on the base floor, not a side wall
+			spots.append(Vector2i(col, base_y))
+	var rows := {}                                            # platform floors grouped by row
+	for cell in m["plat"]:
+		if not rows.has(cell.y): rows[cell.y] = []
+		rows[cell.y].append(cell.x)
+	for r in rows:
+		var xs = rows[r]; xs.sort()
+		if xs.size() < 5: continue                            # skip tiny stepping stones
+		var c: int = xs[0] + 2
+		while c <= xs[xs.size() - 1] - 1:
+			spots.append(Vector2i(c, r)); c += 7
 	var markers := ""; var locs := []; var idx := 0
-	for i in range(10):
-		var col := int(w * (i + 1) / 11.0)
-		if not surf.has(col): continue
-		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, col * 16 - 111, (surf[col] - 1) * 16 - 269]
+	for s in spots:
+		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, s.x * 16 - 111, (s.y - 1) * 16 - 269]
 		locs.append('NodePath("M%d")' % idx)
 		idx += 1
 	var blk := '\n\n[node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]'
 	blk += '\nscript = ExtResource("gen_spw")\nenemy_scene = ExtResource("gen_slime")'
-	blk += '\nspawn_locations = [%s]\nspawn_container = NodePath("../Enemies")\npool_size = 8' % ", ".join(locs)
+	blk += '\nspawn_locations = [%s]\nspawn_container = NodePath("../Enemies")\npool_size = %d' % [", ".join(locs), maxi(idx, 1)]
 	blk += markers
 	blk += '\n\n[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="SlimeSpawner0" node_paths=PackedStringArray("enemy_spawner")]'
 	blk += '\n_spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")\nspawn_path = NodePath("../../Enemies")'
@@ -296,3 +365,93 @@ func _replace_layer(text: String, layer_name: String, b64: String) -> String:
 		return text.substr(0, s) + b64 + text.substr(e)
 	# Empty layer: insert a tile_map_data line right after the node header.
 	return text.substr(0, node_start) + 'tile_map_data = PackedByteArray("%s")\n' % b64 + text.substr(node_start)
+
+## Remove EnemySpawner nodes carried over from the cloned template (their Marker2D +
+## MultiplayerSpawner direct children too), so only the freshly-injected spawner remains.
+func _strip_clone_spawners(text: String) -> String:
+	var nre := RegEx.new(); nre.compile('\\[node name="([^"]+)"([^\\]]*)\\]')
+	var ms := nre.search_all(text)
+	var spawner_names := {}
+	for i in ms.size():
+		var hend := ms[i].get_end()
+		var bend = text.length() if i + 1 >= ms.size() else ms[i + 1].get_start()
+		if text.substr(hend, bend - hend).find("enemy_scene = ExtResource(") != -1:
+			spawner_names[ms[i].get_string(1)] = true
+	var spans := []
+	for i in ms.size():
+		var nm := ms[i].get_string(1)
+		var parent := _attr(ms[i].get_string(2), "parent")
+		if spawner_names.has(nm) or spawner_names.has(parent):
+			var bend = text.length() if i + 1 >= ms.size() else ms[i + 1].get_start()
+			spans.append([ms[i].get_start(), bend])
+	spans.sort_custom(func(a, b): return a[0] > b[0])
+	for sp in spans: text = text.substr(0, sp[0]) + text.substr(sp[1])
+	return text
+
+func _attr(s: String, key: String) -> String:
+	var re := RegEx.new(); re.compile('(?:^|[^A-Za-z_])%s="([^"]*)"' % key)
+	var m := re.search(s)
+	return m.get_string(1) if m else ""
+
+## Replace the cloned ruins ladders/ropes with the approved TOWER_LADDERS — real
+## climbable ladder.gd Area2D nodes, reusing the clone's ladder script + sprite. Each
+## hangs from the upper branch (world tile (col,row) -> (col*16-119, row*16-269)) with
+## its bottom dangling ~1.5 tiles above the platform below.
+func _inject_ladders(text: String) -> String:
+	var lid := _find_ext_id(text, "res://scripts/Gameplay/ladder.gd")
+	var atlas := _find_ladder_atlas(text)
+	if lid == "" or atlas == "":
+		print("  ladder wiring skipped (lid=", lid, " atlas=", atlas, ")"); return text
+	text = _clear_children(text, "Ladders")
+	text = _clear_children(text, "Ropes")
+	var shapes := ""; var nodes := ""
+	for i in TOWER_LADDERS.size():
+		var L = TOWER_LADDERS[i]
+		var x: int = L[2] * 16 - 111
+		var top_y: int = L[0] * 16 - 269 - 6
+		var bottom_y: int = L[1] * 16 - 269 - 24
+		var h: int = bottom_y - top_y
+		var cy: int = int((top_y + bottom_y) / 2.0)
+		var half: int = int(h / 2.0)
+		var sid := "RectShape_L%d" % i
+		shapes += '\n[sub_resource type="RectangleShape2D" id="%s"]\nsize = Vector2(10, %d)\n' % [sid, h]
+		nodes += '\n[node name="L%d" type="Area2D" parent="Ladders"]\nposition = Vector2(%d, %d)\ncollision_layer = 0\ncollision_mask = 2\nscript = ExtResource("%s")\n' % [i, x, cy, lid]
+		nodes += '\n[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L%d"]\nshape = SubResource("%s")\n' % [i, sid]
+		nodes += '\n[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L%d"]\noffset_left = -7.0\noffset_top = %d.0\noffset_right = 7.0\noffset_bottom = %d.0\ntexture = SubResource("%s")\npatch_margin_top = 2\npatch_margin_bottom = 2\naxis_stretch_vertical = 1\n' % [i, -half, half, atlas]
+	var fn := text.find("\n[node ")
+	text = text.substr(0, fn) + "\n" + shapes + text.substr(fn)
+	var lsre := RegEx.new(); lsre.compile("load_steps=(\\d+)")
+	var lm := lsre.search(text)
+	if lm:
+		text = text.substr(0, lm.get_start()) + "load_steps=%d" % (int(lm.get_string(1)) + TOWER_LADDERS.size()) + text.substr(lm.get_end())
+	return text + "\n" + nodes
+
+## Remove every node whose parent is `parent` or a descendant path of it.
+func _clear_children(text: String, parent: String) -> String:
+	var nre := RegEx.new(); nre.compile('\\[node name="([^"]+)"([^\\]]*)\\]')
+	var ms := nre.search_all(text)
+	var spans := []
+	for i in ms.size():
+		var p := _attr(ms[i].get_string(2), "parent")
+		if p == parent or p.begins_with(parent + "/"):
+			var bend = text.length() if i + 1 >= ms.size() else ms[i + 1].get_start()
+			spans.append([ms[i].get_start(), bend])
+	spans.sort_custom(func(a, b): return a[0] > b[0])
+	for s in spans: text = text.substr(0, s[0]) + text.substr(s[1])
+	return text
+
+func _find_ext_id(text: String, path: String) -> String:
+	var i := text.find('path="%s"' % path)
+	if i == -1: return ""
+	var ls := text.rfind("[ext_resource", i); var le := text.find("]", i)
+	if ls == -1 or le == -1: return ""
+	return _attr(text.substr(ls, le - ls + 1), "id")
+
+func _find_ladder_atlas(text: String) -> String:
+	var li := text.find('name="Ladders" type="Node2D"')
+	if li == -1: return ""
+	var key := 'texture = SubResource("'
+	var ti := text.find(key, li)
+	if ti == -1: return ""
+	var s := ti + key.length()
+	return text.substr(s, text.find('"', s) - s)
