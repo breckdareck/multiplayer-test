@@ -166,6 +166,49 @@ under the portal's column and seats the portal's collision foot on its surface.
 The reference maps `meadow_path` and `three_terraces` were generated this way
 and pass `verify_map.gd`.
 
+### Visualize spawns + migrate hard-placed enemies (tools added 2026-06-16)
+
+Two **map-agnostic** tools that work on any map's `.tscn`, however it was built.
+Godot is at `C:\Program Files\Godot\Godot.exe`; edit the `MAPS` list at the top of
+each `.gd` to choose which maps to process.
+
+**Annotated spawn previews (meowdb-style)** — use these whenever you show a map
+preview, so spawn points + the enemy roster are visible:
+- `tools/render_map_previews.gd` reads each scene, renders it faithfully from the
+  tile layers, and extracts every spawner's enemy type + `pool_size` + each spawn
+  marker projected into image pixels → `docs/map_previews/<map>.png` + `spawns.json`.
+- `tools/annotate_map_previews.py` (`pip install Pillow`) draws numbered, colour-coded
+  pins (one per spawn marker) + a legend listing each enemy with its **spawn-point
+  count and pool size** → `docs/map_previews/<map>_annotated.png`.
+```bash
+"$GODOT" --headless --path . --script res://tools/render_map_previews.gd
+python tools/annotate_map_previews.py
+```
+The renderer parses the `TileMap` node's `position` to align pins with tiles, so it
+is correct even for maps whose layers are offset (e.g. ruins clones at `-119,-269`).
+
+**Convert hard-placed enemies → pooled spawners** — `tools/convert_to_spawners.gd`
+rewrites a map that places enemy *instances* under `Enemies` into the pooled method:
+one `EnemySpawner` per enemy type, a `Marker2D` per original enemy **10px above** its
+old spot, `pool_size` = that type's count, + a `MultiplayerSpawner` child wired with
+`enemy_spawner = NodePath("..")`. **Bosses** (any instance that sets `respawn_delay`)
+and friendly NPCs (training_dummy / merchant / quest_giver) are left in place. It is
+idempotent (a converted map has no instances left to convert).
+```bash
+"$GODOT" --headless --path . --script res://tools/convert_to_spawners.gd
+```
+This put all combat maps on the new method (2026-06-16). **Hard-placed enemies do
+not respawn** under the current system — no spawner listens for their death — which
+is why bare instances under `Enemies` must become spawners.
+
+**Spawn-marker convention:** put markers ~**10px above** the ground (or just reuse
+the current enemy spot lifted 10px). `pool_size` is the MapleStory 100% / full-party
+cap; a **solo** player sees `floor(0.75 * pool_size)`, ramping +5%/occupant to 100%
+at 6 occupants (bots count). Respawns ride `MapManager.spawn_tick` (every **5s**,
+`SPAWN_TICK_INTERVAL`); `respawn_delay` on the spawner is deprecated. Markers are
+candidate spots chosen at random per spawn — they set WHERE, `pool_size` sets HOW
+MANY (so they need not equal; more pool than markers guarantees doubling-up).
+
 ### paint_existing mode — add geometry to an already-authored map
 
 For a map that already has portals/enemies/boss (e.g. the `gen_emberwilds_maps.py`
