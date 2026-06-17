@@ -92,33 +92,49 @@ func _build_cave(cfg: Dictionary) -> Dictionary:
 	var base_r := FLOOR_Y
 	var bottom := base_r + 9
 	var ground := {}; var plat := {}; var slopes := {}
-	var fsurf := _rolling_floor(width, bottom, base_r, 2, int(cfg["seed"]), ground, slopes)
+	var fsurf := _rolling_floor(width, bottom, base_r, 0, int(cfg["seed"]), ground, slopes)   # flat floor
 	var rng := RandomNumberGenerator.new(); rng.seed = int(cfg["seed"]) + 7
-	var ceil_r := base_r - 12
+	# High spiky ceiling — keeps headroom above the top ledge tier (no ceiling-bonk).
+	var ceil_r := base_r - 22
 	for x in range(width):
-		ceil_r = clampi(ceil_r + rng.randi_range(-1, 1), base_r - 15, base_r - 9)
+		ceil_r = clampi(ceil_r + rng.randi_range(-1, 1), base_r - 24, base_r - 20)
 		for y in range(0, ceil_r + 1): ground[Vector2i(x, y)] = true            # solid ceiling
-		if rng.randf() < 0.14:                                                   # stalactite
-			for y in range(ceil_r + 1, ceil_r + 1 + rng.randi_range(1, 3)): ground[Vector2i(x, y)] = true
-		if rng.randf() < 0.07:                                                   # stalagmite
+		if rng.randf() < 0.18:                                                   # stalactite (short)
+			for y in range(ceil_r + 1, ceil_r + 1 + rng.randi_range(1, 2)): ground[Vector2i(x, y)] = true
+		if rng.randf() < 0.08:                                                   # stalagmite
 			for y in range(fsurf[x] - rng.randi_range(1, 2), fsurf[x]): ground[Vector2i(x, y)] = true
-	var safe_row := base_r - 5
-	var safe_segs := [[6, 16]]
-	var sx := 40
-	while sx < width - 24:
-		safe_segs.append([sx, sx + 10]); sx += 36
-	safe_segs.append([width - 17, width - 7])
-	_shelf(plat, fsurf, safe_row, safe_segs)
-	var ladders := []
-	for seg in safe_segs:
-		var c: int = clampi(int((seg[0] + seg[1]) / 2.0), 0, width - 1)
-		ladders.append([safe_row, int(fsurf[c]), c, "ladder"])
+	# Enemy ledge tiers — SOLID rock (so they take the rock-top surface, not green platform
+	# tiles). 5 rows apart for jump headroom; placed outside the portal buffers.
+	var ledges := []
+	for tr in [base_r - 14, base_r - 9, base_r - 4]:
+		var lx := rng.randi_range(PORTAL_SPAWN_BUFFER + 2, PORTAL_SPAWN_BUFFER + 8)
+		while lx < width - PORTAL_SPAWN_BUFFER - 3:
+			var lw := rng.randi_range(3, 6)
+			for cx in range(lx, lx + lw): ground[Vector2i(cx, tr)] = true
+			ledges.append([lx + int(lw / 2.0), tr])
+			lx += lw + rng.randi_range(6, 11)
+	# Enemy-free rock ledges inside the portal-buffer zones (left + right) — safe spawn / AFK.
+	var safe_r := base_r - 8
+	for sx in [8, width - 14]:
+		for cx in range(sx, sx + 6): ground[Vector2i(cx, safe_r)] = true
+	# Climbers: a ladder off the left spawn ledge + a rope from each enemy ledge to the floor.
+	var ladders := [[safe_r, int(fsurf[11]), 11, "ladder"]]
+	for lg in ledges:
+		var lc: int = clampi(int(lg[0]), 0, width - 1)
+		ladders.append([int(lg[1]), int(fsurf[lc]), lc, "rope"])
+	# Background: solid black behind the whole chamber (your 4,7 tile), no village backdrop.
+	var bgwall := {}
+	for x in range(width):
+		for y in range(bottom + 1):
+			var cell := Vector2i(x, y)
+			if not ground.has(cell): bgwall[cell] = [4, 7]
 	var d := {
+		"bgwall": bgwall, "rock_top": true,
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
-		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(11, safe_row - 1),
+		"safe_rows": [], "ladders": ladders, "player_spawn": Vector2i(11, base_r - 9),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
-		"ceiling_below": base_r - 7, "no_trees": true,
+		"ceiling_below": base_r - 16, "no_trees": true, "no_village_bg": true,
 	}
 	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
 	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
@@ -525,13 +541,22 @@ func _emit(m: Dictionary) -> void:
 	var hnl := text.find("\n")                                    # strip cloned scene UID
 	var ure := RegEx.new(); ure.compile(' uid="[^"]*"')
 	text = ure.sub(text.substr(0, hnl), "", false) + text.substr(hnl)
-	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes))
+	# Cave/rock maps: swap the grass-top surface (17-19,5) for the rock-top tiles (slope source
+	# cols 4-6) so the floor is bare rock, not green moss.
+	var rocktop := {}
+	if m.get("rock_top", false):
+		for cell in picks:
+			if picks[cell][1] == 5 and picks[cell][0] >= 17 and picks[cell][0] <= 19:
+				rocktop[cell] = [picks[cell][0] - 13, 0]
+	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop))
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
-	text = _replace_layer(text, "Background2", "")
+	var bgwall: Dictionary = m.get("bgwall", {})
+	text = _replace_layer(text, "Background2", _layer_b64(bgwall, 1) if not bgwall.is_empty() else "")
 	text = text.replace('display_name = "The Ruins"', 'display_name = "%s"' % m.get("display_name", "Gen " + str(m["name"])))
 	if m.has("bgm"): text = text.replace('bgm_path = "res://assets/music/emberwilds_ruins.ogg"', 'bgm_path = "%s"' % m["bgm"])
 	text = _strip_clone_clutter(text)
+	if m.get("no_village_bg", false): text = _remove_node(text, "VillageBackground")
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
@@ -690,13 +715,15 @@ func _layer_b64(cells: Dictionary, src: int) -> String:
 ## Mid (solid ground) layer with two sources: autotiled country-village ground (source 1)
 ## plus explicit slope ramp tiles (source SLOPE_SRC). Slope cells are dropped from the
 ## autotiled set so the ramp tile isn't overwritten by a flat grass-top.
-func _mid_b64(picks: Dictionary, slopes: Dictionary) -> String:
+func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}) -> String:
 	var l := TileMapLayer.new()
 	for cell in picks:
-		if slopes.has(cell): continue
+		if slopes.has(cell) or rocktop.has(cell): continue
 		l.set_cell(cell, 1, Vector2i(picks[cell][0], picks[cell][1]))
 	for cell in slopes:
 		l.set_cell(cell, SLOPE_SRC, slopes[cell])
+	for cell in rocktop:                              # rock-top surface tiles (source SLOPE_SRC)
+		l.set_cell(cell, SLOPE_SRC, Vector2i(rocktop[cell][0], rocktop[cell][1]))
 	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
 
 func _plat_b64(plat: Dictionary) -> String:
@@ -727,6 +754,8 @@ func _inject_slopes(text: String) -> String:
 	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]\ntexture = ExtResource("gen_slopes")\ntexture_region_size = Vector2i(16, 16)\n'
 	for i in range(polys.size()):
 		atlas += '%d:0/0 = 0\n%d:0/0/physics_layer_0/polygon_0/points = %s\n' % [i, i, polys[i]]
+	for i in range(4, 7):                                # rock-top tiles: solid full-square floor
+		atlas += '%d:0/0 = 0\n%d:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)\n' % [i, i]
 	atlas += "\n"
 	# Define the atlas BEFORE the TileSet sub_resource that references it — the .tscn parser
 	# resolves SubResource() refs in file order. (Match the space+id so we don't hit the
@@ -1001,6 +1030,16 @@ func _find_atlas_under(text: String, container: String) -> String:
 ## the crate StaticBodies under "Platforms" (the generated map uses the Platform tile
 ## layer instead), and the cloned portals + their *_Portal_Spawn markers (they point at
 ## the TEMPLATE's neighbours, not this map's).
+## Remove a single node block (the node line + its properties, up to the next section).
+func _remove_node(text: String, node_name: String) -> String:
+	var i := text.find('[node name="%s"' % node_name)
+	if i == -1: return text
+	var start := text.rfind("\n", i)
+	if start == -1: start = i
+	var e := text.find("\n[", i + 1)
+	if e == -1: e = text.length()
+	return text.substr(0, start) + text.substr(e)
+
 func _strip_clone_clutter(text: String) -> String:
 	text = _clear_children(text, "Platforms")
 	var portal_id := _find_ext_id(text, "res://scenes/Gameplay/portal.tscn")
