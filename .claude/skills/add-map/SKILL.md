@@ -219,7 +219,9 @@ same-band maps cross-link, and there can be more than one route forward.
 `TOKEN` map for the marker-name convention, + a `LEVEL` map for ordering). Per map it: clears old
 portal instances + `*_Portal_Spawn` markers, then lays one (portal + co-located arrival marker)
 pair per connection, spread across the map's FLOOR (seated on the ground via the Mid bottom-run
-top), ordered left→right by destination level. Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
+top), ordered left→right by destination level. **Offset convention: the portal sits 16px ABOVE the
+ground (its foot rests on the surface) and the arrival marker 12px above (so you land ON the ground,
+not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
 for the target and `<ThisToken>_<OtherToken>_Portal_Spawn` for the arrival marker. Tokens are NOT
 pure PascalCase — extract them from existing markers (meadow_path→`Meadow`, three_terraces→`Terraces`).
 GRAPH must be symmetric (A lists B ⟺ B lists A) or you get one-way doors.
