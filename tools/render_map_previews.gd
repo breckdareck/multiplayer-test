@@ -32,6 +32,11 @@ const MANUAL_CONNECTORS := {
 		[46, 51, 6],    # 13-14 -> floor (left)
 		[46, 51, 18],   # 13-14 -> floor (right)
 	],
+	"gen_cliffs": [
+		[14, 21, 29, "rope"],     # mesa-1 shelf -> mesa 1
+		[11, 17, 45, "ladder"],   # peak shelf -> peak
+		[16, 22, 59, "rope"],     # mesa-3 shelf -> mesa 3
+	],
 }
 const OUT_DIR := "res://docs/map_previews"
 # Distinct pin colours, assigned per enemy type in order of first appearance.
@@ -167,7 +172,7 @@ func _connectors_for(name: String, layers: Array, minx: int, miny: int) -> Array
 				"x": (t[2] - minx) * 16 + 8,
 				"y_top": (t[0] - miny) * 16 - 1,
 				"y_bottom": (t[1] - miny) * 16 - 24,
-				"type": "ladder",
+				"type": t[3] if t.size() > 3 else "ladder",
 			})
 		return out
 	return _infer_connectors(layers, minx, miny)

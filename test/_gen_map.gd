@@ -29,11 +29,17 @@ const TOWER_LADDERS := [
 	[11, 17, 33], [25, 31, 7], [25, 31, 23], [31, 42, 18],
 	[31, 37, 35], [37, 42, 30], [46, 51, 6], [46, 51, 18],
 ]
+## Cliffs rope/ladder climbers up to the safe shelves: [upper_row, lower_row, col, type].
+const CLIFFS_LADDERS := [
+	[14, 21, 29, "rope"],     # mesa-1 shelf -> mesa 1
+	[11, 17, 45, "ladder"],   # peak shelf -> peak
+	[16, 22, 59, "rope"],     # mesa-3 shelf -> mesa 3
+]
 
 func _init() -> void:
-	# Only the tower this pass — gen_open is hand-edited and must NOT be clobbered,
-	# and gen_cliffs is fine as-is. Add _open()/_cliffs() back here to regen those.
-	for m in [_tower()]:
+	# Only cliffs this pass — gen_open and the now hand-finished gen_tower must NOT be
+	# regenerated/clobbered. Swap this list to regen a different map.
+	for m in [_cliffs()]:
 		_emit(m)
 		print("WROTE gen_", m["name"], "  ", m["width"], "x", m["bottom"])
 	quit()
@@ -111,16 +117,34 @@ func _seg(plat: Dictionary, x0: int, x1: int, y: int) -> void:
 		plat[Vector2i(x, y)] = role
 
 func _cliffs() -> Dictionary:
-	var width := 150; var bottom := 40
-	var ground := {}; var surf := []
-	for x in range(width): surf.append(FLOOR_Y)
-	for pl in [[24, 46, 9], [60, 86, 5], [98, 124, 13]]:
-		for x in range(pl[0], pl[1]): surf[x] = FLOOR_Y - pl[2]
+	# Solid raised mesas with STEPPED sides — a horizontal cliff-hop. Each rise/fall is a
+	# staircase of 1-tile steps (a 1-block jump clears each), so NOTHING floats against a
+	# cliff face. WIDE flat tops to fight on. A one-way shelf sits >=3 tiles above the peak,
+	# reached by a ladder that hangs from the SHELF platform itself (not a solid face).
+	var width := 64
+	var bottom := 32
+	var ground := {}
+	var plat := {}
+	var base_r := FLOOR_Y    # 26
+	# Per-column target surface height; the surface walks 1 tile/column toward it, so every
+	# transition between plateaus is a jumpable staircase.
+	var targets := []
+	for x in range(width): targets.append(base_r)
+	for seg in [[16, 34, base_r - 5], [34, 50, base_r - 9], [50, 64, base_r - 4]]:
+		for x in range(seg[0], mini(seg[1], width)): targets[x] = seg[2]
+	var surf := []
+	var cur := base_r
+	for x in range(width):
+		if cur < targets[x]: cur += 1
+		elif cur > targets[x]: cur -= 1
+		surf.append(cur)
 	for x in range(width):
 		for y in range(surf[x], bottom + 1): ground[Vector2i(x, y)] = true
-	var plat := {}
-	_shelf(plat, surf, FLOOR_Y - 16, [[48, 60]])
-	_shelf(plat, surf, FLOOR_Y - 8, [[86, 98]])
+	# Three one-way shelves, one above each mesa (each >=3 tiles clear) — safe vantage spots
+	# you reach by jumping to a rope/ladder that hangs from the shelf and climbing up.
+	_shelf(plat, surf, base_r - 12, [[24, 34]])   # over mesa 1
+	_shelf(plat, surf, base_r - 15, [[40, 50]])   # over the peak
+	_shelf(plat, surf, base_r - 10, [[55, 63]])   # over mesa 3
 	return {"name": "cliffs", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
 
 func _shelf(plat: Dictionary, surf, ty: int, segments: Array) -> void:
@@ -191,7 +215,8 @@ func _emit(m: Dictionary) -> void:
 	text = text.replace('display_name = "The Ruins"', 'display_name = "Gen %s"' % m["name"])
 	text = _strip_clone_clutter(text)
 	text = _inject_playable(text, m)
-	if m["name"] == "tower": text = _inject_ladders(text)
+	if m["name"] == "tower": text = _inject_ladders(text, TOWER_LADDERS)
+	if m["name"] == "cliffs": text = _inject_ladders(text, CLIFFS_LADDERS)
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
 	w.store_string(text); w.close()
 
@@ -239,19 +264,27 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	for v in surf.values(): base_y = maxi(base_y, v)
 	var w := int(m["width"])
 	var spots := []
-	for col in range(4, w - 4, 4):
-		if surf.get(col, -999) >= base_y - 1:                 # on the base floor, not a side wall
-			spots.append(Vector2i(col, base_y))
-	var rows := {}                                            # platform floors grouped by row
-	for cell in m["plat"]:
-		if not rows.has(cell.y): rows[cell.y] = []
-		rows[cell.y].append(cell.x)
-	for r in rows:
-		var xs = rows[r]; xs.sort()
-		if xs.size() < 5: continue                            # skip tiny stepping stones
-		var c: int = xs[0] + 2
-		while c <= xs[xs.size() - 1] - 1:
-			spots.append(Vector2i(c, r)); c += 7
+	if m["name"] == "cliffs":
+		# Cliffs: a slime on every FLAT stretch of ground (each mesa top + base), never on a
+		# staircase step, and NOT on the one-way shelves (those stay safe vantage spots).
+		for col in range(3, w - 3, 3):
+			if surf.has(col) and surf[col] == surf.get(col - 1, -1) and surf[col] == surf.get(col + 1, -1):
+				spots.append(Vector2i(col, surf[col]))
+	else:
+		# Tower/open: base floor + every wide platform floor.
+		for col in range(4, w - 4, 4):
+			if surf.get(col, -999) >= base_y - 1:             # on the base floor, not a side wall
+				spots.append(Vector2i(col, base_y))
+		var rows := {}                                        # platform floors grouped by row
+		for cell in m["plat"]:
+			if not rows.has(cell.y): rows[cell.y] = []
+			rows[cell.y].append(cell.x)
+		for r in rows:
+			var xs = rows[r]; xs.sort()
+			if xs.size() < 5: continue                        # skip tiny stepping stones
+			var c: int = xs[0] + 2
+			while c <= xs[xs.size() - 1] - 1:
+				spots.append(Vector2i(c, r)); c += 7
 	var markers := ""; var locs := []; var idx := 0
 	for s in spots:
 		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, s.x * 16 - 111, (s.y - 1) * 16 - 269]
@@ -277,6 +310,17 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 		else:
 			var eol := text.find("\n", ps)
 			text = text.substr(0, eol) + "\n" + spawn_pos + text.substr(eol)
+
+	# Drop the Killzone well below the map's lowest tile (the clone's plane sits too high
+	# for short maps, which would kill players standing on low ground).
+	var kz := text.find('name="Killzone"')
+	if kz != -1:
+		var kpos := text.find("position = Vector2(", kz)
+		var knl := text.find("\n[node ", kz)
+		if kpos != -1 and (knl == -1 or kpos < knl):
+			var comma := text.find(",", kpos + 'position = Vector2('.length())
+			var ke := text.find(")", comma)
+			text = text.substr(0, comma + 1) + " %d" % ((int(m["bottom"]) + 5) * 16 - 269) + text.substr(ke)
 	return text
 
 func _layer_b64(cells: Dictionary, src: int) -> String:
@@ -397,33 +441,40 @@ func _attr(s: String, key: String) -> String:
 ## climbable ladder.gd Area2D nodes, reusing the clone's ladder script + sprite. Each
 ## hangs from the upper branch (world tile (col,row) -> (col*16-119, row*16-269)) with
 ## its bottom dangling ~1.5 tiles above the platform below.
-func _inject_ladders(text: String) -> String:
+func _inject_ladders(text: String, specs: Array) -> String:
 	var lid := _find_ext_id(text, "res://scripts/Gameplay/ladder.gd")
-	var atlas := _find_ladder_atlas(text)
-	if lid == "" or atlas == "":
-		print("  ladder wiring skipped (lid=", lid, " atlas=", atlas, ")"); return text
+	var lat := _find_atlas_under(text, "Ladders")
+	var rat := _find_atlas_under(text, "Ropes")
+	if lid == "" or lat == "":
+		print("  ladder wiring skipped (lid=", lid, " lat=", lat, ")"); return text
+	if rat == "": rat = lat
 	text = _clear_children(text, "Ladders")
 	text = _clear_children(text, "Ropes")
 	var shapes := ""; var nodes := ""
-	for i in TOWER_LADDERS.size():
-		var L = TOWER_LADDERS[i]
+	for i in specs.size():
+		var L = specs[i]
+		var is_rope: bool = L.size() > 3 and L[3] == "rope"
+		var parent := "Ropes" if is_rope else "Ladders"   # ropes thinner, hang under Ropes
+		var hw := 2 if is_rope else 7
+		var sw := 4 if is_rope else 10
+		var atl := rat if is_rope else lat
 		var x: int = L[2] * 16 - 111
-		var top_y: int = L[0] * 16 - 269 - 1     # poke only 1px above the branch (like ruins)
+		var top_y: int = L[0] * 16 - 269 - 1     # poke only 1px above the upper platform
 		var bottom_y: int = L[1] * 16 - 269 - 24
 		var h: int = bottom_y - top_y
 		var cy: int = int((top_y + bottom_y) / 2.0)
 		var half: int = int(h / 2.0)
-		var sid := "RectShape_L%d" % i
-		shapes += '\n[sub_resource type="RectangleShape2D" id="%s"]\nsize = Vector2(10, %d)\n' % [sid, h]
-		nodes += '\n[node name="L%d" type="Area2D" parent="Ladders"]\nposition = Vector2(%d, %d)\ncollision_layer = 0\ncollision_mask = 2\nscript = ExtResource("%s")\n' % [i, x, cy, lid]
-		nodes += '\n[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/L%d"]\nshape = SubResource("%s")\n' % [i, sid]
-		nodes += '\n[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/L%d"]\noffset_left = -7.0\noffset_top = %d.0\noffset_right = 7.0\noffset_bottom = %d.0\ntexture = SubResource("%s")\npatch_margin_top = 2\npatch_margin_bottom = 2\naxis_stretch_vertical = 1\n' % [i, -half, half, atlas]
+		var sid := "RectShape_C%d" % i
+		shapes += '\n[sub_resource type="RectangleShape2D" id="%s"]\nsize = Vector2(%d, %d)\n' % [sid, sw, h]
+		nodes += '\n[node name="C%d" type="Area2D" parent="%s"]\nposition = Vector2(%d, %d)\ncollision_layer = 0\ncollision_mask = 2\nscript = ExtResource("%s")\n' % [i, parent, x, cy, lid]
+		nodes += '\n[node name="CollisionShape2D" type="CollisionShape2D" parent="%s/C%d"]\nshape = SubResource("%s")\n' % [parent, i, sid]
+		nodes += '\n[node name="NinePatchRect" type="NinePatchRect" parent="%s/C%d"]\noffset_left = %d.0\noffset_top = %d.0\noffset_right = %d.0\noffset_bottom = %d.0\ntexture = SubResource("%s")\npatch_margin_top = 2\npatch_margin_bottom = 2\naxis_stretch_vertical = 1\n' % [parent, i, -hw, -half, hw, half, atl]
 	var fn := text.find("\n[node ")
 	text = text.substr(0, fn) + "\n" + shapes + text.substr(fn)
 	var lsre := RegEx.new(); lsre.compile("load_steps=(\\d+)")
 	var lm := lsre.search(text)
 	if lm:
-		text = text.substr(0, lm.get_start()) + "load_steps=%d" % (int(lm.get_string(1)) + TOWER_LADDERS.size()) + text.substr(lm.get_end())
+		text = text.substr(0, lm.get_start()) + "load_steps=%d" % (int(lm.get_string(1)) + specs.size()) + text.substr(lm.get_end())
 	return text + "\n" + nodes
 
 ## Remove every node whose parent is `parent` or a descendant path of it.
@@ -447,8 +498,8 @@ func _find_ext_id(text: String, path: String) -> String:
 	if ls == -1 or le == -1: return ""
 	return _attr(text.substr(ls, le - ls + 1), "id")
 
-func _find_ladder_atlas(text: String) -> String:
-	var li := text.find('name="Ladders" type="Node2D"')
+func _find_atlas_under(text: String, container: String) -> String:
+	var li := text.find('name="%s" type="Node2D"' % container)
 	if li == -1: return ""
 	var key := 'texture = SubResource("'
 	var ti := text.find(key, li)
