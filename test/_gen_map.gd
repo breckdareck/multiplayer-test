@@ -46,10 +46,11 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Reimagining the real maps (rebuild-uniform). near_wilds + Wave 1 already done.
+	# CREATIVE PASS proof: rebuild mines as a real cave to confirm the per-map terrain direction.
 	for cfg in _wave_rest():
-		_emit(_build_field(cfg))
-		print("WROTE ", cfg["name"])
+		if cfg["name"] != "mines": continue
+		_emit(_build_cave(cfg))
+		print("WROTE cave ", cfg["name"])
 	quit()
 
 ## First-pass themed FIELD map from a compact config: rolling floor + auto safe platforms
@@ -78,6 +79,46 @@ func _build_field(cfg: Dictionary) -> Dictionary:
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
 		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(11, safe_row - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
+	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	return d
+
+## CAVE archetype (mines): rolling floor + a solid rolling CEILING ~12 tiles above it, so the
+## play space is an enclosed chamber. Stalactites hang from the ceiling, stalagmites rise from
+## the floor; the thick rock goes black-core dark. Safe ledges sit in the chamber.
+func _build_cave(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 9
+	var ground := {}; var plat := {}; var slopes := {}
+	var fsurf := _rolling_floor(width, bottom, base_r, 2, int(cfg["seed"]), ground, slopes)
+	var rng := RandomNumberGenerator.new(); rng.seed = int(cfg["seed"]) + 7
+	var ceil_r := base_r - 12
+	for x in range(width):
+		ceil_r = clampi(ceil_r + rng.randi_range(-1, 1), base_r - 15, base_r - 9)
+		for y in range(0, ceil_r + 1): ground[Vector2i(x, y)] = true            # solid ceiling
+		if rng.randf() < 0.14:                                                   # stalactite
+			for y in range(ceil_r + 1, ceil_r + 1 + rng.randi_range(1, 3)): ground[Vector2i(x, y)] = true
+		if rng.randf() < 0.07:                                                   # stalagmite
+			for y in range(fsurf[x] - rng.randi_range(1, 2), fsurf[x]): ground[Vector2i(x, y)] = true
+	var safe_row := base_r - 5
+	var safe_segs := [[6, 16]]
+	var sx := 40
+	while sx < width - 24:
+		safe_segs.append([sx, sx + 10]); sx += 36
+	safe_segs.append([width - 17, width - 7])
+	_shelf(plat, fsurf, safe_row, safe_segs)
+	var ladders := []
+	for seg in safe_segs:
+		var c: int = clampi(int((seg[0] + seg[1]) / 2.0), 0, width - 1)
+		ladders.append([safe_row, int(fsurf[c]), c, "ladder"])
+	var d := {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(11, safe_row - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+		"ceiling_below": base_r - 7, "no_trees": true,
 	}
 	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
 	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
@@ -439,6 +480,11 @@ func _emit(m: Dictionary) -> void:
 	var black := {}
 	for cell in ground:
 		if depth.get(cell, 999) > 1 + ROCK_BAND: black[cell] = true
+	# Cave maps: force the whole ceiling band to dark rock (no grass-top / trees up there).
+	if m.has("ceiling_below"):
+		var cb := int(m["ceiling_below"])
+		for cell in ground:
+			if cell.y < cb: black[cell] = true
 
 	# Mid (solid ground) tiles.
 	var picks := {}
@@ -466,7 +512,8 @@ func _emit(m: Dictionary) -> void:
 		if picks[cell][1] == 5 and (not surf_top.has(cell.x) or cell.y < surf_top[cell.x]):
 			surf_top[cell.x] = cell.y
 	var tx := 6
-	while tx < int(m["width"]) - 6:
+	var trees_on: bool = not bool(m.get("no_trees", false))
+	while trees_on and tx < int(m["width"]) - 6:
 		var placed := false
 		for tree in [TREE1, TREE2]:
 			if surf_top.has(tx) and _tree_fits(tree, tx, surf_top[tx], ground, plat, surf_top):
