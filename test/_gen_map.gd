@@ -46,12 +46,58 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Map-reimagining project: regen one themed map at a time (proof files gen_<name>.tscn),
-	# preview, then integrate into the real map. Swap this list to build a different map.
-	for m in [_near_wilds()]:
-		_emit(m)
-		print("WROTE gen_", m["name"], "  ", m["width"], "x", m["bottom"])
+	# Reimagining the real maps wave by wave (rebuild-uniform). near_wilds already done.
+	for cfg in _wave1():
+		_emit(_build_field(cfg))
+		print("WROTE ", cfg["name"])
 	quit()
+
+## First-pass themed FIELD map from a compact config: rolling floor + auto safe platforms
+## (one near each end + one every ~38 tiles) with ropes, plus the config's roster / portals /
+## metadata / optional npcs+bosses. Distinct terrain (cave/mesa/float/arena) is layered in
+## per the review pass; this nails the functional backbone for every map uniformly.
+func _build_field(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var bottom := FLOOR_Y + 16
+	var base_r := FLOOR_Y
+	var ground := {}; var plat := {}; var slopes := {}
+	var surf := _rolling_floor(width, bottom, base_r, int(cfg.get("amp", 2)), int(cfg["seed"]), ground, slopes)
+	var safe_row := base_r - 7
+	var safe_segs := [[6, 17]]
+	var sx := 42
+	while sx < width - 26:
+		safe_segs.append([sx, sx + 11]); sx += 38
+	safe_segs.append([width - 18, width - 7])
+	_shelf(plat, surf, safe_row, safe_segs)
+	var ladders := []
+	for seg in safe_segs:
+		var c: int = clampi(int((seg[0] + seg[1]) / 2.0), 0, width - 1)
+		ladders.append([safe_row, int(surf[c]), c, "rope"])
+	var d := {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(11, safe_row - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
+	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	return d
+
+func _wave1() -> Array:
+	return [
+		{"name": "meadow_path", "seed": 22, "amp": 2, "width": 70,
+			"display_name": "Slime Meadow", "bgm": "res://assets/music/emberwilds_meadow_path.ogg",
+			"monsters": [["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 8], ["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e", 6]],
+			"portals": [["right", "ember_meadows", "EmberMeadows_Meadow_Portal_Spawn", "PortalToEmberMeadows", "Hub_Meadow_Spawn"]]},
+		{"name": "ember_meadows", "seed": 33, "amp": 2, "width": 120,
+			"display_name": "Ember-Meadows", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 5], ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 4], ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 4], ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 6]],
+			"portals": [["left", "near_wilds", "NearWilds_EmberMeadows_Portal_Spawn", "PortalToNearWilds", "EmberMeadows_NearWilds_Portal_Spawn"], ["right", "ruins", "Ruins_EmberMeadows_Portal_Spawn", "PortalToRuins", "EmberMeadows_Ruins_Portal_Spawn"], ["mid", "meadow_path", "Hub_Meadow_Spawn", "PortalToMeadow", "EmberMeadows_Meadow_Portal_Spawn"]]},
+		{"name": "three_terraces", "seed": 44, "amp": 3, "width": 90,
+			"display_name": "Windmill Terraces", "bgm": "res://assets/music/emberwilds_three_terraces.ogg",
+			"monsters": [["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 6], ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 5]],
+			"portals": [["right", "ruins", "Ruins_Terraces_Portal_Spawn", "PortalToRuins", "Hub_Terraces_Spawn"]]},
+	]
 
 ## Fill `ground` (solid) + `slopes` with a gently rolling floor: broad flat runs at varied
 ## heights joined by 2:1 grass ramps, within +-amp tiles of base_r. Returns the per-column
@@ -618,15 +664,15 @@ func _inject_portals(text: String, m: Dictionary) -> String:
 	var blk := ""
 	for sp in specs:
 		var edge: String = sp[0]
-		var col: int = 4 if edge == "left" else (w - 5)
-		while not surf.has(col) and col > 0 and col < w - 1: col += 1 if edge == "left" else -1
+		var col: int = (4 if edge == "left" else (w - 5 if edge == "right" else int(w / 2.0)))
+		while not surf.has(col) and col > 0 and col < w - 1: col += (-1 if edge == "right" else 1)
 		var srow: int = int(surf.get(col, FLOOR_Y))
 		var px: int = col * 16 - 119
 		var pg: int = srow * 16 - 269                      # ground surface at the portal column
 		blk += '\n[node name="%s" parent="." instance=ExtResource("%s")]' % [sp[3], pid]
 		# Portal raised 16px so its collision box sits ON the ground, not buried in it.
 		blk += '\nposition = Vector2(%d, %d)\ntarget_map_id = "%s"\ntarget_spawn_point_name = "%s"\n' % [px, pg - 16, sp[1], sp[2]]
-		var mx: int = px + (24 if edge == "left" else -24)
+		var mx: int = px - 24 if edge == "right" else px + 24
 		# Arrival marker raised 12px so the player drops in just above the ground.
 		blk += '\n[node name="%s" type="Marker2D" parent="."]\nposition = Vector2(%d, %d)\n' % [sp[4], mx, pg - 12]
 	return text + blk
