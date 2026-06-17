@@ -706,16 +706,16 @@ position = Vector2(145, 163)
 position = Vector2(337, 179)
 
 [node name="M3" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(529, 163)
+position = Vector2(-111, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(657, 163)
+position = Vector2(-95, 131)
 
 [node name="M5" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(849, 179)
+position = Vector2(-79, 131)
 
 [node name="M6" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(977, 179)
+position = Vector2(-63, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_goblin" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
@@ -734,30 +734,25 @@ pool_size = 5
 position = Vector2(17, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(209, 163)
+position = Vector2(-47, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(401, 179)
 
 [node name="M3" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(593, 163)
+position = Vector2(-31, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(721, 163)
 
 [node name="M5" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(913, 179)
+position = Vector2(-15, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_cave_goblin" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://cnes7f1n2altk")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1241, 131)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_Terraces_Portal_Spawn"
-
 [node name="Hub_Terraces_Spawn" type="Marker2D" parent="."]
 position = Vector2(1217, 135)
 
@@ -818,3 +813,27 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(265, 195)
+target_map_id = "ruins"
+target_spawn_point_name = "Ruins_Terraces_Portal_Spawn"
+
+[node name="Terraces_Ruins_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(289, 199)
+
+[node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(601, 179)
+target_map_id = "old_battlefield"
+target_spawn_point_name = "OldBattlefield_Terraces_Portal_Spawn"
+
+[node name="Terraces_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(625, 183)
+
+[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(921, 195)
+target_map_id = "thornroot"
+target_spawn_point_name = "Thornroot_Terraces_Portal_Spawn"
+
+[node name="Terraces_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(945, 199)

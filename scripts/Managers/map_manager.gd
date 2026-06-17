@@ -33,6 +33,10 @@ const MAP_SCENES = {
 	"gen_open": "res://scenes/Levels/gen_open.tscn",
 	"gen_tower": "res://scenes/Levels/gen_tower.tscn",
 	"gen_cliffs": "res://scenes/Levels/gen_cliffs.tscn",
+	"old_battlefield": "res://scenes/Levels/old_battlefield.tscn",
+	"mustering_fields": "res://scenes/Levels/mustering_fields.tscn",
+	"ashvigil": "res://scenes/Levels/ashvigil.tscn",
+	"cinderwaste": "res://scenes/Levels/cinderwaste.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -58,6 +62,10 @@ const MAP_DISPLAY_NAMES = {
 	"gen_open": "Gen open",
 	"gen_tower": "Gen tower",
 	"gen_cliffs": "Gen cliffs",
+	"old_battlefield": "The Old Battlefield",
+	"mustering_fields": "The Mustering Fields",
+	"ashvigil": "Ashvigil",
+	"cinderwaste": "The Cinderwaste",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

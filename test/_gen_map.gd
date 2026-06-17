@@ -46,12 +46,30 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# CREATIVE PASS proof: rebuild mines as a real cave to confirm the per-map terrain direction.
-	for cfg in _wave_rest():
-		if cfg["name"] != "mines": continue
-		_emit(_build_cave(cfg))
-		print("WROTE cave ", cfg["name"])
+	# Remake the 4 branching-fill maps with the real generator (rolling sloped ground + auto safe
+	# platforms + ropes + pooled spawners), replacing the awful build_map.gd versions.
+	for cfg in _wave_new():
+		_emit(_build_field(cfg))
+		print("WROTE ", cfg["name"])
 	quit()
+
+## The 4 maps added for branching (2026-06-17). Outdoor rolling fields; ashvigil is a calm safe
+## hub (no monsters). Portals are wired separately by tools/rebuild_portals.gd, so omit them here.
+func _wave_new() -> Array:
+	return [
+		{"name": "old_battlefield", "seed": 1101, "amp": 3, "width": 110,
+			"display_name": "The Old Battlefield", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 9], ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 9], ["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 9]]},
+		{"name": "mustering_fields", "seed": 1201, "amp": 2, "width": 110,
+			"display_name": "The Mustering Fields", "bgm": "res://assets/music/emberwilds_keep.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/lion_knight.tscn", "uid://dqirvq2t4dhx6", 9], ["res://scenes/NPC/Beastmen/panda_warrior.tscn", "uid://dolpinlm1tsc0", 9], ["res://scenes/NPC/Beastmen/bear_warrior.tscn", "uid://dreol0pnnwvme", 9]]},
+		{"name": "ashvigil", "seed": 1301, "amp": 1, "width": 64,
+			"display_name": "Ashvigil", "bgm": "res://assets/music/emberwilds_deep_woods.ogg",
+			"monsters": []},
+		{"name": "cinderwaste", "seed": 1401, "amp": 4, "width": 120,
+			"display_name": "The Cinderwaste", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/ember_fox.tscn", "uid://bichmn1gb8cd2", 9], ["res://scenes/NPC/fire_slime.tscn", "uid://bvjs3vxpdjkfj", 9], ["res://scenes/NPC/Minifolks/runed_boar.tscn", "uid://tbl7yfcl3xwe", 9]]},
+	]
 
 ## First-pass themed FIELD map from a compact config: rolling floor + auto safe platforms
 ## (one near each end + one every ~38 tiles) with ropes, plus the config's roster / portals /
@@ -602,6 +620,11 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	# Drop any EnemySpawner inherited from the cloned template (ruins now has its own,
 	# converted spawners) so only the one we inject remains.
 	text = _strip_clone_spawners(text)
+	# The clone (ruins) is ITSELF generated, so it carries gen_mob/gen_spw/gen_msp ext_resource ids
+	# that COLLIDE with the ones we add below — Godot then resolves the spawner to the wrong scene
+	# (cinderwaste spawned goblins). Drop the clone's copies before re-adding ours.
+	var clone_ext := RegEx.new(); clone_ext.compile('\\n\\[ext_resource[^\\n]*id="gen_(mob\\d+|spw|msp)"\\]')
+	text = clone_ext.sub(text, "", true)
 	# Monster roster: [[scene_path, uid, pool], ...]. Default = one slime (open/cliffs/tower).
 	var roster: Array = m.get("monsters", [["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 0]])
 	# ext_resources: the two spawner scripts + one PackedScene per enemy; bump load_steps.

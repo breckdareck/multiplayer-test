@@ -14,9 +14,7 @@ const SHEETS := {
 	3: "res://assets/sprites/grass_slopes.png",
 }
 const MAPS := [
-	"near_wilds", "deep_woods", "ruins", "mines", "keep", "emberscar",
-	"weave", "dust_warren", "thornroot", "ember_meadows", "warlord",
-	"meadow_path", "three_terraces", "gen_open", "gen_tower", "gen_cliffs",
+	"old_battlefield", "mustering_fields", "ashvigil", "cinderwaste",
 ]
 
 ## Hand-placed connectors for specific maps (overrides auto-inference). Each entry is

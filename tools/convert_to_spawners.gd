@@ -11,8 +11,7 @@ extends SceneTree
 ## Run: Godot --headless --path <overhaul> --script res://tools/convert_to_spawners.gd
 
 const MAPS := [
-	"near_wilds", "deep_woods", "ruins", "mines", "keep", "emberscar",
-	"weave", "dust_warren", "thornroot", "ember_meadows", "warlord",
+	"old_battlefield", "mustering_fields", "cinderwaste",
 ]
 const SKIP_PATHS := ["training_dummy", "merchant", "quest_giver", "village_elder"]
 const LIFT := 10   # px above the original enemy spot ("10px above the ground")
@@ -142,7 +141,7 @@ func _convert(map: String) -> void:
 
 func _nodes(text: String) -> Array:
 	var res := []
-	var nre := RegEx.new(); nre.compile('\\[node name="([^"]+)"([^\\]]*)\\]')
+	var nre := RegEx.new(); nre.compile('\\[node name="([^"]+)"([^\\n]*)\\]')
 	var ire := RegEx.new(); ire.compile('instance=ExtResource\\("([^"]+)"\\)')
 	var ms := nre.search_all(text)
 	for i in ms.size():

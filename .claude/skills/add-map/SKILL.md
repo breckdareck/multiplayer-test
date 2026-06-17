@@ -283,6 +283,113 @@ clear). The rock backfill auto-sizes to the whole platform tower; `decor` props:
 `ground_props` (anchored on the main ground) and `scatter` (a prop on alternating
 upper platforms).
 
+### Vertical layout, safe perches & ropes (authoritative rules — mines hand-edit pass, 2026-06-17)
+
+Established interactively with the user; these OVERRIDE looser defaults above and apply
+whether building from a layout or fixing a hand-edited map.
+
+**Training platforms** — FEW and LONG, not many short stubs. ~**17–19 tiles** wide so a
+player can pace and fight a pack with room (the complaint was "barren for how long they
+are" AND, separately, "too many and not long enough"). Tiers ~5 rows apart, columns
+staggered between tiers.
+
+**Headroom / ceilings** — a ceiling counts as ground too: leave enough vertical room above
+every walkable surface for a player to stand AND jump (~3 tiles clear) without hitting the
+ceiling above. In caves, keep the spiky ceiling band well above the top tier; don't let a
+stalactite hang into a platform's jump space.
+
+**Safe rest platforms** — small (**3–5 tiles**), **ISOLATED** (floating, NOT connected to
+any training platform — gaps all around), reached by **ONE short access rope**. Place each
+in an **open gap, clear of the tier climbs** — NEVER where the tier platforms converge (a
+perch jammed into the convergence makes ropes pile through it; give it breathing room, e.g.
+hang it over a row-gap above a wide ledge). Enemies never spawn on them. A few per map.
+
+**Ropes/ladders** — SHORT and few:
+- **One per platform** — every platform needs just *a* way up; no redundant climbs. Do NOT
+  thread one tall rope through multiple tiers (the "optimal" multi-tier shaft was explicitly
+  rejected).
+- **Connect only ADJACENT levels** — a rope bridges a platform to the one directly below
+  (or a perch to the platform below it).
+- **Hang above the surface below** — rope bottom sits ~**2 tiles above** the lower surface
+  (a jump-and-grab gap); it must **NEVER touch** the ground/platform beneath. Top reaches
+  the platform being climbed to. Exception: a platform with nothing directly beneath gets one
+  longer rope to the floor.
+- Rope = `Area2D` + `RectangleShape2D` (climb zone) + `NinePatchRect` (visual) + `ladder.gd`;
+  build from scratch (instancing drops child-resize overrides). Bots climb them.
+
+**Spawn placement** — enemies go on flat top-surface stretches only; EXCLUDE the ceiling/roof
+(a real spawn surface has solid above it in-column, else it's the roof top), the safe perches,
+and a thin column buffer at each portal/spawn edge so a player isn't dropped onto a mob.
+
+**Density** — `pool_size` is the COUNT lever (solo sees `floor(0.75 * sum of all spawner
+pools)` alive map-wide); markers only set WHERE (each spawn picks a random marker). For long
+platforms aim ~3–4 enemies each: ~10–12 markers/spawner and pools ~10–12. Barren long
+platforms = too few markers AND too-small pools — raise both.
+
+### Wiring the whole world's portal graph (branching, lore-accurate — 2026-06-17)
+
+The lore's gazetteer (docs/LORE.md, "the road, in level order") is the source of truth for which
+maps exist, their level band, and the order to the final boss (Eternal Warlord @ `warlord`, lv 100).
+Two safe Hearth hubs anchor it: **Lantern's Rest** (home, lv 1) and **Emberwatch** (forward, ~48).
+The user wants MapleStory-style BRANCHING, not a single chain: each hub fans out to several maps,
+same-band maps cross-link, and there can be more than one route forward.
+
+`tools/rebuild_portals.gd` rebuilds the entire portal graph from a `GRAPH` adjacency dict (+ a
+`TOKEN` map for the marker-name convention, + a `LEVEL` map for ordering). Per map it: clears old
+portal instances + `*_Portal_Spawn` markers, then lays one (portal + co-located arrival marker)
+pair per connection, spread across the map's FLOOR (seated on the ground via the Mid bottom-run
+top), ordered left→right by destination level. Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
+for the target and `<ThisToken>_<OtherToken>_Portal_Spawn` for the arrival marker. Tokens are NOT
+pure PascalCase — extract them from existing markers (meadow_path→`Meadow`, three_terraces→`Terraces`).
+GRAPH must be symmetric (A lists B ⟺ B lists A) or you get one-way doors.
+
+Verify after: (1) `tools/check_load.gd` smoke-loads every map; (2) grep each portal's
+`target_spawn_point_name` against `name="…"` in the target scene (0 misses); (3) regenerate
+`config/world_map_data.json` via `tools/dump_world_map.gd` (it emits per-map `connections` +
+`min/max/avg_level` + `enemies`; an autoload compile-warning is non-fatal — check it still prints
+"wrote …"). Realign bot routing bands in `config/bot_config.json` `map_difficulty` to the lore
+levels in the same pass.
+
+Watch for a generator bug: a spawner's `enemy_scene` ext_resource can disagree with its
+`MultiplayerSpawner` `_spawnable_scenes` uid and its node name (mines shipped goblins while named/
+whitelisted for Wolf Pathfinder etc.). The name + replication uid are the intent; fix `enemy_scene`
+to match, and the map's level band falls back into place.
+
+**Transition safety — `tools/clear_portal_spawns.gd`.** After (re)wiring portals, run this map-agnostic
+pass: it moves any enemy spawn marker sitting within ~4 tiles of a portal off to a clear floor column,
+so portaling in never drops you onto a mob. Only floor-level markers near a door move (platform markers
+above stay); matches any `M#` Marker2D regardless of spawner naming (`Spawn_*` OR `<Enemy>Spawner`).
+Idempotent — a second pass should move 0. Do this INSTEAD of re-running fix_spawns on generate-built
+maps (build_map already distributes their enemies on platforms thoughtfully; a full re-place would undo that).
+
+**Adding maps for branching.** Author a `generate` spec in `tools/map_layouts.json` (NO `portals` key —
+let rebuild_portals wire them), `build_map.gd` it, register in `MAP_SCENES` + `MAP_DISPLAY_NAMES`, then
+`convert_to_spawners.gd` (the `populate` path makes hard-placed instances that DON'T respawn — convert
+them to pooled spawners). Gotcha: `convert_to_spawners`'s node regex must match to end-of-line
+(`[^\n]*\]` not `[^\]]*\]`), or the `groups=[…]` `]` inside newer Mob headers truncates it and it finds
+"no enemies". A safe hub = a `generate` with no `populate` (terrain, zero enemies — e.g. Ashvigil).
+
+### Fixing a hand-edited map (surgery toolset — mines pass, 2026-06-17)
+
+When the user hand-edits a map's terrain in the editor and asks to fix spawns / platforms /
+ropes, use these headless tools (`tools/`, each with a `MAP :=` const at the top — point it at
+the target map). They decode the live `.tscn`, so they work regardless of how the map was built
+or which tileset tiles were used. Verify with the schematic, NOT a tile-art render (the user may
+have added tiles at atlas coords you don't know). Godot at `C:\Program Files\Godot\Godot.exe`.
+
+| Tool | Role |
+|---|---|
+| `tools/fix_spawns.gd` | Re-snap every `Spawn_*` marker + `PlayerSpawn` onto flat surfaces; excludes roof + safe perches (`SAFE_PLATFORMS`) + edge buffer (`EDGE_SAFE`). Re-run after ANY platform/terrain move. |
+| `tools/rebuild_platforms.gd` | Clear tier rows + relay platforms from a `NEW` dict (row → spans); reuses the rock-top L/M/R tiles already on those rows. |
+| `tools/rebuild_ropes.gd` | Replace all ropes from a `ROPES` list of short `[col, top_row, bottom_row]` climbs (per the rope rules above). |
+| `tools/add_markers.gd` | Raise density: grow markers per spawner to `TARGET` + bump `pool_size`. |
+| `tools/verify_spawns.gd` | Tile-art-independent schematic → `docs/map_previews/_<map>_spawncheck.png`: terrain blocks, enemies (red), player (green), safe surfaces (cyan), ropes (yellow). Prints rope col+row spans + a floating-marker count (target 0). |
+
+Typical loop: `rebuild_platforms → rebuild_ropes → add_markers (if sparse) → fix_spawns →
+verify_spawns`, then eyeball the schematic. Keep `SAFE_PLATFORMS`/`EDGE_SAFE` in sync between
+fix_spawns and verify_spawns. Mines-style cloned-map geometry: TileMap offset `(-119,-269)`;
+tile(col,row)→world `(col*16-111, row*16-269)` (centred).
+
 ### MapleStory design principles (grind-map quality)
 
 Full write-up: [maplestory_map_design.md](maplestory_map_design.md). Apply these

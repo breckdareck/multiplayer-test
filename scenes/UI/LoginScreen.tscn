@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://bcoeao6eds8lo" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/background.png" id="4_sky"]
 [ext_resource type="Texture2D" uid="uid://cgjqecy2i25oj" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_1.png" id="5_cloud1"]
 [ext_resource type="Texture2D" uid="uid://dgn0sn4ddie7p" path="res://assets/sprites/Country-village_asset_pack/2_Parallax background/Cloud_2.png" id="6_cloud2"]
-[ext_resource type="FontFile" uid="uid://dxbqcm3ww0xmj" path="res://assets/fonts/Starbim.ttf" id="7_title_font"]
+[ext_resource type="FontFile" uid="uid://4wxt0g33xdbi" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="7_o7smm"]
 [ext_resource type="Script" uid="uid://0jbd3hyeo2d1" path="res://scripts/UI/menu_parallax.gd" id="p_parallax"]
 
 [sub_resource type="Gradient" id="Gradient_ember"]
@@ -179,7 +179,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.65)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 4
 theme_override_constants/shadow_outline_size = 4
-theme_override_fonts/font = ExtResource("7_title_font")
+theme_override_fonts/font = ExtResource("7_o7smm")
 theme_override_font_sizes/font_size = 72
 text = "Emberwilds"
 horizontal_alignment = 1

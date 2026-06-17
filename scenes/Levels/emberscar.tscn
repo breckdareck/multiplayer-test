@@ -708,10 +708,10 @@ position = Vector2(145, 115)
 position = Vector2(465, 67)
 
 [node name="M2" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(721, 67)
+position = Vector2(-111, 131)
 
 [node name="M3" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(1169, 147)
+position = Vector2(-95, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_runed_boar"]
 position = Vector2(1489, 195)
@@ -742,10 +742,10 @@ position = Vector2(529, 67)
 position = Vector2(849, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(1233, 147)
+position = Vector2(-79, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(1617, 179)
+position = Vector2(-63, 131)
 
 [node name="M5" type="Marker2D" parent="Spawn_fire_slime"]
 position = Vector2(1873, 195)
@@ -776,7 +776,7 @@ position = Vector2(913, 83)
 position = Vector2(1361, 195)
 
 [node name="M4" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(1681, 179)
+position = Vector2(-47, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_ember_fox" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://bichmn1gb8cd2")
@@ -792,7 +792,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 6
 
 [node name="M0" type="Marker2D" parent="Spawn_wild_boar"]
-position = Vector2(337, 115)
+position = Vector2(-31, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_wild_boar"]
 position = Vector2(657, 67)
@@ -811,23 +811,6 @@ _spawnable_scenes = PackedStringArray("uid://oarco6h8le8s")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "keep"
-target_spawn_point_name = "Keep_Emberscar_Portal_Spawn"
-
-[node name="Emberscar_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
-[node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(2041, 179)
-target_map_id = "weave"
-target_spawn_point_name = "Weave_Emberscar_Portal_Spawn"
-
-[node name="Emberscar_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(2017, 183)
-
-
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 70)
 collision_layer = 0
@@ -903,3 +886,35 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(361, 115)
+target_map_id = "keep"
+target_spawn_point_name = "Keep_Emberscar_Portal_Spawn"
+
+[node name="Emberscar_Keep_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(385, 119)
+
+[node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(777, 99)
+target_map_id = "mustering_fields"
+target_spawn_point_name = "MusteringFields_Emberscar_Portal_Spawn"
+
+[node name="Emberscar_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(801, 103)
+
+[node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1209, 163)
+target_map_id = "ashvigil"
+target_spawn_point_name = "Ashvigil_Emberscar_Portal_Spawn"
+
+[node name="Emberscar_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1233, 167)
+
+[node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1625, 195)
+target_map_id = "cinderwaste"
+target_spawn_point_name = "Cinderwaste_Emberscar_Portal_Spawn"
+
+[node name="Emberscar_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1649, 199)

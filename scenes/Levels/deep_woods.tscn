@@ -1,11 +1,4 @@
-[gd_scene load_steps=49 format=4]
-[ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://dreol0pnnwvme" path="res://scenes/NPC/Beastmen/bear_warrior.tscn" id="gen_mob0"]
-[ext_resource type="PackedScene" uid="uid://ce1gj48yfxtud" path="res://scenes/NPC/Minifolks/dark_bunny.tscn" id="gen_mob1"]
-[ext_resource type="PackedScene" uid="uid://dqirvq2t4dhx6" path="res://scenes/NPC/Beastmen/lion_knight.tscn" id="gen_mob2"]
-[ext_resource type="PackedScene" uid="uid://co7gditu46kn8" path="res://scenes/NPC/adamant_crawler.tscn" id="gen_mob3"]
+[gd_scene load_steps=30 format=4 uid="uid://wkfowd2qg5dn"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
@@ -17,12 +10,13 @@
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="7_r5cd5"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="9_pjyxy"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://p1gtmn7fct13" path="res://scenes/NPC/Minifolks/bird.tscn" id="10_bird4"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="10_bunny4"]
-[ext_resource type="PackedScene" uid="uid://b31vj57j18ae2" path="res://scenes/NPC/Minifolks/deer.tscn" id="10_deer4"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="10_fox4"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="PackedScene" uid="uid://dreol0pnnwvme" path="res://scenes/NPC/Beastmen/bear_warrior.tscn" id="gen_mob0"]
+[ext_resource type="PackedScene" uid="uid://ce1gj48yfxtud" path="res://scenes/NPC/Minifolks/dark_bunny.tscn" id="gen_mob1"]
+[ext_resource type="PackedScene" uid="uid://dqirvq2t4dhx6" path="res://scenes/NPC/Beastmen/lion_knight.tscn" id="gen_mob2"]
+[ext_resource type="PackedScene" uid="uid://co7gditu46kn8" path="res://scenes/NPC/adamant_crawler.tscn" id="gen_mob3"]
+[ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("4_kt7l5")
@@ -517,7 +511,6 @@ texture = ExtResource("6_bx66n")
 
 [sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
 texture = ExtResource("gen_slopes")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, 0, 8, 8)
 1:0/0 = 0
@@ -539,37 +532,8 @@ sources/3 = SubResource("GenSlopeAtlas")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_fik1o"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ylsnt"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
-size = Vector2(48.571487, 5.714283)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v70l"]
-size = Vector2(14, 35)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_nk4qt"]
-atlas = ExtResource("4_kt7l5")
-region = Rect2(145, 52, 14, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_p47w5"]
-size = Vector2(14, 21)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3lgvg"]
-size = Vector2(14, 45)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ylsnt"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_bke2l"]
-atlas = SubResource("CompressedTexture2D_ylsnt")
-region = Rect2(145, 52, 14, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
-size = Vector2(4, 54)
+[sub_resource type="RectangleShape2D" id="RectShape_C0"]
+size = Vector2(4, 73)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fik1o"]
 load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
@@ -577,20 +541,6 @@ load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b64
 [sub_resource type="AtlasTexture" id="AtlasTexture_p47w5"]
 atlas = SubResource("CompressedTexture2D_fik1o")
 region = Rect2(145, 52, 4, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bke2l"]
-size = Vector2(4, 54)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4opky"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8us8u"]
-atlas = SubResource("CompressedTexture2D_4opky")
-region = Rect2(145, 52, 4, 12)
-
-
-[sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(4, 73)
 
 [sub_resource type="RectangleShape2D" id="RectShape_C1"]
 size = Vector2(4, 105)
@@ -622,7 +572,7 @@ limit_enabled = false
 position_smoothing_enabled = true
 
 [node name="PlayerSpawn" type="Marker2D" parent="."]
-position = Vector2(57, 19)
+position = Vector2(-95, 131)
 
 [node name="TileMap" type="TileMap" parent="."]
 position = Vector2(-119, -269)
@@ -636,7 +586,6 @@ tile_map_data = PackedByteArray("AAAAABkAAgAFAAsAAAACABkAAgAKAAsAAAADABkAAgALAAs
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Background2" type="TileMapLayer" parent="TileMap"]
-tile_map_data = PackedByteArray("")
 z_index = -2
 use_parent_material = true
 tile_set = SubResource("TileSet_lbhrr")
@@ -666,161 +615,6 @@ position = Vector2(-119, -269)
 [node name="Ladders" type="Node2D" parent="."]
 
 [node name="Ropes" type="Node2D" parent="."]
-
-[node name="Players" type="Node2D" parent="."]
-
-[node name="Enemies" type="Node2D" parent="."]
-
-[node name="Projectiles" type="Node2D" parent="."]
-
-[node name="ItemDrops" type="Node2D" parent="."]
-
-[node name="GlobalDropHandler" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -119.0
-offset_top = -269.0
-offset_right = -119.0
-offset_bottom = -269.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("9_pjyxy")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-
-
-
-[node name="Spawn_bear_warrior" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
-enemy_scene = ExtResource("gen_mob0")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
-spawn_container = NodePath("../Enemies")
-pool_size = 6
-
-[node name="M0" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(145, 115)
-
-[node name="M1" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(465, 131)
-
-[node name="M2" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(785, 163)
-
-[node name="M3" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(1041, 163)
-
-[node name="M4" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(1361, 131)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_bear_warrior" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://dreol0pnnwvme")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
-enemy_spawner = NodePath("..")
-
-[node name="Spawn_dark_bunny" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
-enemy_scene = ExtResource("gen_mob1")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
-spawn_container = NodePath("../Enemies")
-pool_size = 6
-
-[node name="M0" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(209, 115)
-
-[node name="M1" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(529, 131)
-
-[node name="M2" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(849, 163)
-
-[node name="M3" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(1169, 131)
-
-[node name="M4" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(1425, 115)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_dark_bunny" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://ce1gj48yfxtud")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
-enemy_spawner = NodePath("..")
-
-[node name="Spawn_lion_knight" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
-enemy_scene = ExtResource("gen_mob2")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
-spawn_container = NodePath("../Enemies")
-pool_size = 6
-
-[node name="M0" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(273, 115)
-
-[node name="M1" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(593, 131)
-
-[node name="M2" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(913, 163)
-
-[node name="M3" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(1233, 131)
-
-[node name="M4" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(1489, 115)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_lion_knight" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://dqirvq2t4dhx6")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
-enemy_spawner = NodePath("..")
-
-[node name="Spawn_adamant_crawler" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
-enemy_scene = ExtResource("gen_mob3")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
-spawn_container = NodePath("../Enemies")
-pool_size = 6
-
-[node name="M0" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(401, 131)
-
-[node name="M1" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(721, 163)
-
-[node name="M2" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(977, 163)
-
-[node name="M3" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(1297, 131)
-
-[node name="M4" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(1553, 115)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_adamant_crawler" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://co7gditu46kn8")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
-enemy_spawner = NodePath("..")
-[node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1721, 131)
-target_map_id = "keep"
-target_spawn_point_name = "Keep_DeepWoods_Portal_Spawn"
-
-[node name="DeepWoods_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1697, 135)
-
-[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "emberwatch"
-target_spawn_point_name = "Emberwatch_DeepWoods_Portal_Spawn"
-
-[node name="DeepWoods_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
 
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 70)
@@ -897,3 +691,215 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -119.0
+offset_top = -269.0
+offset_right = -119.0
+offset_bottom = -269.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("9_pjyxy")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+[node name="Spawn_bear_warrior" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("gen_mob0")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(49, 19)
+
+[node name="M1" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(673, 19)
+
+[node name="M2" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(1537, 19)
+
+[node name="M3" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(129, 115)
+
+[node name="M4" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(321, 115)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_bear_warrior" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dreol0pnnwvme")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="Spawn_dark_bunny" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("gen_mob1")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(97, 19)
+
+[node name="M1" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(1185, 19)
+
+[node name="M2" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(1585, 19)
+
+[node name="M3" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(177, 115)
+
+[node name="M4" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(1425, 115)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_dark_bunny" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://ce1gj48yfxtud")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="Spawn_lion_knight" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("gen_mob2")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(577, 19)
+
+[node name="M1" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(1233, 19)
+
+[node name="M2" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(1633, 19)
+
+[node name="M3" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(225, 115)
+
+[node name="M4" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(1473, 115)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_lion_knight" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://dqirvq2t4dhx6")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="Spawn_adamant_crawler" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
+enemy_scene = ExtResource("gen_mob3")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9")]
+spawn_container = NodePath("../Enemies")
+pool_size = 12
+
+[node name="M0" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(625, 19)
+
+[node name="M1" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(1281, 19)
+
+[node name="M2" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(81, 115)
+
+[node name="M3" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(273, 115)
+
+[node name="M4" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(1521, 115)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_adamant_crawler" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://co7gditu46kn8")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("conv_msp")
+enemy_spawner = NodePath("..")
+
+[node name="M5" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(417, 131)
+
+[node name="M6" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(-111, 131)
+
+[node name="M7" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(1313, 131)
+
+[node name="M8" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(769, 163)
+
+[node name="M9" type="Marker2D" parent="Spawn_adamant_crawler"]
+position = Vector2(961, 163)
+
+[node name="M5" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(369, 131)
+
+[node name="M6" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(-95, 131)
+
+[node name="M7" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(1265, 131)
+
+[node name="M8" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(721, 163)
+
+[node name="M9" type="Marker2D" parent="Spawn_lion_knight"]
+position = Vector2(913, 163)
+
+[node name="M5" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(1617, 115)
+
+[node name="M6" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(-79, 131)
+
+[node name="M7" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(1217, 131)
+
+[node name="M8" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(673, 163)
+
+[node name="M9" type="Marker2D" parent="Spawn_dark_bunny"]
+position = Vector2(865, 163)
+
+[node name="M5" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(1569, 115)
+
+[node name="M6" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(-63, 131)
+
+[node name="M7" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(-47, 131)
+
+[node name="M8" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(1361, 131)
+
+[node name="M9" type="Marker2D" parent="Spawn_bear_warrior"]
+position = Vector2(817, 163)
+
+[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(537, 147)
+target_map_id = "emberwatch"
+target_spawn_point_name = "Emberwatch_DeepWoods_Portal_Spawn"
+
+[node name="DeepWoods_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(561, 151)
+
+[node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1129, 147)
+target_map_id = "keep"
+target_spawn_point_name = "Keep_DeepWoods_Portal_Spawn"
+
+[node name="DeepWoods_Keep_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1153, 151)

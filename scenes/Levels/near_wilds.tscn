@@ -755,10 +755,10 @@ spawn_container = NodePath("../Enemies")
 pool_size = 3
 
 [node name="M0" type="Marker2D" parent="Spawn_bird"]
-position = Vector2(337, 99)
+position = Vector2(-111, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_bird"]
-position = Vector2(785, 115)
+position = Vector2(-95, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_bird"]
 position = Vector2(1169, 99)
@@ -780,13 +780,13 @@ spawn_container = NodePath("../Enemies")
 pool_size = 4
 
 [node name="M0" type="Marker2D" parent="Spawn_boar"]
-position = Vector2(401, 99)
+position = Vector2(-79, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_boar"]
-position = Vector2(849, 99)
+position = Vector2(-63, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_boar"]
-position = Vector2(1233, 99)
+position = Vector2(-47, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_boar" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://betkg72vd7iav")
@@ -808,7 +808,7 @@ position = Vector2(465, 99)
 position = Vector2(913, 99)
 
 [node name="M2" type="Marker2D" parent="Spawn_deer"]
-position = Vector2(1297, 99)
+position = Vector2(-31, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://b31vj57j18ae2")
@@ -837,22 +837,6 @@ _spawnable_scenes = PackedStringArray("uid://sxpgdsdpf5ma")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "lanterns_rest"
-target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
-
-[node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
-[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1721, 147)
-target_map_id = "ember_meadows"
-target_spawn_point_name = "EmberMeadows_NearWilds_Portal_Spawn"
-
-[node name="NearWilds_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1697, 151)
-
 [node name="SlimeThreatSign" parent="." instance=ExtResource("gen_npc0")]
 position = Vector2(137, 51)
 npc_name = "Slime Threat Sign"
@@ -936,3 +920,27 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(377, 115)
+target_map_id = "lanterns_rest"
+target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(401, 119)
+
+[node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(841, 115)
+target_map_id = "meadow_path"
+target_spawn_point_name = "Meadow_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_Meadow_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(865, 119)
+
+[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1289, 115)
+target_map_id = "ember_meadows"
+target_spawn_point_name = "EmberMeadows_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1313, 119)

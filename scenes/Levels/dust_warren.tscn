@@ -736,7 +736,7 @@ pool_size = 7
 position = Vector2(273, 115)
 
 [node name="M1" type="Marker2D" parent="Spawn_dust_fox"]
-position = Vector2(593, 115)
+position = Vector2(-111, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_dust_fox"]
 position = Vector2(849, 99)
@@ -770,7 +770,7 @@ position = Vector2(657, 115)
 position = Vector2(913, 99)
 
 [node name="M3" type="Marker2D" parent="Spawn_wolf_pathfinder"]
-position = Vector2(1169, 115)
+position = Vector2(-95, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_wolf_pathfinder"]
 position = Vector2(1489, 83)
@@ -798,7 +798,7 @@ position = Vector2(721, 115)
 position = Vector2(977, 115)
 
 [node name="M3" type="Marker2D" parent="Spawn_mithril_hare"]
-position = Vector2(1297, 83)
+position = Vector2(-79, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_mithril_hare"]
 position = Vector2(1553, 99)
@@ -808,23 +808,6 @@ _spawnable_scenes = PackedStringArray("uid://dvymxl60snfn8")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
-
-[node name="DustWarren_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
-[node name="Portal1" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1881, 83)
-target_map_id = "mines"
-target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
-
-[node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1857, 87)
-
-
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 78)
 collision_layer = 0
@@ -900,3 +883,19 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(585, 131)
+target_map_id = "thornroot"
+target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
+
+[node name="DustWarren_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(609, 135)
+
+[node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1241, 99)
+target_map_id = "mines"
+target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
+
+[node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1265, 103)

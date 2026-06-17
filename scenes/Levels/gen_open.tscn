@@ -1,25 +1,18 @@
-[gd_scene load_steps=50 format=4]
-[ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]
+[gd_scene load_steps=31 format=4 uid="uid://cxw1blxry4pdu"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_76n2i"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_kt7l5"]
 [ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="5_1le8d"]
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="6_bx66n"]
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="7_r5cd5"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="9_pjyxy"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
-[ext_resource type="PackedScene" uid="uid://p1gtmn7fct13" path="res://scenes/NPC/Minifolks/bird.tscn" id="10_bird4"]
-[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="10_bunny4"]
-[ext_resource type="PackedScene" uid="uid://b31vj57j18ae2" path="res://scenes/NPC/Minifolks/deer.tscn" id="10_deer4"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="10_fox4"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
+[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]
+[ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("4_kt7l5")
@@ -514,7 +507,6 @@ texture = ExtResource("6_bx66n")
 
 [sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
 texture = ExtResource("gen_slopes")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, 0, 8, 8)
 1:0/0 = 0
@@ -536,37 +528,24 @@ sources/3 = SubResource("GenSlopeAtlas")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_fik1o"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ylsnt"]
-size = Vector2(30, 4)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
-size = Vector2(48.571487, 5.714283)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v70l"]
-size = Vector2(14, 35)
+[sub_resource type="RectangleShape2D" id="RectShape_C0"]
+size = Vector2(10, 57)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_nk4qt"]
 atlas = ExtResource("4_kt7l5")
 region = Rect2(145, 52, 14, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_p47w5"]
-size = Vector2(14, 21)
+[sub_resource type="RectangleShape2D" id="RectShape_C2"]
+size = Vector2(10, 105)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_3lgvg"]
-size = Vector2(14, 45)
+[sub_resource type="RectangleShape2D" id="RectShape_C5"]
+size = Vector2(10, 57)
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ylsnt"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
+[sub_resource type="RectangleShape2D" id="RectShape_C7"]
+size = Vector2(10, 57)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bke2l"]
-atlas = SubResource("CompressedTexture2D_ylsnt")
-region = Rect2(145, 52, 14, 12)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
-size = Vector2(4, 54)
+[sub_resource type="RectangleShape2D" id="RectShape_C1"]
+size = Vector2(4, 105)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fik1o"]
 load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
@@ -575,40 +554,14 @@ load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b64
 atlas = SubResource("CompressedTexture2D_fik1o")
 region = Rect2(145, 52, 4, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bke2l"]
-size = Vector2(4, 54)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4opky"]
-load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8us8u"]
-atlas = SubResource("CompressedTexture2D_4opky")
-region = Rect2(145, 52, 4, 12)
-
-
-[sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(10, 57)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C1"]
-size = Vector2(4, 105)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C2"]
-size = Vector2(10, 105)
-
 [sub_resource type="RectangleShape2D" id="RectShape_C3"]
 size = Vector2(4, 57)
 
 [sub_resource type="RectangleShape2D" id="RectShape_C4"]
 size = Vector2(4, 57)
 
-[sub_resource type="RectangleShape2D" id="RectShape_C5"]
-size = Vector2(10, 57)
-
 [sub_resource type="RectangleShape2D" id="RectShape_C6"]
 size = Vector2(4, 57)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C7"]
-size = Vector2(10, 57)
 
 [node name="Game4" type="Node2D"]
 script = ExtResource("1_p8yym")
@@ -645,7 +598,6 @@ tile_map_data = PackedByteArray("AAABABkAAgACAAsAAAAHABkAAgAKAAcAAAAJABkAAgAGAAs
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Background2" type="TileMapLayer" parent="TileMap"]
-tile_map_data = PackedByteArray("")
 z_index = -2
 use_parent_material = true
 tile_set = SubResource("TileSet_lbhrr")
@@ -674,7 +626,159 @@ position = Vector2(-119, -269)
 
 [node name="Ladders" type="Node2D" parent="."]
 
+[node name="C0" type="Area2D" parent="Ladders"]
+position = Vector2(113, 78)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C0"]
+shape = SubResource("RectShape_C0")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C0"]
+offset_left = -7.0
+offset_top = -28.0
+offset_right = 7.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C2" type="Area2D" parent="Ladders"]
+position = Vector2(1489, 102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C2"]
+shape = SubResource("RectShape_C2")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C2"]
+offset_left = -7.0
+offset_top = -52.0
+offset_right = 7.0
+offset_bottom = 52.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C5" type="Area2D" parent="Ladders"]
+position = Vector2(1297, -1)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C5"]
+shape = SubResource("RectShape_C5")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C5"]
+offset_left = -7.0
+offset_top = -28.0
+offset_right = 7.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C7" type="Area2D" parent="Ladders"]
+position = Vector2(1361, -81)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C7"]
+shape = SubResource("RectShape_C7")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C7"]
+offset_left = -7.0
+offset_top = -28.0
+offset_right = 7.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_nk4qt")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
 [node name="Ropes" type="Node2D" parent="."]
+
+[node name="C1" type="Area2D" parent="Ropes"]
+position = Vector2(849, 102)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C1"]
+shape = SubResource("RectShape_C1")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C1"]
+offset_left = -2.0
+offset_top = -52.0
+offset_right = 2.0
+offset_bottom = 52.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C3" type="Area2D" parent="Ropes"]
+position = Vector2(2033, 78)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C3"]
+shape = SubResource("RectShape_C3")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C3"]
+offset_left = -2.0
+offset_top = -28.0
+offset_right = 2.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C4" type="Area2D" parent="Ropes"]
+position = Vector2(369, -1)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C4"]
+shape = SubResource("RectShape_C4")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C4"]
+offset_left = -2.0
+offset_top = -28.0
+offset_right = 2.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C6" type="Area2D" parent="Ropes"]
+position = Vector2(753, -81)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C6"]
+shape = SubResource("RectShape_C6")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C6"]
+offset_left = -2.0
+offset_top = -28.0
+offset_right = 2.0
+offset_bottom = 28.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
 
 [node name="Players" type="Node2D" parent="."]
 
@@ -700,11 +804,8 @@ script = ExtResource("9_pjyxy")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
-
-
-
 [node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
+script = ExtResource("conv_spw")
 enemy_scene = ExtResource("gen_slime")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6"), NodePath("M7"), NodePath("M8"), NodePath("M9"), NodePath("M10"), NodePath("M11"), NodePath("M12"), NodePath("M13"), NodePath("M14"), NodePath("M15"), NodePath("M16"), NodePath("M17"), NodePath("M18"), NodePath("M19"), NodePath("M20"), NodePath("M21"), NodePath("M22"), NodePath("M23"), NodePath("M24"), NodePath("M25"), NodePath("M26"), NodePath("M27"), NodePath("M28"), NodePath("M29"), NodePath("M30"), NodePath("M31"), NodePath("M32"), NodePath("M33"), NodePath("M34"), NodePath("M35"), NodePath("M36"), NodePath("M37"), NodePath("M38"), NodePath("M39"), NodePath("M40"), NodePath("M41"), NodePath("M42"), NodePath("M43"), NodePath("M44"), NodePath("M45"), NodePath("M46"), NodePath("M47"), NodePath("M48"), NodePath("M49"), NodePath("M50"), NodePath("M51"), NodePath("M52"), NodePath("M53"), NodePath("M54"), NodePath("M55"), NodePath("M56"), NodePath("M57"), NodePath("M58"), NodePath("M59"), NodePath("M60"), NodePath("M61"), NodePath("M62"), NodePath("M63"), NodePath("M64"), NodePath("M65"), NodePath("M66"), NodePath("M67"), NodePath("M68"), NodePath("M69"), NodePath("M70"), NodePath("M71")]
 spawn_container = NodePath("../Enemies")
@@ -929,157 +1030,5 @@ position = Vector2(1745, -125)
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="SlimeSpawner0" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
+script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
-
-[node name="C0" type="Area2D" parent="Ladders"]
-position = Vector2(113, 78)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C0"]
-shape = SubResource("RectShape_C0")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C0"]
-offset_left = -7.0
-offset_top = -28.0
-offset_right = 7.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_nk4qt")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C1" type="Area2D" parent="Ropes"]
-position = Vector2(849, 102)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C1"]
-shape = SubResource("RectShape_C1")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C1"]
-offset_left = -2.0
-offset_top = -52.0
-offset_right = 2.0
-offset_bottom = 52.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C2" type="Area2D" parent="Ladders"]
-position = Vector2(1489, 102)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C2"]
-shape = SubResource("RectShape_C2")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C2"]
-offset_left = -7.0
-offset_top = -52.0
-offset_right = 7.0
-offset_bottom = 52.0
-texture = SubResource("AtlasTexture_nk4qt")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C3" type="Area2D" parent="Ropes"]
-position = Vector2(2033, 78)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C3"]
-shape = SubResource("RectShape_C3")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C3"]
-offset_left = -2.0
-offset_top = -28.0
-offset_right = 2.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C4" type="Area2D" parent="Ropes"]
-position = Vector2(369, -1)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C4"]
-shape = SubResource("RectShape_C4")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C4"]
-offset_left = -2.0
-offset_top = -28.0
-offset_right = 2.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C5" type="Area2D" parent="Ladders"]
-position = Vector2(1297, -1)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C5"]
-shape = SubResource("RectShape_C5")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C5"]
-offset_left = -7.0
-offset_top = -28.0
-offset_right = 7.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_nk4qt")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C6" type="Area2D" parent="Ropes"]
-position = Vector2(753, -81)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C6"]
-shape = SubResource("RectShape_C6")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C6"]
-offset_left = -2.0
-offset_top = -28.0
-offset_right = 2.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C7" type="Area2D" parent="Ladders"]
-position = Vector2(1361, -81)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ladders/C7"]
-shape = SubResource("RectShape_C7")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ladders/C7"]
-offset_left = -7.0
-offset_top = -28.0
-offset_right = 7.0
-offset_bottom = 28.0
-texture = SubResource("AtlasTexture_nk4qt")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1

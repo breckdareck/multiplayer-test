@@ -700,16 +700,16 @@ spawn_container = NodePath("../Enemies")
 pool_size = 9
 
 [node name="M0" type="Marker2D" parent="Spawn_celestial_hare"]
-position = Vector2(273, 179)
+position = Vector2(-111, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_celestial_hare"]
-position = Vector2(401, 179)
+position = Vector2(-95, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_celestial_hare"]
 position = Vector2(593, 163)
 
 [node name="M3" type="Marker2D" parent="Spawn_celestial_hare"]
-position = Vector2(785, 115)
+position = Vector2(-79, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_celestial_hare"]
 position = Vector2(913, 115)
@@ -734,7 +734,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 8
 
 [node name="M0" type="Marker2D" parent="Spawn_astral_slime"]
-position = Vector2(337, 179)
+position = Vector2(-63, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_astral_slime"]
 position = Vector2(529, 163)
@@ -749,7 +749,7 @@ position = Vector2(849, 115)
 position = Vector2(977, 115)
 
 [node name="M5" type="Marker2D" parent="Spawn_astral_slime"]
-position = Vector2(1169, 163)
+position = Vector2(-47, 131)
 
 [node name="M6" type="Marker2D" parent="Spawn_astral_slime"]
 position = Vector2(1297, 163)
@@ -759,23 +759,6 @@ _spawnable_scenes = PackedStringArray("uid://5oi0b5vosx3q")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "emberscar"
-target_spawn_point_name = "Emberscar_Weave_Portal_Spawn"
-
-[node name="Weave_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
-[node name="PortalToWarlord" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1561, 147)
-target_map_id = "warlord"
-target_spawn_point_name = "Warlord_Weave_Portal_Spawn"
-
-[node name="Weave_Warlord_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1537, 151)
-
-
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 78)
 collision_layer = 0
@@ -851,3 +834,27 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(345, 195)
+target_map_id = "ashvigil"
+target_spawn_point_name = "Ashvigil_Weave_Portal_Spawn"
+
+[node name="Weave_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(369, 199)
+
+[node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(761, 131)
+target_map_id = "cinderwaste"
+target_spawn_point_name = "Cinderwaste_Weave_Portal_Spawn"
+
+[node name="Weave_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(785, 135)
+
+[node name="PortalToWarlord" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1161, 179)
+target_map_id = "warlord"
+target_spawn_point_name = "Warlord_Weave_Portal_Spawn"
+
+[node name="Weave_Warlord_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1185, 183)

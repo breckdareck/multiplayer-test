@@ -155,5 +155,34 @@
       { "portal": "PortalToWeave", "arrival": "Warlord_Weave_Portal_Spawn", "x": -35 }
     ],
     "decor": { "scatter": "bush" }
+  },
+
+  "_comment3": "NEW battlefield/ash-themed maps (fresh + generate + populate). Ashvigil is a SAFE HUB (no populate -> terrain only, no enemies).",
+
+  "old_battlefield": {
+    "display_name": "The Old Battlefield", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "cliffs", "levels": 6, "level_height": 3, "pw_min": 9, "pw_max": 16, "main_x": -35, "main_w": 70, "main_y": 2, "enemy_spacing": 5, "max_enemies": 42 },
+    "spawn": { "x": -32, "y": 0 },
+    "populate": [ "res://scenes/NPC/Minifolks/tusk_brute.tscn", "res://scenes/NPC/cave_goblin.tscn", "res://scenes/NPC/goblin.tscn" ],
+    "decor": { "scatter": "bush" }
+  },
+  "mustering_fields": {
+    "display_name": "The Mustering Fields", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "tower", "levels": 6, "level_height": 3, "pw_min": 9, "pw_max": 15, "main_x": -32, "main_w": 64, "main_y": 2, "enemy_spacing": 5, "max_enemies": 40 },
+    "spawn": { "x": -29, "y": 0 },
+    "populate": [ "res://scenes/NPC/Beastmen/lion_knight.tscn", "res://scenes/NPC/Beastmen/panda_warrior.tscn", "res://scenes/NPC/Beastmen/bear_warrior.tscn" ],
+    "decor": { "scatter": "bush" }
+  },
+  "ashvigil": {
+    "display_name": "Ashvigil", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "pyramid", "levels": 2, "level_height": 3, "pw_min": 10, "pw_max": 16, "main_x": -22, "main_w": 44, "main_y": 2, "enemy_spacing": 6, "max_enemies": 0 },
+    "spawn": { "x": 0, "y": 0 }
+  },
+  "cinderwaste": {
+    "display_name": "The Cinderwaste", "tile": 16, "killzone_y": 9,
+    "generate": { "shape": "cliffs", "levels": 6, "level_height": 3, "pw_min": 9, "pw_max": 16, "main_x": -40, "main_w": 80, "main_y": 2, "enemy_spacing": 5, "max_enemies": 44 },
+    "spawn": { "x": -37, "y": 0 },
+    "populate": [ "res://scenes/NPC/Minifolks/ember_fox.tscn", "res://scenes/NPC/fire_slime.tscn", "res://scenes/NPC/Minifolks/runed_boar.tscn" ],
+    "decor": { "scatter": "bush" }
   }
 }

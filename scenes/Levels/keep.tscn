@@ -711,7 +711,7 @@ position = Vector2(529, 131)
 position = Vector2(849, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(1105, 83)
+position = Vector2(-111, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_bear_warrior"]
 position = Vector2(1361, 83)
@@ -736,16 +736,16 @@ pool_size = 5
 position = Vector2(209, 83)
 
 [node name="M1" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(657, 83)
+position = Vector2(-95, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_panda_warrior"]
 position = Vector2(913, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(1169, 83)
+position = Vector2(-79, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(1425, 83)
+position = Vector2(-63, 131)
 
 [node name="M5" type="Marker2D" parent="Spawn_panda_warrior"]
 position = Vector2(1681, 83)
@@ -764,10 +764,10 @@ spawn_container = NodePath("../Enemies")
 pool_size = 6
 
 [node name="M0" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(273, 83)
+position = Vector2(-47, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(721, 83)
+position = Vector2(-31, 131)
 
 [node name="M2" type="Marker2D" parent="Spawn_shadow_fox"]
 position = Vector2(977, 83)
@@ -776,7 +776,7 @@ position = Vector2(977, 83)
 position = Vector2(1233, 83)
 
 [node name="M4" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(1489, 83)
+position = Vector2(-15, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_shadow_fox" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://c6qy8yi07kf2x")
@@ -798,36 +798,19 @@ position = Vector2(465, 131)
 position = Vector2(785, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(1041, 83)
+position = Vector2(1, 131)
 
 [node name="M3" type="Marker2D" parent="Spawn_lion_knight"]
 position = Vector2(1297, 83)
 
 [node name="M4" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(1553, 83)
+position = Vector2(17, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_lion_knight" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dqirvq2t4dhx6")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
-[node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1881, 99)
-target_map_id = "emberscar"
-target_spawn_point_name = "Emberscar_Keep_Portal_Spawn"
-
-[node name="Keep_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1857, 103)
-
-[node name="PortalToDeepWoods" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-55, 131)
-target_map_id = "deep_woods"
-target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
-
-[node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-31, 135)
-
-
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 62)
 collision_layer = 0
@@ -903,3 +886,35 @@ texture = SubResource("AtlasTexture_p47w5")
 patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
+
+[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(329, 99)
+target_map_id = "emberwatch"
+target_spawn_point_name = "Emberwatch_Keep_Portal_Spawn"
+
+[node name="Keep_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(353, 103)
+
+[node name="PortalToDeepWoods" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(713, 99)
+target_map_id = "deep_woods"
+target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
+
+[node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(737, 103)
+
+[node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1113, 99)
+target_map_id = "mustering_fields"
+target_spawn_point_name = "MusteringFields_Keep_Portal_Spawn"
+
+[node name="Keep_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1137, 103)
+
+[node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1497, 99)
+target_map_id = "emberscar"
+target_spawn_point_name = "Emberscar_Keep_Portal_Spawn"
+
+[node name="Keep_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1521, 103)
