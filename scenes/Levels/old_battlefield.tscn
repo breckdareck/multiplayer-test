@@ -737,19 +737,19 @@ pool_size = 9
 position = Vector2(-47, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_tusk_brute"]
-position = Vector2(-111, 131)
+position = Vector2(273, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_tusk_brute"]
 position = Vector2(465, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_tusk_brute"]
-position = Vector2(-95, 131)
+position = Vector2(689, 115)
 
 [node name="M4" type="Marker2D" parent="Spawn_tusk_brute"]
 position = Vector2(977, 83)
 
 [node name="M5" type="Marker2D" parent="Spawn_tusk_brute"]
-position = Vector2(-79, 131)
+position = Vector2(1249, 83)
 
 [node name="M6" type="Marker2D" parent="Spawn_tusk_brute"]
 position = Vector2(1361, 83)
@@ -771,13 +771,13 @@ pool_size = 9
 position = Vector2(81, 115)
 
 [node name="M1" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(-63, 131)
+position = Vector2(433, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(593, 115)
 
 [node name="M3" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(-47, 131)
+position = Vector2(849, 99)
 
 [node name="M4" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(1041, 83)
@@ -805,7 +805,7 @@ pool_size = 9
 position = Vector2(145, 115)
 
 [node name="M1" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(-31, 131)
+position = Vector2(449, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(657, 115)
@@ -814,7 +814,7 @@ position = Vector2(657, 115)
 position = Vector2(913, 83)
 
 [node name="M4" type="Marker2D" parent="Spawn_goblin"]
-position = Vector2(-15, 131)
+position = Vector2(1089, 83)
 
 [node name="M5" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(1297, 83)

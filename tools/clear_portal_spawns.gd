@@ -32,7 +32,7 @@ func _do(map: String) -> void:
 
 	# Find every M# Marker2D + its position; relocate the ones boxed near a portal.
 	var nre := RegEx.new(); nre.compile('\\[node name="M\\d+" type="Marker2D"[^\\n]*\\]\\s*\\nposition = Vector2\\((-?\\d+), (-?\\d+)\\)')
-	var edits := []; var fi := 0; var moved := 0
+	var edits := []; var moved := 0
 	for mm in nre.search_all(text):
 		var wx := int(mm.get_string(1)); var wy := int(mm.get_string(2))
 		var cell := Vector2i(int(round(float(wx - off.x) / 16.0)), int(round(float(wy - off.y) / 16.0)))
@@ -40,7 +40,13 @@ func _do(map: String) -> void:
 		for p in portals:
 			if absi(cell.x - p.x) <= BUFFER and absi(cell.y - p.y) <= BUFFER: near = true; break
 		if not near: continue
-		var tc: int = free[fi % free.size()]; fi += 1
+		# Move to the NEAREST clear column (stay local — don't pile everything in the left corner),
+		# and consume it so multiple displaced markers don't stack on one spot.
+		if free.is_empty(): break
+		var bi := 0
+		for k in range(free.size()):
+			if absi(free[k] - cell.x) < absi(free[bi] - cell.x): bi = k
+		var tc: int = free[bi]; free.remove_at(bi)
 		var tr: int = floor_top[tc]
 		var np := "position = Vector2(%d, %d)" % [tc * 16 + off.x + 8, (tr - 1) * 16 + off.y]
 		# offset of the position substring within the match
