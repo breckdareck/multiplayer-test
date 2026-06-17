@@ -100,7 +100,11 @@ func _near_wilds() -> Dictionary:
 	var ground := {}
 	var plat := {}
 	var slopes := {}
-	var _surf := _rolling_floor(width, bottom, base_r, 2, 1090901, ground, slopes)
+	var surf := _rolling_floor(width, bottom, base_r, 2, 1090901, ground, slopes)
+	# Two enemy-free SAFE platforms (heal / AFK) one near each portal; the Main player spawn
+	# sits on the left one. Each is reached by a rope down to the meadow floor.
+	var safe_row := base_r - 6
+	_shelf(plat, surf, safe_row, [[7, 18], [101, 112]])
 	var monsters := [
 		["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 5],
 		["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e", 5],
@@ -118,7 +122,9 @@ func _near_wilds() -> Dictionary:
 	]
 	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters,
 		"display_name": "The Near-Wilds", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
-		"portals": portals, "width": width, "bottom": bottom}
+		"portals": portals, "safe_rows": [safe_row], "player_spawn": Vector2i(12, safe_row - 1),
+		"ladders": [[safe_row, int(surf[12]), 12, "rope"], [safe_row, int(surf[107]), 107, "rope"]],
+		"width": width, "bottom": bottom}
 
 func _open() -> Dictionary:
 	# Henesys-style open field: a wide floor that ROLLS gently (2:1 grass ramps, +-2 tiles)
@@ -376,9 +382,13 @@ func _emit(m: Dictionary) -> void:
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
-	if m["name"] == "tower": text = _inject_ladders(text, TOWER_LADDERS)
-	if m["name"] == "cliffs": text = _inject_ladders(text, CLIFFS_LADDERS)
-	if not m.get("ladders", []).is_empty(): text = _inject_ladders(text, m["ladders"])
+	# Always run ladder injection: it grabs the atlas from the cloned Ladders/Ropes, CLEARS the
+	# stale cloned ones, then adds this map's set (or none). Clearing inside _inject_ladders
+	# (not in _strip_clone_clutter) keeps the atlas reference alive for the lookup.
+	var lad_specs: Array = m.get("ladders", [])
+	if m["name"] == "tower": lad_specs = TOWER_LADDERS
+	elif m["name"] == "cliffs": lad_specs = CLIFFS_LADDERS
+	text = _inject_ladders(text, lad_specs)
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
 	w.store_string(text); w.close()
 
@@ -452,6 +462,7 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 		for r in rows:
 			var xs = rows[r]; xs.sort()
 			if xs.size() < 5: continue                        # skip tiny stepping stones
+			if m.get("safe_rows", []).has(r): continue        # safe platforms stay enemy-free
 			var c: int = xs[0] + 2
 			while c <= xs[xs.size() - 1] - 1:
 				spots.append(Vector2i(c, r)); c += 7
@@ -484,6 +495,8 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	if ps != -1:
 		var sp_col := 5
 		var sp_row: int = int(surf.get(sp_col, FLOOR_Y)) - 2   # read the rolling surface, don't bury/float
+		if m.has("player_spawn"):                              # explicit spawn on a safe platform
+			sp_col = int(m["player_spawn"].x); sp_row = int(m["player_spawn"].y)
 		var spawn_pos := 'position = Vector2(%d, %d)' % [sp_col * 16 - 119, sp_row * 16 - 269]
 		var posln := text.find("position = ", ps)
 		var nxt := text.find("\n[node ", ps)
@@ -583,11 +596,13 @@ func _inject_portals(text: String, m: Dictionary) -> String:
 		while not surf.has(col) and col > 0 and col < w - 1: col += 1 if edge == "left" else -1
 		var srow: int = int(surf.get(col, FLOOR_Y))
 		var px: int = col * 16 - 119
-		var py: int = srow * 16 - 269
+		var pg: int = srow * 16 - 269                      # ground surface at the portal column
 		blk += '\n[node name="%s" parent="." instance=ExtResource("%s")]' % [sp[3], pid]
-		blk += '\nposition = Vector2(%d, %d)\ntarget_map_id = "%s"\ntarget_spawn_point_name = "%s"\n' % [px, py, sp[1], sp[2]]
+		# Portal raised 16px so its collision box sits ON the ground, not buried in it.
+		blk += '\nposition = Vector2(%d, %d)\ntarget_map_id = "%s"\ntarget_spawn_point_name = "%s"\n' % [px, pg - 16, sp[1], sp[2]]
 		var mx: int = px + (24 if edge == "left" else -24)
-		blk += '\n[node name="%s" type="Marker2D" parent="."]\nposition = Vector2(%d, %d)\n' % [sp[4], mx, py - 4]
+		# Arrival marker raised 12px so the player drops in just above the ground.
+		blk += '\n[node name="%s" type="Marker2D" parent="."]\nposition = Vector2(%d, %d)\n' % [sp[4], mx, pg - 12]
 	return text + blk
 
 func _try_tuft(deco: Dictionary, cell: Vector2i, ground: Dictionary, plat: Dictionary, rng: RandomNumberGenerator) -> void:
