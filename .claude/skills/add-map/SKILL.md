@@ -223,7 +223,10 @@ on the LEFT edge (back toward home), the highest on the RIGHT edge (forward towa
 (3rd+) portal stacks on an ELEVATED platform near a side, above the side door (alternating right then
 left) — never spread across the open floor.** **Offset convention: the portal sits 16px ABOVE the
 ground (its foot rests on the surface) and the arrival marker 12px above (so you land ON the ground,
-not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
+not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`. Side doors sit on FLAT floor (scan in from
+the edge for a column whose surface row matches both neighbours — not a slope). The arrival marker
+goes on the door's INNER side: a LEFT-side door spawns you to its RIGHT (+x), a RIGHT-side door spawns
+you to its LEFT (−x), so you always land facing into the map.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
 for the target and `<ThisToken>_<OtherToken>_Portal_Spawn` for the arrival marker. Tokens are NOT
 pure PascalCase — extract them from existing markers (meadow_path→`Meadow`, three_terraces→`Terraces`).
 GRAPH must be symmetric (A lists B ⟺ B lists A) or you get one-way doors.

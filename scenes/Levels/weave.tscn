@@ -849,12 +849,12 @@ target_map_id = "cinderwaste"
 target_spawn_point_name = "Cinderwaste_Weave_Portal_Spawn"
 
 [node name="Weave_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1521, 23)
+position = Vector2(1473, 23)
 
 [node name="PortalToWarlord" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1577, 131)
+position = Vector2(1481, 179)
 target_map_id = "warlord"
 target_spawn_point_name = "Warlord_Weave_Portal_Spawn"
 
 [node name="Weave_Warlord_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1601, 135)
+position = Vector2(1457, 183)

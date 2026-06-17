@@ -901,7 +901,7 @@ target_map_id = "near_wilds"
 target_spawn_point_name = "NearWilds_EmberMeadows_Portal_Spawn"
 
 [node name="EmberMeadows_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1681, 23)
+position = Vector2(1633, 23)
 
 [node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-7, 19)
@@ -917,4 +917,4 @@ target_map_id = "ruins"
 target_spawn_point_name = "Ruins_EmberMeadows_Portal_Spawn"
 
 [node name="EmberMeadows_Ruins_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1761, 119)
+position = Vector2(1713, 119)

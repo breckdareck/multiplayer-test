@@ -889,7 +889,7 @@ target_map_id = "three_terraces"
 target_spawn_point_name = "Terraces_Ruins_Portal_Spawn"
 
 [node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1681, 23)
+position = Vector2(1633, 23)
 
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-7, 19)
@@ -905,4 +905,4 @@ target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
 
 [node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1761, 135)
+position = Vector2(1713, 135)

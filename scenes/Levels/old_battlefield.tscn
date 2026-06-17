@@ -786,7 +786,7 @@ position = Vector2(1041, 83)
 position = Vector2(1233, 83)
 
 [node name="M6" type="Marker2D" parent="Spawn_cave_goblin"]
-position = Vector2(1489, 115)
+position = Vector2(1425, 99)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_cave_goblin" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://cnes7f1n2altk")
@@ -918,12 +918,12 @@ target_map_id = "three_terraces"
 target_spawn_point_name = "Terraces_OldBattlefield_Portal_Spawn"
 
 [node name="OldBattlefield_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1521, 23)
+position = Vector2(1473, 23)
 
 [node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1577, 115)
+position = Vector2(1561, 115)
 target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_OldBattlefield_Portal_Spawn"
 
 [node name="OldBattlefield_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1601, 119)
+position = Vector2(1537, 119)

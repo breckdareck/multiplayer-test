@@ -902,4 +902,4 @@ target_map_id = "keep"
 target_spawn_point_name = "Keep_DeepWoods_Portal_Spawn"
 
 [node name="DeepWoods_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1761, 135)
+position = Vector2(1713, 135)

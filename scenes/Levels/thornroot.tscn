@@ -859,7 +859,7 @@ target_map_id = "three_terraces"
 target_spawn_point_name = "Terraces_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1361, 23)
+position = Vector2(1313, 23)
 
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-7, 19)
@@ -875,12 +875,12 @@ target_map_id = "dust_warren"
 target_spawn_point_name = "DustWarren_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1345, 23)
+position = Vector2(1297, 23)
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1417, 163)
+position = Vector2(1401, 163)
 target_map_id = "mines"
 target_spawn_point_name = "Mines_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1441, 167)
+position = Vector2(1377, 167)

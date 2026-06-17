@@ -81,9 +81,10 @@ func _do_map(map: String) -> void:
 	# branch portals go on an elevated platform near a side, stacked above the side door — alternating
 	# right/left so a 3rd door sits over the right edge, a 4th over the left.
 	var place := []; place.resize(n)
-	var lc: int = _nearest(floor_top, mincol + 3); place[0] = Vector2i(lc, floor_top[lc])
+	var center := (mincol + maxcol) / 2.0
+	var lc: int = _flat_near(floor_top, mincol + 3, 1, mincol, maxcol); place[0] = Vector2i(lc, floor_top[lc])
 	if n >= 2:
-		var rc: int = _nearest(floor_top, maxcol - 3); place[n - 1] = Vector2i(rc, floor_top[rc])
+		var rc: int = _flat_near(floor_top, maxcol - 3, -1, mincol, maxcol); place[n - 1] = Vector2i(rc, floor_top[rc])
 	var b := 0
 	for i in range(1, n - 1):
 		var pri = right_elev if b % 2 == 0 else left_elev
@@ -105,8 +106,10 @@ func _do_map(map: String) -> void:
 		body += 'position = Vector2(%d, %d)\n' % [px, py - 16]
 		body += 'target_map_id = "%s"\n' % other
 		body += 'target_spawn_point_name = "%s_%s_Portal_Spawn"\n' % [TOKEN[other], TOKEN[map]]
+		# Arrival on the INNER side of the door: left-side portal -> spawn to its right; right-side -> left.
+		var dx: int = 24 if place[i].x <= center else -24
 		body += '\n[node name="%s_%s_Portal_Spawn" type="Marker2D" parent="."]\n' % [TOKEN[map], TOKEN[other]]
-		body += 'position = Vector2(%d, %d)\n' % [px + 24, py - 12]
+		body += 'position = Vector2(%d, %d)\n' % [px + dx, py - 12]
 
 	text = text.rstrip("\n") + "\n" + body
 	var w := FileAccess.open(path, FileAccess.WRITE); w.store_string(text); w.close()
@@ -198,6 +201,16 @@ func _elevated(text: String, floor_top: Dictionary) -> Array:
 		if solid.has(l) and not solid.has(l + up) and solid.has(r) and not solid.has(r + up):
 			out.append(c)
 	return out
+
+# Scan from start_col in `dir` for a FLAT floor column (same surface row as both neighbours — not a slope).
+func _flat_near(floor_top: Dictionary, start_col: int, dir: int, mincol: int, maxcol: int) -> int:
+	var col := start_col
+	for _i in range(220):
+		if floor_top.has(col) and floor_top.has(col - 1) and floor_top.has(col + 1) and floor_top[col] == floor_top[col - 1] and floor_top[col] == floor_top[col + 1]:
+			return col
+		col += dir
+		if col < mincol or col > maxcol: break
+	return _nearest(floor_top, start_col)
 
 func _nearest(floor_top: Dictionary, col: int) -> int:
 	if floor_top.has(col): return col

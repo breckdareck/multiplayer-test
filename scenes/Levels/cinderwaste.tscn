@@ -918,12 +918,12 @@ target_map_id = "ashvigil"
 target_spawn_point_name = "Ashvigil_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1681, 23)
+position = Vector2(1633, 23)
 
 [node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1737, 195)
+position = Vector2(1705, 179)
 target_map_id = "weave"
 target_spawn_point_name = "Weave_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1761, 199)
+position = Vector2(1681, 183)

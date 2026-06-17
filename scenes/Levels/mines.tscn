@@ -1182,7 +1182,7 @@ target_map_id = "dust_warren"
 target_spawn_point_name = "DustWarren_Mines_Portal_Spawn"
 
 [node name="Mines_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(2273, -281)
+position = Vector2(2225, -281)
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(2217, 131)
@@ -1190,4 +1190,4 @@ target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_Mines_Portal_Spawn"
 
 [node name="Mines_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(2241, 135)
+position = Vector2(2193, 135)
