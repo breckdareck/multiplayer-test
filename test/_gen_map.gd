@@ -45,12 +45,71 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Only open this pass — gen_cliffs (committed) and the hand-finished gen_tower must NOT
-	# be regenerated/clobbered. Swap this list to regen a different map.
-	for m in [_open()]:
+	# Map-reimagining project: regen one themed map at a time (proof files gen_<name>.tscn),
+	# preview, then integrate into the real map. Swap this list to build a different map.
+	for m in [_near_wilds()]:
 		_emit(m)
 		print("WROTE gen_", m["name"], "  ", m["width"], "x", m["bottom"])
 	quit()
+
+## Fill `ground` (solid) + `slopes` with a gently rolling floor: broad flat runs at varied
+## heights joined by 2:1 grass ramps, within +-amp tiles of base_r. Returns the per-column
+## surface row. Shared by every field-type map (open field, near-wilds meadow, etc.).
+func _rolling_floor(width: int, bottom: int, base_r: int, amp: int, seed_val: int, ground: Dictionary, slopes: Dictionary) -> Array:
+	var surf := []
+	surf.resize(width)
+	for i in range(width): surf[i] = base_r
+	var rng := RandomNumberGenerator.new()
+	rng.seed = seed_val
+	var x := 0
+	var cur := base_r
+	while x < width:
+		var run := rng.randi_range(8, 18)
+		for _i in range(run):
+			if x >= width: break
+			surf[x] = cur; x += 1
+		if x + 1 >= width: break
+		var target := clampi(cur + rng.randi_range(-amp, amp), base_r - amp, base_r + amp)
+		if target == cur:
+			target = clampi(cur + (1 if rng.randf() < 0.5 else -1), base_r - amp, base_r + amp)
+		var up := target < cur
+		for _s in range(absi(cur - target)):
+			if x + 1 >= width: break
+			if up:
+				var row := cur - 1
+				slopes[Vector2i(x, row)] = SLOPE_UR_LOW
+				slopes[Vector2i(x + 1, row)] = SLOPE_UR_HIGH
+				surf[x] = row; surf[x + 1] = row
+				cur = row
+			else:
+				slopes[Vector2i(x, cur)] = SLOPE_UL_HIGH
+				slopes[Vector2i(x + 1, cur)] = SLOPE_UL_LOW
+				surf[x] = cur; surf[x + 1] = cur
+				cur += 1
+			x += 2
+	for col in range(width):
+		for y in range(surf[col], bottom + 1): ground[Vector2i(col, y)] = true
+	return surf
+
+## The Near-Wilds (lv 1-9): the gentle grassy first step past the lantern-line. A wide
+## rolling meadow, no climbs — just the warped woodland animals roaming the hills.
+func _near_wilds() -> Dictionary:
+	var width := 120
+	var bottom := 36
+	var base_r := FLOOR_Y
+	var ground := {}
+	var plat := {}
+	var slopes := {}
+	var _surf := _rolling_floor(width, bottom, base_r, 2, 1090901, ground, slopes)
+	var monsters := [
+		["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 5],
+		["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e", 5],
+		["res://scenes/NPC/Minifolks/bird.tscn", "uid://p1gtmn7fct13", 3],
+		["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 4],
+		["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 3],
+		["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 3],
+	]
+	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters, "width": width, "bottom": bottom}
 
 func _open() -> Dictionary:
 	# Henesys-style open field: a wide floor that ROLLS gently (2:1 grass ramps, +-2 tiles)
@@ -340,15 +399,18 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	# Drop any EnemySpawner inherited from the cloned template (ruins now has its own,
 	# converted spawners) so only the one we inject remains.
 	text = _strip_clone_spawners(text)
-	# ext_resources for the spawner scripts + slime, after the header; bump load_steps.
+	# Monster roster: [[scene_path, uid, pool], ...]. Default = one slime (open/cliffs/tower).
+	var roster: Array = m.get("monsters", [["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 0]])
+	# ext_resources: the two spawner scripts + one PackedScene per enemy; bump load_steps.
 	var nl := text.find("\n")
 	var header := text.substr(0, nl)
 	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
 	var n := int(lm.search(header).get_string(1))
-	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 3))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2 + roster.size()))
 	var ext := '\n[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]'
 	ext += '\n[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]'
-	ext += '\n[ext_resource type="PackedScene" uid="uid://q6iqwsi8meq4" path="res://scenes/NPC/slime.tscn" id="gen_slime"]'
+	for i in roster.size():
+		ext += '\n[ext_resource type="PackedScene" uid="%s" path="%s" id="gen_mob%d"]' % [roster[i][1], roster[i][0], i]
 	text = header + ext + text.substr(nl)
 
 	# Spawn spots: sample the base ground floor AND every wide platform floor, so enemies
@@ -382,18 +444,28 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 			var c: int = xs[0] + 2
 			while c <= xs[xs.size() - 1] - 1:
 				spots.append(Vector2i(c, r)); c += 7
-	var markers := ""; var locs := []; var idx := 0
-	for s in spots:
-		markers += '\n\n[node name="M%d" type="Marker2D" parent="SlimeSpawner0"]\nposition = Vector2(%d, %d)' % [idx, s.x * 16 - 111, (s.y - 1) * 16 - 269]
-		locs.append('NodePath("M%d")' % idx)
-		idx += 1
-	var blk := '\n\n[node name="SlimeSpawner0" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]'
-	blk += '\nscript = ExtResource("gen_spw")\nenemy_scene = ExtResource("gen_slime")'
-	blk += '\nspawn_locations = [%s]\nspawn_container = NodePath("../Enemies")\npool_size = %d' % [", ".join(locs), maxi(idx, 1)]
-	blk += markers
-	blk += '\n\n[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="SlimeSpawner0" node_paths=PackedStringArray("enemy_spawner")]'
-	blk += '\n_spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")\nspawn_path = NodePath("../../Enemies")'
-	blk += '\nscript = ExtResource("gen_msp")\nenemy_spawner = NodePath("..")'
+	# One spawner per enemy, each getting a round-robin share of the spots (so every type is
+	# spread across the whole map) plus its own pool_size from the roster.
+	var blk := ""
+	for i in roster.size():
+		var sp_name := "Spawn_%s" % str(roster[i][0]).get_file().get_basename()
+		var my := []
+		for j in range(spots.size()):
+			if j % roster.size() == i: my.append(spots[j])
+		if my.is_empty() and not spots.is_empty(): my.append(spots[i % spots.size()])
+		var pool: int = int(roster[i][2]) if int(roster[i][2]) > 0 else maxi(my.size(), 1)
+		var markers := ""; var locs := []
+		for k in my.size():
+			var s = my[k]
+			markers += '\n\n[node name="M%d" type="Marker2D" parent="%s"]\nposition = Vector2(%d, %d)' % [k, sp_name, s.x * 16 - 111, (s.y - 1) * 16 - 269]
+			locs.append('NodePath("M%d")' % k)
+		blk += '\n\n[node name="%s" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]' % sp_name
+		blk += '\nscript = ExtResource("gen_spw")\nenemy_scene = ExtResource("gen_mob%d")' % i
+		blk += '\nspawn_locations = [%s]\nspawn_container = NodePath("../Enemies")\npool_size = %d' % [", ".join(locs), pool]
+		blk += markers
+		blk += '\n\n[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="%s" node_paths=PackedStringArray("enemy_spawner")]' % sp_name
+		blk += '\n_spawnable_scenes = PackedStringArray("%s")\nspawn_path = NodePath("../../Enemies")' % roster[i][1]
+		blk += '\nscript = ExtResource("gen_msp")\nenemy_spawner = NodePath("..")'
 	text += blk
 
 	# Reposition PlayerSpawn onto the floor (left side), same (-119,-269) clone offset.

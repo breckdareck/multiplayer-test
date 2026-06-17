@@ -17,6 +17,7 @@ const MAPS := [
 	"near_wilds", "deep_woods", "ruins", "mines", "keep", "emberscar",
 	"weave", "dust_warren", "thornroot", "ember_meadows", "warlord",
 	"meadow_path", "three_terraces", "gen_open", "gen_tower", "gen_cliffs",
+	"gen_near_wilds",
 ]
 
 ## Hand-placed connectors for specific maps (overrides auto-inference). Each entry is
@@ -50,6 +51,12 @@ const MANUAL_CONNECTORS := {
 		[10, 15, 54, "rope"],     # L2 -> L3
 		[10, 15, 92, "ladder"],   # L2 -> L3
 	],
+}
+## Proposed portal placements per map: [edge, destination-label]. A doorway sits on the
+## ground a few tiles in from that edge, pointing to the neighbouring region (mirrors the
+## map's MapManager connections). Like the connector proposals — shown for review.
+const MANUAL_PORTALS := {
+	"gen_near_wilds": [["left", "Lantern's Rest"], ["right", "Ember-Meadows"]],
 }
 const OUT_DIR := "res://docs/map_previews"
 # Distinct pin colours, assigned per enemy type in order of first appearance.
@@ -169,11 +176,20 @@ func _render(name: String, imgs: Dictionary) -> Dictionary:
 			"pool_size": pool, "markers": mlist,
 		})
 
+	var player_spawn := {}
+	for n in nodes:
+		if n["name"] == "PlayerSpawn":
+			var pp := _vec(n["body"], "position")
+			player_spawn = {"x": int(round(pp.x - tilemap_off.x - minx * 16)), "y": int(round(pp.y - tilemap_off.y - miny * 16))}
+			break
+
 	return {
 		"name": name, "png": "%s.png" % name,
 		"img_w": img.get_width(), "img_h": img.get_height(),
 		"spawners": spawners,
+		"player_spawn": player_spawn,
 		"connectors": _connectors_for(name, layers, minx, miny),
+		"portals": _portals_for(name, layers, minx, miny, maxx),
 	}
 
 ## Hand-placed connectors if the map has an entry, else the auto-inferred ones.
@@ -189,6 +205,33 @@ func _connectors_for(name: String, layers: Array, minx: int, miny: int) -> Array
 			})
 		return out
 	return _infer_connectors(layers, minx, miny)
+
+## Propose a doorway on the ground a few tiles in from each edge for every neighbour, so the
+## preview shows where portals should land. Surface = topmost solid ground/slope cell per
+## column (one-way platforms + props excluded). Returns image-pixel rects {x, y_top, y_bottom}.
+func _portals_for(name: String, layers: Array, minx: int, miny: int, maxx: int) -> Array:
+	if not MANUAL_PORTALS.has(name): return []
+	var top := {}
+	for cells in layers:
+		for c in cells:
+			var src: int = cells[c][0]
+			var ax: Vector2i = cells[c][1]
+			var is_ground: bool = src == 3 or (src == 1 and not (ax.y == 9 and ax.x >= 17 and ax.x <= 19))
+			if is_ground and (not top.has(c.x) or c.y < top[c.x]): top[c.x] = c.y
+	var out := []
+	for p in MANUAL_PORTALS[name]:
+		var col: int = (minx + 4) if p[0] == "left" else (maxx - 4)
+		while not top.has(col) and col > minx and col < maxx:
+			col += 1 if p[0] == "left" else -1
+		if not top.has(col): continue
+		var surf: int = top[col]
+		out.append({
+			"x": (col - minx) * 16 + 8,
+			"y_bottom": (surf - miny) * 16,
+			"y_top": (surf - miny) * 16 - 44,
+			"dest": p[1], "side": p[0],
+		})
+	return out
 
 # --- connector inference ------------------------------------------------------
 

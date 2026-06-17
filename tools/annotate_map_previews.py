@@ -54,6 +54,25 @@ def draw_rope(d, x, y0, y1):
     d.line(pts, fill=ROPE_COL + (255,), width=3, joint="curve")
 
 
+PORTAL_COL = (90, 220, 255)   # glowing cyan doorway
+SPAWN_COL = (120, 240, 130)   # lime player-start flag
+
+
+def draw_portal(d, x, yt, yb, dest, fnt):
+    hw = 15
+    d.ellipse([x - hw, yt, x + hw, yb], outline=PORTAL_COL + (255,), width=3)
+    d.ellipse([x - hw + 4, yt + 5, x + hw - 4, yb - 5], outline=PORTAL_COL + (110,), width=2)
+    d.text((x, yt - 3), dest, font=fnt, fill=(220, 245, 255, 255), anchor="mb",
+           stroke_width=3, stroke_fill=(0, 0, 0, 190))
+
+
+def draw_spawn(d, x, y, h=30):
+    # a planted flag marking where the player drops in
+    d.line([(x, y - h), (x, y + 4)], fill=SPAWN_COL + (255,), width=3)
+    d.polygon([(x, y - h), (x + 19, y - h + 7), (x, y - h + 15)],
+              fill=SPAWN_COL + (255,), outline=(255, 255, 255, 255))
+
+
 def annotate(entry):
     name = entry["name"]
     base = Image.open(os.path.join(PREV, entry["png"])).convert("RGBA")
@@ -64,11 +83,21 @@ def annotate(entry):
         col = hex2rgb(sp["color"])
         for x, y in sp["markers"]:
             pins.append((x * SCALE, y * SCALE, col))
+    portals = entry.get("portals", [])
+    pspawn = entry.get("player_spawn") or {}
 
-    # Pad the canvas so pins that sit just outside the tile bbox still fit.
+    # Pad the canvas so pins/portals/flags that sit just outside the tile bbox still fit.
     m = R + 4
-    xs = [p[0] for p in pins] or [0]
-    ys = [p[1] for p in pins] or [0]
+    xs = [p[0] for p in pins]
+    ys = [p[1] for p in pins]
+    for pt in portals:
+        xs.append(pt["x"] * SCALE)
+        ys += [pt["y_top"] * SCALE, pt["y_bottom"] * SCALE]
+    if pspawn:
+        xs.append(pspawn["x"] * SCALE)
+        ys.append(pspawn["y"] * SCALE - 60)
+    xs = xs or [0]
+    ys = ys or [0]
     pad_l = int(max(0, m - min(xs)))
     pad_t = int(max(0, m - min(ys)))
     pad_r = int(max(0, (max(xs) + m) - base.width))
@@ -112,7 +141,7 @@ def annotate(entry):
     fh, fs, fr = font(BOLD, 18), font(BOLD, 12), font(REG, 14)
     pad, sw, rowh = 12, 16, 26
     panel_w = 320
-    panel_h = pad * 2 + 24 + 22 + (len(groups) + conn_rows) * rowh
+    panel_h = pad * 2 + 24 + 22 + (len(groups) + conn_rows + len(portals) + (1 if pspawn else 0)) * rowh
     px, py = 12, 12
     d.rounded_rectangle([px, py, px + panel_w, py + panel_h], radius=10,
                         fill=(18, 21, 29, 228), outline=(255, 255, 255, 45), width=1)
@@ -120,6 +149,9 @@ def annotate(entry):
     d.text((tx, ty), name.replace("_", " ").title(), font=fh, fill=(255, 236, 200, 255)); ty += 24
     types = f"{len(groups)} type" + ("s" if len(groups) != 1 else "")
     d.text((tx, ty), f"Spawns: {total} points  •  {types}", font=fs, fill=(170, 180, 195, 255)); ty += 22
+    if pspawn:
+        draw_spawn(d, tx + sw // 2, ty + sw - 1, h=15)
+        d.text((tx + sw + 9, ty - 1), "Player start", font=fr, fill=(220, 255, 220, 255)); ty += rowh
     for enemy, g in groups.items():
         col = hex2rgb(g["color"])
         d.rounded_rectangle([tx, ty, tx + sw, ty + sw], radius=3, fill=col + (255,), outline=(255, 255, 255, 130))
@@ -132,6 +164,16 @@ def annotate(entry):
     if n_rope:
         draw_rope(d, tx + sw // 2, ty + 1, ty + sw - 1)
         d.text((tx + sw + 9, ty - 1), f"Rope  ×{n_rope}  (proposed)", font=fr, fill=(235, 238, 242, 255)); ty += rowh
+    for pt in portals:
+        d.ellipse([tx + 3, ty, tx + sw - 3, ty + sw], outline=PORTAL_COL + (255,), width=2)
+        d.text((tx + sw + 9, ty - 1), f"Portal  →  {pt['dest']}", font=fr, fill=(220, 245, 255, 255)); ty += rowh
+
+    # Portal doorways drawn last so the edge ones sit on top of the legend, not behind it.
+    for pt in portals:
+        draw_portal(d, pt["x"] * SCALE + pad_l, pt["y_top"] * SCALE + pad_t,
+                    pt["y_bottom"] * SCALE + pad_t, pt["dest"], font(BOLD, 13))
+    if pspawn:
+        draw_spawn(d, pspawn["x"] * SCALE + pad_l, pspawn["y"] * SCALE + pad_t)
 
     out = Image.alpha_composite(base, overlay).convert("RGB")
     path = os.path.join(PREV, f"{name}_annotated.png")
