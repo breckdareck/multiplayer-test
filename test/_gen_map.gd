@@ -6,6 +6,7 @@ extends SceneTree
 
 const FLOOR_Y := 26
 const ROCK_BAND := 2
+const PORTAL_SPAWN_BUFFER := 14    # no enemy spawns within this many tiles of a portal edge
 const TEMPLATE := "res://scenes/Levels/ruins.tscn"
 const SHEET := "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png"
 const SHEET2 := "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png"
@@ -104,7 +105,8 @@ func _near_wilds() -> Dictionary:
 	# Two enemy-free SAFE platforms (heal / AFK) one near each portal; the Main player spawn
 	# sits on the left one. Each is reached by a rope down to the meadow floor.
 	var safe_row := base_r - 6
-	_shelf(plat, surf, safe_row, [[7, 18], [101, 112]])
+	# Safe platforms spread along the long meadow (one near each portal + two in the middle).
+	_shelf(plat, surf, safe_row, [[7, 18], [40, 50], [72, 82], [101, 112]])
 	var monsters := [
 		["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 5],
 		["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e", 5],
@@ -123,7 +125,10 @@ func _near_wilds() -> Dictionary:
 	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters,
 		"display_name": "The Near-Wilds", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
 		"portals": portals, "safe_rows": [safe_row], "player_spawn": Vector2i(12, safe_row - 1),
-		"ladders": [[safe_row, int(surf[12]), 12, "rope"], [safe_row, int(surf[107]), 107, "rope"]],
+		"ladders": [
+			[safe_row, int(surf[12]), 12, "rope"], [safe_row, int(surf[45]), 45, "rope"],
+			[safe_row, int(surf[77]), 77, "rope"], [safe_row, int(surf[107]), 107, "rope"],
+		],
 		"width": width, "bottom": bottom}
 
 func _open() -> Dictionary:
@@ -443,16 +448,23 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
 	var w := int(m["width"])
 	var spots := []
+	# Keep enemies from SPAWNING right next to a portal (they can still walk there).
+	var lbuf := 0; var rbuf := 0
+	for sp in m.get("portals", []):
+		if sp[0] == "left": lbuf = PORTAL_SPAWN_BUFFER
+		elif sp[0] == "right": rbuf = PORTAL_SPAWN_BUFFER
 	if m["name"] == "cliffs":
 		# Cliffs: a slime on every FLAT stretch of ground (each mesa top + base), never on a
 		# staircase step, and NOT on the one-way shelves (those stay safe vantage spots).
 		for col in range(3, w - 3, 3):
+			if col < lbuf or col > w - 1 - rbuf: continue
 			if surf.has(col) and surf[col] == surf.get(col - 1, -1) and surf[col] == surf.get(col + 1, -1):
 				spots.append(Vector2i(col, surf[col]))
 	else:
 		# Tower/open: a spawn on each flat stretch of the floor (handles rolling hills) +
 		# every wide one-way platform floor.
 		for col in range(4, w - 4, 4):
+			if col < lbuf or col > w - 1 - rbuf: continue
 			if surf.has(col) and surf[col] == surf.get(col - 1, -999) and surf[col] == surf.get(col + 1, -999):
 				spots.append(Vector2i(col, surf[col]))
 		var rows := {}                                        # platform floors grouped by row

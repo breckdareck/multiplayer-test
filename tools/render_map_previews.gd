@@ -42,8 +42,8 @@ const MANUAL_CONNECTORS := {
 	# Mirrors _open()'s ladder set. Floor climbers' lower row is approximated at FLOOR_Y here
 	# (the real ones read the rolling surf); shelf-to-shelf rows are exact.
 	"gen_near_wilds": [
-		[20, 26, 12, "rope"],     # left safe platform -> floor
-		[20, 26, 107, "rope"],    # right safe platform -> floor
+		[20, 26, 12, "rope"], [20, 26, 45, "rope"],
+		[20, 26, 77, "rope"], [20, 26, 107, "rope"],
 	],
 	"gen_open": [
 		[20, 26, 14, "ladder"],   # floor -> L1a
