@@ -737,9 +737,9 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(521, 131)
+position = Vector2(-71, 131)
 target_map_id = "weave"
 target_spawn_point_name = "Weave_Warlord_Portal_Spawn"
 
 [node name="Warlord_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(545, 135)
+position = Vector2(-47, 135)

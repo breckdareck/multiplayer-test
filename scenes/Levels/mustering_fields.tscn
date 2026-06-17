@@ -734,7 +734,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 9
 
 [node name="M0" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(-47, 131)
+position = Vector2(17, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_lion_knight"]
 position = Vector2(209, 147)
@@ -755,7 +755,7 @@ position = Vector2(1105, 115)
 position = Vector2(1297, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(1553, 147)
+position = Vector2(1505, 147)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_lion_knight" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dqirvq2t4dhx6")
@@ -908,17 +908,17 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(473, 115)
+position = Vector2(-71, 131)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_MusteringFields_Portal_Spawn"
 
 [node name="MusteringFields_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(497, 119)
+position = Vector2(-47, 135)
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1033, 115)
+position = Vector2(1577, 147)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_MusteringFields_Portal_Spawn"
 
 [node name="MusteringFields_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1057, 119)
+position = Vector2(1601, 151)

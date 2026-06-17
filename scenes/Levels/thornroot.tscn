@@ -706,10 +706,10 @@ position = Vector2(273, 179)
 position = Vector2(529, 179)
 
 [node name="M2" type="Marker2D" parent="Spawn_tusk_brute"]
-position = Vector2(-111, 131)
+position = Vector2(81, 131)
 
 [node name="M3" type="Marker2D" parent="Spawn_tusk_brute"]
-position = Vector2(-95, 131)
+position = Vector2(97, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_tusk_brute" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://b3drshokinfof")
@@ -731,7 +731,7 @@ position = Vector2(337, 179)
 position = Vector2(593, 179)
 
 [node name="M2" type="Marker2D" parent="Spawn_fox_swordsman"]
-position = Vector2(-79, 131)
+position = Vector2(113, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fox_swordsman" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://cdl2mfbs8qlub")
@@ -747,10 +747,10 @@ spawn_container = NodePath("../Enemies")
 pool_size = 6
 
 [node name="M0" type="Marker2D" parent="Spawn_stone_slime"]
-position = Vector2(-63, 131)
+position = Vector2(129, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_stone_slime"]
-position = Vector2(-47, 131)
+position = Vector2(145, 147)
 
 [node name="M2" type="Marker2D" parent="Spawn_stone_slime"]
 position = Vector2(1041, 179)
@@ -769,13 +769,13 @@ spawn_container = NodePath("../Enemies")
 pool_size = 6
 
 [node name="M0" type="Marker2D" parent="Spawn_cat_robber"]
-position = Vector2(-31, 131)
+position = Vector2(161, 147)
 
 [node name="M1" type="Marker2D" parent="Spawn_cat_robber"]
 position = Vector2(785, 163)
 
 [node name="M2" type="Marker2D" parent="Spawn_cat_robber"]
-position = Vector2(-15, 131)
+position = Vector2(177, 163)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_cat_robber" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dl6nk8ypor2fd")
@@ -846,41 +846,41 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(185, 163)
+position = Vector2(-71, 131)
 target_map_id = "ruins"
 target_spawn_point_name = "Ruins_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_Ruins_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(209, 167)
+position = Vector2(-47, 135)
 
 [node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(425, 179)
+position = Vector2(1337, 19)
 target_map_id = "three_terraces"
 target_spawn_point_name = "Terraces_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(449, 183)
+position = Vector2(1361, 23)
 
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(681, 179)
+position = Vector2(-7, 19)
 target_map_id = "old_battlefield"
 target_spawn_point_name = "OldBattlefield_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(705, 183)
+position = Vector2(17, 23)
 
 [node name="PortalToDustWarren" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(921, 163)
+position = Vector2(1321, 19)
 target_map_id = "dust_warren"
 target_spawn_point_name = "DustWarren_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(945, 167)
+position = Vector2(1345, 23)
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1177, 163)
+position = Vector2(1417, 163)
 target_map_id = "mines"
 target_spawn_point_name = "Mines_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1201, 167)
+position = Vector2(1441, 167)

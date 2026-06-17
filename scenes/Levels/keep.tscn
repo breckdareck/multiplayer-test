@@ -711,7 +711,7 @@ position = Vector2(529, 131)
 position = Vector2(849, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(-111, 131)
+position = Vector2(81, 99)
 
 [node name="M4" type="Marker2D" parent="Spawn_bear_warrior"]
 position = Vector2(1361, 83)
@@ -736,16 +736,16 @@ pool_size = 5
 position = Vector2(209, 83)
 
 [node name="M1" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(-95, 131)
+position = Vector2(97, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_panda_warrior"]
 position = Vector2(913, 83)
 
 [node name="M3" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(-79, 131)
+position = Vector2(113, 83)
 
 [node name="M4" type="Marker2D" parent="Spawn_panda_warrior"]
-position = Vector2(-63, 131)
+position = Vector2(129, 83)
 
 [node name="M5" type="Marker2D" parent="Spawn_panda_warrior"]
 position = Vector2(1681, 83)
@@ -764,10 +764,10 @@ spawn_container = NodePath("../Enemies")
 pool_size = 6
 
 [node name="M0" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(-47, 131)
+position = Vector2(145, 83)
 
 [node name="M1" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(-31, 131)
+position = Vector2(161, 83)
 
 [node name="M2" type="Marker2D" parent="Spawn_shadow_fox"]
 position = Vector2(977, 83)
@@ -776,7 +776,7 @@ position = Vector2(977, 83)
 position = Vector2(1233, 83)
 
 [node name="M4" type="Marker2D" parent="Spawn_shadow_fox"]
-position = Vector2(-15, 131)
+position = Vector2(177, 83)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_shadow_fox" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://c6qy8yi07kf2x")
@@ -888,33 +888,33 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(329, 83)
+position = Vector2(-71, 131)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_Keep_Portal_Spawn"
 
 [node name="Keep_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(353, 87)
+position = Vector2(-47, 135)
 
 [node name="PortalToDeepWoods" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(713, 83)
+position = Vector2(1817, 19)
 target_map_id = "deep_woods"
 target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
 
 [node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(737, 87)
+position = Vector2(1841, 23)
 
 [node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1113, 83)
+position = Vector2(-7, 19)
 target_map_id = "mustering_fields"
 target_spawn_point_name = "MusteringFields_Keep_Portal_Spawn"
 
 [node name="Keep_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1137, 87)
+position = Vector2(17, 23)
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1497, 83)
+position = Vector2(1897, 99)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Keep_Portal_Spawn"
 
 [node name="Keep_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1521, 87)
+position = Vector2(1921, 103)

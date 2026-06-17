@@ -709,13 +709,13 @@ position = Vector2(577, 19)
 position = Vector2(721, 19)
 
 [node name="M3" type="Marker2D" parent="Spawn_slime"]
-position = Vector2(-111, 131)
+position = Vector2(17, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_slime"]
 position = Vector2(513, 99)
 
 [node name="M5" type="Marker2D" parent="Spawn_slime"]
-position = Vector2(-95, 131)
+position = Vector2(33, 115)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_slime" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://q6iqwsi8meq4")
@@ -740,7 +740,7 @@ position = Vector2(673, 19)
 position = Vector2(769, 19)
 
 [node name="M3" type="Marker2D" parent="Spawn_bunny"]
-position = Vector2(-79, 131)
+position = Vector2(49, 115)
 
 [node name="M4" type="Marker2D" parent="Spawn_bunny"]
 position = Vector2(561, 99)
@@ -754,7 +754,7 @@ enemy_spawner = NodePath("..")
 [node name="Hub_Meadow_Spawn" type="Marker2D" parent="."]
 position = Vector2(938, 135)
 [node name="M5" type="Marker2D" parent="Spawn_bunny"]
-position = Vector2(-63, 131)
+position = Vector2(65, 115)
 
 [node name="M6" type="Marker2D" parent="Spawn_bunny"]
 position = Vector2(849, 99)
@@ -763,7 +763,7 @@ position = Vector2(849, 99)
 position = Vector2(97, 115)
 
 [node name="M8" type="Marker2D" parent="Spawn_bunny"]
-position = Vector2(-47, 131)
+position = Vector2(81, 115)
 
 [node name="M6" type="Marker2D" parent="Spawn_slime"]
 position = Vector2(753, 99)
@@ -772,28 +772,28 @@ position = Vector2(753, 99)
 position = Vector2(49, 115)
 
 [node name="M8" type="Marker2D" parent="Spawn_slime"]
-position = Vector2(-31, 131)
+position = Vector2(97, 115)
 
 [node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(185, 115)
+position = Vector2(-71, 131)
 target_map_id = "lanterns_rest"
 target_spawn_point_name = "LanternsRest_Meadow_Portal_Spawn"
 
 [node name="Meadow_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(209, 119)
+position = Vector2(-47, 135)
 
 [node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(441, 99)
+position = Vector2(857, 19)
 target_map_id = "near_wilds"
 target_spawn_point_name = "NearWilds_Meadow_Portal_Spawn"
 
 [node name="Meadow_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(465, 103)
+position = Vector2(881, 23)
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(681, 99)
+position = Vector2(937, 131)
 target_map_id = "ember_meadows"
 target_spawn_point_name = "EmberMeadows_Meadow_Portal_Spawn"
 
 [node name="Meadow_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(705, 103)
+position = Vector2(961, 135)

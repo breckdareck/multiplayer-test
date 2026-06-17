@@ -832,7 +832,7 @@ enemy_spawner = NodePath("..")
 position = Vector2(417, 131)
 
 [node name="M6" type="Marker2D" parent="Spawn_adamant_crawler"]
-position = Vector2(-111, 131)
+position = Vector2(17, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_adamant_crawler"]
 position = Vector2(1313, 131)
@@ -847,7 +847,7 @@ position = Vector2(961, 163)
 position = Vector2(369, 131)
 
 [node name="M6" type="Marker2D" parent="Spawn_lion_knight"]
-position = Vector2(-95, 131)
+position = Vector2(33, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_lion_knight"]
 position = Vector2(1265, 131)
@@ -862,7 +862,7 @@ position = Vector2(913, 163)
 position = Vector2(1617, 115)
 
 [node name="M6" type="Marker2D" parent="Spawn_dark_bunny"]
-position = Vector2(-79, 131)
+position = Vector2(49, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_dark_bunny"]
 position = Vector2(1217, 131)
@@ -877,10 +877,10 @@ position = Vector2(865, 163)
 position = Vector2(1569, 115)
 
 [node name="M6" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(-63, 131)
+position = Vector2(65, 115)
 
 [node name="M7" type="Marker2D" parent="Spawn_bear_warrior"]
-position = Vector2(-47, 131)
+position = Vector2(81, 115)
 
 [node name="M8" type="Marker2D" parent="Spawn_bear_warrior"]
 position = Vector2(1361, 131)
@@ -889,17 +889,17 @@ position = Vector2(1361, 131)
 position = Vector2(817, 163)
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(537, 131)
+position = Vector2(-71, 131)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_DeepWoods_Portal_Spawn"
 
 [node name="DeepWoods_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(561, 135)
+position = Vector2(-47, 135)
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1129, 131)
+position = Vector2(1737, 131)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_DeepWoods_Portal_Spawn"
 
 [node name="DeepWoods_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1153, 135)
+position = Vector2(1761, 135)

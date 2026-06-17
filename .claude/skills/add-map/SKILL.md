@@ -218,8 +218,10 @@ same-band maps cross-link, and there can be more than one route forward.
 `tools/rebuild_portals.gd` rebuilds the entire portal graph from a `GRAPH` adjacency dict (+ a
 `TOKEN` map for the marker-name convention, + a `LEVEL` map for ordering). Per map it: clears old
 portal instances + `*_Portal_Spawn` markers, then lays one (portal + co-located arrival marker)
-pair per connection, spread across the map's FLOOR (seated on the ground via the Mid bottom-run
-top), ordered left→right by destination level. **Offset convention: the portal sits 16px ABOVE the
+pair per connection. **Placement convention: portals go on the SIDES — the lowest-level destination
+on the LEFT edge (back toward home), the highest on the RIGHT edge (forward toward the boss). A branch
+(3rd+) portal stacks on an ELEVATED platform near a side, above the side door (alternating right then
+left) — never spread across the open floor.** **Offset convention: the portal sits 16px ABOVE the
 ground (its foot rests on the surface) and the arrival marker 12px above (so you land ON the ground,
 not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
 for the target and `<ThisToken>_<OtherToken>_Portal_Spawn` for the arrival marker. Tokens are NOT

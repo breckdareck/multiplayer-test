@@ -577,25 +577,25 @@ script = ExtResource("10_12i4d")
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(240, 208)
+position = Vector2(48, 208)
 target_map_id = "mines"
 target_spawn_point_name = "Mines_Emberwatch_Portal_Spawn"
 
 [node name="Emberwatch_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(264, 212)
+position = Vector2(72, 212)
 
 [node name="PortalToDeepWoods" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(448, 208)
+position = Vector2(720, 208)
 target_map_id = "deep_woods"
 target_spawn_point_name = "DeepWoods_Emberwatch_Portal_Spawn"
 
 [node name="Emberwatch_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(472, 212)
+position = Vector2(744, 212)
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(640, 208)
+position = Vector2(832, 208)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_Emberwatch_Portal_Spawn"
 
 [node name="Emberwatch_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(664, 212)
+position = Vector2(856, 212)

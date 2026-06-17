@@ -734,7 +734,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 9
 
 [node name="M0" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(-47, 131)
+position = Vector2(17, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_ember_fox"]
 position = Vector2(273, 195)
@@ -820,7 +820,7 @@ position = Vector2(1217, 147)
 position = Vector2(1425, 147)
 
 [node name="M6" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(1681, 179)
+position = Vector2(1585, 179)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_runed_boar" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://tbl7yfcl3xwe")
@@ -905,25 +905,25 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(377, 195)
+position = Vector2(-71, 131)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(401, 199)
+position = Vector2(-47, 135)
 
 [node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(841, 163)
+position = Vector2(1657, 19)
 target_map_id = "ashvigil"
 target_spawn_point_name = "Ashvigil_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(865, 167)
+position = Vector2(1681, 23)
 
 [node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1289, 147)
+position = Vector2(1737, 195)
 target_map_id = "weave"
 target_spawn_point_name = "Weave_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1313, 151)
+position = Vector2(1761, 199)

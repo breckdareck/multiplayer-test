@@ -65,21 +65,42 @@ func _do_map(map: String) -> void:
 	if floor_top.is_empty(): print(map, ": NO FLOOR"); return
 	var cols := floor_top.keys(); cols.sort()
 	var mincol: int = cols[0]; var maxcol: int = cols[-1]
+	var third: int = int((maxcol - mincol) / 3.0)
+	# Elevated platforms (above the floor) near each side edge — branch portals stack on these.
+	var left_elev := []; var right_elev := []
+	for c in _elevated(text, floor_top):
+		if c.x <= mincol + third: left_elev.append(c)
+		elif c.x >= maxcol - third: right_elev.append(c)
+	left_elev.sort_custom(func(a, b): return a.x < b.x)    # closest to left edge first
+	right_elev.sort_custom(func(a, b): return a.x > b.x)   # closest to right edge first
 
 	var conns: Array = GRAPH[map].duplicate()
 	conns.sort_custom(func(a, b): return LEVEL[a] < LEVEL[b])
 	var n: int = conns.size()
+	# Placement: lowest-level dest on the LEFT edge, highest on the RIGHT edge (the two side doors);
+	# branch portals go on an elevated platform near a side, stacked above the side door — alternating
+	# right/left so a 3rd door sits over the right edge, a 4th over the left.
+	var place := []; place.resize(n)
+	var lc: int = _nearest(floor_top, mincol + 3); place[0] = Vector2i(lc, floor_top[lc])
+	if n >= 2:
+		var rc: int = _nearest(floor_top, maxcol - 3); place[n - 1] = Vector2i(rc, floor_top[rc])
+	var b := 0
+	for i in range(1, n - 1):
+		var pri = right_elev if b % 2 == 0 else left_elev
+		var alt = left_elev if b % 2 == 0 else right_elev
+		if not pri.is_empty(): place[i] = pri.pop_front()
+		elif not alt.is_empty(): place[i] = alt.pop_front()
+		else:  # no elevated platform — fall back to an inset floor spot near a side
+			var fc: int = _nearest(floor_top, (maxcol - 10) if b % 2 == 0 else (mincol + 10))
+			place[i] = Vector2i(fc, floor_top[fc])
+		b += 1
+
 	var body := ""
 	for i in n:
 		var other: String = conns[i]
-		var frac := (i + 1.0) / (n + 1.0)
-		var col := int(round(mincol + 3 + frac * (maxcol - mincol - 6)))
-		col = _nearest(floor_top, col)
-		var row: int = floor_top[col]
-		var px := col * 16 + off.x
-		var py := row * 16 + off.y
-		# Portal sits 16px ABOVE the ground (its foot rests on the surface); the arrival marker 12px
-		# above (so you land on the ground, not embedded in it) — matches the backbone convention.
+		var px: int = place[i].x * 16 + off.x
+		var py: int = place[i].y * 16 + off.y
+		# Portal sits 16px ABOVE the surface (foot rests on it); arrival marker 12px above (land on it).
 		body += '\n[node name="PortalTo%s" parent="." instance=ExtResource("%s")]\n' % [TOKEN[other], pid]
 		body += 'position = Vector2(%d, %d)\n' % [px, py - 16]
 		body += 'target_map_id = "%s"\n' % other
@@ -149,6 +170,33 @@ func _floor_surface(text: String) -> Dictionary:
 		for r in rows: set[r] = true
 		while set.has(top - 1): top -= 1
 		out[col] = top
+	return out
+
+# All used cells of a named TileMapLayer.
+func _decode_layer(text: String, lname: String) -> Array:
+	var i := text.find('name="%s" type="TileMapLayer"' % lname)
+	if i == -1: return []
+	var key := 'tile_map_data = PackedByteArray("'
+	var di := text.find(key, i)
+	var nn := text.find("\n[node", i)
+	if di == -1 or (nn != -1 and di > nn): return []
+	var s := di + key.length()
+	var l := TileMapLayer.new(); l.tile_map_data = Marshalls.base64_to_raw(text.substr(s, text.find('"', s) - s))
+	var cells := l.get_used_cells(); l.free(); return cells
+
+# Flat surface cells (Mid + Platform) sitting ABOVE the floor — the shelves/tiers branch portals stack on.
+func _elevated(text: String, floor_top: Dictionary) -> Array:
+	var up := Vector2i(0, -1)
+	var solid := {}
+	for ln in ["Mid", "Platform"]:
+		for c in _decode_layer(text, ln): solid[c] = true
+	var out := []
+	for c in solid:
+		if solid.has(c + up): continue
+		if not floor_top.has(c.x) or c.y >= int(floor_top[c.x]) - 1: continue   # the floor itself, not a shelf
+		var l := Vector2i(c.x - 1, c.y); var r := Vector2i(c.x + 1, c.y)
+		if solid.has(l) and not solid.has(l + up) and solid.has(r) and not solid.has(r + up):
+			out.append(c)
 	return out
 
 func _nearest(floor_top: Dictionary, col: int) -> int:
