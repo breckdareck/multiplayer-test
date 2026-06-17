@@ -22,6 +22,14 @@ const LOOKUP := {
 	22:[[2,8]], 11:[[6,8]], 255:[[18,6]],
 }
 const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
+## Slope tiles live in their own atlas source (grass_slopes.png) injected as sources/3 by
+## _inject_slopes. 2:1 ramps: each 1-tile rise spans 2 columns (a low half + a high half),
+## so you walk straight up instead of jumping a staircase. Trapezoid collision per tile.
+const SLOPE_SRC := 3
+const SLOPE_UR_LOW := Vector2i(0, 0)    # up-right ramp, low (left) half
+const SLOPE_UR_HIGH := Vector2i(1, 0)   # up-right ramp, high (right) half
+const SLOPE_UL_HIGH := Vector2i(2, 0)   # down-right ramp, high (left) half
+const SLOPE_UL_LOW := Vector2i(3, 0)    # down-right ramp, low (right) half
 ## Hand-placed tower ladders [upper_branch_row, lower_platform_row, column] (tile coords),
 ## matching the approved climb. Each hangs from the upper branch with its bottom dangling
 ## ~1.5 tiles above the lower platform.
@@ -31,9 +39,9 @@ const TOWER_LADDERS := [
 ]
 ## Cliffs rope/ladder climbers up to the safe shelves: [upper_row, lower_row, col, type].
 const CLIFFS_LADDERS := [
-	[14, 21, 29, "rope"],     # mesa-1 shelf -> mesa 1
-	[11, 17, 45, "ladder"],   # peak shelf -> peak
-	[16, 22, 59, "rope"],     # mesa-3 shelf -> mesa 3
+	[14, 22, 27, "rope"],     # mesa-1 shelf -> mesa 1
+	[11, 19, 43, "ladder"],   # peak shelf -> peak
+	[16, 22, 58, "rope"],     # mesa-3 shelf -> mesa 3
 ]
 
 func _init() -> void:
@@ -117,35 +125,66 @@ func _seg(plat: Dictionary, x0: int, x1: int, y: int) -> void:
 		plat[Vector2i(x, y)] = role
 
 func _cliffs() -> Dictionary:
-	# Solid raised mesas with STEPPED sides — a horizontal cliff-hop. Each rise/fall is a
-	# staircase of 1-tile steps (a 1-block jump clears each), so NOTHING floats against a
-	# cliff face. WIDE flat tops to fight on. A one-way shelf sits >=3 tiles above the peak,
-	# reached by a ladder that hangs from the SHELF platform itself (not a solid face).
+	# Solid raised mesas joined by GENTLE 2:1 grass ramps you walk straight up — no jumping
+	# steps. WIDE flat tops to fight on. The ramps are slope tiles (source SLOPE_SRC) with a
+	# trapezoid floor collision; everything below them is solid dirt. A one-way shelf sits
+	# >=3 tiles above each mesa, reached by a rope/ladder that hangs from the shelf itself.
 	var width := 64
 	var bottom := 32
 	var ground := {}
 	var plat := {}
-	var base_r := FLOOR_Y    # 26
-	# Per-column target surface height; the surface walks 1 tile/column toward it, so every
-	# transition between plateaus is a jumpable staircase.
-	var targets := []
-	for x in range(width): targets.append(base_r)
-	for seg in [[16, 34, base_r - 5], [34, 50, base_r - 9], [50, 64, base_r - 4]]:
-		for x in range(seg[0], mini(seg[1], width)): targets[x] = seg[2]
+	var slopes := {}                         # slope surface cell -> atlas coord (source SLOPE_SRC)
+	var base_r := FLOOR_Y                     # 26
 	var surf := []
+	surf.resize(width)
+	for i in range(width): surf[i] = base_r
+	# Plateau plan, left to right: flat runs at chosen heights joined by 2:1 ramps. A ramp
+	# spends 2 columns per tile of rise/fall; the slope tiles sit on the HIGHER of the two
+	# rows it bridges. ["flat", row, cols] / ["ramp", target_row].
+	var plan := [
+		["flat", base_r, 12],                # base
+		["ramp", base_r - 4],                # up to mesa 1
+		["flat", base_r - 4, 12],            # mesa 1 (surf 22)
+		["ramp", base_r - 7],                # up to the peak
+		["flat", base_r - 7, 10],            # peak (surf 19)
+		["ramp", base_r - 4],                # down to mesa 3
+		["flat", base_r - 4, 99],            # mesa 3 (fill to the right edge)
+	]
+	var x := 0
 	var cur := base_r
-	for x in range(width):
-		if cur < targets[x]: cur += 1
-		elif cur > targets[x]: cur -= 1
-		surf.append(cur)
-	for x in range(width):
-		for y in range(surf[x], bottom + 1): ground[Vector2i(x, y)] = true
-	# Three one-way shelves, one above each mesa (each >=3 tiles clear) — safe vantage spots
-	# you reach by jumping to a rope/ladder that hangs from the shelf and climbing up.
-	_shelf(plat, surf, base_r - 12, [[24, 34]])   # over mesa 1
-	_shelf(plat, surf, base_r - 15, [[40, 50]])   # over the peak
-	_shelf(plat, surf, base_r - 10, [[55, 63]])   # over mesa 3
-	return {"name": "cliffs", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
+	for step in plan:
+		if x >= width: break
+		if step[0] == "flat":
+			cur = int(step[1])
+			for _i in range(int(step[2])):
+				if x >= width: break
+				surf[x] = cur; x += 1
+		else:
+			var target := int(step[1])
+			var up := target < cur
+			for _s in range(absi(cur - target)):
+				if x + 1 >= width: break
+				if up:
+					var row := cur - 1
+					slopes[Vector2i(x, row)] = SLOPE_UR_LOW
+					slopes[Vector2i(x + 1, row)] = SLOPE_UR_HIGH
+					surf[x] = row; surf[x + 1] = row
+					cur = row
+				else:
+					slopes[Vector2i(x, cur)] = SLOPE_UL_HIGH
+					slopes[Vector2i(x + 1, cur)] = SLOPE_UL_LOW
+					surf[x] = cur; surf[x + 1] = cur
+					cur += 1
+				x += 2
+	# Fill solid dirt from each column's surface row down to the bottom.
+	for col in range(width):
+		for y in range(surf[col], bottom + 1): ground[Vector2i(col, y)] = true
+	# One-way shelves over each flat mesa (each >=3 tiles clear) — safe vantage spots you
+	# reach by jumping to a rope/ladder that hangs from the shelf and climbing up.
+	_shelf(plat, surf, base_r - 12, [[24, 31]])   # over mesa 1 (surf 22)
+	_shelf(plat, surf, base_r - 15, [[40, 47]])   # over the peak (surf 19)
+	_shelf(plat, surf, base_r - 10, [[55, 63]])   # over mesa 3 (surf 22)
+	return {"name": "cliffs", "ground": ground, "plat": plat, "slopes": slopes, "width": width, "bottom": bottom}
 
 func _shelf(plat: Dictionary, surf, ty: int, segments: Array) -> void:
 	for seg in segments:
@@ -158,6 +197,7 @@ func _shelf(plat: Dictionary, surf, ty: int, segments: Array) -> void:
 
 func _emit(m: Dictionary) -> void:
 	var ground: Dictionary = m["ground"]; var plat: Dictionary = m["plat"]
+	var slopes: Dictionary = m.get("slopes", {})
 	var depth := {}; var q := []
 	for cell in ground:
 		for d in [UP, DOWN, LEFT, RIGHT]:
@@ -186,6 +226,7 @@ func _emit(m: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new(); rng.seed = abs(int(str(m["name"]).hash()))
 	var deco := {}
 	for cell in picks:
+		if slopes.has(cell): continue
 		if picks[cell][1] == 5: _try_tuft(deco, cell, ground, plat, rng)
 	for cell in plat:
 		_try_tuft(deco, cell, ground, plat, rng)
@@ -193,6 +234,7 @@ func _emit(m: Dictionary) -> void:
 	# Trees: only on ground that is LEVEL across the whole trunk+canopy width.
 	var surf_top := {}
 	for cell in picks:
+		if slopes.has(cell): continue
 		if picks[cell][1] == 5 and (not surf_top.has(cell.x) or cell.y < surf_top[cell.x]):
 			surf_top[cell.x] = cell.y
 	var tx := 6
@@ -208,13 +250,14 @@ func _emit(m: Dictionary) -> void:
 	var hnl := text.find("\n")                                    # strip cloned scene UID
 	var ure := RegEx.new(); ure.compile(' uid="[^"]*"')
 	text = ure.sub(text.substr(0, hnl), "", false) + text.substr(hnl)
-	text = _replace_layer(text, "Mid", _layer_b64(picks, 1))
+	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes))
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	text = _replace_layer(text, "Background2", "")
 	text = text.replace('display_name = "The Ruins"', 'display_name = "Gen %s"' % m["name"])
 	text = _strip_clone_clutter(text)
 	text = _inject_playable(text, m)
+	if not slopes.is_empty(): text = _inject_slopes(text)
 	if m["name"] == "tower": text = _inject_ladders(text, TOWER_LADDERS)
 	if m["name"] == "cliffs": text = _inject_ladders(text, CLIFFS_LADDERS)
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
@@ -229,8 +272,14 @@ func _emit(m: Dictionary) -> void:
 		var t = deco[cell]
 		img.blend_rect(props, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
 	for cell in picks:
+		if slopes.has(cell): continue
 		var t = picks[cell]
 		img.blend_rect(sheet, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
+	if not slopes.is_empty():
+		var slope_img := Image.new(); slope_img.load("res://assets/sprites/grass_slopes.png"); slope_img.convert(Image.FORMAT_RGBA8)
+		for cell in slopes:
+			var s: Vector2i = slopes[cell]
+			img.blend_rect(slope_img, Rect2i(s.x * 16, s.y * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
 	for cell in plat:
 		var t = PLAT[plat[cell]]
 		img.blend_rect(sheet, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
@@ -328,12 +377,58 @@ func _layer_b64(cells: Dictionary, src: int) -> String:
 	for cell in cells: l.set_cell(cell, src, Vector2i(cells[cell][0], cells[cell][1]))
 	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
 
+## Mid (solid ground) layer with two sources: autotiled country-village ground (source 1)
+## plus explicit slope ramp tiles (source SLOPE_SRC). Slope cells are dropped from the
+## autotiled set so the ramp tile isn't overwritten by a flat grass-top.
+func _mid_b64(picks: Dictionary, slopes: Dictionary) -> String:
+	var l := TileMapLayer.new()
+	for cell in picks:
+		if slopes.has(cell): continue
+		l.set_cell(cell, 1, Vector2i(picks[cell][0], picks[cell][1]))
+	for cell in slopes:
+		l.set_cell(cell, SLOPE_SRC, slopes[cell])
+	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
+
 func _plat_b64(plat: Dictionary) -> String:
 	var l := TileMapLayer.new()
 	for cell in plat:
 		var t = PLAT[plat[cell]]
 		l.set_cell(cell, 1, Vector2i(t[0], t[1]))
 	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
+
+## Inject the slope-tile atlas (grass_slopes.png) into the cloned scene's TileSet as
+## sources/SLOPE_SRC, with the four 2:1 half-slope tiles and their trapezoid FLOOR collision
+## (physics_layer_0, same layer as the solid ground), so the Mid layer's source-SLOPE_SRC
+## cells become walkable ramps. Polygons are in centred tile coords (-8..8), matching how
+## the country-village tiles declare collision.
+func _inject_slopes(text: String) -> String:
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))   # +1 ext, +1 sub
+	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]' + text.substr(nl)
+	var polys := [
+		"PackedVector2Array(-8, 8, 8, 0, 8, 8)",            # 0 ur_low  (up-right, low half)
+		"PackedVector2Array(-8, 0, 8, -8, 8, 8, -8, 8)",    # 1 ur_high (up-right, high half)
+		"PackedVector2Array(-8, -8, 8, 0, 8, 8, -8, 8)",    # 2 ul_high (down-right, high half)
+		"PackedVector2Array(-8, 0, 8, 8, -8, 8)",           # 3 ul_low  (down-right, low half)
+	]
+	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]\ntexture = ExtResource("gen_slopes")\ntexture_region_size = Vector2i(16, 16)\n'
+	for i in range(polys.size()):
+		atlas += '%d:0/0 = 0\n%d:0/0/physics_layer_0/polygon_0/points = %s\n' % [i, i, polys[i]]
+	atlas += "\n"
+	# Define the atlas BEFORE the TileSet sub_resource that references it — the .tscn parser
+	# resolves SubResource() refs in file order. (Match the space+id so we don't hit the
+	# "TileSetAtlasSource" sub_resources, whose type string starts with "TileSet" too.)
+	var ti := text.find('[sub_resource type="TileSet" id=')
+	if ti != -1:
+		text = text.substr(0, ti) + atlas + text.substr(ti)
+	var sidx := text.find("sources/2 = SubResource(")
+	if sidx != -1:
+		var seol := text.find("\n", sidx)
+		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenSlopeAtlas")' % SLOPE_SRC + text.substr(seol)
+	return text
 
 func _try_tuft(deco: Dictionary, cell: Vector2i, ground: Dictionary, plat: Dictionary, rng: RandomNumberGenerator) -> void:
 	var above := Vector2i(cell.x, cell.y - 1)

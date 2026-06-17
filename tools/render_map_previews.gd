@@ -11,6 +11,7 @@ const SHEETS := {
 	0: "res://assets/sprites/world_tileset.png",
 	1: "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png",
 	2: "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png",
+	3: "res://assets/sprites/grass_slopes.png",
 }
 const MAPS := [
 	"near_wilds", "deep_woods", "ruins", "mines", "keep", "emberscar",
@@ -33,9 +34,9 @@ const MANUAL_CONNECTORS := {
 		[46, 51, 18],   # 13-14 -> floor (right)
 	],
 	"gen_cliffs": [
-		[14, 21, 29, "rope"],     # mesa-1 shelf -> mesa 1
-		[11, 17, 45, "ladder"],   # peak shelf -> peak
-		[16, 22, 59, "rope"],     # mesa-3 shelf -> mesa 3
+		[14, 22, 27, "rope"],     # mesa-1 shelf -> mesa 1
+		[11, 19, 43, "ladder"],   # peak shelf -> peak
+		[16, 22, 58, "rope"],     # mesa-3 shelf -> mesa 3
 	],
 }
 const OUT_DIR := "res://docs/map_previews"
