@@ -46,8 +46,8 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Reimagining the real maps wave by wave (rebuild-uniform). near_wilds already done.
-	for cfg in _wave1():
+	# Reimagining the real maps (rebuild-uniform). near_wilds + Wave 1 already done.
+	for cfg in _wave_rest():
 		_emit(_build_field(cfg))
 		print("WROTE ", cfg["name"])
 	quit()
@@ -97,6 +97,50 @@ func _wave1() -> Array:
 			"display_name": "Windmill Terraces", "bgm": "res://assets/music/emberwilds_three_terraces.ogg",
 			"monsters": [["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 6], ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 5]],
 			"portals": [["right", "ruins", "Ruins_Terraces_Portal_Spawn", "PortalToRuins", "Hub_Terraces_Spawn"]]},
+	]
+
+## All remaining real maps. ruins is LAST because it's the clone TEMPLATE — every other map
+## clones the original ruins.tscn; regenerating ruins before them would change their template.
+func _wave_rest() -> Array:
+	return [
+		{"name": "deep_woods", "seed": 52, "amp": 2, "width": 120,
+			"display_name": "The Deep Woods", "bgm": "res://assets/music/emberwilds_deep_woods.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/bear_warrior.tscn", "uid://dreol0pnnwvme", 6], ["res://scenes/NPC/Minifolks/dark_bunny.tscn", "uid://ce1gj48yfxtud", 6], ["res://scenes/NPC/Beastmen/lion_knight.tscn", "uid://dqirvq2t4dhx6", 6], ["res://scenes/NPC/adamant_crawler.tscn", "uid://co7gditu46kn8", 6]],
+			"portals": [["right", "keep", "Keep_DeepWoods_Portal_Spawn", "PortalToKeep", "DeepWoods_Keep_Portal_Spawn"], ["left", "emberwatch", "Emberwatch_DeepWoods_Portal_Spawn", "PortalToEmberwatch", "DeepWoods_Emberwatch_Portal_Spawn"]]},
+		{"name": "thornroot", "seed": 281, "amp": 3, "width": 100,
+			"display_name": "Thornroot Hollow", "bgm": "res://assets/music/emberwilds_thornroot.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 7], ["res://scenes/NPC/Beastmen/fox_swordsman.tscn", "uid://cdl2mfbs8qlub", 6], ["res://scenes/NPC/stone_slime.tscn", "uid://d2ciakulevex6", 6], ["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd", 6]],
+			"portals": [["left", "ruins", "Ruins_Thornroot_Portal_Spawn", "PortalToRuins", "Thornroot_Ruins_Portal_Spawn"], ["right", "dust_warren", "DustWarren_Thornroot_Portal_Spawn", "Portal1", "Thornroot_DustWarren_Portal_Spawn"]],
+			"bosses": [{"scene": "res://scenes/NPC/thornroot_warchief.tscn", "name": "ThornrootWarchief", "props": {"respawnable": "true", "respawn_delay": "300"}}]},
+		{"name": "dust_warren", "seed": 361, "amp": 3, "width": 130,
+			"display_name": "The Dust Warren", "bgm": "res://assets/music/emberwilds_dust_warren.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd", 6], ["res://scenes/NPC/Minifolks/dust_fox.tscn", "uid://bleuqetjvkn5m", 7], ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 6], ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8", 6]],
+			"portals": [["left", "thornroot", "Thornroot_DustWarren_Portal_Spawn", "PortalToThornroot", "DustWarren_Thornroot_Portal_Spawn"], ["right", "mines", "Mines_DustWarren_Portal_Spawn", "Portal1", "DustWarren_Mines_Portal_Spawn"]]},
+		{"name": "mines", "seed": 401, "amp": 3, "width": 150,
+			"display_name": "The Drowned Mines", "bgm": "res://assets/music/emberwilds_mines.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8], ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 6], ["res://scenes/NPC/Beastmen/rabbit_wizard.tscn", "uid://dppxdoxl4kf2k", 6], ["res://scenes/NPC/Beastmen/deer_druid.tscn", "uid://b7uy8wgb0j1t3", 6], ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8", 6]],
+			"portals": [["left", "dust_warren", "DustWarren_Mines_Portal_Spawn", "PortalToDustWarren", "Mines_DustWarren_Portal_Spawn"], ["right", "emberwatch", "Emberwatch_Mines_Portal_Spawn", "PortalToEmberwatch", "Mines_Emberwatch_Portal_Spawn"]]},
+		{"name": "keep", "seed": 571, "amp": 3, "width": 130,
+			"display_name": "The Warded Keep", "bgm": "res://assets/music/emberwilds_keep.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/bear_warrior.tscn", "uid://dreol0pnnwvme", 6], ["res://scenes/NPC/Beastmen/panda_warrior.tscn", "uid://dolpinlm1tsc0", 5], ["res://scenes/NPC/Minifolks/shadow_fox.tscn", "uid://c6qy8yi07kf2x", 6], ["res://scenes/NPC/Beastmen/lion_knight.tscn", "uid://dqirvq2t4dhx6", 6]],
+			"portals": [["right", "emberscar", "Emberscar_Keep_Portal_Spawn", "PortalToEmberscar", "Keep_Emberscar_Portal_Spawn"], ["left", "deep_woods", "DeepWoods_Keep_Portal_Spawn", "PortalToDeepWoods", "Keep_DeepWoods_Portal_Spawn"]]},
+		{"name": "emberscar", "seed": 681, "amp": 4, "width": 140,
+			"display_name": "The Ember-Scar", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/runed_boar.tscn", "uid://tbl7yfcl3xwe", 7], ["res://scenes/NPC/fire_slime.tscn", "uid://bvjs3vxpdjkfj", 7], ["res://scenes/NPC/Minifolks/ember_fox.tscn", "uid://bichmn1gb8cd2", 7], ["res://scenes/NPC/Minifolks/wild_boar.tscn", "uid://oarco6h8le8s", 6]],
+			"portals": [["left", "keep", "Keep_Emberscar_Portal_Spawn", "PortalToKeep", "Emberscar_Keep_Portal_Spawn"], ["right", "weave", "Weave_Emberscar_Portal_Spawn", "PortalToWeave", "Emberscar_Weave_Portal_Spawn"]]},
+		{"name": "weave", "seed": 881, "amp": 3, "width": 110,
+			"display_name": "The Weave's Edge", "bgm": "res://assets/music/emberwilds_weave.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/celestial_hare.tscn", "uid://cywi7283fngxu", 9], ["res://scenes/NPC/astral_slime.tscn", "uid://5oi0b5vosx3q", 8]],
+			"portals": [["left", "emberscar", "Emberscar_Weave_Portal_Spawn", "PortalToEmberscar", "Weave_Emberscar_Portal_Spawn"], ["right", "warlord", "Warlord_Weave_Portal_Spawn", "PortalToWarlord", "Weave_Warlord_Portal_Spawn"]]},
+		{"name": "warlord", "seed": 1001, "amp": 0, "width": 80,
+			"display_name": "The Sundered Heart", "bgm": "res://assets/music/emberwilds_boss.ogg",
+			"monsters": [],
+			"portals": [["left", "weave", "Weave_Warlord_Portal_Spawn", "PortalToWeave", "Warlord_Weave_Portal_Spawn"]],
+			"bosses": [{"scene": "res://scenes/NPC/eternal_warlord.tscn", "uid": "uid://33dnjn4urvkp", "name": "EternalWarlord", "props": {"respawnable": "true", "respawn_delay": "300"}}]},
+		{"name": "ruins", "seed": 131, "amp": 3, "width": 120,
+			"display_name": "The Ruins", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 6], ["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 6], ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 6], ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 5]],
+			"portals": [["right", "ember_meadows", "EmberMeadows_Ruins_Portal_Spawn", "PortalToEmberMeadows", "Ruins_EmberMeadows_Portal_Spawn"], ["left", "thornroot", "Thornroot_Ruins_Portal_Spawn", "PortalToThornroot", "Ruins_Thornroot_Portal_Spawn"], ["mid", "three_terraces", "Hub_Terraces_Spawn", "PortalToTerraces", "Ruins_Terraces_Portal_Spawn"]]},
 	]
 
 ## Fill `ground` (solid) + `slopes` with a gently rolling floor: broad flat runs at varied
@@ -445,6 +489,7 @@ func _emit(m: Dictionary) -> void:
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
+	if not m.get("bosses", []).is_empty(): text = _inject_bosses(text, m)
 	# Always run ladder injection: it grabs the atlas from the cloned Ladders/Ropes, CLEARS the
 	# stale cloned ones, then adds this map's set (or none). Clearing inside _inject_ladders
 	# (not in _strip_clone_clutter) keeps the atlas reference alive for the lookup.
@@ -697,6 +742,39 @@ func _inject_npcs(text: String, m: Dictionary) -> String:
 		blk += '\nposition = Vector2(%d, %d)' % [int(npc["col"]) * 16 - 119, int(npc["row"]) * 16 - 269]
 		for k in npc["props"]:
 			blk += '\n%s = %s' % [k, npc["props"][k]]
+		blk += '\n'
+	return text + blk
+
+## Re-add hard-placed bosses as instances under the Enemies node (respawn on their own timer,
+## not the spawn-tick). Specs: {scene, uid?, name, col?, props:{respawnable, respawn_delay}}.
+func _inject_bosses(text: String, m: Dictionary) -> String:
+	var bosses: Array = m.get("bosses", [])
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + bosses.size()))
+	var ext := ""
+	for i in bosses.size():
+		var u := str(bosses[i].get("uid", ""))
+		if u != "":
+			ext += '\n[ext_resource type="PackedScene" uid="%s" path="%s" id="gen_boss%d"]' % [u, bosses[i]["scene"], i]
+		else:
+			ext += '\n[ext_resource type="PackedScene" path="%s" id="gen_boss%d"]' % [bosses[i]["scene"], i]
+	text = header + ext + text.substr(nl)
+	var surf := {}
+	for cell in m["ground"]:
+		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
+	var w := int(m["width"])
+	var blk := ""
+	for i in bosses.size():
+		var b = bosses[i]
+		var col: int = int(b.get("col", int(w / 2.0)))
+		var srow: int = int(surf.get(col, FLOOR_Y))
+		blk += '\n[node name="%s" parent="Enemies" instance=ExtResource("gen_boss%d")]' % [b["name"], i]
+		blk += '\nposition = Vector2(%d, %d)' % [col * 16 - 119, srow * 16 - 269 - 8]
+		for k in b.get("props", {}):
+			blk += '\n%s = %s' % [k, b["props"][k]]
 		blk += '\n'
 	return text + blk
 
