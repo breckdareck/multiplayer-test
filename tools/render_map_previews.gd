@@ -38,6 +38,18 @@ const MANUAL_CONNECTORS := {
 		[11, 19, 43, "ladder"],   # peak shelf -> peak
 		[16, 22, 58, "rope"],     # mesa-3 shelf -> mesa 3
 	],
+	# Mirrors _open()'s ladder set. Floor climbers' lower row is approximated at FLOOR_Y here
+	# (the real ones read the rolling surf); shelf-to-shelf rows are exact.
+	"gen_open": [
+		[20, 26, 14, "ladder"],   # floor -> L1a
+		[20, 26, 60, "rope"],     # floor -> L1a
+		[20, 26, 100, "ladder"],  # floor -> L1b
+		[20, 26, 134, "rope"],    # floor -> L1b
+		[15, 20, 30, "rope"],     # L1a -> L2
+		[15, 20, 88, "ladder"],   # L1b -> L2
+		[10, 15, 54, "rope"],     # L2 -> L3
+		[10, 15, 92, "ladder"],   # L2 -> L3
+	],
 }
 const OUT_DIR := "res://docs/map_previews"
 # Distinct pin colours, assigned per enemy type in order of first appearance.

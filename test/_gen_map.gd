@@ -95,10 +95,23 @@ func _open() -> Dictionary:
 			x += 2
 	for col in range(width):
 		for y in range(surf[col], bottom + 1): ground[Vector2i(col, y)] = true
-	_shelf(plat, surf, base_r - 6, [[8, 68], [80, 142]])
-	_shelf(plat, surf, base_r - 11, [[20, 96]])
-	_shelf(plat, surf, base_r - 16, [[44, 118]])
-	return {"name": "open", "ground": ground, "plat": plat, "slopes": slopes, "width": width, "bottom": bottom}
+	_shelf(plat, surf, base_r - 6, [[8, 68], [80, 142]])    # L1: row 20 (two segments)
+	_shelf(plat, surf, base_r - 11, [[20, 96]])             # L2: row 15
+	_shelf(plat, surf, base_r - 16, [[44, 118]])            # L3: row 10
+	# Climbable ladders/ropes (these REPLACE the cloned ruins ones via _inject_ladders):
+	# floor -> L1 shelves -> L2 -> L3. [upper_row, lower_row, col, type]. Floor climbers read
+	# the rolling surf[col] so their bottom dangles ~1.5 tiles above the real floor.
+	var ladders := [
+		[base_r - 6, surf[14], 14, "ladder"],     # floor -> L1a (left)
+		[base_r - 6, surf[60], 60, "rope"],        # floor -> L1a (right)
+		[base_r - 6, surf[100], 100, "ladder"],    # floor -> L1b (left)
+		[base_r - 6, surf[134], 134, "rope"],      # floor -> L1b (right)
+		[base_r - 11, base_r - 6, 30, "rope"],     # L1a -> L2
+		[base_r - 11, base_r - 6, 88, "ladder"],   # L1b -> L2
+		[base_r - 16, base_r - 11, 54, "rope"],    # L2 -> L3 (left)
+		[base_r - 16, base_r - 11, 92, "ladder"],  # L2 -> L3 (right)
+	]
+	return {"name": "open", "ground": ground, "plat": plat, "slopes": slopes, "ladders": ladders, "width": width, "bottom": bottom}
 
 func _tower() -> Dictionary:
 	# Forest-of-Ellinia style: an ORGANIC vertical climb of branch platforms at varied
@@ -295,6 +308,7 @@ func _emit(m: Dictionary) -> void:
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if m["name"] == "tower": text = _inject_ladders(text, TOWER_LADDERS)
 	if m["name"] == "cliffs": text = _inject_ladders(text, CLIFFS_LADDERS)
+	if not m.get("ladders", []).is_empty(): text = _inject_ladders(text, m["ladders"])
 	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
 	w.store_string(text); w.close()
 
