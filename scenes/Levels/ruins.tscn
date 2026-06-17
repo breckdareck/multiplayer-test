@@ -876,33 +876,33 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(297, 131)
+position = Vector2(297, 115)
 target_map_id = "ember_meadows"
 target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
 
 [node name="Ruins_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(321, 135)
+position = Vector2(321, 119)
 
 [node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(649, 195)
+position = Vector2(649, 179)
 target_map_id = "three_terraces"
 target_spawn_point_name = "Terraces_Ruins_Portal_Spawn"
 
 [node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(673, 199)
+position = Vector2(673, 183)
 
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1017, 195)
+position = Vector2(1017, 179)
 target_map_id = "old_battlefield"
 target_spawn_point_name = "OldBattlefield_Ruins_Portal_Spawn"
 
 [node name="Ruins_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1041, 199)
+position = Vector2(1041, 183)
 
 [node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1369, 163)
+position = Vector2(1369, 147)
 target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
 
 [node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1393, 167)
+position = Vector2(1393, 151)

@@ -889,17 +889,17 @@ position = Vector2(1361, 131)
 position = Vector2(817, 163)
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(537, 147)
+position = Vector2(537, 131)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_DeepWoods_Portal_Spawn"
 
 [node name="DeepWoods_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(561, 151)
+position = Vector2(561, 135)
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1129, 147)
+position = Vector2(1129, 131)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_DeepWoods_Portal_Spawn"
 
 [node name="DeepWoods_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1153, 151)
+position = Vector2(1153, 135)

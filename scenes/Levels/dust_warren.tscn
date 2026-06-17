@@ -885,17 +885,17 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(585, 131)
+position = Vector2(585, 115)
 target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
 
 [node name="DustWarren_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(609, 135)
+position = Vector2(609, 119)
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1241, 99)
+position = Vector2(1241, 83)
 target_map_id = "mines"
 target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
 
 [node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1265, 103)
+position = Vector2(1265, 87)

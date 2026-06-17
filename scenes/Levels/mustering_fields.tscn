@@ -908,17 +908,17 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(473, 131)
+position = Vector2(473, 115)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_MusteringFields_Portal_Spawn"
 
 [node name="MusteringFields_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(497, 135)
+position = Vector2(497, 119)
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1033, 131)
+position = Vector2(1033, 115)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_MusteringFields_Portal_Spawn"
 
 [node name="MusteringFields_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1057, 135)
+position = Vector2(1057, 119)

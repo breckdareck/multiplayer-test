@@ -888,33 +888,33 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(361, 115)
+position = Vector2(361, 99)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_Emberscar_Portal_Spawn"
 
 [node name="Emberscar_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(385, 119)
+position = Vector2(385, 103)
 
 [node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(777, 99)
+position = Vector2(777, 83)
 target_map_id = "mustering_fields"
 target_spawn_point_name = "MusteringFields_Emberscar_Portal_Spawn"
 
 [node name="Emberscar_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(801, 103)
+position = Vector2(801, 87)
 
 [node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1209, 163)
+position = Vector2(1209, 147)
 target_map_id = "ashvigil"
 target_spawn_point_name = "Ashvigil_Emberscar_Portal_Spawn"
 
 [node name="Emberscar_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1233, 167)
+position = Vector2(1233, 151)
 
 [node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1625, 195)
+position = Vector2(1625, 179)
 target_map_id = "cinderwaste"
 target_spawn_point_name = "Cinderwaste_Emberscar_Portal_Spawn"
 
 [node name="Emberscar_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1649, 199)
+position = Vector2(1649, 183)

@@ -78,12 +78,14 @@ func _do_map(map: String) -> void:
 		var row: int = floor_top[col]
 		var px := col * 16 + off.x
 		var py := row * 16 + off.y
+		# Portal sits 16px ABOVE the ground (its foot rests on the surface); the arrival marker 12px
+		# above (so you land on the ground, not embedded in it) — matches the backbone convention.
 		body += '\n[node name="PortalTo%s" parent="." instance=ExtResource("%s")]\n' % [TOKEN[other], pid]
-		body += 'position = Vector2(%d, %d)\n' % [px, py]
+		body += 'position = Vector2(%d, %d)\n' % [px, py - 16]
 		body += 'target_map_id = "%s"\n' % other
 		body += 'target_spawn_point_name = "%s_%s_Portal_Spawn"\n' % [TOKEN[other], TOKEN[map]]
 		body += '\n[node name="%s_%s_Portal_Spawn" type="Marker2D" parent="."]\n' % [TOKEN[map], TOKEN[other]]
-		body += 'position = Vector2(%d, %d)\n' % [px + 24, py + 4]
+		body += 'position = Vector2(%d, %d)\n' % [px + 24, py - 12]
 
 	text = text.rstrip("\n") + "\n" + body
 	var w := FileAccess.open(path, FileAccess.WRITE); w.store_string(text); w.close()

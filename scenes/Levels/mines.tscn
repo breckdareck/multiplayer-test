@@ -955,7 +955,7 @@ script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
 [node name="M6" type="Marker2D" parent="Spawn_wolf_pathfinder"]
-position = Vector2(1025, 67)
+position = Vector2(1009, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_wolf_pathfinder"]
 position = Vector2(1809, 67)
@@ -1004,7 +1004,7 @@ script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
 [node name="M6" type="Marker2D" parent="Spawn_war_goblin"]
-position = Vector2(1121, 67)
+position = Vector2(1169, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_war_goblin"]
 position = Vector2(321, 115)
@@ -1044,7 +1044,7 @@ position = Vector2(1249, -13)
 position = Vector2(1921, -13)
 
 [node name="M5" type="Marker2D" parent="Spawn_rabbit_wizard"]
-position = Vector2(433, 67)
+position = Vector2(433, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_rabbit_wizard" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dppxdoxl4kf2k")
@@ -1093,7 +1093,7 @@ position = Vector2(1297, -13)
 position = Vector2(2017, -13)
 
 [node name="M5" type="Marker2D" parent="Spawn_deer_druid"]
-position = Vector2(529, 67)
+position = Vector2(593, 131)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer_druid" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://b7uy8wgb0j1t3")
@@ -1102,7 +1102,7 @@ script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
 [node name="M6" type="Marker2D" parent="Spawn_deer_druid"]
-position = Vector2(1617, 67)
+position = Vector2(1569, 131)
 
 [node name="M7" type="Marker2D" parent="Spawn_deer_druid"]
 position = Vector2(2065, 115)
@@ -1169,25 +1169,25 @@ position = Vector2(1537, 131)
 position = Vector2(1969, 131)
 
 [node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(505, 147)
+position = Vector2(505, 131)
 target_map_id = "thornroot"
 target_spawn_point_name = "Thornroot_Mines_Portal_Spawn"
 
 [node name="Mines_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(529, 151)
+position = Vector2(529, 135)
 
 [node name="PortalToDustWarren" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1081, 147)
+position = Vector2(1081, 131)
 target_map_id = "dust_warren"
 target_spawn_point_name = "DustWarren_Mines_Portal_Spawn"
 
 [node name="Mines_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1105, 151)
+position = Vector2(1105, 135)
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1641, 147)
+position = Vector2(1641, 131)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_Mines_Portal_Spawn"
 
 [node name="Mines_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1665, 151)
+position = Vector2(1665, 135)

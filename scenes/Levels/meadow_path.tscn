@@ -775,25 +775,25 @@ position = Vector2(49, 115)
 position = Vector2(-31, 131)
 
 [node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(185, 131)
+position = Vector2(185, 115)
 target_map_id = "lanterns_rest"
 target_spawn_point_name = "LanternsRest_Meadow_Portal_Spawn"
 
 [node name="Meadow_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(209, 135)
+position = Vector2(209, 119)
 
 [node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(441, 115)
+position = Vector2(441, 99)
 target_map_id = "near_wilds"
 target_spawn_point_name = "NearWilds_Meadow_Portal_Spawn"
 
 [node name="Meadow_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(465, 119)
+position = Vector2(465, 103)
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(681, 115)
+position = Vector2(681, 99)
 target_map_id = "ember_meadows"
 target_spawn_point_name = "EmberMeadows_Meadow_Portal_Spawn"
 
 [node name="Meadow_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(705, 119)
+position = Vector2(705, 103)

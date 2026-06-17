@@ -888,33 +888,33 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(329, 99)
+position = Vector2(329, 83)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_Keep_Portal_Spawn"
 
 [node name="Keep_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(353, 103)
+position = Vector2(353, 87)
 
 [node name="PortalToDeepWoods" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(713, 99)
+position = Vector2(713, 83)
 target_map_id = "deep_woods"
 target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
 
 [node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(737, 103)
+position = Vector2(737, 87)
 
 [node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1113, 99)
+position = Vector2(1113, 83)
 target_map_id = "mustering_fields"
 target_spawn_point_name = "MusteringFields_Keep_Portal_Spawn"
 
 [node name="Keep_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1137, 103)
+position = Vector2(1137, 87)
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1497, 99)
+position = Vector2(1497, 83)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Keep_Portal_Spawn"
 
 [node name="Keep_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1521, 103)
+position = Vector2(1521, 87)

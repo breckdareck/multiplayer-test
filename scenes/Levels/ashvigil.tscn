@@ -758,25 +758,25 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(153, 147)
+position = Vector2(153, 131)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Ashvigil_Portal_Spawn"
 
 [node name="Ashvigil_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(177, 151)
+position = Vector2(177, 135)
 
 [node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(393, 163)
+position = Vector2(393, 147)
 target_map_id = "cinderwaste"
 target_spawn_point_name = "Cinderwaste_Ashvigil_Portal_Spawn"
 
 [node name="Ashvigil_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(417, 167)
+position = Vector2(417, 151)
 
 [node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(617, 147)
+position = Vector2(617, 131)
 target_map_id = "weave"
 target_spawn_point_name = "Weave_Ashvigil_Portal_Spawn"
 
 [node name="Ashvigil_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(641, 151)
+position = Vector2(641, 135)
