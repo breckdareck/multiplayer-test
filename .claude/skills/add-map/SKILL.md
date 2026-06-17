@@ -120,14 +120,18 @@ Two **map-agnostic** tools that work on any map's `.tscn`, however it was built.
 Godot is at `C:\Program Files\Godot\Godot.exe`; edit the `MAPS` list at the top of
 each `.gd` to choose which maps to process.
 
-**Annotated spawn previews (meowdb-style)** — use these whenever you show a map
-preview, so spawn points + the enemy roster are visible:
-- `tools/render_map_previews.gd` reads each scene, renders it faithfully from the
-  tile layers, and extracts every spawner's enemy type + `pool_size` + each spawn
-  marker projected into image pixels → `docs/map_previews/<map>.png` + `spawns.json`.
-- `tools/annotate_map_previews.py` (`pip install Pillow`) draws numbered, colour-coded
-  pins (one per spawn marker) + a legend listing each enemy with its **spawn-point
-  count and pool size** → `docs/map_previews/<map>_annotated.png`.
+**Annotated previews (meowdb-style)** — ALWAYS render one when you show a map, so the player can
+see the whole map at a glance. It overlays everything, read from the REAL scene nodes (not guesses):
+- `tools/render_map_previews.gd` renders the map faithfully from its tile layers and extracts
+  → `docs/map_previews/<map>.png` + `spawns.json`: every **spawner** (enemy type + `pool_size` +
+  each spawn marker), every **portal** (`PortalTo*` node position + its `target_map_id`), every
+  **rope/ladder** (the `Ropes`/`Ladders` Area2D climbers, with extent), and the **player-start**
+  (`PlayerSpawn` — where you appear on a fresh login or a *direct* teleport to the map, as opposed
+  to arriving through a portal at an arrival marker). Edit the `MAPS` list at the top to pick maps.
+- `tools/annotate_map_previews.py` (`pip install Pillow`) draws them onto the render →
+  `docs/map_previews/<map>_annotated.png`: numbered colour-coded **enemy spawn pins**, cyan
+  **portal doors** (labelled with destination), the green **player-start flag**, the **ladder/rope**
+  climb lines, and a **legend** listing each enemy with its spawn-point count + pool size.
 ```bash
 "$GODOT" --headless --path . --script res://tools/render_map_previews.gd
 python tools/annotate_map_previews.py
@@ -176,12 +180,14 @@ stalactite hang into a platform's jump space.
 any training platform — gaps all around), reached by **ONE short access rope**. Place each
 in an **open gap, clear of the tier climbs** — NEVER where the tier platforms converge (a
 perch jammed into the convergence makes ropes pile through it; give it breathing room, e.g.
-hang it over a row-gap above a wide ledge). Enemies never spawn on them. A few per map.
+hang it over a row-gap above a wide ledge). Enemies never spawn on them, so they're where players
+**AFK or heal up**. A few per map. The generator (`_build_field`) makes these automatically.
 
 **Ropes/ladders** — SHORT and few:
-- **One per platform** — every platform needs just *a* way up; no redundant climbs. Do NOT
-  thread one tall rope through multiple tiers (the "optimal" multi-tier shaft was explicitly
-  rejected).
+- **No redundant climbs** — a platform needs *a* way up, but NEVER two ropes/ladders that lead
+  to the SAME place. Multiple climbs on one platform are fine ONLY if each reaches a DIFFERENT
+  platform. And do NOT thread one tall rope through multiple tiers (the "optimal" multi-tier shaft
+  was explicitly rejected).
 - **Connect only ADJACENT levels** — a rope bridges a platform to the one directly below
   (or a perch to the platform below it).
 - **Hang above the surface below** — rope bottom sits ~**2 tiles above** the lower surface
@@ -192,8 +198,9 @@ hang it over a row-gap above a wide ledge). Enemies never spawn on them. A few p
   build from scratch (instancing drops child-resize overrides). Bots climb them.
 
 **Spawn placement** — enemies go on flat top-surface stretches only; EXCLUDE the ceiling/roof
-(a real spawn surface has solid above it in-column, else it's the roof top), the safe perches,
-and a thin column buffer at each portal/spawn edge so a player isn't dropped onto a mob.
+(a real spawn surface has solid above it in-column, else it's the roof top), the safe perches, and
+a buffer around **EVERY portal** (and the player-start) so you're never dropped onto a mob when you
+arrive or teleport in. `tools/clear_portal_spawns.gd` enforces the portal buffer after portals are wired.
 
 **Density** — `pool_size` is the COUNT lever (solo sees `floor(0.75 * sum of all spawner
 pools)` alive map-wide); markers only set WHERE (each spawn picks a random marker). For long

@@ -14,7 +14,9 @@ const SHEETS := {
 	3: "res://assets/sprites/grass_slopes.png",
 }
 const MAPS := [
-	"old_battlefield", "mustering_fields", "ashvigil", "cinderwaste",
+	"lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces",
+	"old_battlefield", "thornroot", "dust_warren", "mines", "emberwatch", "deep_woods", "keep",
+	"mustering_fields", "emberscar", "ashvigil", "cinderwaste", "weave", "warlord",
 ]
 
 ## Hand-placed connectors for specific maps (overrides auto-inference). Each entry is
@@ -189,9 +191,50 @@ func _render(name: String, imgs: Dictionary) -> Dictionary:
 		"img_w": img.get_width(), "img_h": img.get_height(),
 		"spawners": spawners,
 		"player_spawn": player_spawn,
-		"connectors": _connectors_for(name, layers, minx, miny),
-		"portals": _portals_for(name, layers, minx, miny, maxx),
+		"connectors": _real_ropes(text, tilemap_off, minx, miny),
+		"portals": _real_portals(nodes, tilemap_off, minx, miny),
 	}
+
+## Real portals read from the scene's PortalTo* nodes (not proposals) -> image-pixel doors.
+func _real_portals(nodes: Array, off: Vector2, minx: int, miny: int) -> Array:
+	var out := []
+	for n in nodes:
+		if not String(n["name"]).begins_with("PortalTo"): continue
+		var body: String = n["body"]
+		var pos := _vec(body, "position")
+		var dest := ""
+		var ti := body.find('target_map_id = "')
+		if ti != -1:
+			var s := ti + 17
+			dest = body.substr(s, body.find('"', s) - s)
+		var y := pos.y - off.y - miny * 16
+		out.append({"x": pos.x - off.x - minx * 16, "y_top": y - 48, "y_bottom": y, "dest": dest})
+	return out
+
+## Real ropes/ladders read from the Ropes/Ladders node Area2D children -> image-pixel connectors.
+func _real_ropes(text: String, off: Vector2, minx: int, miny: int) -> Array:
+	var out := []
+	var lines := text.split("\n")
+	var i := 0
+	while i < lines.size():
+		var ln: String = lines[i]
+		if ln.begins_with("[node ") and 'type="Area2D"' in ln and ('parent="Ropes"]' in ln or 'parent="Ladders"]' in ln):
+			var typ := "ladder" if 'parent="Ladders"]' in ln else "rope"
+			var px := 0.0; var py := 0.0; var got := false; var ot := -100.0; var ob := 100.0
+			var j := i + 1
+			while j < lines.size():
+				var s: String = lines[j]
+				if s.begins_with("[node ") and ('parent="."]' in s or ('type="Area2D"' in s and ('parent="Ropes"]' in s or 'parent="Ladders"]' in s))): break
+				if not got and s.begins_with("position = Vector2("):
+					var p := s.substr(19, s.find(")") - 19).split(",")
+					px = float(p[0].strip_edges()); py = float(p[1].strip_edges()); got = true
+				elif s.begins_with("offset_top = "): ot = float(s.substr(13).strip_edges())
+				elif s.begins_with("offset_bottom = "): ob = float(s.substr(16).strip_edges())
+				j += 1
+			out.append({"x": px - off.x - minx * 16, "y_top": (py + ot) - off.y - miny * 16, "y_bottom": (py + ob) - off.y - miny * 16, "type": typ})
+			i = j; continue
+		i += 1
+	return out
 
 ## Hand-placed connectors if the map has an entry, else the auto-inferred ones.
 func _connectors_for(name: String, layers: Array, minx: int, miny: int) -> Array:
