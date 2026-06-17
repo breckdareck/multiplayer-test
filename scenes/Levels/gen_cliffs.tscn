@@ -552,7 +552,7 @@ size = Vector2(4, 73)
 script = ExtResource("1_p8yym")
 bgm_path = "res://assets/music/emberwilds_ruins.ogg"
 display_name = "Gen cliffs"
-camera_top_padding = 210
+camera_top_padding = 255
 camera_bottom_padding = 0
 
 [node name="VillageBackground" parent="." instance=ExtResource("2_fik1o")]

@@ -45,25 +45,60 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Only cliffs this pass — gen_open and the now hand-finished gen_tower must NOT be
-	# regenerated/clobbered. Swap this list to regen a different map.
-	for m in [_cliffs()]:
+	# Only open this pass — gen_cliffs (committed) and the hand-finished gen_tower must NOT
+	# be regenerated/clobbered. Swap this list to regen a different map.
+	for m in [_open()]:
 		_emit(m)
 		print("WROTE gen_", m["name"], "  ", m["width"], "x", m["bottom"])
 	quit()
 
 func _open() -> Dictionary:
-	var width := 150; var bottom := 40
-	var ground := {}; var surf := []
-	for x in range(width):
-		var h := FLOOR_Y - int(round(0.6 * sin(x * 0.04)))    # nearly flat floor
-		surf.append(h)
-		for y in range(h, bottom + 1): ground[Vector2i(x, y)] = true
+	# Henesys-style open field: a wide floor that ROLLS gently (2:1 grass ramps, +-2 tiles)
+	# instead of a dead-flat line, with broad flat crests/dips to fight on + plant trees.
+	# Long one-way shelves float above (unchanged). Seeded so it reads varied, not patterned.
+	var width := 150
+	var bottom := 40
+	var ground := {}
 	var plat := {}
-	_shelf(plat, surf, FLOOR_Y - 6, [[8, 68], [80, 142]])
-	_shelf(plat, surf, FLOOR_Y - 11, [[20, 96]])
-	_shelf(plat, surf, FLOOR_Y - 16, [[44, 118]])
-	return {"name": "open", "ground": ground, "plat": plat, "width": width, "bottom": bottom}
+	var slopes := {}
+	var base_r := FLOOR_Y
+	var surf := []
+	surf.resize(width)
+	for i in range(width): surf[i] = base_r
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 6170617    # change this int for a different rolling profile
+	var x := 0
+	var cur := base_r
+	while x < width:
+		var run := rng.randi_range(8, 18)                 # broad flat stretch
+		for _i in range(run):
+			if x >= width: break
+			surf[x] = cur; x += 1
+		if x + 1 >= width: break
+		var target := clampi(cur + rng.randi_range(-2, 2), base_r - 2, base_r + 2)
+		if target == cur:                                 # never a flat "ramp"
+			target = clampi(cur + (1 if rng.randf() < 0.5 else -1), base_r - 2, base_r + 2)
+		var up := target < cur
+		for _s in range(absi(cur - target)):
+			if x + 1 >= width: break
+			if up:
+				var row := cur - 1
+				slopes[Vector2i(x, row)] = SLOPE_UR_LOW
+				slopes[Vector2i(x + 1, row)] = SLOPE_UR_HIGH
+				surf[x] = row; surf[x + 1] = row
+				cur = row
+			else:
+				slopes[Vector2i(x, cur)] = SLOPE_UL_HIGH
+				slopes[Vector2i(x + 1, cur)] = SLOPE_UL_LOW
+				surf[x] = cur; surf[x + 1] = cur
+				cur += 1
+			x += 2
+	for col in range(width):
+		for y in range(surf[col], bottom + 1): ground[Vector2i(col, y)] = true
+	_shelf(plat, surf, base_r - 6, [[8, 68], [80, 142]])
+	_shelf(plat, surf, base_r - 11, [[20, 96]])
+	_shelf(plat, surf, base_r - 16, [[44, 118]])
+	return {"name": "open", "ground": ground, "plat": plat, "slopes": slopes, "width": width, "bottom": bottom}
 
 func _tower() -> Dictionary:
 	# Forest-of-Ellinia style: an ORGANIC vertical climb of branch platforms at varied
@@ -309,8 +344,6 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	var surf := {}
 	for cell in m["ground"]:
 		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
-	var base_y := 0
-	for v in surf.values(): base_y = maxi(base_y, v)
 	var w := int(m["width"])
 	var spots := []
 	if m["name"] == "cliffs":
@@ -320,10 +353,11 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 			if surf.has(col) and surf[col] == surf.get(col - 1, -1) and surf[col] == surf.get(col + 1, -1):
 				spots.append(Vector2i(col, surf[col]))
 	else:
-		# Tower/open: base floor + every wide platform floor.
+		# Tower/open: a spawn on each flat stretch of the floor (handles rolling hills) +
+		# every wide one-way platform floor.
 		for col in range(4, w - 4, 4):
-			if surf.get(col, -999) >= base_y - 1:             # on the base floor, not a side wall
-				spots.append(Vector2i(col, base_y))
+			if surf.has(col) and surf[col] == surf.get(col - 1, -999) and surf[col] == surf.get(col + 1, -999):
+				spots.append(Vector2i(col, surf[col]))
 		var rows := {}                                        # platform floors grouped by row
 		for cell in m["plat"]:
 			if not rows.has(cell.y): rows[cell.y] = []
@@ -351,7 +385,9 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 	# Reposition PlayerSpawn onto the floor (left side), same (-119,-269) clone offset.
 	var ps := text.find('[node name="PlayerSpawn"')
 	if ps != -1:
-		var spawn_pos := 'position = Vector2(%d, %d)' % [5 * 16 - 119, (FLOOR_Y - 2) * 16 - 269]
+		var sp_col := 5
+		var sp_row: int = int(surf.get(sp_col, FLOOR_Y)) - 2   # read the rolling surface, don't bury/float
+		var spawn_pos := 'position = Vector2(%d, %d)' % [sp_col * 16 - 119, sp_row * 16 - 269]
 		var posln := text.find("position = ", ps)
 		var nxt := text.find("\n[node ", ps)
 		if posln != -1 and (nxt == -1 or posln < nxt):
