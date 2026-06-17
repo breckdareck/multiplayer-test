@@ -17,7 +17,6 @@ const MAPS := [
 	"near_wilds", "deep_woods", "ruins", "mines", "keep", "emberscar",
 	"weave", "dust_warren", "thornroot", "ember_meadows", "warlord",
 	"meadow_path", "three_terraces", "gen_open", "gen_tower", "gen_cliffs",
-	"gen_near_wilds",
 ]
 
 ## Hand-placed connectors for specific maps (overrides auto-inference). Each entry is
@@ -41,7 +40,7 @@ const MANUAL_CONNECTORS := {
 	],
 	# Mirrors _open()'s ladder set. Floor climbers' lower row is approximated at FLOOR_Y here
 	# (the real ones read the rolling surf); shelf-to-shelf rows are exact.
-	"gen_near_wilds": [
+	"near_wilds": [
 		[20, 26, 12, "rope"], [20, 26, 45, "rope"],
 		[20, 26, 77, "rope"], [20, 26, 107, "rope"],
 	],
@@ -60,7 +59,7 @@ const MANUAL_CONNECTORS := {
 ## ground a few tiles in from that edge, pointing to the neighbouring region (mirrors the
 ## map's MapManager connections). Like the connector proposals — shown for review.
 const MANUAL_PORTALS := {
-	"gen_near_wilds": [["left", "Lantern's Rest"], ["right", "Ember-Meadows"]],
+	"near_wilds": [["left", "Lantern's Rest"], ["right", "Ember-Meadows"]],
 }
 const OUT_DIR := "res://docs/map_previews"
 # Distinct pin colours, assigned per enemy type in order of first appearance.

@@ -122,7 +122,18 @@ func _near_wilds() -> Dictionary:
 		["left", "lanterns_rest", "LanternsRest_NearWilds_Portal_Spawn", "PortalToLanternsRest", "NearWilds_LanternsRest_Portal_Spawn"],
 		["right", "ember_meadows", "EmberMeadows_NearWilds_Portal_Spawn", "PortalToEmberMeadows", "NearWilds_EmberMeadows_Portal_Spawn"],
 	]
-	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters,
+	# The slime-threat quest sign, re-created as an instance of the standard quest_giver scene
+	# (uniform rebuild) with the original quest wiring transplanted. Sits on the left safe pad.
+	var npcs := [{
+		"scene": "res://scenes/NPC/quest_giver_npc.tscn", "uid": "uid://cqgvnpc7m3kxq",
+		"name": "SlimeThreatSign", "col": 16, "row": safe_row,
+		"props": {
+			"npc_name": '"Slime Threat Sign"',
+			"offered_quest_ids": 'PackedStringArray("q_slime_threat_1", "q_slime_threat_2", "q_slime_threat_3", "q_slime_threat_4")',
+			"npc_greeting": '"── POSTED NOTICE ──\nSlime infestation reported in this region. Bounty offered for verified culls; see the list below for current targets. Report tallies to the village authority upon return."',
+		},
+	}]
+	return {"name": "near_wilds", "real": true, "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters, "npcs": npcs,
 		"display_name": "The Near-Wilds", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
 		"portals": portals, "safe_rows": [safe_row], "player_spawn": Vector2i(12, safe_row - 1),
 		"ladders": [
@@ -387,6 +398,7 @@ func _emit(m: Dictionary) -> void:
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
+	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
 	# Always run ladder injection: it grabs the atlas from the cloned Ladders/Ropes, CLEARS the
 	# stale cloned ones, then adds this map's set (or none). Clearing inside _inject_ladders
 	# (not in _strip_clone_clutter) keeps the atlas reference alive for the lookup.
@@ -394,7 +406,9 @@ func _emit(m: Dictionary) -> void:
 	if m["name"] == "tower": lad_specs = TOWER_LADDERS
 	elif m["name"] == "cliffs": lad_specs = CLIFFS_LADDERS
 	text = _inject_ladders(text, lad_specs)
-	var w := FileAccess.open("res://scenes/Levels/gen_%s.tscn" % m["name"], FileAccess.WRITE)
+	# Real maps (m.real) overwrite the live scene; otherwise write a gen_<name> proof.
+	var out_name := str(m["name"]) if m.get("real", false) else ("gen_" + str(m["name"]))
+	var w := FileAccess.open("res://scenes/Levels/%s.tscn" % out_name, FileAccess.WRITE)
 	w.store_string(text); w.close()
 
 	# Preview PNG (ground+platform from the tileset, decorations from the props sheet).
@@ -615,6 +629,29 @@ func _inject_portals(text: String, m: Dictionary) -> String:
 		var mx: int = px + (24 if edge == "left" else -24)
 		# Arrival marker raised 12px so the player drops in just above the ground.
 		blk += '\n[node name="%s" type="Marker2D" parent="."]\nposition = Vector2(%d, %d)\n' % [sp[4], mx, pg - 12]
+	return text + blk
+
+## Re-create a map's NPCs as instances of their scene (uniform rebuild) with the original
+## exported properties transplanted. Specs: {scene, uid, name, col, row, props:{key:value}}.
+func _inject_npcs(text: String, m: Dictionary) -> String:
+	var npcs: Array = m.get("npcs", [])
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + npcs.size()))
+	var ext := ""
+	for i in npcs.size():
+		ext += '\n[ext_resource type="PackedScene" uid="%s" path="%s" id="gen_npc%d"]' % [npcs[i]["uid"], npcs[i]["scene"], i]
+	text = header + ext + text.substr(nl)
+	var blk := ""
+	for i in npcs.size():
+		var npc = npcs[i]
+		blk += '\n[node name="%s" parent="." instance=ExtResource("gen_npc%d")]' % [npc["name"], i]
+		blk += '\nposition = Vector2(%d, %d)' % [int(npc["col"]) * 16 - 119, int(npc["row"]) * 16 - 269]
+		for k in npc["props"]:
+			blk += '\n%s = %s' % [k, npc["props"][k]]
+		blk += '\n'
 	return text + blk
 
 func _try_tuft(deco: Dictionary, cell: Vector2i, ground: Dictionary, plat: Dictionary, rng: RandomNumberGenerator) -> void:
