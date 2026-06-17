@@ -592,8 +592,8 @@ region = Rect2(145, 52, 4, 12)
 
 [node name="Game4" type="Node2D"]
 script = ExtResource("1_p8yym")
-bgm_path = "res://assets/music/emberwilds_ruins.ogg"
-display_name = "Gen near_wilds"
+bgm_path = "res://assets/music/emberwilds_near_wilds.ogg"
+display_name = "The Near-Wilds"
 camera_top_padding = 430
 camera_bottom_padding = -105
 
@@ -1000,3 +1000,18 @@ _spawnable_scenes = PackedStringArray("uid://sxpgdsdpf5ma")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
+[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-55, 147)
+target_map_id = "lanterns_rest"
+target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-31, 143)
+
+[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1721, 163)
+target_map_id = "ember_meadows"
+target_spawn_point_name = "EmberMeadows_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(1697, 159)

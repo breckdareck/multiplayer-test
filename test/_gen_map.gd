@@ -109,7 +109,16 @@ func _near_wilds() -> Dictionary:
 		["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 3],
 		["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 3],
 	]
-	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters, "width": width, "bottom": bottom}
+	# Transplanted from the real near_wilds.tscn: name, music, and the two portals (each with
+	# its target map + target spawn-point name + this map's arrival marker). [edge, target_map,
+	# target_spawn_point_name, portal_node_name, arrival_marker_name].
+	var portals := [
+		["left", "lanterns_rest", "LanternsRest_NearWilds_Portal_Spawn", "PortalToLanternsRest", "NearWilds_LanternsRest_Portal_Spawn"],
+		["right", "ember_meadows", "EmberMeadows_NearWilds_Portal_Spawn", "PortalToEmberMeadows", "NearWilds_EmberMeadows_Portal_Spawn"],
+	]
+	return {"name": "near_wilds", "ground": ground, "plat": plat, "slopes": slopes, "monsters": monsters,
+		"display_name": "The Near-Wilds", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
+		"portals": portals, "width": width, "bottom": bottom}
 
 func _open() -> Dictionary:
 	# Henesys-style open field: a wide floor that ROLLS gently (2:1 grass ramps, +-2 tiles)
@@ -361,10 +370,12 @@ func _emit(m: Dictionary) -> void:
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	text = _replace_layer(text, "Background2", "")
-	text = text.replace('display_name = "The Ruins"', 'display_name = "Gen %s"' % m["name"])
+	text = text.replace('display_name = "The Ruins"', 'display_name = "%s"' % m.get("display_name", "Gen " + str(m["name"])))
+	if m.has("bgm"): text = text.replace('bgm_path = "res://assets/music/emberwilds_ruins.ogg"', 'bgm_path = "%s"' % m["bgm"])
 	text = _strip_clone_clutter(text)
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
+	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if m["name"] == "tower": text = _inject_ladders(text, TOWER_LADDERS)
 	if m["name"] == "cliffs": text = _inject_ladders(text, CLIFFS_LADDERS)
 	if not m.get("ladders", []).is_empty(): text = _inject_ladders(text, m["ladders"])
@@ -551,6 +562,33 @@ func _inject_slopes(text: String) -> String:
 		var seol := text.find("\n", sidx)
 		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenSlopeAtlas")' % SLOPE_SRC + text.substr(seol)
 	return text
+
+## Re-add a map's portals (rebuild-uniform transplant): a portal instance + an arrival
+## Marker2D per neighbour, planted on the new terrain's edge ground. Reuses the cloned
+## portal.tscn ext_resource (no load_steps change). Specs: [edge, target_map,
+## target_spawn_point_name, portal_node_name, arrival_marker_name].
+func _inject_portals(text: String, m: Dictionary) -> String:
+	var specs: Array = m.get("portals", [])
+	var pid := _find_ext_id(text, "res://scenes/Gameplay/portal.tscn")
+	if pid == "":
+		print("  portal wiring skipped (portal.tscn ext not found)"); return text
+	var surf := {}
+	for cell in m["ground"]:
+		if not surf.has(cell.x) or cell.y < surf[cell.x]: surf[cell.x] = cell.y
+	var w := int(m["width"])
+	var blk := ""
+	for sp in specs:
+		var edge: String = sp[0]
+		var col: int = 4 if edge == "left" else (w - 5)
+		while not surf.has(col) and col > 0 and col < w - 1: col += 1 if edge == "left" else -1
+		var srow: int = int(surf.get(col, FLOOR_Y))
+		var px: int = col * 16 - 119
+		var py: int = srow * 16 - 269
+		blk += '\n[node name="%s" parent="." instance=ExtResource("%s")]' % [sp[3], pid]
+		blk += '\nposition = Vector2(%d, %d)\ntarget_map_id = "%s"\ntarget_spawn_point_name = "%s"\n' % [px, py, sp[1], sp[2]]
+		var mx: int = px + (24 if edge == "left" else -24)
+		blk += '\n[node name="%s" type="Marker2D" parent="."]\nposition = Vector2(%d, %d)\n' % [sp[4], mx, py - 4]
+	return text + blk
 
 func _try_tuft(deco: Dictionary, cell: Vector2i, ground: Dictionary, plat: Dictionary, rng: RandomNumberGenerator) -> void:
 	var above := Vector2i(cell.x, cell.y - 1)
