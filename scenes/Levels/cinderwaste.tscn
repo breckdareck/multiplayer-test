@@ -1,4 +1,11 @@
-[gd_scene load_steps=29 format=4 uid="uid://bweiifs87uxq2"]
+[gd_scene load_steps=60 format=4]
+[ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
+[ext_resource type="PackedScene" uid="uid://bichmn1gb8cd2" path="res://scenes/NPC/Minifolks/ember_fox.tscn" id="gen_mob0"]
+[ext_resource type="PackedScene" uid="uid://bvjs3vxpdjkfj" path="res://scenes/NPC/fire_slime.tscn" id="gen_mob1"]
+[ext_resource type="PackedScene" uid="uid://tbl7yfcl3xwe" path="res://scenes/NPC/Minifolks/runed_boar.tscn" id="gen_mob2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Levels/village_background.tscn" id="2_fik1o"]
@@ -10,12 +17,12 @@
 [ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="7_r5cd5"]
 [ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="9_pjyxy"]
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
-[ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
-[ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
-[ext_resource type="PackedScene" uid="uid://bichmn1gb8cd2" path="res://scenes/NPC/Minifolks/ember_fox.tscn" id="gen_mob0"]
-[ext_resource type="PackedScene" uid="uid://bvjs3vxpdjkfj" path="res://scenes/NPC/fire_slime.tscn" id="gen_mob1"]
-[ext_resource type="PackedScene" uid="uid://tbl7yfcl3xwe" path="res://scenes/NPC/Minifolks/runed_boar.tscn" id="gen_mob2"]
-[ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
+[ext_resource type="PackedScene" uid="uid://p1gtmn7fct13" path="res://scenes/NPC/Minifolks/bird.tscn" id="10_bird4"]
+[ext_resource type="PackedScene" uid="uid://c06qbiant345e" path="res://scenes/NPC/Minifolks/bunny.tscn" id="10_bunny4"]
+[ext_resource type="PackedScene" uid="uid://b31vj57j18ae2" path="res://scenes/NPC/Minifolks/deer.tscn" id="10_deer4"]
+[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="10_fox4"]
+[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("4_kt7l5")
@@ -510,6 +517,19 @@ texture = ExtResource("6_bx66n")
 
 [sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
 texture = ExtResource("gen_slopes")
+texture_region_size = Vector2i(16, 16)
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, 0, 8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 0, 8, -8, 8, 8, -8, 8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, 0, 8, 8, -8, 8)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 0, 8, 8, -8, 8)
+
+[sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
+texture = ExtResource("gen_slopes")
+texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, 0, 8, 8)
 1:0/0 = 0
@@ -534,11 +554,41 @@ sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 sources/1 = SubResource("TileSetAtlasSource_j167y")
 sources/2 = SubResource("TileSetAtlasSource_kgokg")
 sources/3 = SubResource("GenSlopeAtlas")
+sources/3 = SubResource("GenSlopeAtlas")
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
-[sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(4, 89)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fik1o"]
+size = Vector2(30, 4)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ylsnt"]
+size = Vector2(30, 4)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nlgqw"]
+size = Vector2(48.571487, 5.714283)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2v70l"]
+size = Vector2(14, 35)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nk4qt"]
+atlas = ExtResource("4_kt7l5")
+region = Rect2(145, 52, 14, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p47w5"]
+size = Vector2(14, 21)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3lgvg"]
+size = Vector2(14, 45)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ylsnt"]
+load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bke2l"]
+atlas = SubResource("CompressedTexture2D_ylsnt")
+region = Rect2(145, 52, 14, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ladder"]
+size = Vector2(4, 54)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fik1o"]
 load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
@@ -546,6 +596,33 @@ load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b64
 [sub_resource type="AtlasTexture" id="AtlasTexture_p47w5"]
 atlas = SubResource("CompressedTexture2D_fik1o")
 region = Rect2(145, 52, 4, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bke2l"]
+size = Vector2(4, 54)
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_4opky"]
+load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8us8u"]
+atlas = SubResource("CompressedTexture2D_4opky")
+region = Rect2(145, 52, 4, 12)
+
+
+[sub_resource type="RectangleShape2D" id="RectShape_C0"]
+size = Vector2(4, 89)
+
+[sub_resource type="RectangleShape2D" id="RectShape_C1"]
+size = Vector2(4, 137)
+
+[sub_resource type="RectangleShape2D" id="RectShape_C2"]
+size = Vector2(4, 105)
+
+[sub_resource type="RectangleShape2D" id="RectShape_C3"]
+size = Vector2(4, 89)
+
+
+[sub_resource type="RectangleShape2D" id="RectShape_C0"]
+size = Vector2(4, 89)
 
 [sub_resource type="RectangleShape2D" id="RectShape_C1"]
 size = Vector2(4, 105)
@@ -591,6 +668,7 @@ tile_map_data = PackedByteArray("AAAAABkAAgAFAAsAAAABABkAAgAEAAsAAAAHABkAAgAKAAc
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Background2" type="TileMapLayer" parent="TileMap"]
+tile_map_data = PackedByteArray("")
 z_index = -2
 use_parent_material = true
 tile_set = SubResource("TileSet_lbhrr")
@@ -620,6 +698,135 @@ position = Vector2(-119, -269)
 [node name="Ladders" type="Node2D" parent="."]
 
 [node name="Ropes" type="Node2D" parent="."]
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="ItemDrops" type="Node2D" parent="."]
+
+[node name="GlobalDropHandler" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -119.0
+offset_top = -269.0
+offset_right = -119.0
+offset_bottom = -269.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("9_pjyxy")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+
+
+
+
+[node name="Spawn_ember_fox" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("gen_spw")
+enemy_scene = ExtResource("gen_mob0")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(-47, 131)
+
+[node name="M1" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(273, 195)
+
+[node name="M2" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(529, 179)
+
+[node name="M3" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(769, 147)
+
+[node name="M4" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(1041, 179)
+
+[node name="M5" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(1377, 147)
+
+[node name="M6" type="Marker2D" parent="Spawn_ember_fox"]
+position = Vector2(1553, 179)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_ember_fox" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bichmn1gb8cd2")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("gen_msp")
+enemy_spawner = NodePath("..")
+
+[node name="Spawn_fire_slime" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("gen_spw")
+enemy_scene = ExtResource("gen_mob1")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(17, 131)
+
+[node name="M1" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(305, 195)
+
+[node name="M2" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(657, 147)
+
+[node name="M3" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(913, 179)
+
+[node name="M4" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(1169, 147)
+
+[node name="M5" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(1361, 147)
+
+[node name="M6" type="Marker2D" parent="Spawn_fire_slime"]
+position = Vector2(1617, 179)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fire_slime" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://bvjs3vxpdjkfj")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("gen_msp")
+enemy_spawner = NodePath("..")
+
+[node name="Spawn_runed_boar" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("gen_spw")
+enemy_scene = ExtResource("gen_mob2")
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
+spawn_container = NodePath("../Enemies")
+pool_size = 9
+
+[node name="M0" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(81, 131)
+
+[node name="M1" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(465, 179)
+
+[node name="M2" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(721, 147)
+
+[node name="M3" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(977, 179)
+
+[node name="M4" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(1217, 147)
+
+[node name="M5" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(1425, 147)
+
+[node name="M6" type="Marker2D" parent="Spawn_runed_boar"]
+position = Vector2(1681, 179)
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_runed_boar" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://tbl7yfcl3xwe")
+spawn_path = NodePath("../../Enemies")
+script = ExtResource("gen_msp")
+enemy_spawner = NodePath("..")
 
 [node name="C0" type="Area2D" parent="Ropes"]
 position = Vector2(65, 78)
@@ -697,152 +904,26 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="Players" type="Node2D" parent="."]
-
-[node name="Enemies" type="Node2D" parent="."]
-
-[node name="Projectiles" type="Node2D" parent="."]
-
-[node name="ItemDrops" type="Node2D" parent="."]
-
-[node name="GlobalDropHandler" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -119.0
-offset_top = -269.0
-offset_right = -119.0
-offset_bottom = -269.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("9_pjyxy")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="Spawn_ember_fox" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("conv_spw")
-enemy_scene = ExtResource("gen_mob0")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
-spawn_container = NodePath("../Enemies")
-pool_size = 9
-
-[node name="M0" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(-47, 131)
-
-[node name="M1" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(273, 195)
-
-[node name="M2" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(529, 179)
-
-[node name="M3" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(769, 147)
-
-[node name="M4" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(1041, 179)
-
-[node name="M5" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(1377, 147)
-
-[node name="M6" type="Marker2D" parent="Spawn_ember_fox"]
-position = Vector2(1553, 179)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_ember_fox" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://bichmn1gb8cd2")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("conv_msp")
-enemy_spawner = NodePath("..")
-
-[node name="Spawn_fire_slime" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("conv_spw")
-enemy_scene = ExtResource("gen_mob1")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
-spawn_container = NodePath("../Enemies")
-pool_size = 9
-
-[node name="M0" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(17, 131)
-
-[node name="M1" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(305, 195)
-
-[node name="M2" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(657, 147)
-
-[node name="M3" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(913, 179)
-
-[node name="M4" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(1169, 147)
-
-[node name="M5" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(1361, 147)
-
-[node name="M6" type="Marker2D" parent="Spawn_fire_slime"]
-position = Vector2(1617, 179)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fire_slime" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://bvjs3vxpdjkfj")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("conv_msp")
-enemy_spawner = NodePath("..")
-
-[node name="Spawn_runed_boar" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("conv_spw")
-enemy_scene = ExtResource("gen_mob2")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
-spawn_container = NodePath("../Enemies")
-pool_size = 9
-
-[node name="M0" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(81, 131)
-
-[node name="M1" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(465, 179)
-
-[node name="M2" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(721, 147)
-
-[node name="M3" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(977, 179)
-
-[node name="M4" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(1217, 147)
-
-[node name="M5" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(1425, 147)
-
-[node name="M6" type="Marker2D" parent="Spawn_runed_boar"]
-position = Vector2(1681, 179)
-
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_runed_boar" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://tbl7yfcl3xwe")
-spawn_path = NodePath("../../Enemies")
-script = ExtResource("conv_msp")
-enemy_spawner = NodePath("..")
-
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-91, 131)
+position = Vector2(377, 195)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-67, 135)
+position = Vector2(401, 199)
 
 [node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(943, 179)
+position = Vector2(841, 163)
 target_map_id = "ashvigil"
 target_spawn_point_name = "Ashvigil_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(967, 183)
+position = Vector2(865, 167)
 
 [node name="PortalToWeave" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1779, 195)
+position = Vector2(1289, 147)
 target_map_id = "weave"
 target_spawn_point_name = "Weave_Cinderwaste_Portal_Spawn"
 
 [node name="Cinderwaste_Weave_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1754, 199)
+position = Vector2(1313, 151)
