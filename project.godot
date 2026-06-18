@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Emberwilds"
-run/main_scene="res://scenes/UI/LoginScreen.tscn"
+run/main_scene="res://scenes/Screens/LoginScreen.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
 
 [autoload]

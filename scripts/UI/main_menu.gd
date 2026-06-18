@@ -38,7 +38,7 @@ func join_game():
 func disconnect_from_server():
 	MultiplayerManager.reset_data()
 	MapManager.reset_client_state()
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/LoginScreen.tscn")
 	
 
 func change_channel(value: int):

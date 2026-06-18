@@ -1,6 +1,6 @@
 extends SceneTree
 func _initialize() -> void:
-	var scn = load("res://scenes/UI/CharacterCreationScreen.tscn").instantiate()
+	var scn = load("res://scenes/Screens/CharacterCreationScreen.tscn").instantiate()
 	get_root().add_child(scn)
 	for i in 50:
 		await process_frame

@@ -409,7 +409,7 @@ func _set_buttons_enabled(enabled: bool):
 	logout_button.disabled = !enabled
 
 func _on_create_pressed():
-	get_tree().change_scene_to_file("res://scenes/UI/CharacterCreationScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/CharacterCreationScreen.tscn")
 
 func _on_delete_pressed():
 	var char_data = _get_selected_character_data()
@@ -447,4 +447,4 @@ func _on_character_deletion_failed(error: String):
 
 func _on_logout_pressed():
 	NetworkManager.account_id = -1
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/LoginScreen.tscn")

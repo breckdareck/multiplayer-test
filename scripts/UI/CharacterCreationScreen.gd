@@ -81,13 +81,13 @@ func _on_create_pressed():
 	NetworkManager.create_character(char_name, class_id)
 
 func _on_back_pressed():
-	get_tree().change_scene_to_file("res://scenes/UI/CharacterSelectScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/CharacterSelectScreen.tscn")
 
 func _on_character_created(_char_name):
 	status_label.text = "Character Created!"
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	# Return to select screen
-	get_tree().change_scene_to_file("res://scenes/UI/CharacterSelectScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/CharacterSelectScreen.tscn")
 
 func _on_character_creation_failed(error):
 	status_label.text = "Creation Failed: " + error

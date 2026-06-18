@@ -189,4 +189,4 @@ func _handle_switch_failure():
 		menu_container._connection_status_label.text = "Channel switch failed. Disconnected."
 	
 	# Return to login screen
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/LoginScreen.tscn")

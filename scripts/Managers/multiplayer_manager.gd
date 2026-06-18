@@ -121,7 +121,7 @@ func leave_to_main_menu() -> void:
 	# Free the live game world (maps + networked entities) — mirrors the cleanup
 	# in _handle_server_disconnect, which reset_data omits.
 	free_game_world()
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/LoginScreen.tscn")
 
 
 ## Frees the live game world — every networked entity, the persistent local-player

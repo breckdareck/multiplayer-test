@@ -15,7 +15,7 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var disc := int(args[0]) if args.size() > 0 else 0
 
-	var login: Node = load("res://scenes/UI/LoginScreen.tscn").instantiate()
+	var login: Node = load("res://scenes/Screens/LoginScreen.tscn").instantiate()
 	get_root().add_child(login)
 	for i in 30:
 		await process_frame

@@ -5,7 +5,7 @@ extends SceneTree
 ##   Godot.exe --path . --script res://tools/shot_login.gd
 
 func _initialize() -> void:
-	var scn = load("res://scenes/UI/LoginScreen.tscn").instantiate()
+	var scn = load("res://scenes/Screens/LoginScreen.tscn").instantiate()
 	get_root().add_child(scn)
 	for i in 50:
 		await process_frame

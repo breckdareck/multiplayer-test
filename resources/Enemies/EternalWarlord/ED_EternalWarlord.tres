@@ -71,6 +71,5 @@ special_attack_damage_mult = 2.5
 special_attacks = Array[ExtResource("13_wiq80")]([SubResource("Resource_wiq80")])
 boss_bgm = "res://assets/music/emberwilds_boss4.ogg"
 enrage_bgm = "res://assets/music/emberwilds_boss.ogg"
-boss_bgm_swap_health = 0.5
 item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6"), ExtResource("d_7"), ExtResource("d_8"), ExtResource("d_9"), ExtResource("d_10")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

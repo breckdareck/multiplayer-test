@@ -183,7 +183,7 @@ func _on_login_success(_account_id, _username):
 	status_label.text = "Login Successful!"
 	status_label.add_theme_color_override("font_color", Color.GREEN)
 	# Transition to Character Select
-	get_tree().change_scene_to_file("res://scenes/UI/CharacterSelectScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/CharacterSelectScreen.tscn")
 
 func _on_login_failed(error):
 	status_label.text = "Login Failed: " + error

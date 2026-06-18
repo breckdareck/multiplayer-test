@@ -1,17 +1,13 @@
-[gd_scene load_steps=15 format=4 uid="uid://b4tx1tdc5drme"]
+[gd_resource type="TileSet" load_steps=11 format=3 uid="uid://538opy2ov50t"]
 
-[ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_83xtj"]
-[ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_ipfsq"]
-[ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_57sdq"]
-[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="5_tyywb"]
-[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="6_747x4"]
-[ext_resource type="TileSet" uid="uid://538opy2ov50t" path="res://assets/tilesets/main.tres" id="6_dopnk"]
-[ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="7_dyefe"]
-[ext_resource type="PackedScene" uid="uid://bx2n3vrfxk75m" path="res://scenes/Gameplay/killzone.tscn" id="8_h1r0l"]
-[ext_resource type="Script" uid="uid://igk1rxt26f2i" path="res://scripts/UI/global_drop_handler.gd" id="10_12i4d"]
+[ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="1_7jm8j"]
+[ext_resource type="Texture2D" uid="uid://cd28i3fo3v1m0" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png" id="2_pg2ew"]
+[ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="3_yw7pp"]
+[ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="4_qomyi"]
+[ext_resource type="Texture2D" uid="uid://caog58fopq2n0" path="res://assets/sprites/rock_top_tiles.png" id="5_pg2ew"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
-texture = ExtResource("5_tyywb")
+texture = ExtResource("1_7jm8j")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
@@ -177,7 +173,7 @@ texture = ExtResource("5_tyywb")
 14:4/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, -8, 8, 8)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j167y"]
-texture = ExtResource("6_747x4")
+texture = ExtResource("2_pg2ew")
 10:0/0 = 0
 11:0/0 = 0
 12:0/0 = 0
@@ -330,11 +326,14 @@ texture = ExtResource("6_747x4")
 15:9/0 = 0
 15:9/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 17:9/0 = 0
-17:9/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+17:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 0, -8, 0)
+17:9/0/physics_layer_1/polygon_0/one_way = true
 18:9/0 = 0
-18:9/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+18:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 0, -8, 0)
+18:9/0/physics_layer_1/polygon_0/one_way = true
 19:9/0 = 0
-19:9/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+19:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 0, -8, 0)
+19:9/0/physics_layer_1/polygon_0/one_way = true
 21:9/0 = 0
 21:9/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 23:9/0 = 0
@@ -346,7 +345,7 @@ texture = ExtResource("6_747x4")
 13:2/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kgokg"]
-texture = ExtResource("7_dyefe")
+texture = ExtResource("3_yw7pp")
 2:0/0 = 0
 3:0/0 = 0
 4:0/0 = 0
@@ -498,113 +497,56 @@ texture = ExtResource("7_dyefe")
 17:11/0 = 0
 18:11/0 = 0
 
-[sub_resource type="TileSet" id="TileSet_lbhrr"]
+[sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
+texture = ExtResource("4_qomyi")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, 0, 8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 0, 8, -8, 8, 8, -8, 8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, 0, 8, 8, -8, 8)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 0, 8, 8, -8, 8)
+4:0/0 = 0
+4:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+5:0/0 = 0
+5:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+6:0/0 = 0
+6:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yw7pp"]
+texture = ExtResource("5_pg2ew")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:0/0 = 0
+3:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(8, 0, 8, 8, -8, 8)
+4:0/0 = 0
+4:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(8, -8, 8, 8, -8, 8, -8, 0)
+5:0/0 = 0
+5:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, -8, 8, 8, 8, 8, 0)
+6:0/0 = 0
+6:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 0, -8, 8, 8, 8)
+7:0/0 = 0
+7:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 1, -8, 1)
+7:0/0/physics_layer_1/polygon_0/one_way = true
+8:0/0 = 0
+8:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 1, -8, 1)
+8:0/0/physics_layer_1/polygon_0/one_way = true
+9:0/0 = 0
+9:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 1, -8, 1)
+9:0/0/physics_layer_1/polygon_0/one_way = true
+
+[resource]
 physics_layer_0/collision_layer = 1
 physics_layer_0/collision_mask = 2
+physics_layer_1/collision_layer = 4
+physics_layer_1/collision_mask = 2
 sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 sources/1 = SubResource("TileSetAtlasSource_j167y")
 sources/2 = SubResource("TileSetAtlasSource_kgokg")
-
-[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
-
-[node name="Emberwatch" type="Node2D"]
-script = ExtResource("1_83xtj")
-bgm_path = "res://assets/music/emberwilds_emberwatch.ogg"
-display_name = "Emberwatch"
-
-[node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
-spawn_path = NodePath("..")
-script = ExtResource("2_ipfsq")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(0, -16)
-zoom = Vector2(4, 4)
-process_callback = 0
-limit_enabled = false
-position_smoothing_enabled = true
-
-[node name="PlayerSpawn" type="Marker2D" parent="."]
-position = Vector2(448, 208)
-
-[node name="TileMap" type="TileMap" parent="."]
-tile_set = SubResource("TileSet_lbhrr")
-format = 2
-
-[node name="Background" type="TileMapLayer" parent="TileMap"]
-z_index = -3
-use_parent_material = true
-tile_set = ExtResource("6_dopnk")
-
-[node name="Background2" type="TileMapLayer" parent="TileMap"]
-z_index = -2
-use_parent_material = true
-tile_set = ExtResource("6_dopnk")
-
-[node name="Mid" type="TileMapLayer" parent="TileMap"]
-use_parent_material = true
-rotation = 0.00035073853
-tile_map_data = PackedByteArray("AAAAAA4AAQARAAUAAAAAAA8AAQARAAYAAAAAABAAAQARAAYAAAAAABEAAQARAAYAAAABAA4AAQASAAUAAAABAA8AAQASAAYAAAABABAAAQASAAYAAAABABEAAQASAAYAAAACAA4AAQASAAUAAAACAA8AAQASAAYAAAACABAAAQASAAYAAAACABEAAQASAAYAAAADAA4AAQASAAUAAAADAA8AAQASAAYAAAADABAAAQASAAYAAAADABEAAQASAAYAAAAEAA4AAQASAAUAAAAEAA8AAQASAAYAAAAEABAAAQASAAYAAAAEABEAAQASAAYAAAAFAA4AAQASAAUAAAAFAA8AAQASAAYAAAAFABAAAQASAAYAAAAFABEAAQASAAYAAAAGAA4AAQASAAUAAAAGAA8AAQASAAYAAAAGABAAAQASAAYAAAAGABEAAQASAAYAAAAHAA4AAQASAAUAAAAHAA8AAQASAAYAAAAHABAAAQASAAYAAAAHABEAAQASAAYAAAAIAA4AAQASAAUAAAAIAA8AAQASAAYAAAAIABAAAQASAAYAAAAIABEAAQASAAYAAAAJAA4AAQASAAUAAAAJAA8AAQASAAYAAAAJABAAAQASAAYAAAAJABEAAQASAAYAAAAKAA4AAQASAAUAAAAKAA8AAQASAAYAAAAKABAAAQASAAYAAAAKABEAAQASAAYAAAALAA4AAQASAAUAAAALAA8AAQASAAYAAAALABAAAQASAAYAAAALABEAAQASAAYAAAAMAA4AAQASAAUAAAAMAA8AAQASAAYAAAAMABAAAQASAAYAAAAMABEAAQASAAYAAAANAA4AAQASAAUAAAANAA8AAQASAAYAAAANABAAAQASAAYAAAANABEAAQASAAYAAAAOAA4AAQASAAUAAAAOAA8AAQASAAYAAAAOABAAAQASAAYAAAAOABEAAQASAAYAAAAPAA4AAQASAAUAAAAPAA8AAQASAAYAAAAPABAAAQASAAYAAAAPABEAAQASAAYAAAAQAA4AAQASAAUAAAAQAA8AAQASAAYAAAAQABAAAQASAAYAAAAQABEAAQASAAYAAAARAA4AAQASAAUAAAARAA8AAQASAAYAAAARABAAAQASAAYAAAARABEAAQASAAYAAAASAA4AAQASAAUAAAASAA8AAQASAAYAAAASABAAAQASAAYAAAASABEAAQASAAYAAAATAA4AAQASAAUAAAATAA8AAQASAAYAAAATABAAAQASAAYAAAATABEAAQASAAYAAAAUAA4AAQASAAUAAAAUAA8AAQASAAYAAAAUABAAAQASAAYAAAAUABEAAQASAAYAAAAVAA4AAQASAAUAAAAVAA8AAQASAAYAAAAVABAAAQASAAYAAAAVABEAAQASAAYAAAAWAA4AAQASAAUAAAAWAA8AAQASAAYAAAAWABAAAQASAAYAAAAWABEAAQASAAYAAAAXAA4AAQASAAUAAAAXAA8AAQASAAYAAAAXABAAAQASAAYAAAAXABEAAQASAAYAAAAYAA4AAQASAAUAAAAYAA8AAQASAAYAAAAYABAAAQASAAYAAAAYABEAAQASAAYAAAAZAA4AAQASAAUAAAAZAA8AAQASAAYAAAAZABAAAQASAAYAAAAZABEAAQASAAYAAAAaAA4AAQASAAUAAAAaAA8AAQASAAYAAAAaABAAAQASAAYAAAAaABEAAQASAAYAAAAbAA4AAQASAAUAAAAbAA8AAQASAAYAAAAbABAAAQASAAYAAAAbABEAAQASAAYAAAAcAA4AAQASAAUAAAAcAA8AAQASAAYAAAAcABAAAQASAAYAAAAcABEAAQASAAYAAAAdAA4AAQASAAUAAAAdAA8AAQASAAYAAAAdABAAAQASAAYAAAAdABEAAQASAAYAAAAeAA4AAQASAAUAAAAeAA8AAQASAAYAAAAeABAAAQASAAYAAAAeABEAAQASAAYAAAAfAA4AAQASAAUAAAAfAA8AAQASAAYAAAAfABAAAQASAAYAAAAfABEAAQASAAYAAAAgAA4AAQASAAUAAAAgAA8AAQASAAYAAAAgABAAAQASAAYAAAAgABEAAQASAAYAAAAhAA4AAQASAAUAAAAhAA8AAQASAAYAAAAhABAAAQASAAYAAAAhABEAAQASAAYAAAAiAA4AAQASAAUAAAAiAA8AAQASAAYAAAAiABAAAQASAAYAAAAiABEAAQASAAYAAAAjAA4AAQASAAUAAAAjAA8AAQASAAYAAAAjABAAAQASAAYAAAAjABEAAQASAAYAAAAkAA4AAQASAAUAAAAkAA8AAQASAAYAAAAkABAAAQASAAYAAAAkABEAAQASAAYAAAAlAA4AAQASAAUAAAAlAA8AAQASAAYAAAAlABAAAQASAAYAAAAlABEAAQASAAYAAAAmAA4AAQASAAUAAAAmAA8AAQASAAYAAAAmABAAAQASAAYAAAAmABEAAQASAAYAAAAnAA4AAQASAAUAAAAnAA8AAQASAAYAAAAnABAAAQASAAYAAAAnABEAAQASAAYAAAAoAA4AAQASAAUAAAAoAA8AAQASAAYAAAAoABAAAQASAAYAAAAoABEAAQASAAYAAAApAA4AAQASAAUAAAApAA8AAQASAAYAAAApABAAAQASAAYAAAApABEAAQASAAYAAAAqAA4AAQASAAUAAAAqAA8AAQASAAYAAAAqABAAAQASAAYAAAAqABEAAQASAAYAAAArAA4AAQASAAUAAAArAA8AAQASAAYAAAArABAAAQASAAYAAAArABEAAQASAAYAAAAsAA4AAQASAAUAAAAsAA8AAQASAAYAAAAsABAAAQASAAYAAAAsABEAAQASAAYAAAAtAA4AAQASAAUAAAAtAA8AAQASAAYAAAAtABAAAQASAAYAAAAtABEAAQASAAYAAAAuAA4AAQASAAUAAAAuAA8AAQASAAYAAAAuABAAAQASAAYAAAAuABEAAQASAAYAAAAvAA4AAQASAAUAAAAvAA8AAQASAAYAAAAvABAAAQASAAYAAAAvABEAAQASAAYAAAAwAA4AAQASAAUAAAAwAA8AAQASAAYAAAAwABAAAQASAAYAAAAwABEAAQASAAYAAAAxAA4AAQASAAUAAAAxAA8AAQASAAYAAAAxABAAAQASAAYAAAAxABEAAQASAAYAAAAyAA4AAQASAAUAAAAyAA8AAQASAAYAAAAyABAAAQASAAYAAAAyABEAAQASAAYAAAAzAA4AAQASAAUAAAAzAA8AAQASAAYAAAAzABAAAQASAAYAAAAzABEAAQASAAYAAAA0AA4AAQASAAUAAAA0AA8AAQASAAYAAAA0ABAAAQASAAYAAAA0ABEAAQASAAYAAAA1AA4AAQASAAUAAAA1AA8AAQASAAYAAAA1ABAAAQASAAYAAAA1ABEAAQASAAYAAAA2AA4AAQASAAUAAAA2AA8AAQASAAYAAAA2ABAAAQASAAYAAAA2ABEAAQASAAYAAAA3AA4AAQATAAUAAAA3AA8AAQATAAYAAAA3ABAAAQATAAYAAAA3ABEAAQATAAYAAAA=")
-tile_set = ExtResource("6_dopnk")
-
-[node name="Killzone" parent="." instance=ExtResource("8_h1r0l")]
-position = Vector2(447, 343)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
-shape = SubResource("WorldBoundaryShape2D_p57ef")
-debug_color = Color(0.9764706, 0, 0, 0.75686276)
-
-[node name="Platforms" type="Node2D" parent="."]
-
-[node name="Players" type="Node2D" parent="."]
-
-[node name="Enemies" type="Node2D" parent="."]
-
-[node name="Projectiles" type="Node2D" parent="."]
-
-[node name="ItemDrops" type="Node2D" parent="."]
-
-[node name="GlobalDropHandler" type="Control" parent="."]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_right = 1152.0
-offset_bottom = 648.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 1
-script = ExtResource("10_12i4d")
-
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="PortalToDustWarren" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(48, 208)
-target_map_id = "dust_warren"
-target_spawn_point_name = "DustWarren_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(72, 212)
-
-[node name="PortalToUndercroft" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(720, 208)
-target_map_id = "the_undercroft"
-target_spawn_point_name = "Undercroft_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_Undercroft_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(696, 212)
-
-[node name="PortalToDeepWoods" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(160, 208)
-target_map_id = "deep_woods"
-target_spawn_point_name = "DeepWoods_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(184, 212)
-
-[node name="PortalToKeep" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(864, 208)
-target_map_id = "keep"
-target_spawn_point_name = "Keep_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(840, 212)
+sources/3 = SubResource("GenSlopeAtlas")
+sources/4 = SubResource("TileSetAtlasSource_yw7pp")

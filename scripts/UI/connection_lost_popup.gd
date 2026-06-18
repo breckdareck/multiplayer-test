@@ -43,7 +43,7 @@ func _on_reconnect_failed():
 func _on_return_to_login():
 	_cleanup_signals()
 	visible = false
-	get_tree().change_scene_to_file("res://scenes/UI/LoginScreen.tscn")
+	get_tree().change_scene_to_file("res://scenes/Screens/LoginScreen.tscn")
 
 func _cleanup_signals():
 	if ClientManager.connection_succeeded.is_connected(_on_reconnect_success):
