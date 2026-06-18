@@ -44,6 +44,7 @@ const ENTITY_LIFT := 5.0
 var _player: Node = null
 var _map_instance: Node = null
 var _layer: TileMapLayer = null
+var _plat_layer: TileMapLayer = null   ## one-way Platform layer (shelves / drop-downs)
 ## World-space rect of the current map's painted terrain (the playfield extent).
 var _world_bounds: Rect2 = Rect2()
 ## Surface-cell top-left corners in WORLD space (recomputed only on map change).
@@ -81,6 +82,7 @@ func _refresh_map() -> void:
 	_map_instance = MapManager.current_map_instance
 	_title = MapManager.MAP_DISPLAY_NAMES.get(MapManager.current_map_id, MapManager.current_map_id)
 	_layer = null
+	_plat_layer = null
 	_terrain_world = PackedVector2Array()
 	_world_bounds = Rect2()
 	if not is_instance_valid(_map_instance):
@@ -88,6 +90,8 @@ func _refresh_map() -> void:
 		return
 	if _map_instance is MapBase:
 		_layer = (_map_instance as MapBase)._find_playable_tilemap_layer(_map_instance)
+		if _layer:
+			_plat_layer = _layer.get_parent().get_node_or_null("Platform")
 	_compute_terrain()
 	queue_redraw()
 
@@ -107,6 +111,10 @@ func _compute_terrain() -> void:
 	var ts: Vector2 = Vector2(_layer.tile_set.tile_size)
 	_tile_size = ts
 	var cells: Array[Vector2i] = _layer.get_used_cells()
+	# Include the one-way Platform layer (shelves / drop-down platforms), not just Mid, so the
+	# minimap silhouette shows every standable surface.
+	if _plat_layer != null:
+		cells.append_array(_plat_layer.get_used_cells())
 	if cells.is_empty():
 		return
 	# Keep only WALKABLE SURFACES — a tile with empty space directly above it is a

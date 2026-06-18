@@ -73,7 +73,7 @@ const DEFAULT_MAP = "lanterns_rest"
 ## Safe hearth (town) maps, in priority order. Single source of truth for "where
 ## is safe" — used by Hearthstone/Town-Scroll teleports (nearest-hearth BFS) and
 ## the world map's town styling. Add a town here when you add one.
-const HEARTH_MAPS: Array[String] = ["lanterns_rest", "emberwatch"]
+const HEARTH_MAPS: Array[String] = ["lanterns_rest", "emberwatch", "ashvigil"]
 
 
 ## Themed name for a map_id (falls back to the raw id for unknown maps).
