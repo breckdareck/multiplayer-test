@@ -991,6 +991,15 @@ func _remove_player_from_map(player_id: int, map_id: String):
 	# CRITICAL: Hide this map from the player BEFORE removing them
 	# This prevents "Node not found" errors during map transitions
 	if player_id in active_maps[map_id].player_ids:
+		# Rebuild the synchronizer list FIRST: item drops (and pooled enemies)
+		# spawn into the map AFTER the cache was last built, and spawning them does
+		# NOT invalidate it. Hiding off a stale cache leaves those dynamic
+		# synchronizers visible to the departing peer, so the server keeps
+		# replicating them to a client that has already freed the old map —
+		# spamming "Node not found ... /ItemDrops/Item_.../MultiplayerSynchronizer".
+		# (The join + reparent paths already invalidate before their visibility
+		# pass; this is the one leave path that didn't.)
+		invalidate_synchronizer_cache(map_instance)
 		_set_visibility_for_node(map_instance, player_id, false)
 		#print("MapManager: Hid map '%s' from player %d before removal" % [map_id, player_id])
 	

@@ -922,7 +922,11 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 			# map-transition; route the cast visual through MapManager instead.
 			_broadcast_bot_ability_visual(ability_id, level_stats.level)
 		else:
-			ability_used_client.rpc(ability_id, cooldown_duration)
+			# Route the cast visual/cooldown to same-map real peers only. A blanket
+			# .rpc() also hits clients on another map who lack this node (the error
+			# in the bug report). The host already ran its own cooldown/visual
+			# bookkeeping in _handle_authoritative_use above, so it's skipped.
+			_broadcast_ability_rpc_to_map(func(pid: int): ability_used_client.rpc_id(pid, ability_id, cooldown_duration))
 
 		# PR 4 fix (2026-05-28): cast XP grant moved to combat.gd._execute_hit
 		# so it only fires when the ability actually LANDS a hit on an enemy.
@@ -941,6 +945,23 @@ func _handle_authoritative_use(ability_id: String, ability: AbilityData, level_s
 func _broadcast_bot_ability_visual(ability_id: String, level: int) -> void:
 	var map_name: String = MapManager.get_player_map(owner.player_id)
 	MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.bot_ability_used.rpc_id(peer_id, owner.player_id, ability_id, level), true, true)
+
+
+## Sends a node-addressed AbilityComponent RPC to ONLY the real peers currently
+## on this player's map (the host is skipped — it has already applied the
+## authoritative state directly before calling this). A blanket `.rpc()` also
+## targets peers who don't have this node — players on another map, or mid
+## map-transition — which spams "Node not found ... /Players/<id>/Components/
+## Ability" RPC errors on those peers. Mirrors the same-map routing appearance.gd
+## and the bot-cast path above already use. `fn` receives the peer id and should
+## issue the matching `<rpc_name>.rpc_id(pid, ...)`.
+func _broadcast_ability_rpc_to_map(fn: Callable) -> void:
+	if not multiplayer.is_server():
+		return
+	var map_id: String = MapManager.get_player_map(owner.player_id)
+	if map_id.is_empty():
+		return
+	MapManager.broadcast_to_map(map_id, fn, true, true)
 
 
 ## Triggers the state machine transition and custom logic for an active ability.
@@ -1068,8 +1089,10 @@ func _level_up_ability_local(ability_id: String) -> bool:
 	# Sync changes to clients (bots have no client UI — skip to avoid a
 	# node-addressed RPC failing on clients that lack the bot node).
 	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		sync_ability_level.rpc(ability_id, current_level + 1)
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		var new_level: int = current_level + 1
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_level.rpc_id(pid, ability_id, new_level))
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
 
 	return true
 
@@ -1097,7 +1120,7 @@ func _learn_ability_local(ability_id: String, initial_level: int = 0, send_rpc: 
 	##print("Learned ability: %s at level %d" % [ability.ability_name, initial_level])
 	
 	if send_rpc and multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		sync_ability_learned.rpc(ability_id, initial_level)
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_learned.rpc_id(pid, ability_id, initial_level))
 	
 	return true
 
@@ -1126,7 +1149,8 @@ func _add_ability_points(amount: int, discipline_key: String = "") -> void:
 	ability_points_changed.emit(key, int(_available_points_per_discipline[key]))
 
 	if multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
 
 
 func _execute_proc(proc: ProcEffectData, target: Node, context: Dictionary) -> void:
@@ -1771,10 +1795,13 @@ func end_bulk_edit() -> void:
 	for key in _available_points_per_discipline:
 		ability_points_changed.emit(key, int(_available_points_per_discipline.get(key, 0)))
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server() and not BotManager.is_bot(owner.player_id):
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
-		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		var upgrades_copy: Dictionary = _learned_upgrades.duplicate(true)
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_learned_upgrades.rpc_id(pid, upgrades_copy))
 		for ability_id in _bulk_touched_abilities:
-			sync_ability_learned.rpc(ability_id, int(_ability_levels.get(ability_id, 0)))
+			var lvl: int = int(_ability_levels.get(ability_id, 0))
+			_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_learned.rpc_id(pid, ability_id, lvl))
 	_bulk_touched_abilities.clear()
 #endregion
 
@@ -1986,8 +2013,10 @@ func _purchase_upgrade_local(ability_id: String, upgrade_id: String) -> bool:
 
 	# Sync to clients (skip for bots — no client UI).
 	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
-		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		var upgrades_copy: Dictionary = _learned_upgrades.duplicate(true)
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_learned_upgrades.rpc_id(pid, upgrades_copy))
 
 	return true
 
@@ -2238,9 +2267,12 @@ func _finalize_respec(disc_keys: Array, reset_ids: Array) -> void:
 		ability_leveled_up.emit(ability_id, int(_ability_levels.get(ability_id, 0)))
 	if multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
 		for ability_id in reset_ids:
-			sync_ability_level.rpc(ability_id, int(_ability_levels.get(ability_id, 0)))
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
-		sync_learned_upgrades.rpc(_learned_upgrades.duplicate(true))
+			var lvl: int = int(_ability_levels.get(ability_id, 0))
+			_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_level.rpc_id(pid, ability_id, lvl))
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		var upgrades_copy: Dictionary = _learned_upgrades.duplicate(true)
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_learned_upgrades.rpc_id(pid, upgrades_copy))
 
 
 ## Safety net (PR 6): recompute each discipline's UNUSED point pool from first
@@ -2276,7 +2308,8 @@ func reconcile_ability_points(do_sync: bool = true) -> void:
 	for key in changed:
 		ability_points_changed.emit(key, int(_available_points_per_discipline[key]))
 	if do_sync and multiplayer.has_multiplayer_peer() and not BotManager.is_bot(owner.player_id):
-		sync_ability_points_per_discipline.rpc(_available_points_per_discipline.duplicate())
+		var pools_copy: Dictionary = _available_points_per_discipline.duplicate()
+		_broadcast_ability_rpc_to_map(func(pid: int): sync_ability_points_per_discipline.rpc_id(pid, pools_copy))
 
 
 ## Non-mutating sum of points SPENT in a discipline: every ability's level
