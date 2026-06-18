@@ -1176,18 +1176,10 @@ target_spawn_point_name = "Thornroot_Mines_Portal_Spawn"
 [node name="Mines_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToDustWarren" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(2249, -285)
-target_map_id = "dust_warren"
-target_spawn_point_name = "DustWarren_Mines_Portal_Spawn"
-
-[node name="Mines_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(2225, -281)
-
-[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToUndercroft" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(2249, 131)
-target_map_id = "emberwatch"
-target_spawn_point_name = "Emberwatch_Mines_Portal_Spawn"
+target_map_id = "the_undercroft"
+target_spawn_point_name = "Undercroft_Mines_Portal_Spawn"
 
-[node name="Mines_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Mines_Undercroft_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(2225, 135)

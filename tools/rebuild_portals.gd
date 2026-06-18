@@ -5,26 +5,39 @@ extends SceneTree
 ## ordered left->right by destination level (walk right to progress). Arrival/target names follow
 ## the <ThisToken>_<OtherToken>_Portal_Spawn convention. Verify with the print + a grep after.
 const PORTAL_UID := "uid://brfb5t5im33fl"
+# HYBRID world (2026-06-17): early game forks into two parallel roads (high "delve" /
+# low "overland trail") that rejoin at Emberwatch; the late game is a single deepening
+# road with one short fork (Deep Woods / Warded Keep). Two intentional loops, no field
+# meshes. Symmetric adjacency — every edge appears on both endpoints.
 const GRAPH := {
-	"lanterns_rest": ["near_wilds", "meadow_path", "ember_meadows"],
-	"near_wilds": ["lanterns_rest", "meadow_path", "ember_meadows"],
-	"meadow_path": ["lanterns_rest", "near_wilds", "ember_meadows"],
-	"ember_meadows": ["lanterns_rest", "near_wilds", "meadow_path", "ruins"],
-	"ruins": ["ember_meadows", "three_terraces", "thornroot", "old_battlefield"],
-	"three_terraces": ["ruins", "thornroot", "old_battlefield"],
-	"old_battlefield": ["ruins", "three_terraces", "thornroot"],
-	"thornroot": ["ruins", "three_terraces", "old_battlefield", "dust_warren", "mines"],
-	"dust_warren": ["thornroot", "mines"],
-	"mines": ["thornroot", "dust_warren", "emberwatch"],
-	"emberwatch": ["mines", "deep_woods", "keep"],
-	"deep_woods": ["emberwatch", "keep"],
-	"keep": ["emberwatch", "deep_woods", "emberscar", "mustering_fields"],
-	"mustering_fields": ["keep", "emberscar"],
-	"emberscar": ["keep", "mustering_fields", "cinderwaste", "ashvigil"],
-	"cinderwaste": ["emberscar", "ashvigil", "weave"],
-	"ashvigil": ["emberscar", "cinderwaste", "weave"],
-	"weave": ["cinderwaste", "ashvigil", "warlord"],
-	"warlord": ["weave"],
+	# --- Early road A: the delve (ruins -> underground) ---
+	"lanterns_rest": ["ember_meadows", "near_wilds"],
+	"ember_meadows": ["lanterns_rest", "ruins"],
+	"ruins": ["ember_meadows", "old_battlefield"],
+	"old_battlefield": ["ruins", "thornroot"],
+	"thornroot": ["old_battlefield", "mines"],
+	"mines": ["thornroot", "the_undercroft"],
+	"the_undercroft": ["mines", "emberwatch"],
+	# --- Early road B: the overland trail (wilds -> bandit country) ---
+	"near_wilds": ["lanterns_rest", "bramble_downs", "meadow_path"],
+	"bramble_downs": ["near_wilds", "three_terraces"],
+	"three_terraces": ["bramble_downs", "bandit_bluffs"],
+	"bandit_bluffs": ["three_terraces", "dust_warren"],
+	"dust_warren": ["bandit_bluffs", "emberwatch"],
+	"meadow_path": ["near_wilds"],                                  # dead-end grind pocket
+	# --- Forward Hearth + the late fork ---
+	"emberwatch": ["the_undercroft", "dust_warren", "deep_woods", "keep"],
+	"deep_woods": ["emberwatch", "mustering_fields"],
+	"keep": ["emberwatch", "mustering_fields"],
+	# --- Late single deepening road to the wound ---
+	"mustering_fields": ["deep_woods", "keep", "the_scorchline"],
+	"the_scorchline": ["mustering_fields", "emberscar"],
+	"emberscar": ["the_scorchline", "ashvigil"],
+	"ashvigil": ["emberscar", "cinderwaste"],
+	"cinderwaste": ["ashvigil", "weave"],
+	"weave": ["cinderwaste", "the_unraveling"],
+	"the_unraveling": ["weave", "warlord"],
+	"warlord": ["the_unraveling"],
 }
 const TOKEN := {
 	"lanterns_rest": "LanternsRest", "near_wilds": "NearWilds", "meadow_path": "Meadow",
@@ -34,13 +47,17 @@ const TOKEN := {
 	"emberscar": "Emberscar", "weave": "Weave", "warlord": "Warlord",
 	"old_battlefield": "OldBattlefield", "mustering_fields": "MusteringFields",
 	"ashvigil": "Ashvigil", "cinderwaste": "Cinderwaste",
+	"bramble_downs": "Bramble", "bandit_bluffs": "BanditBluffs",
+	"the_undercroft": "Undercroft", "the_scorchline": "Scorchline",
+	"the_unraveling": "Unraveling",
 }
 const LEVEL := {
 	"lanterns_rest": 0, "near_wilds": 5, "meadow_path": 5, "ember_meadows": 10,
-	"ruins": 20, "three_terraces": 23, "thornroot": 33, "dust_warren": 40,
-	"mines": 44, "emberwatch": 48, "deep_woods": 55, "keep": 58,
-	"emberscar": 75, "weave": 90, "warlord": 100,
-	"old_battlefield": 24, "mustering_fields": 64, "ashvigil": 78, "cinderwaste": 85,
+	"bramble_downs": 12, "ruins": 20, "three_terraces": 23, "old_battlefield": 24,
+	"bandit_bluffs": 30, "thornroot": 33, "dust_warren": 40, "mines": 44,
+	"the_undercroft": 46, "emberwatch": 48, "deep_woods": 55, "keep": 58,
+	"mustering_fields": 64, "the_scorchline": 70, "emberscar": 75, "ashvigil": 78,
+	"cinderwaste": 85, "weave": 90, "the_unraveling": 94, "warlord": 100,
 }
 
 func _init() -> void:

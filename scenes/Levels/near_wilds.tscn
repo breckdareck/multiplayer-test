@@ -937,10 +937,10 @@ target_spawn_point_name = "Meadow_NearWilds_Portal_Spawn"
 [node name="NearWilds_Meadow_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1617, 39)
 
-[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1753, 147)
-target_map_id = "ember_meadows"
-target_spawn_point_name = "EmberMeadows_NearWilds_Portal_Spawn"
+target_map_id = "bramble_downs"
+target_spawn_point_name = "Bramble_NearWilds_Portal_Spawn"
 
-[node name="NearWilds_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
+[node name="NearWilds_Bramble_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1729, 151)

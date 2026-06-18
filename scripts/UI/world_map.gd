@@ -11,25 +11,40 @@ extends Control
 
 const CATALOG_PATH := "res://config/world_map_data.json"
 
-## Normalized [0..1] node positions within the content rect: a left→right spine
-## with the two side-pockets (Slime Meadow, Windmill Terraces) dangling below
-## their parent. Presentation only — edges come from the real connection graph.
+## Normalized [0..1] node positions within the content rect, laid out as the HYBRID world:
+## two parallel EARLY roads (high "delve" row ~0.30 / low "overland" row ~0.66) that fork from
+## Lantern's Rest and rejoin at Emberwatch, then a single LATE spine (~0.48) with the Deep Woods /
+## Warded Keep fork, ending at the Sundered Heart. Presentation only — edges come from the real
+## connection graph. ADD EVERY NEW MAP HERE, or it won't render (it would pile at the centre).
 const LAYOUT := {
-	"lanterns_rest":  Vector2(0.05, 0.42),
-	"near_wilds":     Vector2(0.125, 0.42),
-	"ember_meadows":  Vector2(0.20, 0.42),
-	"meadow_path":    Vector2(0.20, 0.72),
-	"ruins":          Vector2(0.275, 0.42),
-	"three_terraces": Vector2(0.275, 0.72),
-	"thornroot":      Vector2(0.35, 0.42),
-	"dust_warren":    Vector2(0.425, 0.42),
-	"mines":          Vector2(0.50, 0.42),
-	"emberwatch":     Vector2(0.575, 0.42),
-	"deep_woods":     Vector2(0.65, 0.42),
-	"keep":           Vector2(0.725, 0.42),
-	"emberscar":      Vector2(0.80, 0.42),
-	"weave":          Vector2(0.875, 0.42),
-	"warlord":        Vector2(0.95, 0.42),
+	"lanterns_rest":   Vector2(0.04, 0.48),
+	# --- Early road A: the delve (high row) ---
+	"ember_meadows":   Vector2(0.10, 0.30),
+	"ruins":           Vector2(0.16, 0.30),
+	"old_battlefield": Vector2(0.22, 0.30),
+	"thornroot":       Vector2(0.28, 0.30),
+	"mines":           Vector2(0.34, 0.30),
+	"the_undercroft":  Vector2(0.40, 0.30),
+	# --- Early road B: the overland trail (low row) ---
+	"near_wilds":      Vector2(0.10, 0.66),
+	"bramble_downs":   Vector2(0.16, 0.66),
+	"three_terraces":  Vector2(0.22, 0.66),
+	"bandit_bluffs":   Vector2(0.28, 0.66),
+	"dust_warren":     Vector2(0.34, 0.66),
+	"meadow_path":     Vector2(0.10, 0.84),    # dead-end pocket below Near-Wilds
+	# --- Forward Hearth + late fork ---
+	"emberwatch":      Vector2(0.46, 0.48),
+	"deep_woods":      Vector2(0.52, 0.32),
+	"keep":            Vector2(0.52, 0.64),
+	# --- Late deepening spine to the wound ---
+	"mustering_fields":Vector2(0.58, 0.48),
+	"the_scorchline":  Vector2(0.64, 0.48),
+	"emberscar":       Vector2(0.70, 0.48),
+	"ashvigil":        Vector2(0.76, 0.48),
+	"cinderwaste":     Vector2(0.82, 0.48),
+	"weave":           Vector2(0.88, 0.48),
+	"the_unraveling":  Vector2(0.93, 0.48),
+	"warlord":         Vector2(0.975, 0.48),
 }
 # Hearth (safe town) maps come from MapManager.HEARTH_MAPS — single source of
 # truth shared with Hearthstone/Town-Scroll teleport targeting.

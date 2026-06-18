@@ -15,7 +15,7 @@ extends SceneTree
 #       --script res://tools/dump_world_map.gd --log-file tools/dump.log
 
 const OUT := "res://config/world_map_data.json"
-const SKIP := ["main_menu", "map_template", "village_background", "village_background_dark"]
+const SKIP := ["main_menu", "map_template", "village_background", "village_background_dark", "gen_open", "gen_tower", "gen_cliffs"]
 
 ## item name -> {icon: <texture res path>, level: int}; built from resources/Items.
 var _item_index: Dictionary = {}

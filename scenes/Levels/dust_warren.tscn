@@ -884,18 +884,18 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToBanditBluffs" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
+target_map_id = "bandit_bluffs"
+target_spawn_point_name = "BanditBluffs_DustWarren_Portal_Spawn"
 
-[node name="DustWarren_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+[node name="DustWarren_BanditBluffs_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1929, 83)
-target_map_id = "mines"
-target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
+target_map_id = "emberwatch"
+target_spawn_point_name = "Emberwatch_DustWarren_Portal_Spawn"
 
-[node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
+[node name="DustWarren_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1905, 87)

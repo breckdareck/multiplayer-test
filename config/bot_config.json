@@ -171,6 +171,26 @@
     "cinderwaste": {
       "min_level": 83,
       "max_level": 88
+    },
+    "bramble_downs": {
+      "min_level": 10,
+      "max_level": 16
+    },
+    "bandit_bluffs": {
+      "min_level": 28,
+      "max_level": 34
+    },
+    "the_undercroft": {
+      "min_level": 44,
+      "max_level": 48
+    },
+    "the_scorchline": {
+      "min_level": 66,
+      "max_level": 72
+    },
+    "the_unraveling": {
+      "min_level": 92,
+      "max_level": 96
     }
   }
 }

@@ -46,12 +46,41 @@ const CLIFFS_LADDERS := [
 ]
 
 func _init() -> void:
-	# Remake the 4 branching-fill maps with the real generator (rolling sloped ground + auto safe
-	# platforms + ropes + pooled spawners), replacing the awful build_map.gd versions.
-	for cfg in _wave_new():
-		_emit(_build_field(cfg))
-		print("WROTE ", cfg["name"])
+	# Five new gap-filler maps for the hybrid world (2026-06-17), each on a DISTINCT archetype
+	# (open tiers / cave / cliffs / tower / dark-open) so the road stops feeling same-y. Portals
+	# are wired separately by tools/rebuild_portals.gd, so the configs omit them.
+	for cfg in _wave_v2():
+		var m: Dictionary
+		match str(cfg.get("arch", "field")):
+			"open": m = _build_open(cfg)
+			"cave": m = _build_cave(cfg)
+			"cliffs": m = _build_cliffs(cfg)
+			"tower": m = _build_tower(cfg)
+			_: m = _build_field(cfg)
+		_emit(m)
+		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
 	quit()
+
+## The 5 hybrid-world gap-fillers, each tagged with the archetype it should be BUILT on so no
+## two adjacent maps read the same. monsters: [[scene_path, uid, pool], ...].
+func _wave_v2() -> Array:
+	return [
+		{"name": "bramble_downs", "arch": "open", "seed": 1501, "amp": 2, "width": 96,
+			"display_name": "Bramble Downs", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8], ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 7], ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 7], ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 8]]},
+		{"name": "the_undercroft", "arch": "cave", "seed": 1601, "width": 104,
+			"display_name": "The Undercroft", "bgm": "res://assets/music/emberwilds_mines.ogg",
+			"monsters": [["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 9], ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8], ["res://scenes/NPC/Beastmen/rabbit_wizard.tscn", "uid://dppxdoxl4kf2k", 8]]},
+		{"name": "bandit_bluffs", "arch": "cliffs", "seed": 1701, "width": 92,
+			"display_name": "Bandit Bluffs", "bgm": "res://assets/music/emberwilds_dust_warren.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd", 8], ["res://scenes/NPC/Beastmen/fox_swordsman.tscn", "uid://cdl2mfbs8qlub", 8], ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 8]]},
+		{"name": "the_scorchline", "arch": "tower", "seed": 1801, "width": 52,
+			"display_name": "The Scorchline", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/lion_knight.tscn", "uid://dqirvq2t4dhx6", 8], ["res://scenes/NPC/Minifolks/runed_boar.tscn", "uid://tbl7yfcl3xwe", 8], ["res://scenes/NPC/fire_slime.tscn", "uid://bvjs3vxpdjkfj", 8]]},
+		{"name": "the_unraveling", "arch": "open", "dark": true, "seed": 1901, "amp": 2, "width": 90,
+			"display_name": "The Unraveling", "bgm": "res://assets/music/emberwilds_weave.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/celestial_hare.tscn", "uid://cywi7283fngxu", 9], ["res://scenes/NPC/astral_slime.tscn", "uid://5oi0b5vosx3q", 8]]},
+	]
 
 ## The 4 maps added for branching (2026-06-17). Outdoor rolling fields; ashvigil is a calm safe
 ## hub (no monsters). Portals are wired separately by tools/rebuild_portals.gd, so omit them here.
@@ -146,16 +175,207 @@ func _build_cave(cfg: Dictionary) -> Dictionary:
 		for y in range(bottom + 1):
 			var cell := Vector2i(x, y)
 			if not ground.has(cell): bgwall[cell] = [4, 7]
+	# Explicit spawn spots so enemies sit on the rock ledges + chamber floor (the generic floor
+	# sampler would read the cave CEILING as the surface and spawn enemies up there instead).
+	var spawn_spots := []
+	for lg in ledges: spawn_spots.append(Vector2i(int(lg[0]), int(lg[1])))
+	var fcx := PORTAL_SPAWN_BUFFER + 4
+	while fcx < width - PORTAL_SPAWN_BUFFER - 4:
+		spawn_spots.append(Vector2i(fcx, int(fsurf[fcx]))); fcx += 10
 	var d := {
-		"bgwall": bgwall, "rock_top": true,
+		"bgwall": bgwall, "rock_top": true, "spawn_spots": spawn_spots,
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
 		"safe_rows": [], "ladders": ladders, "player_spawn": Vector2i(11, base_r - 9),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
-		"ceiling_below": base_r - 16, "no_trees": true, "no_village_bg": true,
+		"ceiling_below": base_r - 16, "no_trees": true, "no_village_bg": true, "no_deco": true,
 	}
 	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
 	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	return d
+
+## OPEN archetype (Henesys field): rolling floor + a left enemy-free spawn perch + THREE tiers
+## of floating one-way fighting shelves linked bottom-to-top by ropes/ladders. `dark` renders it
+## as bare rock over a black void (the astral / wound theme) instead of grassy field.
+func _build_open(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 14
+	var ground := {}; var plat := {}; var slopes := {}
+	var surf := _rolling_floor(width, bottom, base_r, int(cfg.get("amp", 2)), int(cfg["seed"]), ground, slopes)
+	# Left safe perch (its own row so it never overlaps a fighting tier): spawn + AFK/heal spot.
+	var safe_row := base_r - 4
+	_shelf(plat, surf, safe_row, [[6, 15]])
+	# Three fighting tiers floating above the field, scaled to the map width.
+	var l1 := base_r - 7; var l2 := base_r - 11; var l3 := base_r - 16
+	var a: int = int(width * 0.20); var b: int = int(width * 0.49)
+	var c: int = int(width * 0.55); var dd: int = width - 8
+	_shelf(plat, surf, l1, [[a, b], [c, dd]])
+	_shelf(plat, surf, l2, [[int(width * 0.16), int(width * 0.62)]])
+	_shelf(plat, surf, l3, [[int(width * 0.32), int(width * 0.78)]])
+	# Climbers: spawn-perch rope, floor -> L1 (x2), L1 -> L2, L2 -> L3.
+	var ladders := [
+		[safe_row, int(surf[10]), 10, "rope"],
+		[l1, int(surf[a + 6]), a + 6, "ladder"],
+		[l1, int(surf[dd - 6]), dd - 6, "rope"],
+		[l2, l1, int(width * 0.30), "rope"],
+		[l3, l2, int(width * 0.46), "ladder"],
+	]
+	var d := {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(10, safe_row - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+	if cfg.get("dark", false):                       # astral void treatment
+		d["rock_top"] = true; d["no_trees"] = true; d["no_village_bg"] = true; d["no_deco"] = true
+		var bgwall := {}
+		for x in range(width):
+			for y in range(bottom + 1):
+				var cell := Vector2i(x, y)
+				if not ground.has(cell): bgwall[cell] = [4, 7]
+		d["bgwall"] = bgwall
+	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
+	return d
+
+## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass
+## ramps you walk straight up (no jumping steps). A one-way vantage shelf floats over each wide
+## mesa (enemy-free), reached by a rope/ladder. Seeded so each map's skyline differs.
+func _build_cliffs(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 8
+	var ground := {}; var plat := {}; var slopes := {}
+	var rng := RandomNumberGenerator.new(); rng.seed = int(cfg["seed"])
+	var surf := []; surf.resize(width)
+	for i in range(width): surf[i] = base_r
+	# Plan: base flat, then alternating up-mesa / down-step until the width is roughly spent.
+	var plan := [["flat", base_r, rng.randi_range(8, 11)]]
+	var cur := base_r; var est := int(plan[0][2])
+	while est < width - 12:
+		var up := base_r - rng.randi_range(3, 7)
+		var uf := rng.randi_range(8, 13)
+		plan.append(["ramp", up]); plan.append(["flat", up, uf])
+		est += absi(cur - up) * 2 + uf; cur = up
+		var down := base_r - rng.randi_range(0, 3)
+		var df := rng.randi_range(6, 11)
+		plan.append(["ramp", down]); plan.append(["flat", down, df])
+		est += absi(cur - down) * 2 + df; cur = down
+	plan.append(["flat", base_r - rng.randi_range(0, 2), 999])   # fill the right edge
+	# Execute the plan into surf/slopes, recording each ELEVATED flat mesa span [start, end, row].
+	var mesas := []
+	var x := 0; cur = base_r
+	for step in plan:
+		if x >= width: break
+		if step[0] == "flat":
+			cur = int(step[1])
+			var sx := x
+			for _i in range(int(step[2])):
+				if x >= width: break
+				surf[x] = cur; x += 1
+			if cur < base_r: mesas.append([sx, x - 1, cur])
+		else:
+			var target := int(step[1])
+			var goup := target < cur
+			for _s in range(absi(cur - target)):
+				if x + 1 >= width: break
+				if goup:
+					var row := cur - 1
+					slopes[Vector2i(x, row)] = SLOPE_UR_LOW
+					slopes[Vector2i(x + 1, row)] = SLOPE_UR_HIGH
+					surf[x] = row; surf[x + 1] = row; cur = row
+				else:
+					slopes[Vector2i(x, cur)] = SLOPE_UL_HIGH
+					slopes[Vector2i(x + 1, cur)] = SLOPE_UL_LOW
+					surf[x] = cur; surf[x + 1] = cur; cur += 1
+				x += 2
+	for col in range(width):
+		for y in range(surf[col], bottom + 1): ground[Vector2i(col, y)] = true
+	# A vantage shelf + climber over every wide mesa; all vantages stay enemy-free.
+	var ladders := []; var safe_rows := []
+	var pspawn := Vector2i(5, base_r - 1)
+	for i in mesas.size():
+		var mz = mesas[i]
+		if mz[1] - mz[0] + 1 < 5: continue
+		var srow: int = int(mz[2]); var shelf_row: int = srow - 6
+		var s0: int = mz[0] + 1; var s1: int = mz[1] - 1
+		_shelf(plat, surf, shelf_row, [[s0, s1]])
+		var lc: int = int((s0 + s1) / 2.0)
+		ladders.append([shelf_row, srow, lc, "rope" if i % 2 == 0 else "ladder"])
+		safe_rows.append(shelf_row)
+		if pspawn.x == 5: pspawn = Vector2i(lc, shelf_row - 1)   # spawn on the first vantage
+	var d := {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": safe_rows, "ladders": ladders, "player_spawn": pspawn,
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+	if cfg.get("dark", false): d["rock_top"] = true; d["no_trees"] = true
+	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
+	return d
+
+## TOWER archetype (Forest-of-Ellinia): an organic vertical climb of floating branch platforms
+## at varied lengths / heights, linked bottom-to-top by ropes; a solid base floor (the spawn)
+## with a dark void behind the canopy. Top branch is the enemy-free perch. Seeded per map.
+func _build_tower(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var bottom := 55
+	var floor_y := bottom - 4
+	var ground := {}; var plat := {}
+	var rng := RandomNumberGenerator.new(); rng.seed = int(cfg["seed"])
+	for x in range(width):
+		for y in range(floor_y, bottom + 1): ground[Vector2i(x, y)] = true
+	var branches := []                                # [x0, x1, row], bottom-up
+	var cur_x := rng.randi_range(4, 12)
+	var cur_y := floor_y - rng.randi_range(4, 6)
+	while cur_y > 9:
+		var ln := rng.randi_range(16, 26)
+		var x0 := clampi(cur_x, 2, width - 3 - ln)
+		_seg(plat, x0, x0 + ln, cur_y)
+		branches.append([x0, x0 + ln - 1, cur_y])
+		if rng.randf() < 0.35:                         # same-level side off-shoot for fullness
+			var sl := rng.randi_range(6, 10)
+			var sdir := 1 if rng.randf() < 0.5 else -1
+			var sbase := (x0 + ln) if sdir > 0 else (x0 - sl)
+			var sx := clampi(sbase + sdir * rng.randi_range(1, 5), 2, width - 3 - sl)
+			var _oy := rng.randi_range(0, 2)
+			_seg(plat, sx, sx + sl, cur_y)
+		var dy := rng.randi_range(4, 6)
+		var ny := cur_y - dy
+		var dir := 0
+		if x0 < int(width * 0.35): dir = 1
+		elif x0 > int(width * 0.55): dir = -1
+		else: dir = 1 if rng.randf() < 0.5 else -1
+		cur_x = clampi(x0 + dir * rng.randi_range(11, 20), 2, width - 9)
+		cur_y = ny
+	# Ropes: base floor -> branch 0, then each lower branch -> the one above it.
+	var ladders := []
+	if branches.size() > 0:
+		var b0 = branches[0]
+		ladders.append([int(b0[2]), floor_y, int((b0[0] + b0[1]) / 2.0), "rope"])
+	for i in range(1, branches.size()):
+		var up = branches[i]; var lo = branches[i - 1]
+		var ov0: int = maxi(int(up[0]), int(lo[0])); var ov1: int = mini(int(up[1]), int(lo[1]))
+		var col: int = int((ov0 + ov1) / 2.0) if ov0 <= ov1 else clampi(int((up[0] + up[1]) / 2.0), int(up[0]), int(up[1]))
+		ladders.append([int(up[2]), int(lo[2]), col, "rope"])
+	var safe_rows := []
+	if branches.size() > 0: safe_rows.append(int(branches[branches.size() - 1][2]))
+	var bgwall := {}
+	for x in range(width):
+		for y in range(bottom + 1):
+			var cell := Vector2i(x, y)
+			if not ground.has(cell): bgwall[cell] = [4, 7]
+	var d := {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": safe_rows, "ladders": ladders, "player_spawn": Vector2i(int(width / 2.0), floor_y - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+		"bgwall": bgwall, "rock_top": true, "no_trees": true, "no_village_bg": true, "no_deco": true,
+	}
+	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
+	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
 	return d
 
 func _wave1() -> Array:
@@ -533,11 +753,12 @@ func _emit(m: Dictionary) -> void:
 	# Decoration scatter (Background2): tufts/barrels/crates on grass-top + platform surfaces.
 	var rng := RandomNumberGenerator.new(); rng.seed = abs(int(str(m["name"]).hash()))
 	var deco := {}
-	for cell in picks:
-		if slopes.has(cell): continue
-		if picks[cell][1] == 5: _try_tuft(deco, cell, ground, plat, rng)
-	for cell in plat:
-		_try_tuft(deco, cell, ground, plat, rng)
+	if not m.get("no_deco", false):
+		for cell in picks:
+			if slopes.has(cell): continue
+			if picks[cell][1] == 5: _try_tuft(deco, cell, ground, plat, rng)
+		for cell in plat:
+			_try_tuft(deco, cell, ground, plat, rng)
 
 	# Trees: only on ground that is LEVEL across the whole trunk+canopy width.
 	var surf_top := {}
@@ -595,20 +816,25 @@ func _emit(m: Dictionary) -> void:
 	# Preview PNG (ground+platform from the tileset, decorations from the props sheet).
 	var sheet := Image.new(); sheet.load(SHEET); sheet.convert(Image.FORMAT_RGBA8)
 	var props := Image.new(); props.load(SHEET2); props.convert(Image.FORMAT_RGBA8)
+	var slope_img := Image.new(); slope_img.load("res://assets/sprites/grass_slopes.png"); slope_img.convert(Image.FORMAT_RGBA8)
 	var img := Image.create(int(m["width"]) * 16, (int(m["bottom"]) + 2) * 16, false, Image.FORMAT_RGBA8)
 	img.fill(Color(0.13, 0.16, 0.22, 1.0))
+	for cell in bgwall:                                   # dark void / cave backdrop behind everything
+		var bt = bgwall[cell]
+		img.blend_rect(sheet, Rect2i(bt[0] * 16, bt[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
 	for cell in deco:
 		var t = deco[cell]
 		img.blend_rect(props, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
 	for cell in picks:
 		if slopes.has(cell): continue
+		if rocktop.has(cell):                             # bare rock surface (rock_top maps)
+			img.blend_rect(slope_img, Rect2i(rocktop[cell][0] * 16, rocktop[cell][1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
+			continue
 		var t = picks[cell]
 		img.blend_rect(sheet, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
-	if not slopes.is_empty():
-		var slope_img := Image.new(); slope_img.load("res://assets/sprites/grass_slopes.png"); slope_img.convert(Image.FORMAT_RGBA8)
-		for cell in slopes:
-			var s: Vector2i = slopes[cell]
-			img.blend_rect(slope_img, Rect2i(s.x * 16, s.y * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
+	for cell in slopes:
+		var s: Vector2i = slopes[cell]
+		img.blend_rect(slope_img, Rect2i(s.x * 16, s.y * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
 	for cell in plat:
 		var t = PLAT[plat[cell]]
 		img.blend_rect(sheet, Rect2i(t[0] * 16, t[1] * 16, 16, 16), Vector2i(cell.x * 16, cell.y * 16))
@@ -678,6 +904,10 @@ func _inject_playable(text: String, m: Dictionary) -> String:
 			var c: int = xs[0] + 2
 			while c <= xs[xs.size() - 1] - 1:
 				spots.append(Vector2i(c, r)); c += 7
+	# Builders that place enemies precisely (cave ledges, etc.) override the sampled spots.
+	if m.has("spawn_spots"):
+		spots = []
+		for s in m["spawn_spots"]: spots.append(s)
 	# One spawner per enemy, each getting a round-robin share of the spots (so every type is
 	# spread across the whole map) plus its own pool_size from the roster.
 	var blk := ""

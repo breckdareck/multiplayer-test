@@ -37,6 +37,11 @@ const MAP_SCENES = {
 	"mustering_fields": "res://scenes/Levels/mustering_fields.tscn",
 	"ashvigil": "res://scenes/Levels/ashvigil.tscn",
 	"cinderwaste": "res://scenes/Levels/cinderwaste.tscn",
+	"bramble_downs": "res://scenes/Levels/bramble_downs.tscn",
+	"bandit_bluffs": "res://scenes/Levels/bandit_bluffs.tscn",
+	"the_undercroft": "res://scenes/Levels/the_undercroft.tscn",
+	"the_scorchline": "res://scenes/Levels/the_scorchline.tscn",
+	"the_unraveling": "res://scenes/Levels/the_unraveling.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -66,6 +71,11 @@ const MAP_DISPLAY_NAMES = {
 	"mustering_fields": "The Mustering Fields",
 	"ashvigil": "Ashvigil",
 	"cinderwaste": "The Cinderwaste",
+	"bramble_downs": "Bramble Downs",
+	"bandit_bluffs": "Bandit Bluffs",
+	"the_undercroft": "The Undercroft",
+	"the_scorchline": "The Scorchline",
+	"the_unraveling": "The Unraveling",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

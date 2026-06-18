@@ -883,26 +883,10 @@ target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
 [node name="Ruins_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1657, 19)
-target_map_id = "three_terraces"
-target_spawn_point_name = "Terraces_Ruins_Portal_Spawn"
-
-[node name="Ruins_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1633, 23)
-
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
+position = Vector2(1737, 131)
 target_map_id = "old_battlefield"
 target_spawn_point_name = "OldBattlefield_Ruins_Portal_Spawn"
 
 [node name="Ruins_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
-
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1737, 131)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_Ruins_Portal_Spawn"
-
-[node name="Ruins_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1713, 135)

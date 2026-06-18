@@ -845,37 +845,13 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_Thornroot_Portal_Spawn"
-
-[node name="Thornroot_Ruins_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
-
-[node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1337, 19)
-target_map_id = "three_terraces"
-target_spawn_point_name = "Terraces_Thornroot_Portal_Spawn"
-
-[node name="Thornroot_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1313, 23)
-
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
+position = Vector2(-71, 131)
 target_map_id = "old_battlefield"
 target_spawn_point_name = "OldBattlefield_Thornroot_Portal_Spawn"
 
 [node name="Thornroot_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
-
-[node name="PortalToDustWarren" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1321, 19)
-target_map_id = "dust_warren"
-target_spawn_point_name = "DustWarren_Thornroot_Portal_Spawn"
-
-[node name="Thornroot_DustWarren_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1297, 23)
+position = Vector2(-47, 135)
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1449, 147)

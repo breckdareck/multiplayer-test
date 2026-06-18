@@ -814,26 +814,18 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_Terraces_Portal_Spawn"
+target_map_id = "bramble_downs"
+target_spawn_point_name = "Bramble_Terraces_Portal_Spawn"
 
-[node name="Terraces_Ruins_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Terraces_Bramble_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1177, 19)
-target_map_id = "old_battlefield"
-target_spawn_point_name = "OldBattlefield_Terraces_Portal_Spawn"
-
-[node name="Terraces_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1153, 23)
-
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToBanditBluffs" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1289, 131)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_Terraces_Portal_Spawn"
+target_map_id = "bandit_bluffs"
+target_spawn_point_name = "BanditBluffs_Terraces_Portal_Spawn"
 
-[node name="Terraces_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Terraces_BanditBluffs_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1265, 135)

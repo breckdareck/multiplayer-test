@@ -887,34 +887,18 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToKeep" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToScorchline" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "keep"
-target_spawn_point_name = "Keep_Emberscar_Portal_Spawn"
+target_map_id = "the_scorchline"
+target_spawn_point_name = "Scorchline_Emberscar_Portal_Spawn"
 
-[node name="Emberscar_Keep_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Emberscar_Scorchline_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1977, 19)
-target_map_id = "mustering_fields"
-target_spawn_point_name = "MusteringFields_Emberscar_Portal_Spawn"
-
-[node name="Emberscar_MusteringFields_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1953, 23)
-
 [node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
+position = Vector2(2089, 179)
 target_map_id = "ashvigil"
 target_spawn_point_name = "Ashvigil_Emberscar_Portal_Spawn"
 
 [node name="Emberscar_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
-
-[node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(2089, 179)
-target_map_id = "cinderwaste"
-target_spawn_point_name = "Cinderwaste_Emberscar_Portal_Spawn"
-
-[node name="Emberscar_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(2065, 183)

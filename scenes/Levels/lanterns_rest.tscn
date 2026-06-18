@@ -1105,14 +1105,6 @@ target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
 [node name="LanternsRest_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-152, -604)
 
-[node name="PortalToMeadow" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(176, -672)
-target_map_id = "meadow_path"
-target_spawn_point_name = "Meadow_LanternsRest_Portal_Spawn"
-
-[node name="LanternsRest_Meadow_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(152, -668)
-
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(224, -608)
 target_map_id = "ember_meadows"
