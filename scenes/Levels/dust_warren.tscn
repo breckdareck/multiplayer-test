@@ -893,9 +893,9 @@ target_spawn_point_name = "Thornroot_DustWarren_Portal_Spawn"
 position = Vector2(-47, 135)
 
 [node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1897, 83)
+position = Vector2(1929, 83)
 target_map_id = "mines"
 target_spawn_point_name = "Mines_DustWarren_Portal_Spawn"
 
 [node name="DustWarren_Mines_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1873, 87)
+position = Vector2(1905, 87)

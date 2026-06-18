@@ -912,9 +912,9 @@ target_spawn_point_name = "MusteringFields_Keep_Portal_Spawn"
 position = Vector2(17, 23)
 
 [node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1897, 99)
+position = Vector2(1929, 99)
 target_map_id = "emberscar"
 target_spawn_point_name = "Emberscar_Keep_Portal_Spawn"
 
 [node name="Keep_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1873, 103)
+position = Vector2(1905, 103)

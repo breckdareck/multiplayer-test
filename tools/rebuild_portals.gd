@@ -84,7 +84,7 @@ func _do_map(map: String) -> void:
 	var center := (mincol + maxcol) / 2.0
 	var lc: int = _flat_near(floor_top, mincol + 3, 1, mincol, maxcol); place[0] = Vector2i(lc, floor_top[lc])
 	if n >= 2:
-		var rc: int = _flat_near(floor_top, maxcol - 3, -1, mincol, maxcol); place[n - 1] = Vector2i(rc, floor_top[rc])
+		var rc: int = _flat_near(floor_top, maxcol - 1, -1, mincol, maxcol); place[n - 1] = Vector2i(rc, floor_top[rc])
 	var b := 0
 	for i in range(1, n - 1):
 		var pri = right_elev if b % 2 == 0 else left_elev

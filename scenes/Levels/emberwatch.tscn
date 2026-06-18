@@ -593,9 +593,9 @@ target_spawn_point_name = "DeepWoods_Emberwatch_Portal_Spawn"
 position = Vector2(696, 212)
 
 [node name="PortalToKeep" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(832, 208)
+position = Vector2(864, 208)
 target_map_id = "keep"
 target_spawn_point_name = "Keep_Emberwatch_Portal_Spawn"
 
 [node name="Emberwatch_Keep_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(808, 212)
+position = Vector2(840, 212)
