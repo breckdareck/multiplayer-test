@@ -200,7 +200,12 @@ hang it over a row-gap above a wide ledge). Enemies never spawn on them, so they
 **Spawn placement** — enemies go on flat top-surface stretches only; EXCLUDE the ceiling/roof
 (a real spawn surface has solid above it in-column, else it's the roof top), the safe perches, and
 a buffer around **EVERY portal** (and the player-start) so you're never dropped onto a mob when you
-arrive or teleport in. `tools/clear_portal_spawns.gd` enforces the portal buffer after portals are wired.
+arrive or teleport in. **Space them EVENLY** — markers should march across the floor at a steady stride,
+not bunch up. `tools/even_spawns.gd` is the canonical pass for outdoor maps: it re-places all `Spawn_*`
+markers at evenly-spaced FLAT-floor columns (skipping slopes, portal buffers, and edges), interleaved by
+spawner so enemy types alternate, and floor-only so the elevated safe shelves stay enemy-free. Run it
+after portals are wired — it supersedes `clear_portal_spawns.gd` for these maps (it's even + portal-aware
+in one). (The generator's own marker placement can bunch — always finish with `even_spawns`.)
 
 **Density** — `pool_size` is the COUNT lever (solo sees `floor(0.75 * sum of all spawner
 pools)` alive map-wide); markers only set WHERE (each spawn picks a random marker). For long
