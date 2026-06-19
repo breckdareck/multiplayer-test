@@ -42,6 +42,12 @@ const MAP_SCENES = {
 	"the_undercroft": "res://scenes/Levels/the_undercroft.tscn",
 	"the_scorchline": "res://scenes/Levels/the_scorchline.tscn",
 	"the_unraveling": "res://scenes/Levels/the_unraveling.tscn",
+	"wickmoor": "res://scenes/Levels/wickmoor.tscn",
+	"hollowmere": "res://scenes/Levels/hollowmere.tscn",
+	"tinderfields": "res://scenes/Levels/tinderfields.tscn",
+	"brackenway": "res://scenes/Levels/brackenway.tscn",
+	"mirefen": "res://scenes/Levels/mirefen.tscn",
+	"stonereach": "res://scenes/Levels/stonereach.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -76,6 +82,12 @@ const MAP_DISPLAY_NAMES = {
 	"the_undercroft": "The Undercroft",
 	"the_scorchline": "The Scorchline",
 	"the_unraveling": "The Unraveling",
+	"wickmoor": "Wickmoor",
+	"hollowmere": "Hollowmere",
+	"tinderfields": "Tinderfields",
+	"brackenway": "Brackenway",
+	"mirefen": "Mirefen",
+	"stonereach": "Stonereach",
 }
 
 const DEFAULT_MAP = "lanterns_rest"
@@ -83,7 +95,7 @@ const DEFAULT_MAP = "lanterns_rest"
 ## Safe hearth (town) maps, in priority order. Single source of truth for "where
 ## is safe" — used by Hearthstone/Town-Scroll teleports (nearest-hearth BFS) and
 ## the world map's town styling. Add a town here when you add one.
-const HEARTH_MAPS: Array[String] = ["lanterns_rest", "emberwatch", "ashvigil"]
+const HEARTH_MAPS: Array[String] = ["lanterns_rest", "wickmoor", "hollowmere", "emberwatch", "ashvigil"]
 
 
 ## Themed name for a map_id (falls back to the raw id for unknown maps).

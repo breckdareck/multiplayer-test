@@ -843,10 +843,10 @@ target_spawn_point_name = "Scorchline_Emberscar_Portal_Spawn"
 [node name="Emberscar_Scorchline_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(2089, 179)
-target_map_id = "ashvigil"
-target_spawn_point_name = "Ashvigil_Emberscar_Portal_Spawn"
+target_map_id = "cinderwaste"
+target_spawn_point_name = "Cinderwaste_Emberscar_Portal_Spawn"
 
-[node name="Emberscar_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Emberscar_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(2065, 183)

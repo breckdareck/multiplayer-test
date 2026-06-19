@@ -822,12 +822,12 @@ spawn_path = NodePath("../../Enemies")
 script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "ember_meadows"
-target_spawn_point_name = "EmberMeadows_Ruins_Portal_Spawn"
+target_map_id = "lanterns_rest"
+target_spawn_point_name = "LanternsRest_Ruins_Portal_Spawn"
 
-[node name="Ruins_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Ruins_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
 [node name="PortalToOldBattlefield" parent="." instance=ExtResource("3_76n2i")]

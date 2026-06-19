@@ -1,4 +1,4 @@
-[gd_scene load_steps=126 format=4 uid="uid://ykvov1wfh1gv"]
+[gd_scene load_steps=126 format=4]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_as7l3"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_bkv3e"]
@@ -949,7 +949,7 @@ color = Color(1, 0.82, 0.45, 1)
 [node name="Town" type="Node2D"]
 script = ExtResource("1_as7l3")
 bgm_path = "res://assets/music/emberwilds_lanterns_rest.ogg"
-display_name = "Lantern's Rest"
+display_name = "Wickmoor"
 camera_top_padding = 200
 camera_bottom_padding = -130
 
@@ -1095,26 +1095,26 @@ lifetime = 7.0
 preprocess = 7.0
 process_material = SubResource("ParticleProcessMaterial_h50lt")
 
-[node name="PortalToNearWilds" parent="." instance=ExtResource("3_knl1o")]
+[node name="PortalToMeadow" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(-176, -608)
-target_map_id = "near_wilds"
-target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
+target_map_id = "meadow_path"
+target_spawn_point_name = "Meadow_Wickmoor_Portal_Spawn"
 
-[node name="LanternsRest_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Wickmoor_Meadow_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-152, -604)
 
-[node name="PortalToBrackenway" parent="." instance=ExtResource("3_knl1o")]
+[node name="PortalToTinderfields" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(176, -672)
-target_map_id = "brackenway"
-target_spawn_point_name = "Brackenway_LanternsRest_Portal_Spawn"
+target_map_id = "tinderfields"
+target_spawn_point_name = "Tinderfields_Wickmoor_Portal_Spawn"
 
-[node name="LanternsRest_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Wickmoor_Tinderfields_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(152, -668)
 
-[node name="PortalToRuins" parent="." instance=ExtResource("3_knl1o")]
+[node name="PortalToTerraces" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(224, -608)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_LanternsRest_Portal_Spawn"
+target_map_id = "three_terraces"
+target_spawn_point_name = "Terraces_Wickmoor_Portal_Spawn"
 
-[node name="LanternsRest_Ruins_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Wickmoor_Terraces_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(200, -604)

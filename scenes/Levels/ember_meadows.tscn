@@ -888,18 +888,18 @@ position = Vector2(801, 163)
 [node name="M9" type="Marker2D" parent="Spawn_goblin_warrior"]
 position = Vector2(161, 115)
 
-[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToHollowmere" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "lanterns_rest"
-target_spawn_point_name = "LanternsRest_EmberMeadows_Portal_Spawn"
+target_map_id = "hollowmere"
+target_spawn_point_name = "Hollowmere_EmberMeadows_Portal_Spawn"
 
-[node name="EmberMeadows_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
+[node name="EmberMeadows_Hollowmere_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToRuins" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToTinderfields" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1769, 115)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_EmberMeadows_Portal_Spawn"
+target_map_id = "tinderfields"
+target_spawn_point_name = "Tinderfields_EmberMeadows_Portal_Spawn"
 
-[node name="EmberMeadows_Ruins_Portal_Spawn" type="Marker2D" parent="."]
+[node name="EmberMeadows_Tinderfields_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1745, 119)

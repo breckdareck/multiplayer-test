@@ -917,18 +917,18 @@ spawn_path = NodePath("../../Enemies")
 script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToHollowmere" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "near_wilds"
-target_spawn_point_name = "NearWilds_Bramble_Portal_Spawn"
+target_map_id = "hollowmere"
+target_spawn_point_name = "Hollowmere_Bramble_Portal_Spawn"
 
-[node name="Bramble_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Bramble_Hollowmere_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToTerraces" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToBrackenway" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1385, 163)
-target_map_id = "three_terraces"
-target_spawn_point_name = "Terraces_Bramble_Portal_Spawn"
+target_map_id = "brackenway"
+target_spawn_point_name = "Brackenway_Bramble_Portal_Spawn"
 
-[node name="Bramble_Terraces_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Bramble_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1361, 167)

@@ -834,12 +834,12 @@ spawn_path = NodePath("../../Enemies")
 script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToDeepWoods" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "emberwatch"
-target_spawn_point_name = "Emberwatch_Keep_Portal_Spawn"
+target_map_id = "deep_woods"
+target_spawn_point_name = "DeepWoods_Keep_Portal_Spawn"
 
-[node name="Keep_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Keep_DeepWoods_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
 [node name="PortalToMusteringFields" parent="." instance=ExtResource("3_76n2i")]

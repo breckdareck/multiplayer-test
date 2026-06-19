@@ -49,7 +49,7 @@ func _init() -> void:
 	# Five new gap-filler maps for the hybrid world (2026-06-17), each on a DISTINCT archetype
 	# (open tiers / cave / cliffs / tower / dark-open) so the road stops feeling same-y. Portals
 	# are wired separately by tools/rebuild_portals.gd, so the configs omit them.
-	for cfg in _wave_v2():
+	for cfg in _wave_v3():
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
 			"open": m = _build_open(cfg)
@@ -60,6 +60,25 @@ func _init() -> void:
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
 	quit()
+
+## Radial-world fill maps (2026-06-18): 2 low outer-ring fields (open/cliffs) + 2 mid spoke maps
+## (cave/cliffs) for the Sleepywood wheel. Towns (Wickmoor/Hollowmere) are CLONED from
+## lanterns_rest, not generated. monsters: [[scene_path, uid, pool], ...].
+func _wave_v3() -> Array:
+	return [
+		{"name": "tinderfields", "arch": "open", "seed": 2101, "amp": 2, "width": 84,
+			"display_name": "Tinderfields", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8], ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 7], ["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4", 7]]},
+		{"name": "brackenway", "arch": "cliffs", "seed": 2201, "width": 84,
+			"display_name": "Brackenway", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8], ["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 7], ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 7]]},
+		{"name": "mirefen", "arch": "cave", "seed": 2301, "width": 96,
+			"display_name": "Mirefen", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 8], ["res://scenes/NPC/stone_slime.tscn", "uid://d2ciakulevex6", 8], ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 8]]},
+		{"name": "stonereach", "arch": "cliffs", "seed": 2401, "width": 96,
+			"display_name": "Stonereach", "bgm": "res://assets/music/emberwilds_dust_warren.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd", 8], ["res://scenes/NPC/Minifolks/dust_fox.tscn", "uid://bleuqetjvkn5m", 8], ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8]]},
+	]
 
 ## The 5 hybrid-world gap-fillers, each tagged with the archetype it should be BUILT on so no
 ## two adjacent maps read the same. monsters: [[scene_path, uid, pool], ...].

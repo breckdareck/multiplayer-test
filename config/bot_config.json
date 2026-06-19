@@ -191,6 +191,22 @@
     "the_unraveling": {
       "min_level": 92,
       "max_level": 96
+    },
+    "tinderfields": {
+      "min_level": 6,
+      "max_level": 12
+    },
+    "brackenway": {
+      "min_level": 10,
+      "max_level": 15
+    },
+    "mirefen": {
+      "min_level": 22,
+      "max_level": 30
+    },
+    "stonereach": {
+      "min_level": 34,
+      "max_level": 42
     }
   }
 }

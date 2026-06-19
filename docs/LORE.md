@@ -193,44 +193,57 @@ Wilder — most Hearthfolk never bind even one.
 
 ---
 
-## The world, anchor by anchor
+## The world, a ring closing on the wound
 
-The frontier is strung along a single deepening road: from the safe home Hearth,
-through the warped wilds, to a forward outpost, and finally to the broken Heart of
-the world where the Weave still bleeds. There are **safe anchors** (lit, garrisoned
-Hearths) and **the long dangerous stretches between them**.
+The frontier is not a line — it is a **ring closing on the wound**. The Sundered
+Heart lies at the dead centre of the blighted interior; the reclaimed country
+circles it. On the **outer ring** sit the lit, garrisoned **Hearths**, joined by
+gentle low wilds you can walk between — the safe, settled rim. From that rim the
+land **spokes inward**: every step toward the centre is older, stranger, and more
+dangerous, until the spokes meet at **Emberwatch**, the last great hold. Below
+Emberwatch the ground opens into **the Core** — the deep descent to the Sundered
+Heart itself, where the Weave still bleeds and the Warlord is sealed.
 
-- **The Emberwilds** — the untamed, ember-saturated country beyond the safe
-  Hearths: deep forests, old battlefields, sunken keeps, drowned mines. Beautiful,
-  overgrown, and full of teeth. Embers pool here; so do the monsters they warped.
-  *(The game's namesake.)*
+- **The Emberwilds** — the untamed, ember-saturated country between the rim and the
+  Core: bramble downs, old battlefields, bandit bluffs, drowned mines, sunken
+  vaults. Beautiful, overgrown, and full of teeth. Embers pool thicker the deeper
+  you go; so do the monsters they warped. *(The game's namesake.)*
 - **The Hearths (Hearthholds)** — frontier towns rebuilt on the bones of the old
   world. Safe hubs: a market, a forge, a board of work, neighbours who remember
-  your name. Ringed by **ember-lanterns** — captured embers that ward off the
-  wild. There are several; the road touches two you can stand in.
+  your name. Ringed by **ember-lanterns** — captured embers that ward off the wild.
+  Several stand on the outer rim; one, **Emberwatch**, holds the centre.
 - **The Ruins** — what the Emberfall left behind: shattered castles, collapsed
   vaults, the workshops of the people who first learned to bind magic into steel.
-  Their lost arts are still down there.
-- **The Sundered Heart** — the place the Weave's knot used to be, where it tore
-  and where the wound still seeps. The end of the road, and the most dangerous
-  ground in the world.
+  Their lost arts are still down there, on the inward spokes.
+- **The Core & the Sundered Heart** — beneath Emberwatch the spokes give way to the
+  Core, a deepening descent to the place the Weave's knot used to be. The centre of
+  everything, and the most dangerous ground in the world.
 
-### The two standing Hearths
+### The Hearths
 
-- **Lantern's Rest** — the **home Hearth** (the starting hub). The smallest and
-  safest of the lit towns, far enough back from the wilds that a child can grow up
+Five lit towns ring and pierce the frontier:
+
+- **Lantern's Rest** — a **home Hearth** on the outer rim (the starting hub). The
+  smallest and safest of the lit towns, far enough back that a child can grow up
   here. Where new Wilders take up their first weapon and walk out the lantern-line
   for the first time. *(In game: `lanterns_rest`, the default map.)*
-- **Emberwatch** — the **forward Hearth** (~level 48), held by the Embersworn at
-  the deep edge of the reclaimed frontier. The last lit lantern before the wilds
-  turn truly hostile. You resupply here before breaching the Warded Keep and
-  everything past it. It's smaller, harder, and more soldierly than Lantern's
-  Rest — a watch-post that happens to have a forge. *(In game: `emberwatch`,
-  the midpoint rest-stop between the Drowned Mines and the Deep Woods.)*
+- **Wickmoor** — an outer-rim Hearth on the lantern-moors, a short walk around the
+  ring from Lantern's Rest. A working town of trappers and peat-cutters. *(In game:
+  `wickmoor`.)*
+- **Hollowmere** — an outer-rim Hearth beside a still, ember-lit mere. Quiet and
+  older, a little superstitious about the deep. *(In game: `hollowmere`.)*
+- **Emberwatch** — the **central Hearth** (~level 48), held by the Embersworn where
+  the inward spokes meet. The last great hold before the Core; you resupply here
+  before the descent. Soldierly, harder than the rim towns — a watch-post that
+  happens to have a forge. *(In game: `emberwatch`, the hub at the centre of the
+  ring; the Core opens below it.)*
+- **Ashvigil** — the **vigil-camp** at the bottom of the Core (~level 96), the last
+  lit ground before the Sundered Heart. Barely a town — a ring of lanterns, a
+  quest-board, and the Embersworn who keep the final watch. From here Wilders breach
+  the Warlord. *(In game: `ashvigil`, the staging hub for the Warlord instance.)*
 
-> Quest text already references **"the deeper Hearths"** in the plural — there
-> are more lit towns further along the road than the two you can stand in. Room
-> to grow the gazetteer without contradiction.
+> The old "two standing Hearths" line is retired: the lantern-line has crept far
+> enough to ring the wilds. More Hearths can still join the rim without contradiction.
 
 ---
 
@@ -270,34 +283,68 @@ the broken Weave ever made, except *he* wasn't made by the wound. He walked in.
 
 ---
 
-## Gazetteer — the road, in level order
+## Gazetteer — the wheel, rim to core
 
 Each region below is a real map. Levels are the band of warped life that dwells
 there (from `EnemyData.monster_level`); the creatures are the actual enemies
-placed in the world.
+placed in the world. The world reads **outer rim → inward spokes → Emberwatch →
+the Core → the Sundered Heart at the centre**.
+
+### The outer ring — the settled rim (Lv 1–15)
+
+A walkable loop of lit Hearths and the gentle low wilds between them.
 
 | Region *(map)* | Level | What it is | What dwells there |
 |---|---|---|---|
 | **Lantern's Rest** *(`lanterns_rest`)* | — | Home Hearth. Market, forge, work-board, the first lantern-line. | *(safe)* |
+| **Wickmoor** *(`wickmoor`)* | — | Outer-rim Hearth of the lantern-moors; trappers and peat-cutters. | *(safe)* |
+| **Hollowmere** *(`hollowmere`)* | — | Outer-rim Hearth beside a still ember-mere; quiet and old. | *(safe)* |
 | **The Near-Wilds** *(`near_wilds`)* | 1–9 | The first step past the lanterns; gentle, grassy, deceptively calm. | Bunny, Slime, Bird, Boar, Deer, Fox |
 | **Slime Meadow** *(`meadow_path`)* | 1–9 | A boggy pocket off the meadows where the slimes breed thick. | Slime, Bunny *(the "slime threat" quests)* |
+| **Tinderfields** *(`tinderfields`)* | 6–12 | Dry rim-grass where loose embers catch like tinder; herds graze the haze. | Boar, Deer, Slime |
 | **Ember-Meadows** *(`ember_meadows`)* | 1–13 | Rolling country where embers first start to glitter in the grass. | Boar, Deer, Fox, Goblin Warrior |
-| **The Ruins** *(`ruins`)* | 13–28 | Shattered old-world stonework; the first sign of the people who fell. Goblins nest in the rubble. | Goblin Warrior, Goblin, Cave Goblin, Tusk Brute |
+| **Brackenway** *(`brackenway`)* | 10–15 | Bracken-choked bluffs along the rim's edge, where the first goblins scout. | Fox, Boar, Goblin Warrior |
+
+### The spokes — climbing inward (Lv 18–46)
+
+Three routes off the rim toward the centre; here the warping turns *clever* — the first tool-using beasts.
+
+| Region *(map)* | Level | What it is | What dwells there |
+|---|---|---|---|
+| **The Ruins** *(`ruins`)* | 18–28 | Shattered old-world stonework; the first sign of the people who fell. Goblins nest in the rubble. | Goblin Warrior, Goblin, Cave Goblin, Tusk Brute |
 | **Windmill Terraces** *(`three_terraces`)* | 18–28 | Stepped farmland gone feral around three broken windmills. | Goblin, Cave Goblin |
-| **Thornroot Hollow** *(`thornroot`)* | 28–38 | Overgrown sunken hollow where warping turns *clever* — the first tool-using beasts. | Tusk Brute, Fox Swordsman, Stone Slime, Cat Robber |
+| **The Old Battlefield** *(`old_battlefield`)* | 20–28 | Where an old-world host fell in the Emberfall; the ground still bristles with rusted iron. | Tusk Brute, Cave Goblin, Goblin |
+| **Mirefen** *(`mirefen`)* | 22–30 | A sunken bog-cavern off the spoke — lightless, dripping, goblin-haunted. | Cave Goblin, Stone Slime, Tusk Brute |
+| **Bandit Bluffs** *(`bandit_bluffs`)* | 28–34 | Ravine-country where bandit-beasts den in the crags and prey on the spoke. | Cat Robber, Fox Swordsman, Tusk Brute |
+| **Thornroot Hollow** *(`thornroot`)* | 28–38 | Overgrown sunken hollow where the warping turns clever. | Tusk Brute, Fox Swordsman, Stone Slime, Cat Robber |
+| **Stonereach** *(`stonereach`)* | 34–42 | Old-world quarry-mesas, worked for binding-stone then abandoned. | Cat Robber, Dust Fox, Wolf Pathfinder |
 | **The Dust Warren** *(`dust_warren`)* | 36–44 | A dry burrow-country of bandit-beasts and dust-pale foxes. | Cat Robber, Dust Fox, Wolf Pathfinder, Mithril Hare |
 | **The Drowned Mines** *(`mines`)* | 40–48 | Flooded old-world workings, goblin-thick and dark; pathfinder wolves stalk the tunnels. | Wolf Pathfinder, War Goblin, Rabbit Wizard, Deer Druid, Mithril Hare |
-| **Emberwatch** *(`emberwatch`)* | ~48 | Forward Hearth. The last lit lantern; Embersworn forward base. Resupply before breaching the Keep and the deep frontier. | *(safe)* |
-| **The Deep Woods** *(`deep_woods`)* | 52–58 | Old-growth dark where the Warlord's garrison musters before it marches. | Bear Warrior, Dark Bunny, Lion Knight, Adamant Crawler |
-| **The Warded Keep** *(`keep`)* | 52–63 | The Warlord's old-world fortress, its ancient wards now failing, re-occupied by his beast-knights. **You breach it; you don't rest here.** | Bear Warrior, Panda Warrior, Shadow Fox |
-| **The Ember-Scar** *(`emberscar`)* | 68–83 | Where the embers fell thickest — even the boars burn, and the "bloom" spreads. The land itself is on fire. | Runed Boar, Fire Slime, Ember Fox, Wild Boar |
-| **The Weave's Edge** *(`weave`)* | 88–93 | The lip of the wound. Creatures here "drink raw arcana and shimmer." The Embersworn keep an endless **vigil**. | Celestial Hare, Astral Slime |
-| **The Sundered Heart** *(`warlord`)* | 100 | Where the Weave tore. The wound itself — and its self-appointed keeper. | **The Eternal Warlord** |
+| **The Undercroft** *(`the_undercroft`)* | 44–48 | The vaults beneath the mines — deeper, older, where the diggings broke into the dark. | War Goblin, Wolf Pathfinder, Rabbit Wizard |
 
-> **Layout is not fixed.** The road's *order* is the level curve; which map
-> portals to which is tunable (`MapManager.MAP_SCENES` + each scene's portals).
-> If you reshuffle, keep a region's band matching the creatures placed in it —
-> the fiction above tracks the numbers, not the current portal graph.
+### The centre & the Core (Lv 48–100)
+
+The spokes meet at Emberwatch; below it the Core descends to the wound. The bestiary arc runs hardest here: Organized beast-knights give way to Transfigured, half-unreal things as you near the Sundered Heart.
+
+| Region *(map)* | Level | What it is | What dwells there |
+|---|---|---|---|
+| **Emberwatch** *(`emberwatch`)* | ~48 | Central Hearth. The last great hold where the spokes meet; the Core opens below it. | *(safe)* |
+| **The Deep Woods** *(`deep_woods`)* | 52–58 | Old-growth dark where the Warlord's garrison musters before it marches. | Bear Warrior, Dark Bunny, Lion Knight, Adamant Crawler |
+| **The Warded Keep** *(`keep`)* | 52–63 | The Warlord's old-world fortress, its wards failing, re-occupied by his beast-knights. **You breach it; you don't rest here.** | Bear Warrior, Panda Warrior, Shadow Fox |
+| **The Mustering Fields** *(`mustering_fields`)* | 60–68 | Where the beast-knight host forms up under the Core's red light. | Lion Knight, Panda Warrior, Bear Warrior |
+| **The Scorchline** *(`the_scorchline`)* | 66–72 | The burning front where the knights give way to things that simply burn. | Lion Knight, Runed Boar, Fire Slime |
+| **The Ember-Scar** *(`emberscar`)* | 68–83 | Where the embers fell thickest — even the boars burn, and the "bloom" spreads. | Runed Boar, Fire Slime, Ember Fox, Wild Boar |
+| **The Cinderwaste** *(`cinderwaste`)* | 83–88 | Burnt-out ash-waste; the fire has cooled to glowing cinder, the silence wrong. | Ember Fox, Fire Slime, Runed Boar |
+| **The Weave's Edge** *(`weave`)* | 88–93 | The lip of the wound. Creatures here "drink raw arcana and shimmer." | Celestial Hare, Astral Slime |
+| **The Unraveling** *(`the_unraveling`)* | 92–96 | Where the Weave comes apart and the world stops holding its shape. | Celestial Hare, Astral Slime |
+| **Ashvigil** *(`ashvigil`)* | ~96 | The vigil-camp — last lit ground, a quest-board, and the breach-point for the wound. | *(safe)* |
+| **The Sundered Heart** *(`warlord`)* | 100 | Where the Weave tore. Breached as an **instanced** fight (party or solo) from Ashvigil. | **The Eternal Warlord** |
+
+> **Layout is not fixed.** The wheel's *radius* is the level curve (rim low →
+> centre high); which map portals to which is tunable (`MapManager.MAP_SCENES` +
+> each scene's portals + `tools/rebuild_portals.gd`). If you reshuffle, keep a
+> region's band matching the creatures placed in it — the fiction tracks the
+> numbers, not the current portal graph.
 
 ---
 
@@ -340,9 +387,11 @@ weapon-power walks a single step down the road that ends at the Sundered Heart.
 That rhyme — *your whole build, taken to its monstrous limit* — is the point of
 the capstone.
 
-> **In game.** `EternalWarlord` (level 100, `is_boss`), fought in the
-> `warlord` map ("The Sundered Heart") via the quest **q_warlord** of the same
-> name. Three phases (66% / 33%) and an enrage at 20% — read them as the
+> **In game.** `EternalWarlord` (level 100, `is_boss`), fought at the dead centre
+> of the wheel in the `warlord` map ("The Sundered Heart"), **breached as an
+> instanced fight (party or solo) from the Ashvigil vigil-camp** — not an
+> always-open room, but a sealed wound you queue into. Quest **q_warlord** of the
+> same name. Three phases (66% / 33%) and an enrage at 20% — read them as the
 > hundred embers in him guttering and flaring as he's worn down.
 
 ---

@@ -673,18 +673,18 @@ script = ExtResource("9_pjyxy")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
-[node name="PortalToEmberscar" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToUnraveling" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "emberscar"
-target_spawn_point_name = "Emberscar_Ashvigil_Portal_Spawn"
+target_map_id = "the_unraveling"
+target_spawn_point_name = "Unraveling_Ashvigil_Portal_Spawn"
 
-[node name="Ashvigil_Emberscar_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Ashvigil_Unraveling_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToCinderwaste" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToWarlord" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(873, 147)
-target_map_id = "cinderwaste"
-target_spawn_point_name = "Cinderwaste_Ashvigil_Portal_Spawn"
+target_map_id = "warlord"
+target_spawn_point_name = "Warlord_Ashvigil_Portal_Spawn"
 
-[node name="Ashvigil_Cinderwaste_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Ashvigil_Warlord_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(849, 151)

@@ -11,40 +11,48 @@ extends Control
 
 const CATALOG_PATH := "res://config/world_map_data.json"
 
-## Normalized [0..1] node positions within the content rect, laid out as the HYBRID world:
-## two parallel EARLY roads (high "delve" row ~0.30 / low "overland" row ~0.66) that fork from
-## Lantern's Rest and rejoin at Emberwatch, then a single LATE spine (~0.48) with the Deep Woods /
-## Warded Keep fork, ending at the Sundered Heart. Presentation only — edges come from the real
-## connection graph. ADD EVERY NEW MAP HERE, or it won't render (it would pile at the centre).
+## Normalized [0..1] node positions within the content rect, laid out as the RADIAL "Sleepywood"
+## wheel: a low OUTER RING of cities + fields around the rim, three SPOKES angling inward and
+## converging at the central Hearth Emberwatch, then a CORE spiral winding down to the Warlord at
+## the dead centre (0.5, 0.5) — radius ≈ distance from the wound, so deeper = nearer the middle.
+## (The content rect is landscape, so the circle reads as a wide oval.) Presentation only — edges
+## come from the real connection graph. ADD EVERY NEW MAP HERE, or it won't render (piles at centre).
 const LAYOUT := {
-	"lanterns_rest":   Vector2(0.04, 0.48),
-	# --- Early road A: the delve (high row) ---
-	"ember_meadows":   Vector2(0.10, 0.30),
-	"ruins":           Vector2(0.16, 0.30),
-	"old_battlefield": Vector2(0.22, 0.30),
-	"thornroot":       Vector2(0.28, 0.30),
-	"mines":           Vector2(0.34, 0.30),
-	"the_undercroft":  Vector2(0.40, 0.30),
-	# --- Early road B: the overland trail (low row) ---
-	"near_wilds":      Vector2(0.10, 0.66),
-	"bramble_downs":   Vector2(0.16, 0.66),
-	"three_terraces":  Vector2(0.22, 0.66),
-	"bandit_bluffs":   Vector2(0.28, 0.66),
-	"dust_warren":     Vector2(0.34, 0.66),
-	"meadow_path":     Vector2(0.10, 0.84),    # dead-end pocket below Near-Wilds
-	# --- Forward Hearth + late fork ---
-	"emberwatch":      Vector2(0.46, 0.48),
-	"deep_woods":      Vector2(0.52, 0.32),
-	"keep":            Vector2(0.52, 0.64),
-	# --- Late deepening spine to the wound ---
-	"mustering_fields":Vector2(0.58, 0.48),
-	"the_scorchline":  Vector2(0.64, 0.48),
-	"emberscar":       Vector2(0.70, 0.48),
-	"ashvigil":        Vector2(0.76, 0.48),
-	"cinderwaste":     Vector2(0.82, 0.48),
-	"weave":           Vector2(0.88, 0.48),
-	"the_unraveling":  Vector2(0.93, 0.48),
-	"warlord":         Vector2(0.975, 0.48),
+	# --- Outer ring: low cities + fields around the rim ---
+	"lanterns_rest":   Vector2(0.50, 0.10),
+	"near_wilds":      Vector2(0.78, 0.18),
+	"meadow_path":     Vector2(0.92, 0.42),
+	"wickmoor":        Vector2(0.88, 0.70),
+	"tinderfields":    Vector2(0.66, 0.88),
+	"ember_meadows":   Vector2(0.34, 0.88),
+	"hollowmere":      Vector2(0.12, 0.70),
+	"bramble_downs":   Vector2(0.08, 0.42),
+	"brackenway":      Vector2(0.22, 0.18),
+	# --- Spoke 1 (top): the delve, Lantern's Rest -> Emberwatch ---
+	"ruins":           Vector2(0.50, 0.135),
+	"old_battlefield": Vector2(0.50, 0.17),
+	"thornroot":       Vector2(0.50, 0.205),
+	"mines":           Vector2(0.50, 0.24),
+	"the_undercroft":  Vector2(0.50, 0.275),
+	# --- Spoke 2 (right): the overland trail, Wickmoor -> Emberwatch ---
+	"three_terraces":  Vector2(0.82, 0.55),
+	"bandit_bluffs":   Vector2(0.74, 0.42),
+	"dust_warren":     Vector2(0.63, 0.33),
+	# --- Spoke 3 (left): the mire road, Hollowmere -> Emberwatch ---
+	"mirefen":         Vector2(0.26, 0.54),
+	"stonereach":      Vector2(0.39, 0.40),
+	# --- Central Hearth + the Core spiral to the centre ---
+	"emberwatch":      Vector2(0.50, 0.30),
+	"deep_woods":      Vector2(0.62, 0.36),
+	"keep":            Vector2(0.66, 0.47),
+	"mustering_fields":Vector2(0.62, 0.57),
+	"the_scorchline":  Vector2(0.54, 0.63),
+	"emberscar":       Vector2(0.45, 0.63),
+	"cinderwaste":     Vector2(0.39, 0.56),
+	"weave":           Vector2(0.40, 0.47),
+	"the_unraveling":  Vector2(0.44, 0.43),
+	"ashvigil":        Vector2(0.47, 0.47),
+	"warlord":         Vector2(0.50, 0.50),
 }
 # Hearth (safe town) maps come from MapManager.HEARTH_MAPS — single source of
 # truth shared with Hearthstone/Town-Scroll teleport targeting.

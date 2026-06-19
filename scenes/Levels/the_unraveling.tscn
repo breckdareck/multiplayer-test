@@ -891,10 +891,10 @@ target_spawn_point_name = "Weave_Unraveling_Portal_Spawn"
 [node name="Unraveling_Weave_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToWarlord" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToAshvigil" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1273, 163)
-target_map_id = "warlord"
-target_spawn_point_name = "Warlord_Unraveling_Portal_Spawn"
+target_map_id = "ashvigil"
+target_spawn_point_name = "Ashvigil_Unraveling_Portal_Spawn"
 
-[node name="Unraveling_Warlord_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Unraveling_Ashvigil_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1249, 167)

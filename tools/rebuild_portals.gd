@@ -5,39 +5,47 @@ extends SceneTree
 ## ordered left->right by destination level (walk right to progress). Arrival/target names follow
 ## the <ThisToken>_<OtherToken>_Portal_Spawn convention. Verify with the print + a grep after.
 const PORTAL_UID := "uid://brfb5t5im33fl"
-# HYBRID world (2026-06-17): early game forks into two parallel roads (high "delve" /
-# low "overland trail") that rejoin at Emberwatch; the late game is a single deepening
-# road with one short fork (Deep Woods / Warded Keep). Two intentional loops, no field
-# meshes. Symmetric adjacency — every edge appears on both endpoints.
+# RADIAL "Sleepywood" world (2026-06-18): a low OUTER RING of 3 Hearths + low fields
+# (a walkable loop), three SPOKES climbing inward from the ring Hearths, converging at
+# the central Hearth Emberwatch, then a single deep CORE descent to the Warlord at the
+# dead centre. Symmetric adjacency — every edge appears on both endpoints. (Maps are
+# still 2D side-scrollers; the wheel is the world-map view + the connection graph.)
 const GRAPH := {
-	# --- Early road A: the delve (ruins -> underground) ---
-	"lanterns_rest": ["ember_meadows", "near_wilds"],
-	"ember_meadows": ["lanterns_rest", "ruins"],
-	"ruins": ["ember_meadows", "old_battlefield"],
+	# --- Outer ring: walkable low loop (3 Hearths + 6 low fields) ---
+	"lanterns_rest": ["near_wilds", "brackenway", "ruins"],
+	"near_wilds": ["lanterns_rest", "meadow_path"],
+	"meadow_path": ["near_wilds", "wickmoor"],
+	"wickmoor": ["meadow_path", "tinderfields", "three_terraces"],
+	"tinderfields": ["wickmoor", "ember_meadows"],
+	"ember_meadows": ["tinderfields", "hollowmere"],
+	"hollowmere": ["ember_meadows", "bramble_downs", "mirefen"],
+	"bramble_downs": ["hollowmere", "brackenway"],
+	"brackenway": ["bramble_downs", "lanterns_rest"],
+	# --- Spoke 1 (from Lantern's Rest): the delve ---
+	"ruins": ["lanterns_rest", "old_battlefield"],
 	"old_battlefield": ["ruins", "thornroot"],
 	"thornroot": ["old_battlefield", "mines"],
 	"mines": ["thornroot", "the_undercroft"],
 	"the_undercroft": ["mines", "emberwatch"],
-	# --- Early road B: the overland trail (wilds -> bandit country) ---
-	"near_wilds": ["lanterns_rest", "bramble_downs", "meadow_path"],
-	"bramble_downs": ["near_wilds", "three_terraces"],
-	"three_terraces": ["bramble_downs", "bandit_bluffs"],
+	# --- Spoke 2 (from Wickmoor): the overland trail ---
+	"three_terraces": ["wickmoor", "bandit_bluffs"],
 	"bandit_bluffs": ["three_terraces", "dust_warren"],
 	"dust_warren": ["bandit_bluffs", "emberwatch"],
-	"meadow_path": ["near_wilds"],                                  # dead-end grind pocket
-	# --- Forward Hearth + the late fork ---
-	"emberwatch": ["the_undercroft", "dust_warren", "deep_woods", "keep"],
-	"deep_woods": ["emberwatch", "mustering_fields"],
-	"keep": ["emberwatch", "mustering_fields"],
-	# --- Late single deepening road to the wound ---
-	"mustering_fields": ["deep_woods", "keep", "the_scorchline"],
+	# --- Spoke 3 (from Hollowmere): the mire road ---
+	"mirefen": ["hollowmere", "stonereach"],
+	"stonereach": ["mirefen", "emberwatch"],
+	# --- Central Hearth + the Core descent to the centre ---
+	"emberwatch": ["the_undercroft", "dust_warren", "stonereach", "deep_woods"],
+	"deep_woods": ["emberwatch", "keep"],
+	"keep": ["deep_woods", "mustering_fields"],
+	"mustering_fields": ["keep", "the_scorchline"],
 	"the_scorchline": ["mustering_fields", "emberscar"],
-	"emberscar": ["the_scorchline", "ashvigil"],
-	"ashvigil": ["emberscar", "cinderwaste"],
-	"cinderwaste": ["ashvigil", "weave"],
+	"emberscar": ["the_scorchline", "cinderwaste"],
+	"cinderwaste": ["emberscar", "weave"],
 	"weave": ["cinderwaste", "the_unraveling"],
-	"the_unraveling": ["weave", "warlord"],
-	"warlord": ["the_unraveling"],
+	"the_unraveling": ["weave", "ashvigil"],
+	"ashvigil": ["the_unraveling", "warlord"],
+	"warlord": ["ashvigil"],
 }
 const TOKEN := {
 	"lanterns_rest": "LanternsRest", "near_wilds": "NearWilds", "meadow_path": "Meadow",
@@ -49,15 +57,20 @@ const TOKEN := {
 	"ashvigil": "Ashvigil", "cinderwaste": "Cinderwaste",
 	"bramble_downs": "Bramble", "bandit_bluffs": "BanditBluffs",
 	"the_undercroft": "Undercroft", "the_scorchline": "Scorchline",
-	"the_unraveling": "Unraveling",
+	"the_unraveling": "Unraveling", "wickmoor": "Wickmoor", "hollowmere": "Hollowmere",
+	"tinderfields": "Tinderfields", "brackenway": "Brackenway",
+	"mirefen": "Mirefen", "stonereach": "Stonereach",
 }
 const LEVEL := {
-	"lanterns_rest": 0, "near_wilds": 5, "meadow_path": 5, "ember_meadows": 10,
-	"bramble_downs": 12, "ruins": 20, "three_terraces": 23, "old_battlefield": 24,
-	"bandit_bluffs": 30, "thornroot": 33, "dust_warren": 40, "mines": 44,
-	"the_undercroft": 46, "emberwatch": 48, "deep_woods": 55, "keep": 58,
-	"mustering_fields": 64, "the_scorchline": 70, "emberscar": 75, "ashvigil": 78,
-	"cinderwaste": 85, "weave": 90, "the_unraveling": 94, "warlord": 100,
+	"lanterns_rest": 0, "wickmoor": 0, "hollowmere": 0,
+	"near_wilds": 5, "meadow_path": 6, "tinderfields": 8, "ember_meadows": 10,
+	"bramble_downs": 12, "brackenway": 14,
+	"ruins": 20, "three_terraces": 22, "old_battlefield": 24, "mirefen": 26,
+	"bandit_bluffs": 30, "thornroot": 33, "stonereach": 38, "dust_warren": 40,
+	"mines": 44, "the_undercroft": 46, "emberwatch": 48,
+	"deep_woods": 55, "keep": 60, "mustering_fields": 66, "the_scorchline": 72,
+	"emberscar": 78, "cinderwaste": 84, "weave": 90, "the_unraveling": 94,
+	"ashvigil": 96, "warlord": 100,
 }
 
 func _init() -> void:

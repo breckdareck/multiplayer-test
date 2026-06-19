@@ -760,12 +760,12 @@ enemy_spawner = NodePath("..")
 [node name="Hub_Terraces_Spawn" type="Marker2D" parent="."]
 position = Vector2(1217, 135)
 
-[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToWickmoor" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "bramble_downs"
-target_spawn_point_name = "Bramble_Terraces_Portal_Spawn"
+target_map_id = "wickmoor"
+target_spawn_point_name = "Wickmoor_Terraces_Portal_Spawn"
 
-[node name="Terraces_Bramble_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Terraces_Wickmoor_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
 [node name="PortalToBanditBluffs" parent="." instance=ExtResource("3_76n2i")]
