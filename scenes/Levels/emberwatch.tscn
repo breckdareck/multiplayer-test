@@ -585,6 +585,22 @@ target_spawn_point_name = "Embergate_Emberwatch_Portal_Spawn"
 [node name="Emberwatch_Embergate_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(72, 212)
 
+[node name="PortalToMarshgate" parent="." instance=ExtResource("3_57sdq")]
+position = Vector2(144, 208)
+target_map_id = "marshgate"
+target_spawn_point_name = "Marshgate_Emberwatch_Portal_Spawn"
+
+[node name="Emberwatch_Marshgate_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(168, 212)
+
+[node name="PortalToHollowgate" parent="." instance=ExtResource("3_57sdq")]
+position = Vector2(256, 208)
+target_map_id = "hollowgate"
+target_spawn_point_name = "Hollowgate_Emberwatch_Portal_Spawn"
+
+[node name="Emberwatch_Hollowgate_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(280, 212)
+
 [node name="PortalToDeepWoods" parent="." instance=ExtResource("3_57sdq")]
 position = Vector2(864, 208)
 target_map_id = "deep_woods"

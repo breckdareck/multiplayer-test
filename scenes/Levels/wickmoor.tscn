@@ -1095,26 +1095,18 @@ lifetime = 7.0
 preprocess = 7.0
 process_material = SubResource("ParticleProcessMaterial_h50lt")
 
-[node name="PortalToMeadow" parent="." instance=ExtResource("3_knl1o")]
+[node name="PortalToReedmire" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(224, -608)
-target_map_id = "meadow_path"
-target_spawn_point_name = "Meadow_Wickmoor_Portal_Spawn"
+target_map_id = "reedmire"
+target_spawn_point_name = "Reedmire_Wickmoor_Portal_Spawn"
 
-[node name="Wickmoor_Meadow_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Wickmoor_Reedmire_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(200, -604)
 
-[node name="PortalToTinderfields" parent="." instance=ExtResource("3_knl1o")]
+[node name="PortalToLongFord" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(176, -672)
-target_map_id = "tinderfields"
-target_spawn_point_name = "Tinderfields_Wickmoor_Portal_Spawn"
+target_map_id = "long_ford"
+target_spawn_point_name = "LongFord_Wickmoor_Portal_Spawn"
 
-[node name="Wickmoor_Tinderfields_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Wickmoor_LongFord_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(152, -668)
-
-[node name="PortalToTerraces" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(112, -608)
-target_map_id = "three_terraces"
-target_spawn_point_name = "Terraces_Wickmoor_Portal_Spawn"
-
-[node name="Wickmoor_Terraces_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(88, -604)

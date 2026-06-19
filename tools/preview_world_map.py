@@ -16,30 +16,41 @@ CX, CY = 0.5, 0.5
 # Explicit coordinates kept in lockstep with LAYOUT_WORLD in scripts/UI/world_map.gd.
 # Town far-left; a branchy low-frontier lens funnels at Ember-Meadows; the climb arcs
 # along the bottom up into the centred Emberwatch. Right/top thirds open for future arms.
-world = {
-    "lanterns_rest":   (0.295, 0.500),
-    "near_wilds":      (0.235, 0.500),
-    "glimmerfen":      (0.175, 0.500),
-    "tinderfields":    (0.115, 0.500),
-    "ember_meadows":   (0.058, 0.500),
-    "firefly_hollow":  (0.252, 0.372),
-    "meadow_path":     (0.212, 0.268),
-    "brackenway":      (0.172, 0.628),
-    "bramble_downs":   (0.132, 0.732),
-    "lanternwood":     (0.098, 0.372),
-    "watchers_ruin":   (0.050, 0.268),
-    "hollow_warren":   (0.040, 0.628),
-    "beacon_rise":     (0.078, 0.732),
-    "old_causeway":    (0.420, 0.500),
-    "ruins":           (0.520, 0.500),
-    "thornroot":       (0.620, 0.500),
-    "old_battlefield": (0.715, 0.500),
-    "the_reliquary":   (0.808, 0.500),
-    "embergate":       (0.888, 0.500),
-    "emberwatch":      (0.958, 0.500),
-}
+# THREE radial fishbone arms (opt7) around the centred Emberwatch. Each arm: name lists in slot
+# order [s1-4, p1a-p4b, c1-6]; the climb runs INWARD to Emberwatch, town sits between climb and
+# frontier, pockets branch perpendicular off the spine (sides alternate).
+ARMS = [
+    (66,  "lanterns_rest", ["near_wilds","glimmerfen","tinderfields","ember_meadows",
+        "firefly_hollow","meadow_path","brackenway","bramble_downs",
+        "lanternwood","watchers_ruin","hollow_warren","beacon_rise",
+        "old_causeway","ruins","thornroot","old_battlefield","the_reliquary","embergate"]),
+    (186, "wickmoor", ["reedmire","sodden_flats","heatherreach","blackpeat",
+        "glowmoss_burrow","peat_steps","the_brackens","gorse_downs",
+        "willowmere","drowned_shrine","mudwarren","bogbeacon",
+        "long_ford","the_sluice","mirewarren","bonemarsh","the_oubliette","marshgate"]),
+    (306, "hollowmere", ["the_shallows","craghollow","echo_downs","greymoor",
+        "pebble_warren","cairn_steps","gullstone_bluffs","windward_downs",
+        "mistfield","sunken_hall","hollow_deep","beacon_crag",
+        "stone_span","riftway","gravewarren","shattercliffs","deepshaft","hollowgate"]),
+]
+SPINE_R = [0.355, 0.395, 0.435, 0.475]
+POCKET = [(0.348, 0.060),(0.342, 0.115), (0.388,-0.060),(0.382,-0.115),
+          (0.428, 0.060),(0.422, 0.115), (0.468,-0.060),(0.462,-0.115)]
+CLIMB_R = [0.275, 0.235, 0.195, 0.155, 0.115, 0.075]   # c1..c6 (c6 nearest the centre)
+def arm_pos(angle, idx):
+    a = math.radians(angle); ux, uy = math.cos(a), -math.sin(a); px, py = -math.sin(a), -math.cos(a)
+    if idx < 4:    r, off = SPINE_R[idx], 0.0
+    elif idx < 12: r, off = POCKET[idx-4]
+    else:          r, off = CLIMB_R[idx-12], 0.0
+    return (0.5 + ux*r + px*off, 0.5 + uy*r + py*off)
+world = {"emberwatch": (0.5, 0.5)}
+for angle, town, names in ARMS:
+    a = math.radians(angle); ux, uy = math.cos(a), -math.sin(a)
+    world[town] = (0.5 + ux*0.315, 0.5 + uy*0.315)
+    for i, nm in enumerate(names):
+        world[nm] = arm_pos(angle, i)
 world_order = list(world.keys())
-CORE_GATE = (0.950, 0.660)   # synthetic gateway DIRECTLY below Emberwatch (line's right end)
+CORE_GATE = (0.5, 0.605)   # gateway in the lower gap between the two bottom arms
 
 # ---- CORE view positions: an inward SPIRAL descent (Emberwatch -> Warlord centre) ----
 # It's a spiral on purpose (a descent into the core), but spread out: the radius
@@ -59,7 +70,7 @@ SURFACE_GATE = (0.085, 0.09)        # synthetic back-to-world gateway in the cor
 
 cat = json.load(open(os.path.join(ROOT,"config/world_map_data.json")))["maps"]
 hearths = {"lanterns_rest","wickmoor","hollowmere","emberwatch","ashvigil"}
-try: F=ImageFont.truetype("arial.ttf",15); FT=ImageFont.truetype("arial.ttf",18)
+try: F=ImageFont.truetype("arial.ttf",12); FT=ImageFont.truetype("arial.ttf",16)
 except Exception: F=ImageFont.load_default(); FT=F
 
 def lvl_label(m):

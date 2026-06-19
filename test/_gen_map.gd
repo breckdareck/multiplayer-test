@@ -61,6 +61,7 @@ func _init() -> void:
 	elif "--warren" in _args: wave = _wave_warren_demo()
 	elif "--hall" in _args: wave = _wave_hall_demo()
 	elif "--lanterns" in _args: wave = _wave_lanterns()
+	elif "--arms" in _args: wave = _wave_wickmoor() + _wave_hollowmere()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -212,6 +213,94 @@ func _wave_lanterns() -> Array:
 			"display_name": "The Ruins", "bgm": RUINS,
 			"monsters": [GOB + [7], CGOB + [8], TUSK + [6]]},
 	]
+
+## Per-band rosters shared by the Wickmoor + Hollowmere arms — mirrors the Lantern's-arm slots
+## (s1-s4 spine, p1a-p4b pockets, c1-c6 climb) so all three arms are PARALLEL Lv2-48 routes to
+## Emberwatch. Same enemies, just different terrain/names/music per arm. [[band]] -> [[scene,uid,pool]].
+func _arm_band_rosters() -> Dictionary:
+	var BOAR := ["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav"]
+	var DEER := ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2"]
+	var FOX := ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma"]
+	var BIRD := ["res://scenes/NPC/Minifolks/bird.tscn", "uid://p1gtmn7fct13"]
+	var BUNNY := ["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e"]
+	var SLIME := ["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4"]
+	var GWAR := ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6"]
+	var GOB := ["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7"]
+	var CGOB := ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk"]
+	var TUSK := ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof"]
+	var FSWD := ["res://scenes/NPC/Beastmen/fox_swordsman.tscn", "uid://cdl2mfbs8qlub"]
+	var SSLM := ["res://scenes/NPC/stone_slime.tscn", "uid://d2ciakulevex6"]
+	var CATR := ["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd"]
+	var DFOX := ["res://scenes/NPC/Minifolks/dust_fox.tscn", "uid://bleuqetjvkn5m"]
+	var WOLF := ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5"]
+	var MHARE := ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8"]
+	var DDRU := ["res://scenes/NPC/Beastmen/deer_druid.tscn", "uid://b7uy8wgb0j1t3"]
+	var RWIZ := ["res://scenes/NPC/Beastmen/rabbit_wizard.tscn", "uid://dppxdoxl4kf2k"]
+	var WGOB := ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0"]
+	return {
+		"s1": [BIRD + [6], BUNNY + [6], BOAR + [7]],
+		"s2": [BOAR + [8], DEER + [7], FOX + [6]],
+		"s3": [FOX + [8], GWAR + [6]],
+		"s4": [FOX + [7], GWAR + [8]],
+		"p1a": [BUNNY + [7], BOAR + [6]], "p1b": [SLIME + [8], BOAR + [6]],
+		"p2a": [DEER + [8], FOX + [6]], "p2b": [FOX + [8], DEER + [6]],
+		"p3a": [FOX + [7], GWAR + [7]], "p3b": [GWAR + [7], GOB + [7]],
+		"p4a": [GWAR + [8], GOB + [6]], "p4b": [GOB + [8], GWAR + [6]],
+		"c1": [GOB + [8], CGOB + [6]],
+		"c2": [GOB + [7], CGOB + [8], TUSK + [6]],
+		"c3": [TUSK + [7], FSWD + [7], SSLM + [6]],
+		"c4": [FSWD + [7], CATR + [7], DFOX + [7], WOLF + [6]],
+		"c5": [WOLF + [7], MHARE + [7], DDRU + [6]],
+		"c6": [MHARE + [6], DDRU + [7], RWIZ + [7], WGOB + [6]],
+	}
+
+## Shared fishbone slot ORDER + archetype + width (identical across all three arms, so each town is
+## structurally the same as Lantern's). [slot, arch, width]. seeds/names/bgm differ per arm.
+func _arm_slots() -> Array:
+	return [
+		["s1", "field", 100], ["s2", "open", 88], ["s3", "open", 90], ["s4", "field", 110],
+		["p1a", "warren", 60], ["p1b", "terraces", 80], ["p2a", "cliffs", 84], ["p2b", "open", 92],
+		["p3a", "field", 96], ["p3b", "hall", 72], ["p4a", "warren", 64], ["p4b", "terraces", 84],
+		["c1", "causeway", 90], ["c2", "gorge", 120], ["c3", "warren", 100], ["c4", "cliffs", 110],
+		["c5", "shaft", 32], ["c6", "hall", 80],
+	]
+
+## Assemble one arm's 18 map configs from parallel name/display lists (same index order as _arm_slots).
+func _build_arm(names: Array, displays: Array, seed0: int, bgm_low: String, bgm_high: String) -> Array:
+	var slots := _arm_slots(); var R := _arm_band_rosters(); var out := []
+	for i in slots.size():
+		var slot: String = slots[i][0]
+		var is_climb: bool = slot.begins_with("c")
+		out.append({
+			"name": names[i], "arch": slots[i][1], "seed": seed0 + i * 13, "width": int(slots[i][2]),
+			"display_name": displays[i], "bgm": bgm_high if is_climb else bgm_low,
+			"monsters": R[slot],
+		})
+	return out
+
+## WICKMOOR arm (drowned moor / peat bog) — parallel Lv2-48 fishbone to Emberwatch.
+func _wave_wickmoor() -> Array:
+	var names := ["reedmire", "sodden_flats", "heatherreach", "blackpeat",
+		"glowmoss_burrow", "peat_steps", "the_brackens", "gorse_downs",
+		"willowmere", "drowned_shrine", "mudwarren", "bogbeacon",
+		"long_ford", "the_sluice", "mirewarren", "bonemarsh", "the_oubliette", "marshgate"]
+	var displays := ["Reedmire", "The Sodden Flats", "Heatherreach", "Blackpeat",
+		"Glowmoss Burrow", "Peat Steps", "The Brackens", "Gorse Downs",
+		"Willowmere", "The Drowned Shrine", "Mudwarren", "Bogbeacon",
+		"The Long Ford", "The Sluice", "Mirewarren", "The Bonemarsh", "The Oubliette", "Marshgate"]
+	return _build_arm(names, displays, 5100, "res://assets/music/emberwilds_ember_meadows.ogg", "res://assets/music/emberwilds_mines.ogg")
+
+## HOLLOWMERE arm (stone crags / sunken hollows) — parallel Lv2-48 fishbone to Emberwatch.
+func _wave_hollowmere() -> Array:
+	var names := ["the_shallows", "craghollow", "echo_downs", "greymoor",
+		"pebble_warren", "cairn_steps", "gullstone_bluffs", "windward_downs",
+		"mistfield", "sunken_hall", "hollow_deep", "beacon_crag",
+		"stone_span", "riftway", "gravewarren", "shattercliffs", "deepshaft", "hollowgate"]
+	var displays := ["The Shallows", "Craghollow", "Echo Downs", "The Greymoor",
+		"Pebble Warren", "Cairn Steps", "Gullstone Bluffs", "Windward Downs",
+		"Mistfield", "The Sunken Hall", "Hollow Deep", "Beacon Crag",
+		"The Stone Span", "The Riftway", "Gravewarren", "The Shattercliffs", "The Deepshaft", "Hollowgate"]
+	return _build_arm(names, displays, 5300, "res://assets/music/emberwilds_near_wilds.ogg", "res://assets/music/emberwilds_keep.ogg")
 
 ## Spoke-balance maps (2026-06-18): two mid maps so each town is 4 maps from Emberwatch (4/4/4).
 ## The Reliquary (deep old-world vault on the Lantern's "delve" spoke) + Wolfsreach (wolf crags on

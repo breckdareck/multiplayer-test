@@ -17,35 +17,74 @@ const CATALOG_PATH := "res://config/world_map_data.json"
 ## positions within the content rect; edges come from the real connection graph (drawn only between
 ## maps in the active view). Generated/retuned by tools/preview_world_map.py — re-run + paste here.
 ## ADD EVERY NEW MAP to the right view's layout, or it won't render.
-## CROSSWAY world view (Stage 2, opt7 FISHBONE): the Lantern's Rest ARM only (first built arm).
-## Lantern's Rest sits in the MIDDLE of a horizontal line: a branchy LOW FRONTIER of dead-end
-## grinding pockets hangs off to the LEFT; a straight CLIMB to Emberwatch runs off to the RIGHT,
-## with the Core gateway below Emberwatch. The Wickmoor / Hollowmere arms (cloned later) will sit
-## as parallel fishbones around the centred Emberwatch. Back-half maps live in LAYOUT_CORE.
-## Nodes/edges draw only for maps present here (edges from the real portal catalog).
+## CROSSWAY world view (opt7 FISHBONE x3): three town arms radiate from the centred Emberwatch.
+## Each arm = a town in the MIDDLE of a fishbone — a CLIMB runs inward to Emberwatch, the branchy
+## LOW FRONTIER of dead-end grinding pockets hangs out past the town. All three are parallel Lv2-48
+## routes. Lantern's = upper-right, Wickmoor = left, Hollowmere = lower-right; Core gate below centre.
+## Baked from tools/preview_world_map.py (keep the two in lockstep). Nodes/edges draw only for maps
+## present here (edges from the real portal catalog), so the back-half (Core view) maps are excluded.
 const LAYOUT_WORLD := {
-	"lanterns_rest":   Vector2(0.295, 0.500),   # TOWN, middle of the line
-	# --- LOW FRONTIER, off to the LEFT: spine (flat) + dead-end pockets (up / down) ---
-	"near_wilds":      Vector2(0.235, 0.500),
-	"glimmerfen":      Vector2(0.175, 0.500),
-	"tinderfields":    Vector2(0.115, 0.500),
-	"ember_meadows":   Vector2(0.058, 0.500),
-	"firefly_hollow":  Vector2(0.252, 0.372),   # pocket up off near_wilds
-	"meadow_path":     Vector2(0.212, 0.268),
-	"brackenway":      Vector2(0.172, 0.628),   # pocket down off glimmerfen
-	"bramble_downs":   Vector2(0.132, 0.732),
-	"lanternwood":     Vector2(0.098, 0.372),   # pocket up off tinderfields
-	"watchers_ruin":   Vector2(0.050, 0.268),
-	"hollow_warren":   Vector2(0.040, 0.628),   # pocket down off ember_meadows
-	"beacon_rise":     Vector2(0.078, 0.732),
-	# --- the CLIMB, off to the RIGHT: a straight inward ascent to Emberwatch ---
-	"old_causeway":    Vector2(0.420, 0.500),
-	"ruins":           Vector2(0.520, 0.500),
-	"thornroot":       Vector2(0.620, 0.500),
-	"old_battlefield": Vector2(0.715, 0.500),
-	"the_reliquary":   Vector2(0.808, 0.500),
-	"embergate":       Vector2(0.888, 0.500),
-	"emberwatch":      Vector2(0.958, 0.500),   # TOWN, line's end — Core gate sits below it
+	"emberwatch":      Vector2(0.500, 0.500),
+	# --- Lantern's Rest arm (upper-right) ---
+	"lanterns_rest":   Vector2(0.628, 0.212),
+	"near_wilds":      Vector2(0.644, 0.176),
+	"glimmerfen":      Vector2(0.661, 0.139),
+	"tinderfields":    Vector2(0.677, 0.103),
+	"ember_meadows":   Vector2(0.693, 0.066),
+	"firefly_hollow":  Vector2(0.587, 0.158),
+	"meadow_path":     Vector2(0.534, 0.141),
+	"brackenway":      Vector2(0.713, 0.170),
+	"bramble_downs":   Vector2(0.760, 0.198),
+	"lanternwood":     Vector2(0.619, 0.085),
+	"watchers_ruin":   Vector2(0.567, 0.068),
+	"hollow_warren":   Vector2(0.745, 0.097),
+	"beacon_rise":     Vector2(0.793, 0.125),
+	"old_causeway":    Vector2(0.612, 0.249),
+	"ruins":           Vector2(0.596, 0.285),
+	"thornroot":       Vector2(0.579, 0.322),
+	"old_battlefield": Vector2(0.563, 0.358),
+	"the_reliquary":   Vector2(0.547, 0.395),
+	"embergate":       Vector2(0.531, 0.431),
+	# --- Wickmoor arm (left) ---
+	"wickmoor":        Vector2(0.187, 0.533),
+	"reedmire":        Vector2(0.147, 0.537),
+	"sodden_flats":    Vector2(0.107, 0.541),
+	"heatherreach":    Vector2(0.067, 0.545),
+	"blackpeat":       Vector2(0.028, 0.550),
+	"glowmoss_burrow": Vector2(0.160, 0.596),
+	"peat_steps":      Vector2(0.172, 0.650),
+	"the_brackens":    Vector2(0.108, 0.481),
+	"gorse_downs":     Vector2(0.108, 0.426),
+	"willowmere":      Vector2(0.081, 0.604),
+	"drowned_shrine":  Vector2(0.092, 0.658),
+	"mudwarren":       Vector2(0.028, 0.489),
+	"bogbeacon":       Vector2(0.029, 0.434),
+	"long_ford":       Vector2(0.227, 0.529),
+	"the_sluice":      Vector2(0.266, 0.525),
+	"mirewarren":      Vector2(0.306, 0.520),
+	"bonemarsh":       Vector2(0.346, 0.516),
+	"the_oubliette":   Vector2(0.386, 0.512),
+	"marshgate":       Vector2(0.425, 0.508),
+	# --- Hollowmere arm (lower-right) ---
+	"hollowmere":      Vector2(0.685, 0.755),
+	"the_shallows":    Vector2(0.709, 0.787),
+	"craghollow":      Vector2(0.732, 0.820),
+	"echo_downs":      Vector2(0.756, 0.852),
+	"greymoor":        Vector2(0.779, 0.884),
+	"pebble_warren":   Vector2(0.753, 0.746),
+	"cairn_steps":     Vector2(0.794, 0.709),
+	"gullstone_bluffs":Vector2(0.680, 0.849),
+	"windward_downs":  Vector2(0.631, 0.877),
+	"mistfield":       Vector2(0.800, 0.811),
+	"sunken_hall":     Vector2(0.841, 0.774),
+	"hollow_deep":     Vector2(0.727, 0.914),
+	"beacon_crag":     Vector2(0.679, 0.941),
+	"stone_span":      Vector2(0.662, 0.722),
+	"riftway":         Vector2(0.638, 0.690),
+	"gravewarren":     Vector2(0.615, 0.658),
+	"shattercliffs":   Vector2(0.591, 0.625),
+	"deepshaft":       Vector2(0.568, 0.593),
+	"hollowgate":      Vector2(0.544, 0.561),
 }
 const LAYOUT_CORE := {
 	# Inward spiral descent (spread out): entry at the rim -> Warlord at the centre.
@@ -62,7 +101,7 @@ const LAYOUT_CORE := {
 	"warlord":         Vector2(0.500, 0.500),
 }
 ## Synthetic gateway nodes (not real maps): id, normalized pos, label, the view it switches to.
-const CORE_GATE := {"id": "__core__", "pos": Vector2(0.950, 0.660), "label": "The Core  ▾", "to": "core"}
+const CORE_GATE := {"id": "__core__", "pos": Vector2(0.500, 0.605), "label": "The Core  ▾", "to": "core"}
 const SURFACE_GATE := {"id": "__surface__", "pos": Vector2(0.085, 0.090), "label": "↑  The Surface", "to": "world"}
 const GATE_R := 18.0
 ## Core-only maps (used to auto-open the right view from the current location).
