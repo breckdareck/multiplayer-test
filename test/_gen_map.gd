@@ -29,6 +29,7 @@ const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
 const SLOPE_SRC := 3
 const BRIDGE_SRC := 5    # bridge_tiles.png injected as sources/5 by _inject_bridge (solid planks)
 const WATER_SRC := 6     # water_tiles.png injected as sources/6 by _inject_water (surface walkable, body deco)
+const COLUMN_SRC := 7    # stone_columns.png injected as sources/7 by _inject_columns (decorative, no collision)
 const SLOPE_UR_LOW := Vector2i(0, 0)    # up-right ramp, low (left) half
 const SLOPE_UR_HIGH := Vector2i(1, 0)   # up-right ramp, high (right) half
 const SLOPE_UL_HIGH := Vector2i(2, 0)   # down-right ramp, high (left) half
@@ -58,6 +59,7 @@ func _init() -> void:
 	elif "--shaft" in _args: wave = _wave_shaft_demo()
 	elif "--causeway" in _args: wave = _wave_causeway_demo()
 	elif "--warren" in _args: wave = _wave_warren_demo()
+	elif "--hall" in _args: wave = _wave_hall_demo()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -70,6 +72,7 @@ func _init() -> void:
 			"shaft": m = _build_shaft(cfg)
 			"causeway": m = _build_causeway(cfg)
 			"warren": m = _build_warren(cfg)
+			"hall": m = _build_hall(cfg)
 			_: m = _build_field(cfg)
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
@@ -627,6 +630,59 @@ func _build_warren(cfg: Dictionary) -> Dictionary:
 		"bgwall": bgwall, "rock_top": true, "no_trees": true, "no_village_bg": true, "no_deco": true,
 	}
 
+## Demo wave: a single standalone Hall/Ruins test map (gen_hall.tscn). Run: generator -- --hall
+func _wave_hall_demo() -> Array:
+	return [
+		{"name": "gen_hall", "arch": "hall", "seed": 3501, "width": 72,
+			"display_name": "Hall (test)", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 8],
+				["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 8],
+				["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8]]},
+	]
+
+## HALL / RUINS archetype: an open walkable floor framed by DECORATIVE stone columns (background,
+## non-colliding — you walk straight past them), with broken upper LEDGES between the columns reached
+## by ropes. Left safe spawn perch; mobs on the floor + the ledges. Uses the new column tiles.
+func _build_hall(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 8
+	var ground := {}; var plat := {}; var columns := {}
+	for x in range(width):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # open floor
+	# Decorative columns (Background, non-colliding): base / shaft / capital, standing on the floor.
+	var col_top := base_r - 12
+	for cx in range(10, width - 4, 14):
+		columns[Vector2i(cx, base_r - 1)] = [2, 0]                                # base
+		for y in range(col_top + 1, base_r - 1): columns[Vector2i(cx, y)] = [1, 0]    # shaft
+		columns[Vector2i(cx, col_top)] = [0, 0]                                   # capital
+	# Broken upper ledges between the columns (one-way), reached by rope.
+	var led := base_r - 7
+	_seg(plat, 14, 30, led)
+	_seg(plat, 38, 56, led)
+	# Left safe spawn perch.
+	var perch := base_r - 3
+	_seg(plat, 2, 8, perch)
+	var ladders := [
+		[perch, base_r, 4, "rope"],
+		[led, base_r, 18, "rope"],
+		[led, base_r, 44, "rope"],
+	]
+	# Explicit spawns: the floor + the two upper ledges (not the perch).
+	var spawn_spots := []
+	var c := 12
+	while c < width - 4: spawn_spots.append(Vector2i(c, base_r)); c += 7
+	for cx in [20, 26]: spawn_spots.append(Vector2i(cx, led))
+	for cx in [42, 50]: spawn_spots.append(Vector2i(cx, led))
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
+		"columns": columns, "no_village_bg": true, "no_trees": true,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
+		"player_spawn": Vector2i(5, perch - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+
 ## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass
 ## ramps you walk straight up (no jumping steps). A one-way vantage shelf floats over each wide
 ## mesa (enemy-free), reached by a rope/ladder. Seeded so each map's skyline differs.
@@ -1177,7 +1233,11 @@ func _emit(m: Dictionary) -> void:
 				rocktop[cell] = [picks[cell][0] - 13, 0]
 	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop, m.get("bridge", {}), m.get("water", {})))
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
-	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
+	var columns: Dictionary = m.get("columns", {})
+	if not columns.is_empty():                                     # decorative stone columns (behind everything)
+		text = _replace_layer(text, "Background", _layer_b64(columns, COLUMN_SRC))
+	else:
+		text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	var bgwall: Dictionary = m.get("bgwall", {})
 	var water_body: Dictionary = m.get("water_body", {})
 	if not water_body.is_empty():                                  # scenic deep water behind the path
@@ -1192,6 +1252,7 @@ func _emit(m: Dictionary) -> void:
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("bridge", {}).is_empty(): text = _inject_bridge(text)
 	if not m.get("water", {}).is_empty() or not m.get("water_body", {}).is_empty(): text = _inject_water(text)
+	if not m.get("columns", {}).is_empty(): text = _inject_columns(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
 	if not m.get("bosses", []).is_empty(): text = _inject_bosses(text, m)
@@ -1660,6 +1721,29 @@ func _inject_water(text: String) -> String:
 	if sidx != -1:
 		var seol := text.find("\n", sidx)
 		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenWaterAtlas")' % WATER_SRC + text.substr(seol)
+	return text
+
+
+## Inject stone_columns.png as sources/COLUMN_SRC — 4 decorative tiles (capital/shaft/base/broken),
+## NO collision (columns are background scenery you walk past). Mirrors _inject_bridge.
+func _inject_columns(text: String) -> String:
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))
+	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/stone_columns.png" id="gen_columns"]' + text.substr(nl)
+	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenColumnAtlas"]\ntexture = ExtResource("gen_columns")\ntexture_region_size = Vector2i(16, 16)\n'
+	for i in range(4): atlas += '%d:0/0 = 0\n' % i
+	atlas += "\n"
+	var ti := text.find('[sub_resource type="TileSet" id=')
+	if ti != -1:
+		text = text.substr(0, ti) + atlas + text.substr(ti)
+	var sidx := text.find("sources/3 = SubResource(")
+	if sidx == -1: sidx = text.find("sources/2 = SubResource(")
+	if sidx != -1:
+		var seol := text.find("\n", sidx)
+		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenColumnAtlas")' % COLUMN_SRC + text.substr(seol)
 	return text
 
 

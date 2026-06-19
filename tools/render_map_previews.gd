@@ -14,6 +14,7 @@ const SHEETS := {
 	3: "res://assets/sprites/grass_slopes.png",
 	5: "res://assets/sprites/bridge_tiles.png",
 	6: "res://assets/sprites/water_tiles.png",
+	7: "res://assets/sprites/stone_columns.png",
 }
 const MAPS := [
 	"lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces",
