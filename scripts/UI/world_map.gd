@@ -28,23 +28,23 @@ const LAYOUT_WORLD := {
 	"hollowmere":      Vector2(0.119, 0.710),
 	"bramble_downs":   Vector2(0.067, 0.427),
 	"brackenway":      Vector2(0.217, 0.178),
-	# central hearth (spokes converge)
-	"emberwatch":      Vector2(0.522, 0.436),
+	# central hearth — dead centre of the wheel (spokes converge)
+	"emberwatch":      Vector2(0.500, 0.500),
 	# spoke 1 — Lantern's delve (4 maps) — straight radial line, no spiral
-	"ruins":           Vector2(0.504, 0.151),
-	"old_battlefield": Vector2(0.509, 0.222),
-	"thornroot":       Vector2(0.513, 0.294),
-	"the_reliquary":   Vector2(0.518, 0.365),
+	"ruins":           Vector2(0.500, 0.164),
+	"old_battlefield": Vector2(0.500, 0.248),
+	"thornroot":       Vector2(0.500, 0.332),
+	"the_reliquary":   Vector2(0.500, 0.416),
 	# spoke 2 — Wickmoor overland (4 maps)
-	"three_terraces":  Vector2(0.809, 0.655),
-	"bandit_bluffs":   Vector2(0.737, 0.600),
-	"dust_warren":     Vector2(0.665, 0.546),
-	"wolfsreach":      Vector2(0.594, 0.491),
+	"three_terraces":  Vector2(0.805, 0.668),
+	"bandit_bluffs":   Vector2(0.729, 0.626),
+	"dust_warren":     Vector2(0.652, 0.584),
+	"wolfsreach":      Vector2(0.576, 0.542),
 	# spoke 3 — Hollowmere deep road (4 maps)
-	"mirefen":         Vector2(0.200, 0.655),
-	"stonereach":      Vector2(0.280, 0.600),
-	"mines":           Vector2(0.361, 0.546),
-	"the_undercroft":  Vector2(0.441, 0.491),
+	"mirefen":         Vector2(0.195, 0.668),
+	"stonereach":      Vector2(0.271, 0.626),
+	"mines":           Vector2(0.348, 0.584),
+	"the_undercroft":  Vector2(0.424, 0.542),
 }
 const LAYOUT_CORE := {
 	"emberwatch":      Vector2(0.500, 0.100),    # entry (also shown in world view)
@@ -60,7 +60,7 @@ const LAYOUT_CORE := {
 	"warlord":         Vector2(0.500, 0.500),
 }
 ## Synthetic gateway nodes (not real maps): id, normalized pos, label, the view it switches to.
-const CORE_GATE := {"id": "__core__", "pos": Vector2(0.500, 0.580), "label": "The Core  ▾", "to": "core"}
+const CORE_GATE := {"id": "__core__", "pos": Vector2(0.500, 0.630), "label": "The Core  ▾", "to": "core"}
 const SURFACE_GATE := {"id": "__surface__", "pos": Vector2(0.085, 0.090), "label": "↑  The Surface", "to": "world"}
 const GATE_R := 18.0
 ## Core-only maps (used to auto-open the right view from the current location).
@@ -87,6 +87,9 @@ const C_VISITED := Color(0.5, 0.78, 0.55)
 const C_BOSS := Color(0.95, 0.4, 0.4)
 const C_FOG := Color(0.22, 0.23, 0.28)
 const C_CURRENT := Color(0.45, 0.85, 1.0)
+const C_HUB := Color(1.0, 0.62, 0.25)    # ember glow pooled at the centred hub
+const C_FLOW := Color(1.0, 0.86, 0.55)   # energy motes drifting along the roads
+const C_RING := Color(0.5, 0.42, 0.3)    # faint concentric wheel guides
 const NODE_R := 13.0
 
 var _catalog: Dictionary = {}
@@ -479,9 +482,16 @@ func _pop_in() -> void:
 func _draw_gateway(content: Rect2) -> void:
 	var gate: Dictionary = _active_gate()
 	var gp := _gate_pos(content)
-	if _active_layout().has("emberwatch"):
-		draw_line(_node_pos("emberwatch", content), gp, Color(0.55, 0.5, 0.78, 0.8), 2.0)
 	var pulse: float = 0.5 + 0.5 * sin(_pulse * 3.0)
+	if _active_layout().has("emberwatch"):
+		var ep := _node_pos("emberwatch", content)
+		draw_line(ep, gp, Color(0.55, 0.5, 0.78, 0.18), 5.0)
+		draw_line(ep, gp, Color(0.6, 0.55, 0.85, 0.85), 2.0)
+		var gf: float = fposmod(_pulse * 0.3, 1.0)
+		draw_circle(ep.lerp(gp, gf), 2.6, Color(0.85, 0.78, 1.0, 0.7 * sin(gf * PI)))
+	# Portal aura.
+	draw_circle(gp, GATE_R + 12.0, Color(0.5, 0.36, 0.72, 0.08 + 0.10 * pulse))
+	draw_circle(gp, GATE_R + 6.0, Color(0.5, 0.36, 0.72, 0.12 + 0.12 * pulse))
 	draw_circle(gp, GATE_R, Color(0.42, 0.30, 0.62))
 	draw_arc(gp, GATE_R, 0, TAU, 32, Color(0.85, 0.78, 1.0, 0.9), 2.0)
 	draw_arc(gp, GATE_R - 6.0, 0, TAU, 28, Color(0.88, 0.8, 1.0, 0.35 + 0.45 * pulse), 2.0)
@@ -493,17 +503,27 @@ func _draw_gateway(content: Rect2) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), C_BG, true)
 	var content := _content_rect()
+	_draw_backdrop(content)
+
+	var revealed := _revealed()
+	var layout := _active_layout()
+
+	# The wheel reads as a wheel: faint concentric guide rings + an ember aura
+	# pooled at the centred hub. World view only (the Core view isn't a wheel).
+	if _view == "world":
+		_draw_wheel_guides(content)
+		if layout.has("emberwatch"):
+			_draw_hub_glow(_node_pos("emberwatch", content))
+
 	if _font:
 		var title: String = "World Map — The Core" if _view == "core" else "World Map — The Emberwilds"
+		draw_string(_font, Vector2(content.position.x + 1, 51), title,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(0, 0, 0, 0.6))
 		draw_string(_font, Vector2(content.position.x, 50), title,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 0.9, 0.6))
 		draw_string(_font, Vector2(content.position.x, content.end.y + 36), "[M] or [Esc] to close",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(0.6, 0.6, 0.65))
-
-	var revealed := _revealed()
-	var layout := _active_layout()
 
 	# Edges (undirected, drawn once) — only between maps in the active view.
 	var drawn := {}
@@ -518,8 +538,7 @@ func _draw() -> void:
 				continue
 			drawn[key] = true
 			var both_seen: bool = revealed.has(map_id) and revealed.has(tgt)
-			var col: Color = C_EDGE if both_seen else Color(C_FOG, 0.5)
-			draw_line(_node_pos(map_id, content), _node_pos(tgt, content), col, 2.0)
+			_draw_edge(_node_pos(map_id, content), _node_pos(tgt, content), both_seen, key)
 
 	# Gateway: a portal node linking Emberwatch to the other view (drawn under the map nodes).
 	_draw_gateway(content)
@@ -528,44 +547,121 @@ func _draw() -> void:
 	for map_id in layout:
 		if not _catalog.has(map_id):
 			continue
-		var p := _node_pos(map_id, content)
-		var info: Dictionary = _catalog[map_id]
-		var seen: bool = revealed.has(map_id)
-		var is_current: bool = (map_id == MapManager.current_map_id)
-		var has_boss := false
-		for e in info.get("enemies", []):
-			if e.get("is_boss", false):
-				has_boss = true
-		var col: Color = C_FOG
-		if seen:
-			if (map_id in MapManager.HEARTH_MAPS) or info.get("is_town", false):
-				col = C_TOWN
-			elif has_boss:
-				col = C_BOSS
-			else:
-				col = C_VISITED
-		var r: float = NODE_R + (2.0 if ((map_id in MapManager.HEARTH_MAPS) or has_boss) else 0.0)
+		_draw_map_node(map_id, _node_pos(map_id, content), revealed.has(map_id))
 
-		if is_current:
-			var glow: float = 0.5 + 0.5 * sin(_pulse * 4.0)
-			draw_arc(p, r + 6.0, 0, TAU, 32, Color(C_CURRENT, 0.4 + 0.5 * glow), 3.0)
-		draw_circle(p, r, col)
-		draw_arc(p, r, 0, TAU, 28, Color(0, 0, 0, 0.6), 1.5)
-		if _hovered == map_id:
-			draw_arc(p, r + 3.0, 0, TAU, 28, Color.WHITE, 1.5)
 
-		if _font:
-			if seen:
-				var dname: String = MapManager.MAP_DISPLAY_NAMES.get(map_id, info.get("display_name", map_id))
-				draw_string(_font, p + Vector2(-60, r + 14), dname,
-					HORIZONTAL_ALIGNMENT_CENTER, 120, 12, Color(0.92, 0.92, 0.95))
-				# Population badge (ADR 0012) — revealed maps only, so fog of
-				# war doesn't leak where the action is.
-				var pop: int = int(_population.get(map_id, 0))
-				if pop > 0:
-					draw_circle(p + Vector2(r + 5, -r - 2), 7.0, Color(0.12, 0.3, 0.16, 0.9))
-					draw_string(_font, p + Vector2(r + 5 - 8, -r + 2), str(pop),
-						HORIZONTAL_ALIGNMENT_CENTER, 16, 10, Color(0.6, 1.0, 0.65))
-			else:
-				draw_string(_font, p + Vector2(-5, 5), "?",
-					HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.6, 0.6, 0.65))
+## Flat base + a soft warm pool of light toward the centre (stacked translucent
+## circles, darkening to the corners) so the map has depth instead of a flat field.
+func _draw_backdrop(content: Rect2) -> void:
+	draw_rect(Rect2(Vector2.ZERO, size), C_BG, true)
+	var c := size * 0.5
+	var maxr := size.length() * 0.5
+	for i in range(8):
+		var t := float(i) / 8.0
+		draw_circle(c, lerp(maxr * 0.72, 48.0, t), Color(0.11, 0.08, 0.06, 0.045))
+
+
+## Faint concentric ellipses centred on the hub — echoes the rim radius (RX=0.44,
+## RY=0.42 of the content rect, matching the generator) and its inner fractions.
+func _draw_wheel_guides(content: Rect2) -> void:
+	var c := content.position + content.size * 0.5
+	for f in [1.0, 0.72, 0.44, 0.2]:
+		var pts := _ellipse_pts(c, content.size.x * 0.44 * f, content.size.y * 0.42 * f, 72)
+		draw_polyline(pts, Color(C_RING.r, C_RING.g, C_RING.b, 0.10), 1.5, true)
+
+
+func _ellipse_pts(center: Vector2, rx: float, ry: float, segments: int) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	for i in range(segments + 1):
+		var a := TAU * float(i) / float(segments)
+		pts.append(center + Vector2(cos(a) * rx, sin(a) * ry))
+	return pts
+
+
+## Pulsing ember aura behind Emberwatch — the heart of the wheel.
+func _draw_hub_glow(p: Vector2) -> void:
+	var pulse: float = 0.5 + 0.5 * sin(_pulse * 2.0)
+	for i in range(5):
+		var t := float(i) / 5.0
+		var rr: float = lerp(48.0, 16.0, t) + pulse * 4.0
+		draw_circle(p, rr, Color(C_HUB.r, C_HUB.g, C_HUB.b, 0.05 + 0.05 * (1.0 - t)))
+
+
+## A road between two maps: a soft underglow, a bright core, and energy motes that
+## drift along it (revealed roads only — fog roads stay dim and still).
+func _draw_edge(a: Vector2, b: Vector2, both_seen: bool, key: String) -> void:
+	if both_seen:
+		draw_line(a, b, Color(C_EDGE.r, C_EDGE.g, C_EDGE.b, 0.16), 5.0)
+		draw_line(a, b, C_EDGE, 2.0)
+		var phase := float(abs(key.hash()) % 1000) / 1000.0
+		for k in range(2):
+			var frac: float = fposmod(_pulse * 0.22 + phase + float(k) * 0.5, 1.0)
+			var fade: float = sin(frac * PI)
+			draw_circle(a.lerp(b, frac), 2.6, Color(C_FLOW.r, C_FLOW.g, C_FLOW.b, 0.65 * fade))
+	else:
+		draw_line(a, b, Color(C_FOG.r, C_FOG.g, C_FOG.b, 0.45), 2.0)
+
+
+## One map marker: type aura (towns/bosses), current-location pulse, a body with an
+## inner highlight + crisp rim, a hover ring, label with shadow, and a pop badge.
+func _draw_map_node(map_id: String, p: Vector2, seen: bool) -> void:
+	var info: Dictionary = _catalog[map_id]
+	var is_current: bool = (map_id == MapManager.current_map_id)
+	var is_town: bool = (map_id in MapManager.HEARTH_MAPS) or info.get("is_town", false)
+	var has_boss := false
+	for e in info.get("enemies", []):
+		if e.get("is_boss", false):
+			has_boss = true
+	var col: Color = C_FOG
+	if seen:
+		if is_town:
+			col = C_TOWN
+		elif has_boss:
+			col = C_BOSS
+		else:
+			col = C_VISITED
+	var r: float = NODE_R + (2.0 if (is_town or has_boss) else 0.0)
+
+	# Type aura — towns and bosses pulse so they read at a glance (boss faster).
+	if seen and (is_town or has_boss):
+		var aura: float = 0.5 + 0.5 * sin(_pulse * (3.2 if has_boss else 2.0))
+		draw_circle(p, r + 10.0, Color(col.r, col.g, col.b, 0.08 + 0.10 * aura))
+		draw_circle(p, r + 5.0, Color(col.r, col.g, col.b, 0.13 + 0.12 * aura))
+
+	# Current location — cyan pulse halo + expanding ring.
+	if is_current:
+		var glow: float = 0.5 + 0.5 * sin(_pulse * 4.0)
+		draw_circle(p, r + 13.0, Color(C_CURRENT.r, C_CURRENT.g, C_CURRENT.b, 0.10 + 0.16 * glow))
+		draw_arc(p, r + 6.0 + glow * 2.0, 0, TAU, 40, Color(C_CURRENT, 0.45 + 0.5 * glow), 3.0)
+
+	# Body + inner highlight (sheen, upper-left) + crisp rim.
+	draw_circle(p, r, col)
+	draw_circle(p - Vector2(r, r) * 0.32, r * 0.4, Color(1, 1, 1, 0.18 if seen else 0.05))
+	draw_arc(p, r, 0, TAU, 32, Color(0, 0, 0, 0.65), 1.5)
+	if seen:
+		draw_arc(p, r, 0, TAU, 32, Color(col.lightened(0.35), 0.9), 1.5)
+
+	# Hover — a bright expanding ring.
+	if _hovered == map_id:
+		var hp: float = 0.5 + 0.5 * sin(_pulse * 6.0)
+		draw_arc(p, r + 3.0 + hp * 3.0, 0, TAU, 32, Color(1, 1, 1, 0.5 + 0.4 * hp), 1.5)
+
+	if not _font:
+		return
+	if seen:
+		var dname: String = MapManager.MAP_DISPLAY_NAMES.get(map_id, info.get("display_name", map_id))
+		draw_string(_font, p + Vector2(-60, r + 15), dname,
+			HORIZONTAL_ALIGNMENT_CENTER, 120, 12, Color(0, 0, 0, 0.7))
+		draw_string(_font, p + Vector2(-60, r + 14), dname,
+			HORIZONTAL_ALIGNMENT_CENTER, 120, 12, Color(0.94, 0.94, 0.97))
+		# Population badge (ADR 0012) — revealed maps only, so fog of war doesn't
+		# leak where the action is.
+		var pop: int = int(_population.get(map_id, 0))
+		if pop > 0:
+			draw_circle(p + Vector2(r + 5, -r - 2), 7.0, Color(0.12, 0.3, 0.16, 0.95))
+			draw_arc(p + Vector2(r + 5, -r - 2), 7.0, 0, TAU, 16, Color(0.5, 1.0, 0.6, 0.8), 1.0)
+			draw_string(_font, p + Vector2(r + 5 - 8, -r + 2), str(pop),
+				HORIZONTAL_ALIGNMENT_CENTER, 16, 10, Color(0.7, 1.0, 0.72))
+	else:
+		draw_string(_font, p + Vector2(-5, 5), "?",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color(0.6, 0.6, 0.65))

@@ -20,9 +20,9 @@ ring = ["lanterns_rest","near_wilds","meadow_path","wickmoor","tinderfields","em
 world = {}
 for i, m in enumerate(ring):
     world[m] = polar(1.0, 90 - i*(360.0/len(ring)))
-# Emberwatch sits just above the true centre; all THREE spokes run STRAIGHT into it
-# (no spiral). 4/4/4 spokes: each town is 4 maps from Emberwatch.
-world["emberwatch"] = (0.522, 0.436)
+# Emberwatch is the DEAD CENTRE of the wheel; all THREE spokes run STRAIGHT into
+# it (no spiral). 4/4/4 spokes: each town is 4 maps from Emberwatch.
+world["emberwatch"] = (0.500, 0.500)
 emb = world["emberwatch"]
 def interp(a,b,t): return (a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t)
 spoke1 = ["ruins","old_battlefield","thornroot","the_reliquary"]                 # Lantern's delve
@@ -31,7 +31,7 @@ spoke3 = ["mirefen","stonereach","mines","the_undercroft"]                      
 for i,m in enumerate(spoke1): world[m]=interp(world["lanterns_rest"],emb,(i+1)/(len(spoke1)+1))
 for i,m in enumerate(spoke2): world[m]=interp(world["wickmoor"],emb,(i+1)/(len(spoke2)+1))
 for i,m in enumerate(spoke3): world[m]=interp(world["hollowmere"],emb,(i+1)/(len(spoke3)+1))
-CORE_GATE = (0.50, 0.58)   # synthetic gateway in the world view (clearly below Emberwatch)
+CORE_GATE = (0.50, 0.63)   # synthetic gateway DIRECTLY below the centred Emberwatch
 
 # ---- CORE view positions (emberwatch entry + deep descent spiral to warlord) ----
 core_order = ["emberwatch","deep_woods","keep","mustering_fields","the_scorchline","emberscar","cinderwaste","weave","the_unraveling","ashvigil"]
