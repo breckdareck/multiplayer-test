@@ -90,37 +90,41 @@ for ti, kind in enumerate(["surface", "body", "overlay"]):
         draw_water(f * 16, ti * 16, f * 4, kind)        # 4 frames, scroll 4px each -> 16px loop
 water.save(os.path.join(ROOT, "assets/sprites/water_tiles.png"))
 
-# ---------------- STONE COLUMNS: capital, shaft, base, broken ----------------
-col = sheet(4)
-def shaft_body(im, tx, y0=0, y1=15):
-    for y in range(y0, y1 + 1):
-        for x in range(3, 13):
-            im.putpixel((tx * 16 + x, y), S_MD)
-        put(im, tx, 3, y, S_HI); put(im, tx, 4, y, S_HI)
-        put(im, tx, 11, y, S_LO); put(im, tx, 12, y, S_LO)
-        put(im, tx, 7, y, S_LO); put(im, tx, 8, y, S_HI)   # central flute
-        put(im, tx, 2, y, OUT); put(im, tx, 13, y, OUT)
-# capital (flared top)
-shaft_body(col, 0, 4, 15)
-for y in range(0, 4):
-    hline(col, 0, y, 1, 14, S_HI if y < 2 else S_MD)
-    put(col, 0, 0, y, OUT); put(col, 0, 15, y, OUT)
-hline(col, 0, 4, 1, 14, OUT)
-# shaft (repeating middle)
-shaft_body(col, 1)
-# base (flared bottom)
-shaft_body(col, 2, 0, 11)
-for y in range(12, 16):
-    hline(col, 2, y, 1, 14, S_MD if y < 14 else S_LO)
-    put(col, 2, 0, y, OUT); put(col, 2, 15, y, OUT)
-hline(col, 2, 11, 1, 14, OUT)
-# broken top (jagged)
-shaft_body(col, 3, 5, 15)
-jag = [0, 3, 1, 4, 2, 5, 2, 4, 1, 3]
-for i, x in enumerate(range(3, 13)):
-    top = 5 + jag[i % len(jag)] - 2
-    put(col, 3, x, max(5, top), S_HI)
-    for y in range(0, max(5, top)): put(col, 3, x, y, T)
+# ---------------- STONE COLUMNS: L/M/R x capital/shaft/base/broken ------------------------------
+# 3 cols (Left/Middle/Right edge) x 4 rows (capital/shaft/base/broken). Build a column of ANY width
+# by tiling L + (N-2) M + R; stack shaft rows for height. Broken row = jagged ruined top.
+SC_RUB = (96, 86, 106, 255)
+col = Image.new("RGBA", (48, 64), T)
+JAG = [5, 3, 6, 4, 7, 5, 4, 6, 3, 5, 6, 4, 7, 5, 3, 6]
+def cput(x, y, c):
+    if 0 <= x < 48 and 0 <= y < 64: col.putpixel((x, y), c)
+def col_tile(cc, cr, edge, piece):       # cc col, cr row; edge 0L/1M/2R; piece 0cap/1shaft/2base/3broken
+    bx, by = cc * 16, cr * 16
+    for x in range(16):
+        for y in range(16): cput(bx + x, by + y, S_MD)
+    for fx in (3, 8, 13):                 # flutes (line up across tiles)
+        for y in range(16): cput(bx + fx, by + y, S_LO)
+    if edge == 0:                         # left edge
+        for y in range(16): cput(bx + 0, by + y, OUT); cput(bx + 1, by + y, S_HI)
+    elif edge == 2:                       # right edge
+        for y in range(16): cput(bx + 15, by + y, OUT); cput(bx + 14, by + y, S_LO)
+    if piece == 0:                        # capital: top molding band (full width -> tiles)
+        for x in range(16):
+            cput(bx + x, by + 0, OUT); cput(bx + x, by + 1, S_HI); cput(bx + x, by + 2, S_HI)
+            cput(bx + x, by + 3, S_MD); cput(bx + x, by + 4, OUT)
+    elif piece == 2:                      # base: bottom molding band
+        for x in range(16):
+            cput(bx + x, by + 11, OUT); cput(bx + x, by + 12, S_HI); cput(bx + x, by + 13, S_MD)
+            cput(bx + x, by + 14, S_LO); cput(bx + x, by + 15, OUT)
+    elif piece == 3:                      # broken: jagged top, rubble, clear above the break
+        for x in range(16):
+            t = JAG[x]
+            for y in range(0, t): cput(bx + x, by + y, T)
+            cput(bx + x, by + t, S_HI)
+            if t + 1 < 16: cput(bx + x, by + t + 1, SC_RUB)
+for piece in range(4):
+    for edge in range(3):
+        col_tile(edge, piece, edge, piece)
 col.save(os.path.join(ROOT, "assets/sprites/stone_columns.png"))
 
 # ---------------- 8x previews ----------------

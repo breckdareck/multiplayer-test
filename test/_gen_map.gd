@@ -640,6 +640,18 @@ func _wave_hall_demo() -> Array:
 				["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8]]},
 	]
 
+## Place one decorative column of width `w` from L/M/R column tiles (background dict). `broken` tops
+## it with the jagged broken piece (ruined pillar) instead of a capital.
+func _place_column(columns: Dictionary, px: int, w: int, top_row: int, base_row: int, broken: bool) -> void:
+	var topp := 3 if broken else 0
+	for i in range(w):
+		var x := px + i
+		var ec := 0 if i == 0 else (2 if i == w - 1 else 1)   # L / M / R
+		columns[Vector2i(x, top_row)] = [ec, topp]
+		for y in range(top_row + 1, base_row): columns[Vector2i(x, y)] = [ec, 1]   # shaft
+		columns[Vector2i(x, base_row)] = [ec, 2]                                    # base
+
+
 ## HALL / RUINS archetype: an open walkable floor framed by DECORATIVE stone columns (background,
 ## non-colliding — you walk straight past them), with broken upper LEDGES between the columns reached
 ## by ropes. Left safe spawn perch; mobs on the floor + the ledges. Uses the new column tiles.
@@ -650,12 +662,14 @@ func _build_hall(cfg: Dictionary) -> Dictionary:
 	var ground := {}; var plat := {}; var columns := {}
 	for x in range(width):
 		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # open floor
-	# Decorative columns (Background, non-colliding): base / shaft / capital, standing on the floor.
-	var col_top := base_r - 12
-	for cx in range(10, width - 4, 14):
-		columns[Vector2i(cx, base_r - 1)] = [2, 0]                                # base
-		for y in range(col_top + 1, base_r - 1): columns[Vector2i(cx, y)] = [1, 0]    # shaft
-		columns[Vector2i(cx, col_top)] = [0, 0]                                   # capital
+	# Decorative columns (Background, non-colliding), built from L/M/R tiles so they vary in width.
+	# Mix of full (capital-topped) and broken (ruined, shorter) columns for the ruins look.
+	var base_row := base_r - 1
+	_place_column(columns, 8, 3, base_r - 13, base_row, false)    # full, 3-thick
+	_place_column(columns, 22, 2, base_r - 9, base_row, true)     # broken, 2-thick (shorter)
+	_place_column(columns, 34, 2, base_r - 13, base_row, false)   # full, 2-thick
+	_place_column(columns, 48, 3, base_r - 10, base_row, true)    # broken, 3-thick
+	_place_column(columns, 62, 2, base_r - 13, base_row, false)   # full, 2-thick
 	# Broken upper ledges between the columns (one-way), reached by rope.
 	var led := base_r - 7
 	_seg(plat, 14, 30, led)
@@ -1734,7 +1748,8 @@ func _inject_columns(text: String) -> String:
 	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))
 	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/stone_columns.png" id="gen_columns"]' + text.substr(nl)
 	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenColumnAtlas"]\ntexture = ExtResource("gen_columns")\ntexture_region_size = Vector2i(16, 16)\n'
-	for i in range(4): atlas += '%d:0/0 = 0\n' % i
+	for cr in range(4):                                   # 3 cols (L/M/R) x 4 rows (cap/shaft/base/broken)
+		for cc in range(3): atlas += '%d:%d/0 = 0\n' % [cc, cr]
 	atlas += "\n"
 	var ti := text.find('[sub_resource type="TileSet" id=')
 	if ti != -1:
