@@ -517,39 +517,49 @@ func _build_causeway(cfg: Dictionary) -> Dictionary:
 	var width: int = int(cfg["width"])
 	var base_r := FLOOR_Y
 	var bottom := base_r + 8
-	var shore := 9
-	var ground := {}; var plat := {}; var water := {}; var water_body := {}
-	for x in range(0, shore):
-		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # left shore
-	for x in range(width - shore, width):
-		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # right shore
-	for x in range(shore, width - shore):
+	# Layout: more GROUND, less water. Left ground shore -> walkable SHALLOWS -> a deep-water GAP
+	# the shallows can't cross, spanned by the BRIDGE -> right ground shore.
+	var sh_l := int(width * 0.16)        # left shore  = [0, sh_l)
+	var gap0 := int(width * 0.50)        # gap+bridge  = [gap0, sh_r)
+	var sh_r := int(width * 0.66)        # right shore = [sh_r, width)
+	var ground := {}; var plat := {}; var water := {}; var water_body := {}; var bridge := {}
+	for x in range(0, sh_l):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # left shore (ground)
+	for x in range(sh_r, width):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # right shore (ground)
+	for x in range(sh_l, gap0):
 		water[Vector2i(x, base_r)] = [0, 0]                                       # walkable shallows (surface)
-		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]   # scenic depth (behind)
-	# Two low stepping platforms over the water (verticality / ranged perches).
+	for x in range(gap0, sh_r):                                                   # wooden bridge over the deep gap
+		var tx := 1
+		if x == gap0: tx = 0
+		elif x == sh_r - 1: tx = 2
+		bridge[Vector2i(x, base_r)] = [tx, 0]
+	for x in range(sh_l, sh_r):                                                   # scenic deep water below shallows + gap
+		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]
+	# One low stepping platform over the shallows (ranged perch).
 	var p1 := base_r - 4
-	_seg(plat, int(width * 0.24), int(width * 0.44), p1)
-	_seg(plat, int(width * 0.56), int(width * 0.76), p1)
+	_seg(plat, int(width * 0.22), int(width * 0.42), p1)
 	# Left safe spawn perch.
 	var perch := base_r - 3
 	_seg(plat, 2, 8, perch)
 	var ladders := [
 		[perch, base_r, 4, "rope"],
-		[p1, base_r, int(width * 0.28), "rope"],
-		[p1, base_r, int(width * 0.72), "rope"],
+		[p1, base_r, int(width * 0.30), "rope"],
 	]
-	# Explicit spawns: shores, the shallows, and the two platforms.
+	# Explicit spawns: left shore, shallows, bridge, right shore, platform.
 	var spawn_spots := []
 	var c := 4
-	while c < shore - 1: spawn_spots.append(Vector2i(c, base_r)); c += 5
-	c = shore + 2
-	while c < width - shore - 2: spawn_spots.append(Vector2i(c, base_r)); c += 6
-	c = width - shore + 1
+	while c < sh_l - 1: spawn_spots.append(Vector2i(c, base_r)); c += 5
+	c = sh_l + 2
+	while c < gap0 - 1: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	c = gap0 + 3
+	while c < sh_r - 2: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	c = sh_r + 2
 	while c < width - 3: spawn_spots.append(Vector2i(c, base_r)); c += 5
-	for px in [int(width * 0.32), int(width * 0.64)]: spawn_spots.append(Vector2i(px, p1))
+	spawn_spots.append(Vector2i(int(width * 0.30), p1))
 	return {
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
-		"water": water, "water_body": water_body, "no_village_bg": true,
+		"water": water, "water_body": water_body, "bridge": bridge, "no_village_bg": true,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
 		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
 		"player_spawn": Vector2i(4, perch - 1),
