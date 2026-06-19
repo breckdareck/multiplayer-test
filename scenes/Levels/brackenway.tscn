@@ -2,9 +2,9 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
 [ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
 [ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="gen_mob0"]
-[ext_resource type="PackedScene" uid="uid://bj7nxg5um1rn6" path="res://scenes/NPC/goblin_warrior.tscn" id="gen_mob1"]
-[ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="gen_mob2"]
+[ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="gen_mob0"]
+[ext_resource type="PackedScene" uid="uid://b31vj57j18ae2" path="res://scenes/NPC/Minifolks/deer.tscn" id="gen_mob1"]
+[ext_resource type="PackedScene" uid="uid://sxpgdsdpf5ma" path="res://scenes/NPC/Minifolks/fox.tscn" id="gen_mob2"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
 [ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Gameplay/village_background.tscn" id="2_fik1o"]
@@ -675,68 +675,68 @@ script = ExtResource("9_pjyxy")
 
 
 
-[node name="Spawn_fox" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="Spawn_boar" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob0")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2")]
 spawn_container = NodePath("../Enemies")
-pool_size = 8
+pool_size = 7
 
-[node name="M0" type="Marker2D" parent="Spawn_fox"]
-position = Vector2(17, 131)
+[node name="M0" type="Marker2D" parent="Spawn_boar"]
+position = Vector2(-47, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_fox"]
+[node name="M1" type="Marker2D" parent="Spawn_boar"]
 position = Vector2(337, 35)
 
-[node name="M2" type="Marker2D" parent="Spawn_fox"]
+[node name="M2" type="Marker2D" parent="Spawn_boar"]
 position = Vector2(785, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fox" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://sxpgdsdpf5ma")
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_boar" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://betkg72vd7iav")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_goblin_warrior" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="Spawn_deer" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob1")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2")]
 spawn_container = NodePath("../Enemies")
-pool_size = 8
+pool_size = 7
 
-[node name="M0" type="Marker2D" parent="Spawn_goblin_warrior"]
+[node name="M0" type="Marker2D" parent="Spawn_deer"]
 position = Vector2(17, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_goblin_warrior"]
+[node name="M1" type="Marker2D" parent="Spawn_deer"]
 position = Vector2(529, 83)
 
-[node name="M2" type="Marker2D" parent="Spawn_goblin_warrior"]
+[node name="M2" type="Marker2D" parent="Spawn_deer"]
 position = Vector2(849, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_goblin_warrior" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://bj7nxg5um1rn6")
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://b31vj57j18ae2")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_goblin" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="Spawn_fox" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob2")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2")]
 spawn_container = NodePath("../Enemies")
-pool_size = 8
+pool_size = 6
 
-[node name="M0" type="Marker2D" parent="Spawn_goblin"]
+[node name="M0" type="Marker2D" parent="Spawn_fox"]
 position = Vector2(273, 35)
 
-[node name="M1" type="Marker2D" parent="Spawn_goblin"]
+[node name="M1" type="Marker2D" parent="Spawn_fox"]
 position = Vector2(721, 19)
 
-[node name="M2" type="Marker2D" parent="Spawn_goblin"]
+[node name="M2" type="Marker2D" parent="Spawn_fox"]
 position = Vector2(913, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_goblin" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fox" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://sxpgdsdpf5ma")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
@@ -798,18 +798,26 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
+target_map_id = "meadow_path"
+target_spawn_point_name = "Meadow_Brackenway_Portal_Spawn"
+
+[node name="Brackenway_Meadow_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-47, 135)
+
+[node name="PortalToFireflyHollow" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(265, -61)
+target_map_id = "firefly_hollow"
+target_spawn_point_name = "FireflyHollow_Brackenway_Portal_Spawn"
+
+[node name="Brackenway_FireflyHollow_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(289, -57)
+
+[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(1193, 131)
 target_map_id = "bramble_downs"
 target_spawn_point_name = "Bramble_Brackenway_Portal_Spawn"
 
 [node name="Brackenway_Bramble_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
-
-[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(265, -61)
-target_map_id = "lanterns_rest"
-target_spawn_point_name = "LanternsRest_Brackenway_Portal_Spawn"
-
-[node name="Brackenway_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(289, -57)
+position = Vector2(1169, 135)

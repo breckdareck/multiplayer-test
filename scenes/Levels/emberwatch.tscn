@@ -577,28 +577,12 @@ script = ExtResource("10_12i4d")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 
-[node name="PortalToReliquary" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(256, 208)
-target_map_id = "the_reliquary"
-target_spawn_point_name = "Reliquary_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_Reliquary_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(280, 212)
-
-[node name="PortalToWolfsreach" parent="." instance=ExtResource("3_57sdq")]
-position = Vector2(144, 208)
-target_map_id = "wolfsreach"
-target_spawn_point_name = "Wolfsreach_Emberwatch_Portal_Spawn"
-
-[node name="Emberwatch_Wolfsreach_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(168, 212)
-
-[node name="PortalToUndercroft" parent="." instance=ExtResource("3_57sdq")]
+[node name="PortalToEmbergate" parent="." instance=ExtResource("3_57sdq")]
 position = Vector2(48, 208)
-target_map_id = "the_undercroft"
-target_spawn_point_name = "Undercroft_Emberwatch_Portal_Spawn"
+target_map_id = "embergate"
+target_spawn_point_name = "Embergate_Emberwatch_Portal_Spawn"
 
-[node name="Emberwatch_Undercroft_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Emberwatch_Embergate_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(72, 212)
 
 [node name="PortalToDeepWoods" parent="." instance=ExtResource("3_57sdq")]

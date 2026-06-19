@@ -56,6 +56,14 @@ const MAP_SCENES = {
 	"stonereach": "res://scenes/Levels/stonereach.tscn",
 	"the_reliquary": "res://scenes/Levels/the_reliquary.tscn",
 	"wolfsreach": "res://scenes/Levels/wolfsreach.tscn",
+	"firefly_hollow": "res://scenes/Levels/firefly_hollow.tscn",
+	"glimmerfen": "res://scenes/Levels/glimmerfen.tscn",
+	"lanternwood": "res://scenes/Levels/lanternwood.tscn",
+	"hollow_warren": "res://scenes/Levels/hollow_warren.tscn",
+	"watchers_ruin": "res://scenes/Levels/watchers_ruin.tscn",
+	"beacon_rise": "res://scenes/Levels/beacon_rise.tscn",
+	"old_causeway": "res://scenes/Levels/old_causeway.tscn",
+	"embergate": "res://scenes/Levels/embergate.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -98,6 +106,14 @@ const MAP_DISPLAY_NAMES = {
 	"stonereach": "Stonereach",
 	"the_reliquary": "The Reliquary",
 	"wolfsreach": "Wolfsreach",
+	"firefly_hollow": "Firefly Hollow",
+	"glimmerfen": "Glimmerfen",
+	"lanternwood": "Lanternwood",
+	"hollow_warren": "Hollow Warren",
+	"watchers_ruin": "Watcher's Ruin",
+	"beacon_rise": "Beacon Rise",
+	"old_causeway": "The Old Causeway",
+	"embergate": "Embergate",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

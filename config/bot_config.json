@@ -1,39 +1,19 @@
 {
   "auto_spawn": true,
   "default_map": "near_wilds",
+  "_patrol_note": "Lantern's Rest arm (Stage 2) farm maps in level order, then the Core back half. Dropped maps (other towns' arms) are unreachable until cloned, so they are omitted.",
   "bots": [
     {
       "name": "Bob",
       "class": "SWORDSMAN",
       "map": "lanterns_rest",
       "patrol_route": [
-        "near_wilds",
-        "meadow_path",
-        "ember_meadows",
-        "tinderfields",
-        "bramble_downs",
-        "brackenway",
-        "ruins",
-        "three_terraces",
-        "old_battlefield",
-        "mirefen",
-        "thornroot",
-        "bandit_bluffs",
-        "stonereach",
-        "dust_warren",
-        "the_reliquary",
-        "mines",
-        "wolfsreach",
-        "the_undercroft",
-        "keep",
-        "deep_woods",
-        "mustering_fields",
-        "the_scorchline",
-        "emberscar",
-        "cinderwaste",
-        "weave",
-        "the_unraveling",
-        "warlord"
+        "firefly_hollow", "near_wilds", "meadow_path", "brackenway", "glimmerfen",
+        "bramble_downs", "lanternwood", "tinderfields", "ember_meadows", "hollow_warren",
+        "watchers_ruin", "beacon_rise", "old_causeway", "ruins", "thornroot",
+        "old_battlefield", "the_reliquary", "embergate", "deep_woods", "keep",
+        "mustering_fields", "the_scorchline", "emberscar", "cinderwaste", "weave",
+        "the_unraveling", "warlord"
       ]
     },
     {
@@ -41,33 +21,12 @@
       "class": "MAGE",
       "map": "lanterns_rest",
       "patrol_route": [
-        "near_wilds",
-        "meadow_path",
-        "ember_meadows",
-        "tinderfields",
-        "bramble_downs",
-        "brackenway",
-        "ruins",
-        "three_terraces",
-        "old_battlefield",
-        "mirefen",
-        "thornroot",
-        "bandit_bluffs",
-        "stonereach",
-        "dust_warren",
-        "the_reliquary",
-        "mines",
-        "wolfsreach",
-        "the_undercroft",
-        "keep",
-        "deep_woods",
-        "mustering_fields",
-        "the_scorchline",
-        "emberscar",
-        "cinderwaste",
-        "weave",
-        "the_unraveling",
-        "warlord"
+        "firefly_hollow", "near_wilds", "meadow_path", "brackenway", "glimmerfen",
+        "bramble_downs", "lanternwood", "tinderfields", "ember_meadows", "hollow_warren",
+        "watchers_ruin", "beacon_rise", "old_causeway", "ruins", "thornroot",
+        "old_battlefield", "the_reliquary", "embergate", "deep_woods", "keep",
+        "mustering_fields", "the_scorchline", "emberscar", "cinderwaste", "weave",
+        "the_unraveling", "warlord"
       ]
     },
     {
@@ -76,33 +35,12 @@
       "personality": "butcher",
       "map": "lanterns_rest",
       "patrol_route": [
-        "near_wilds",
-        "meadow_path",
-        "ember_meadows",
-        "tinderfields",
-        "bramble_downs",
-        "brackenway",
-        "ruins",
-        "three_terraces",
-        "old_battlefield",
-        "mirefen",
-        "thornroot",
-        "bandit_bluffs",
-        "stonereach",
-        "dust_warren",
-        "the_reliquary",
-        "mines",
-        "wolfsreach",
-        "the_undercroft",
-        "keep",
-        "deep_woods",
-        "mustering_fields",
-        "the_scorchline",
-        "emberscar",
-        "cinderwaste",
-        "weave",
-        "the_unraveling",
-        "warlord"
+        "firefly_hollow", "near_wilds", "meadow_path", "brackenway", "glimmerfen",
+        "bramble_downs", "lanternwood", "tinderfields", "ember_meadows", "hollow_warren",
+        "watchers_ruin", "beacon_rise", "old_causeway", "ruins", "thornroot",
+        "old_battlefield", "the_reliquary", "embergate", "deep_woods", "keep",
+        "mustering_fields", "the_scorchline", "emberscar", "cinderwaste", "weave",
+        "the_unraveling", "warlord"
       ]
     },
     {
@@ -110,33 +48,12 @@
       "class": "ARCHER",
       "map": "lanterns_rest",
       "patrol_route": [
-        "near_wilds",
-        "meadow_path",
-        "ember_meadows",
-        "tinderfields",
-        "bramble_downs",
-        "brackenway",
-        "ruins",
-        "three_terraces",
-        "old_battlefield",
-        "mirefen",
-        "thornroot",
-        "bandit_bluffs",
-        "stonereach",
-        "dust_warren",
-        "the_reliquary",
-        "mines",
-        "wolfsreach",
-        "the_undercroft",
-        "keep",
-        "deep_woods",
-        "mustering_fields",
-        "the_scorchline",
-        "emberscar",
-        "cinderwaste",
-        "weave",
-        "the_unraveling",
-        "warlord"
+        "firefly_hollow", "near_wilds", "meadow_path", "brackenway", "glimmerfen",
+        "bramble_downs", "lanternwood", "tinderfields", "ember_meadows", "hollow_warren",
+        "watchers_ruin", "beacon_rise", "old_causeway", "ruins", "thornroot",
+        "old_battlefield", "the_reliquary", "embergate", "deep_woods", "keep",
+        "mustering_fields", "the_scorchline", "emberscar", "cinderwaste", "weave",
+        "the_unraveling", "warlord"
       ]
     }
   ],
@@ -164,113 +81,32 @@
     "allow_map_travel": true
   },
   "map_difficulty": {
-    "near_wilds": {
-      "min_level": 1,
-      "max_level": 9
-    },
-    "ember_meadows": {
-      "min_level": 1,
-      "max_level": 13
-    },
-    "ruins": {
-      "min_level": 13,
-      "max_level": 28
-    },
-    "meadow_path": {
-      "min_level": 1,
-      "max_level": 9
-    },
-    "three_terraces": {
-      "min_level": 18,
-      "max_level": 28
-    },
-    "mines": {
-      "min_level": 40,
-      "max_level": 48
-    },
-    "keep": {
-      "min_level": 52,
-      "max_level": 63
-    },
-    "emberscar": {
-      "min_level": 68,
-      "max_level": 83
-    },
-    "weave": {
-      "min_level": 88,
-      "max_level": 93
-    },
-    "warlord": {
-      "min_level": 95,
-      "max_level": 100
-    },
-    "deep_woods": {
-      "min_level": 52,
-      "max_level": 58
-    },
-    "thornroot": {
-      "min_level": 28,
-      "max_level": 38
-    },
-    "dust_warren": {
-      "min_level": 36,
-      "max_level": 44
-    },
-    "old_battlefield": {
-      "min_level": 20,
-      "max_level": 28
-    },
-    "mustering_fields": {
-      "min_level": 60,
-      "max_level": 68
-    },
-    "cinderwaste": {
-      "min_level": 83,
-      "max_level": 88
-    },
-    "bramble_downs": {
-      "min_level": 10,
-      "max_level": 16
-    },
-    "bandit_bluffs": {
-      "min_level": 28,
-      "max_level": 34
-    },
-    "the_undercroft": {
-      "min_level": 44,
-      "max_level": 48
-    },
-    "the_scorchline": {
-      "min_level": 66,
-      "max_level": 72
-    },
-    "the_unraveling": {
-      "min_level": 92,
-      "max_level": 96
-    },
-    "tinderfields": {
-      "min_level": 6,
-      "max_level": 12
-    },
-    "brackenway": {
-      "min_level": 10,
-      "max_level": 15
-    },
-    "mirefen": {
-      "min_level": 22,
-      "max_level": 30
-    },
-    "stonereach": {
-      "min_level": 34,
-      "max_level": 42
-    },
-    "the_reliquary": {
-      "min_level": 38,
-      "max_level": 42
-    },
-    "wolfsreach": {
-      "min_level": 42,
-      "max_level": 46
-    }
+    "firefly_hollow": { "min_level": 2, "max_level": 6 },
+    "near_wilds": { "min_level": 1, "max_level": 9 },
+    "meadow_path": { "min_level": 2, "max_level": 6 },
+    "brackenway": { "min_level": 6, "max_level": 9 },
+    "glimmerfen": { "min_level": 6, "max_level": 8 },
+    "bramble_downs": { "min_level": 7, "max_level": 9 },
+    "lanternwood": { "min_level": 7, "max_level": 10 },
+    "tinderfields": { "min_level": 9, "max_level": 13 },
+    "ember_meadows": { "min_level": 9, "max_level": 13 },
+    "hollow_warren": { "min_level": 13, "max_level": 18 },
+    "watchers_ruin": { "min_level": 13, "max_level": 18 },
+    "beacon_rise": { "min_level": 13, "max_level": 18 },
+    "old_causeway": { "min_level": 18, "max_level": 23 },
+    "ruins": { "min_level": 18, "max_level": 28 },
+    "thornroot": { "min_level": 28, "max_level": 33 },
+    "old_battlefield": { "min_level": 33, "max_level": 40 },
+    "the_reliquary": { "min_level": 40, "max_level": 44 },
+    "embergate": { "min_level": 43, "max_level": 48 },
+    "deep_woods": { "min_level": 52, "max_level": 58 },
+    "keep": { "min_level": 60, "max_level": 63 },
+    "mustering_fields": { "min_level": 60, "max_level": 68 },
+    "the_scorchline": { "min_level": 66, "max_level": 72 },
+    "emberscar": { "min_level": 68, "max_level": 83 },
+    "cinderwaste": { "min_level": 83, "max_level": 88 },
+    "weave": { "min_level": 88, "max_level": 93 },
+    "the_unraveling": { "min_level": 92, "max_level": 96 },
+    "warlord": { "min_level": 95, "max_level": 100 }
   }
 }

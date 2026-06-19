@@ -1096,25 +1096,17 @@ preprocess = 7.0
 process_material = SubResource("ParticleProcessMaterial_h50lt")
 
 [node name="PortalToNearWilds" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(224, -608)
+position = Vector2(176, -672)
 target_map_id = "near_wilds"
 target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
 
 [node name="LanternsRest_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(200, -604)
-
-[node name="PortalToBrackenway" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(176, -672)
-target_map_id = "brackenway"
-target_spawn_point_name = "Brackenway_LanternsRest_Portal_Spawn"
-
-[node name="LanternsRest_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(152, -668)
 
-[node name="PortalToRuins" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(112, -608)
-target_map_id = "ruins"
-target_spawn_point_name = "Ruins_LanternsRest_Portal_Spawn"
+[node name="PortalToFireflyHollow" parent="." instance=ExtResource("3_knl1o")]
+position = Vector2(224, -608)
+target_map_id = "firefly_hollow"
+target_spawn_point_name = "FireflyHollow_LanternsRest_Portal_Spawn"
 
-[node name="LanternsRest_Ruins_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(88, -604)
+[node name="LanternsRest_FireflyHollow_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(200, -604)

@@ -60,6 +60,7 @@ func _init() -> void:
 	elif "--causeway" in _args: wave = _wave_causeway_demo()
 	elif "--warren" in _args: wave = _wave_warren_demo()
 	elif "--hall" in _args: wave = _wave_hall_demo()
+	elif "--lanterns" in _args: wave = _wave_lanterns()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -117,6 +118,99 @@ func _wave_fix() -> Array:
 		{"name": "cinderwaste", "seed": 1401, "amp": 4, "width": 120,
 			"display_name": "The Cinderwaste", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
 			"monsters": [["res://scenes/NPC/Minifolks/ember_fox.tscn", "uid://bichmn1gb8cd2", 8], ["res://scenes/NPC/Minifolks/wild_boar.tscn", "uid://oarco6h8le8s", 8], ["res://scenes/NPC/Minifolks/celestial_hare.tscn", "uid://cywi7283fngxu", 8]]},
+	]
+
+## LANTERN'S REST ARM (Stage 2, 2026-06-19): the first fully-built town arm of the crossway world.
+## 18 maps Lv2->47 (lanterns_rest town stays untouched; near_wilds reused in place w/ its quest sign).
+## A branchy LOW FRONTIER (Lv2-16, pockets off the spine) funnels into a linear CLIMB (Lv17-47) up to
+## Emberwatch at the halfway point. Each map on a DISTINCT archetype so no two neighbours read the same.
+## Rosters band by REAL EnemyData levels (Bird3/Boar6/Deer7/Fox9/GoblinWarrior13/Goblin18/CaveGoblin23/
+## TuskBrute28/FoxSwordsman33/StoneSlime33/CatRobber36/DustFox38/WolfPathfinder40/MithrilHare43/DeerDruid44/
+## RabbitWizard48/WarGoblin48); levels are sparse so bands are approximate-but-monotonic. ruins is LAST
+## (clone template). Portals wired separately by rebuild_portals.gd. monsters: [[scene, uid, pool], ...].
+func _wave_lanterns() -> Array:
+	var BOAR := ["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav"]
+	var DEER := ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2"]
+	var FOX := ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma"]
+	var BIRD := ["res://scenes/NPC/Minifolks/bird.tscn", "uid://p1gtmn7fct13"]
+	var BUNNY := ["res://scenes/NPC/Minifolks/bunny.tscn", "uid://c06qbiant345e"]
+	var SLIME := ["res://scenes/NPC/slime.tscn", "uid://q6iqwsi8meq4"]
+	var GWAR := ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6"]
+	var GOB := ["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7"]
+	var CGOB := ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk"]
+	var TUSK := ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof"]
+	var FSWD := ["res://scenes/NPC/Beastmen/fox_swordsman.tscn", "uid://cdl2mfbs8qlub"]
+	var SSLM := ["res://scenes/NPC/stone_slime.tscn", "uid://d2ciakulevex6"]
+	var CATR := ["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd"]
+	var DFOX := ["res://scenes/NPC/Minifolks/dust_fox.tscn", "uid://bleuqetjvkn5m"]
+	var WOLF := ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5"]
+	var MHARE := ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8"]
+	var DDRU := ["res://scenes/NPC/Beastmen/deer_druid.tscn", "uid://b7uy8wgb0j1t3"]
+	var RWIZ := ["res://scenes/NPC/Beastmen/rabbit_wizard.tscn", "uid://dppxdoxl4kf2k"]
+	var WGOB := ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0"]
+	var MEAD := "res://assets/music/emberwilds_ember_meadows.ogg"
+	var WILDS := "res://assets/music/emberwilds_near_wilds.ogg"
+	var WOODS := "res://assets/music/emberwilds_deep_woods.ogg"
+	var RUINS := "res://assets/music/emberwilds_ruins.ogg"
+	var WARREN := "res://assets/music/emberwilds_dust_warren.ogg"
+	var THORN := "res://assets/music/emberwilds_thornroot.ogg"
+	var KEEP := "res://assets/music/emberwilds_keep.ogg"
+	return [
+		# --- LOW FRONTIER (Lv2-16): branchy meadow country off the lantern line ---
+		{"name": "meadow_path", "arch": "terraces", "seed": 4101, "width": 80,
+			"display_name": "Slime Meadow", "bgm": "res://assets/music/emberwilds_meadow_path.ogg",
+			"monsters": [SLIME + [8], BUNNY + [7], BOAR + [6]]},
+		{"name": "firefly_hollow", "arch": "warren", "seed": 4401, "width": 60,
+			"display_name": "Firefly Hollow", "bgm": WILDS,
+			"monsters": [BIRD + [7], BUNNY + [6], BOAR + [6]]},
+		{"name": "glimmerfen", "arch": "open", "seed": 4201, "amp": 2, "width": 88,
+			"display_name": "Glimmerfen", "bgm": MEAD,
+			"monsters": [BOAR + [8], DEER + [7]]},
+		{"name": "brackenway", "arch": "cliffs", "seed": 2201, "width": 84,
+			"display_name": "Brackenway", "bgm": WILDS,
+			"monsters": [BOAR + [7], DEER + [7], FOX + [6]]},
+		{"name": "bramble_downs", "arch": "open", "seed": 1501, "amp": 2, "width": 96,
+			"display_name": "Bramble Downs", "bgm": MEAD,
+			"monsters": [DEER + [8], FOX + [8]]},
+		{"name": "lanternwood", "arch": "field", "seed": 4301, "amp": 2, "width": 96,
+			"display_name": "Lanternwood", "bgm": WOODS,
+			"monsters": [DEER + [7], FOX + [8]]},
+		{"name": "tinderfields", "arch": "open", "seed": 2101, "amp": 2, "width": 84,
+			"display_name": "Tinderfields", "bgm": MEAD,
+			"monsters": [FOX + [8], GWAR + [6]]},
+		{"name": "ember_meadows", "arch": "field", "seed": 33, "amp": 2, "width": 120,
+			"display_name": "Ember-Meadows", "bgm": MEAD,
+			"monsters": [FOX + [7], GWAR + [8]]},
+		{"name": "hollow_warren", "arch": "warren", "seed": 4501, "width": 64,
+			"display_name": "Hollow Warren", "bgm": WARREN,
+			"monsters": [GWAR + [8], GOB + [6]]},
+		{"name": "watchers_ruin", "arch": "hall", "seed": 4601, "width": 72,
+			"display_name": "Watcher's Ruin", "bgm": RUINS,
+			"monsters": [GWAR + [7], GOB + [7]]},
+		{"name": "beacon_rise", "arch": "terraces", "seed": 4701, "width": 84,
+			"display_name": "Beacon Rise", "bgm": RUINS,
+			"monsters": [GWAR + [6], GOB + [8]]},
+		# --- CLIMB (Lv17-47): the long ascent to Emberwatch ---
+		{"name": "old_causeway", "arch": "causeway", "seed": 4801, "width": 90,
+			"display_name": "The Old Causeway", "bgm": RUINS,
+			"monsters": [GOB + [8], CGOB + [6]]},
+		{"name": "thornroot", "arch": "warren", "seed": 281, "width": 100,
+			"display_name": "Thornroot Hollow", "bgm": THORN,
+			"monsters": [TUSK + [7], FSWD + [7], SSLM + [6]],
+			"bosses": [{"scene": "res://scenes/NPC/thornroot_warchief.tscn", "name": "ThornrootWarchief", "props": {"respawnable": "true", "respawn_delay": "300"}}]},
+		{"name": "old_battlefield", "arch": "cliffs", "seed": 1101, "amp": 3, "width": 110,
+			"display_name": "The Old Battlefield", "bgm": RUINS,
+			"monsters": [FSWD + [7], CATR + [7], DFOX + [7], WOLF + [6]]},
+		{"name": "the_reliquary", "arch": "shaft", "seed": 2501, "width": 32,
+			"display_name": "The Reliquary", "bgm": RUINS,
+			"monsters": [WOLF + [7], MHARE + [7], DDRU + [6]]},
+		{"name": "embergate", "arch": "hall", "seed": 4901, "width": 80,
+			"display_name": "Embergate", "bgm": KEEP,
+			"monsters": [MHARE + [6], DDRU + [7], RWIZ + [7], WGOB + [6]]},
+		# ruins LAST (it is the clone template every other map is built from)
+		{"name": "ruins", "arch": "gorge", "seed": 131, "width": 120,
+			"display_name": "The Ruins", "bgm": RUINS,
+			"monsters": [GOB + [7], CGOB + [8], TUSK + [6]]},
 	]
 
 ## Spoke-balance maps (2026-06-18): two mid maps so each town is 4 maps from Emberwatch (4/4/4).

@@ -17,34 +17,36 @@ const CATALOG_PATH := "res://config/world_map_data.json"
 ## positions within the content rect; edges come from the real connection graph (drawn only between
 ## maps in the active view). Generated/retuned by tools/preview_world_map.py — re-run + paste here.
 ## ADD EVERY NEW MAP to the right view's layout, or it won't render.
+## CROSSWAY world view (Stage 2): the Lantern's Rest ARM only (the first built arm). Town at the
+## far-left edge; a branchy LOW FRONTIER lens funnels at Ember-Meadows; a CLIMB arcs along the
+## bottom up into Emberwatch at the centre. The right + top thirds are left open for the Wickmoor /
+## Hollowmere arms (cloned later). Back-half maps live in LAYOUT_CORE (the Core view). Edges are
+## drawn from the real portal catalog, filtered to nodes present here.
 const LAYOUT_WORLD := {
-	# outer ring (cities + low fields)
-	"lanterns_rest":   Vector2(0.500, 0.080),
-	"near_wilds":      Vector2(0.783, 0.178),
-	"meadow_path":     Vector2(0.933, 0.427),
-	"wickmoor":        Vector2(0.881, 0.710),
-	"tinderfields":    Vector2(0.650, 0.895),
-	"ember_meadows":   Vector2(0.350, 0.895),
-	"hollowmere":      Vector2(0.119, 0.710),
-	"bramble_downs":   Vector2(0.067, 0.427),
-	"brackenway":      Vector2(0.217, 0.178),
-	# central hearth — dead centre of the wheel (spokes converge)
+	# town + the two Lv2-3 starts (both sides of the lantern line)
+	"lanterns_rest":   Vector2(0.050, 0.500),
+	"near_wilds":      Vector2(0.110, 0.360),
+	"firefly_hollow":  Vector2(0.110, 0.640),
+	# low frontier lens (Lv4-13): spine + pockets weaving to the funnel
+	"meadow_path":     Vector2(0.180, 0.270),
+	"brackenway":      Vector2(0.180, 0.630),
+	"glimmerfen":      Vector2(0.250, 0.210),
+	"bramble_downs":   Vector2(0.250, 0.710),
+	"lanternwood":     Vector2(0.320, 0.300),
+	"tinderfields":    Vector2(0.320, 0.640),
+	"hollow_warren":   Vector2(0.430, 0.330),   # dead-end pocket
+	"ember_meadows":   Vector2(0.400, 0.480),   # funnel
+	# the climb (Lv14-47): arcs along the bottom up into the central hearth
+	"watchers_ruin":   Vector2(0.440, 0.640),
+	"beacon_rise":     Vector2(0.430, 0.790),
+	"old_causeway":    Vector2(0.530, 0.860),
+	"ruins":           Vector2(0.640, 0.840),
+	"thornroot":       Vector2(0.730, 0.740),
+	"old_battlefield": Vector2(0.760, 0.620),
+	"the_reliquary":   Vector2(0.690, 0.540),
+	"embergate":       Vector2(0.595, 0.505),
+	# central hearth (halfway point) — Core gate sits just below it
 	"emberwatch":      Vector2(0.500, 0.500),
-	# spoke 1 — Lantern's delve (4 maps) — straight radial line, no spiral
-	"ruins":           Vector2(0.500, 0.164),
-	"old_battlefield": Vector2(0.500, 0.248),
-	"thornroot":       Vector2(0.500, 0.332),
-	"the_reliquary":   Vector2(0.500, 0.416),
-	# spoke 2 — Wickmoor overland (4 maps)
-	"three_terraces":  Vector2(0.805, 0.668),
-	"bandit_bluffs":   Vector2(0.729, 0.626),
-	"dust_warren":     Vector2(0.652, 0.584),
-	"wolfsreach":      Vector2(0.576, 0.542),
-	# spoke 3 — Hollowmere deep road (4 maps)
-	"mirefen":         Vector2(0.195, 0.668),
-	"stonereach":      Vector2(0.271, 0.626),
-	"mines":           Vector2(0.348, 0.584),
-	"the_undercroft":  Vector2(0.424, 0.542),
 }
 const LAYOUT_CORE := {
 	# Inward spiral descent (spread out): entry at the rim -> Warlord at the centre.

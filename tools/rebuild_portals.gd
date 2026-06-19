@@ -10,34 +10,36 @@ const PORTAL_UID := "uid://brfb5t5im33fl"
 # the central Hearth Emberwatch, then a single deep CORE descent to the Warlord at the
 # dead centre. Symmetric adjacency — every edge appears on both endpoints. (Maps are
 # still 2D side-scrollers; the wheel is the world-map view + the connection graph.)
+## CROSSWAY world (Stage 2, 2026-06-19): replacing the radial wheel, one town arm at a time.
+## Lantern's Rest arm is BUILT first: town -> branchy LOW FRONTIER (Lv2-16, pockets off the spine)
+## -> linear CLIMB (Lv17-47) -> Emberwatch (halfway) -> the Core descent (back half, unchanged).
+## The Wickmoor / Hollowmere arms + the old ring/spoke maps are intentionally DROPPED from the graph
+## (their scenes remain on disk, unwired & unreachable) until they're cloned in a later stage.
 const GRAPH := {
-	# --- Outer ring: walkable low loop (3 Hearths + 6 low fields) ---
-	"lanterns_rest": ["near_wilds", "brackenway", "ruins"],
+	# --- Lantern's Rest arm: town + two Lv2-3 starts (both sides of the lantern line) ---
+	"lanterns_rest": ["near_wilds", "firefly_hollow"],
 	"near_wilds": ["lanterns_rest", "meadow_path"],
-	"meadow_path": ["near_wilds", "wickmoor"],
-	"wickmoor": ["meadow_path", "tinderfields", "three_terraces"],
-	"tinderfields": ["wickmoor", "ember_meadows"],
-	"ember_meadows": ["tinderfields", "hollowmere"],
-	"hollowmere": ["ember_meadows", "bramble_downs", "mirefen"],
-	"bramble_downs": ["hollowmere", "brackenway"],
-	"brackenway": ["bramble_downs", "lanterns_rest"],
-	# --- Spoke 1 (from Lantern's Rest): the delve — 4 maps to Emberwatch ---
-	"ruins": ["lanterns_rest", "old_battlefield"],
-	"old_battlefield": ["ruins", "thornroot"],
-	"thornroot": ["old_battlefield", "the_reliquary"],
-	"the_reliquary": ["thornroot", "emberwatch"],
-	# --- Spoke 2 (from Wickmoor): the overland trail — 4 maps to Emberwatch ---
-	"three_terraces": ["wickmoor", "bandit_bluffs"],
-	"bandit_bluffs": ["three_terraces", "dust_warren"],
-	"dust_warren": ["bandit_bluffs", "wolfsreach"],
-	"wolfsreach": ["dust_warren", "emberwatch"],
-	# --- Spoke 3 (from Hollowmere): the deep road — 4 maps to Emberwatch ---
-	"mirefen": ["hollowmere", "stonereach"],
-	"stonereach": ["mirefen", "mines"],
-	"mines": ["stonereach", "the_undercroft"],
-	"the_undercroft": ["mines", "emberwatch"],
-	# --- Central Hearth + the Core descent to the centre ---
-	"emberwatch": ["the_reliquary", "wolfsreach", "the_undercroft", "deep_woods"],
+	"firefly_hollow": ["lanterns_rest", "brackenway"],
+	# --- LOW FRONTIER (Lv4-16): branchy meadow country, pockets off the spine ---
+	"meadow_path": ["near_wilds", "glimmerfen", "brackenway"],
+	"brackenway": ["meadow_path", "firefly_hollow", "bramble_downs"],
+	"glimmerfen": ["meadow_path", "lanternwood"],
+	"bramble_downs": ["brackenway", "tinderfields"],
+	"lanternwood": ["glimmerfen", "ember_meadows"],
+	"tinderfields": ["bramble_downs", "ember_meadows"],
+	"ember_meadows": ["lanternwood", "tinderfields", "hollow_warren", "watchers_ruin"],
+	"hollow_warren": ["ember_meadows"],                       # dead-end pocket
+	"watchers_ruin": ["ember_meadows", "beacon_rise"],
+	"beacon_rise": ["watchers_ruin", "old_causeway"],
+	# --- the CLIMB to Emberwatch (Lv17-47): the long ascent / last half of the first act ---
+	"old_causeway": ["beacon_rise", "ruins"],
+	"ruins": ["old_causeway", "thornroot"],
+	"thornroot": ["ruins", "old_battlefield"],
+	"old_battlefield": ["thornroot", "the_reliquary"],
+	"the_reliquary": ["old_battlefield", "embergate"],
+	"embergate": ["the_reliquary", "emberwatch"],
+	# --- Central Hearth + the Core descent to the centre (back half, unchanged) ---
+	"emberwatch": ["embergate", "deep_woods"],
 	"deep_woods": ["emberwatch", "keep"],
 	"keep": ["deep_woods", "mustering_fields"],
 	"mustering_fields": ["keep", "the_scorchline"],
@@ -63,14 +65,20 @@ const TOKEN := {
 	"tinderfields": "Tinderfields", "brackenway": "Brackenway",
 	"mirefen": "Mirefen", "stonereach": "Stonereach",
 	"the_reliquary": "Reliquary", "wolfsreach": "Wolfsreach",
+	"firefly_hollow": "FireflyHollow", "glimmerfen": "Glimmerfen", "lanternwood": "Lanternwood",
+	"hollow_warren": "HollowWarren", "watchers_ruin": "WatchersRuin", "beacon_rise": "BeaconRise",
+	"old_causeway": "OldCauseway", "embergate": "Embergate",
 }
+## Per-map level — used ONLY to decide each portal's side (higher dest = RIGHT door / progress,
+## lower = LEFT / backtrack), so both ends of an edge land on opposite sides. Values track the
+## Lantern's-arm roster bands; equal levels fall back to a name tiebreak.
 const LEVEL := {
-	"lanterns_rest": 0, "wickmoor": 0, "hollowmere": 0,
-	"near_wilds": 5, "meadow_path": 6, "tinderfields": 8, "ember_meadows": 10,
-	"bramble_downs": 12, "brackenway": 14,
-	"ruins": 20, "three_terraces": 22, "old_battlefield": 24, "mirefen": 26,
-	"bandit_bluffs": 30, "thornroot": 33, "stonereach": 38, "dust_warren": 40,
-	"the_reliquary": 40, "mines": 44, "wolfsreach": 44, "the_undercroft": 46, "emberwatch": 48,
+	"lanterns_rest": 0,
+	"firefly_hollow": 3, "near_wilds": 4, "meadow_path": 5, "brackenway": 6,
+	"glimmerfen": 7, "bramble_downs": 8, "lanternwood": 10, "tinderfields": 11,
+	"ember_meadows": 12, "hollow_warren": 13, "watchers_ruin": 14, "beacon_rise": 16,
+	"old_causeway": 20, "ruins": 25, "thornroot": 31, "old_battlefield": 37,
+	"the_reliquary": 42, "embergate": 46, "emberwatch": 48,
 	"deep_woods": 55, "keep": 60, "mustering_fields": 66, "the_scorchline": 72,
 	"emberscar": 78, "cinderwaste": 84, "weave": 90, "the_unraveling": 94,
 	"ashvigil": 96, "warlord": 100,
