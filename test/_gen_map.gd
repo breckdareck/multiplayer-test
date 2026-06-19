@@ -640,16 +640,23 @@ func _wave_hall_demo() -> Array:
 				["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8]]},
 	]
 
-## Place one decorative column of width `w` from L/M/R column tiles (background dict). `broken` tops
-## it with the jagged broken piece (ruined pillar) instead of a capital.
-func _place_column(columns: Dictionary, px: int, w: int, top_row: int, base_row: int, broken: bool) -> void:
-	var topp := 3 if broken else 0
+## Place one decorative column (background dict) from L/M/R tiles. `top_piece`: 0 capital / 3 broken /
+## 4 ornate. `body_piece`: 1 shaft / 5 cracked / 6 ivy. `lean` tilts it (px shift per row toward the
+## top, stair-stepped) for a crumbling leaning ruin. Base stays planted on the floor.
+func _place_column(columns: Dictionary, px: int, w: int, top_row: int, base_row: int, top_piece: int, body_piece: int, lean: float) -> void:
 	for i in range(w):
 		var x := px + i
 		var ec := 0 if i == 0 else (2 if i == w - 1 else 1)   # L / M / R
-		columns[Vector2i(x, top_row)] = [ec, topp]
-		for y in range(top_row + 1, base_row): columns[Vector2i(x, y)] = [ec, 1]   # shaft
-		columns[Vector2i(x, base_row)] = [ec, 2]                                    # base
+		columns[Vector2i(x + int(lean * (base_row - top_row)), top_row)] = [ec, top_piece]
+		for y in range(top_row + 1, base_row):
+			columns[Vector2i(x + int(lean * (base_row - y)), y)] = [ec, body_piece]
+		columns[Vector2i(x, base_row)] = [ec, 2]                                    # base (planted)
+
+## A toppled column lying on the ground (piece 7), `length` tiles long at row `row`.
+func _place_fallen(columns: Dictionary, px: int, length: int, row: int) -> void:
+	for i in range(length):
+		var ec := 0 if i == 0 else (2 if i == length - 1 else 1)
+		columns[Vector2i(px + i, row)] = [ec, 7]
 
 
 ## HALL / RUINS archetype: an open walkable floor framed by DECORATIVE stone columns (background,
@@ -665,11 +672,12 @@ func _build_hall(cfg: Dictionary) -> Dictionary:
 	# Decorative columns (Background, non-colliding), built from L/M/R tiles so they vary in width.
 	# Mix of full (capital-topped) and broken (ruined, shorter) columns for the ruins look.
 	var base_row := base_r - 1
-	_place_column(columns, 8, 3, base_r - 13, base_row, false)    # full, 3-thick
-	_place_column(columns, 22, 2, base_r - 9, base_row, true)     # broken, 2-thick (shorter)
-	_place_column(columns, 34, 2, base_r - 13, base_row, false)   # full, 2-thick
-	_place_column(columns, 48, 3, base_r - 10, base_row, true)    # broken, 3-thick
-	_place_column(columns, 62, 2, base_r - 13, base_row, false)   # full, 2-thick
+	_place_column(columns, 8, 3, base_r - 13, base_row, 4, 5, 0.0)     # ornate capital + cracked shaft
+	_place_column(columns, 22, 2, base_r - 9, base_row, 3, 6, 0.0)     # broken top + ivy shaft (shorter)
+	_place_column(columns, 38, 2, base_r - 13, base_row, 0, 1, 0.22)   # LEANING (capital + plain)
+	_place_column(columns, 52, 3, base_r - 10, base_row, 3, 1, 0.0)    # broken, 3-thick
+	_place_column(columns, 64, 2, base_r - 13, base_row, 4, 6, 0.0)    # ornate + ivy
+	_place_fallen(columns, 28, 6, base_row)                            # toppled column on the floor
 	# Broken upper ledges between the columns (one-way), reached by rope.
 	var led := base_r - 7
 	_seg(plat, 14, 30, led)
@@ -1748,7 +1756,7 @@ func _inject_columns(text: String) -> String:
 	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))
 	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/stone_columns.png" id="gen_columns"]' + text.substr(nl)
 	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenColumnAtlas"]\ntexture = ExtResource("gen_columns")\ntexture_region_size = Vector2i(16, 16)\n'
-	for cr in range(4):                                   # 3 cols (L/M/R) x 4 rows (cap/shaft/base/broken)
+	for cr in range(8):                                   # 3 cols (L/M/R) x 8 rows (cap/shaft/base/broken/ornate/cracked/ivy/fallen)
 		for cc in range(3): atlas += '%d:%d/0 = 0\n' % [cc, cr]
 	atlas += "\n"
 	var ti := text.find('[sub_resource type="TileSet" id=')
