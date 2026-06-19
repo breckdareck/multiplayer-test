@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=15 format=3 uid="uid://sekkfwmqboy4"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=19 format=3 uid="uid://sekkfwmqboy4"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
@@ -9,6 +9,10 @@
 [ext_resource type="Resource" uid="uid://dmdk1fs3konm5" path="res://resources/DropTables/Generated/Steel_Spellstaff.tres" id="d_3"]
 [ext_resource type="Resource" uid="uid://dyfws8o3mtopt" path="res://resources/DropTables/Generated/Steel_Dirk.tres" id="d_4"]
 [ext_resource type="Resource" uid="uid://byxx4whtapp3d" path="res://resources/DropTables/Generated/Steel_Vanguard_Mail.tres" id="d_5"]
+[ext_resource type="Resource" uid="uid://c2aompjudfyev" path="res://resources/DropTables/Generated/Thornroot_Cleaver.tres" id="d_6"]
+[ext_resource type="Resource" uid="uid://ls5juqtwm538" path="res://resources/DropTables/Generated/Bramblefang_Bow.tres" id="d_7"]
+[ext_resource type="Resource" uid="uid://b73ioromnpexx" path="res://resources/DropTables/Generated/Hollowroot_Staff.tres" id="d_8"]
+[ext_resource type="Resource" uid="uid://b32y2rcyw8dna" path="res://resources/DropTables/Generated/Thorn_Fang.tres" id="d_9"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -61,5 +65,5 @@ enrage_health_threshold = 0.2
 special_attack_radius = 130.0
 special_attacks = Array[ExtResource("4_bad")]([SubResource("Resource_rush")])
 boss_bgm = "res://assets/music/emberwilds_boss3.ogg"
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6"), ExtResource("d_7"), ExtResource("d_8"), ExtResource("d_9")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

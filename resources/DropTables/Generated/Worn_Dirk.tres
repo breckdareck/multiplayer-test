@@ -7,4 +7,4 @@ script = ExtResource("1_50ovf")
 item_name = "Worn Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.035
+drop_chance = 0.059

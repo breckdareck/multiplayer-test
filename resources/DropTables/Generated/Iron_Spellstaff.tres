@@ -7,4 +7,4 @@ script = ExtResource("1_41vfo")
 item_name = "Iron Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.039
+drop_chance = 0.047

@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://k3gmqn7xxf0i"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_s45gt"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 
 [resource]
-script = ExtResource("1_s45gt")
+script = ExtResource("1_drop")
 item_name = "Aegis of the Vanguard"
-drop_chance = 0.009000000000000001
+drop_chance = 0.1

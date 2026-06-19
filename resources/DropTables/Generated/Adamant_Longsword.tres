@@ -7,4 +7,4 @@ script = ExtResource("1_bl1j7")
 item_name = "Adamant Longsword"
 randomize_stats = true
 possible_stats = Array[int]([12, 0])
-drop_chance = 0.043
+drop_chance = 0.035

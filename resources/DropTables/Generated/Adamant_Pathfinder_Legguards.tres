@@ -7,4 +7,4 @@ script = ExtResource("1_jmp3j")
 item_name = "Adamant Pathfinder Legguards"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.043
+drop_chance = 0.035

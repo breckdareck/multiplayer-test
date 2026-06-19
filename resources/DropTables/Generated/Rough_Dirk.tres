@@ -7,4 +7,4 @@ script = ExtResource("1_nh5h3")
 item_name = "Rough Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.036
+drop_chance = 0.056

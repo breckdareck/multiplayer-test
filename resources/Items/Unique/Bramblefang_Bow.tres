@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3 uid="uid://diisadmfgrj5y"]
+
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="2_icon"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cls"]
+
+[sub_resource type="Resource" id="Resource_s0"]
+script = ExtResource("1_stat")
+stat_type = 2
+base_value = 0
+flat_bonus_value = 28
+
+[sub_resource type="Resource" id="Resource_s1"]
+script = ExtResource("1_stat")
+stat_type = 10
+base_value = 0
+flat_bonus_value = 16
+
+[sub_resource type="Resource" id="Resource_s2"]
+script = ExtResource("1_stat")
+stat_type = 11
+base_value = 0
+flat_bonus_value = 22
+
+[sub_resource type="Resource" id="Resource_s3"]
+script = ExtResource("1_stat")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 76
+
+[resource]
+script = ExtResource("3_cls")
+weapon_type = 1
+weapon_attack_speed = 6
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_stat")]({
+2: SubResource("Resource_s0"),
+10: SubResource("Resource_s1"),
+11: SubResource("Resource_s2"),
+12: SubResource("Resource_s3")
+})
+item_id = "u_bramblefang_bow"
+name = "Bramblefang Bow"
+rarity = 4
+icon = ExtResource("2_icon")
+description = "A living bow strung with barbed bramble."
+item_type = 1
+item_level = 30
+custom_item_value = 0

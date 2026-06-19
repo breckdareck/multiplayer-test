@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="ItemDropResource" load_steps=2 format=3 uid="uid://d26ci26nnsll7"]
 
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_jet5y"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 
 [resource]
-script = ExtResource("1_jet5y")
+script = ExtResource("1_drop")
 item_name = "Dawnbreaker"
-drop_chance = 0.01
+drop_chance = 0.1

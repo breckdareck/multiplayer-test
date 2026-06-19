@@ -1,49 +1,49 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://bjv3bsjpcfjg"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_dms1g"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Staff_of_Eternity.png" id="2_1sq0n"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_5pn12"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Staff_of_Eternity.png" id="2_icon"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cls"]
 
-[sub_resource type="Resource" id="Resource_mk3bg"]
-script = ExtResource("1_dms1g")
-stat_type = 13
-base_value = 0
-flat_bonus_value = 110
-
-[sub_resource type="Resource" id="Resource_ta6fk"]
-script = ExtResource("1_dms1g")
+[sub_resource type="Resource" id="Resource_s0"]
+script = ExtResource("1_stat")
 stat_type = 1
 base_value = 0
-flat_bonus_value = 40
+flat_bonus_value = 100
 
-[sub_resource type="Resource" id="Resource_ut468"]
-script = ExtResource("1_dms1g")
+[sub_resource type="Resource" id="Resource_s1"]
+script = ExtResource("1_stat")
 stat_type = 5
 base_value = 0
-flat_bonus_value = 500
+flat_bonus_value = 1400
 
-[sub_resource type="Resource" id="Resource_4wkig"]
-script = ExtResource("1_dms1g")
+[sub_resource type="Resource" id="Resource_s2"]
+script = ExtResource("1_stat")
 stat_type = 7
 base_value = 0
-flat_bonus_value = 20
+flat_bonus_value = 50
+
+[sub_resource type="Resource" id="Resource_s3"]
+script = ExtResource("1_stat")
+stat_type = 13
+base_value = 0
+flat_bonus_value = 270
 
 [resource]
-script = ExtResource("3_5pn12")
+script = ExtResource("3_cls")
 weapon_type = 2
 weapon_attack_speed = 4
 equipment_type = 1
-bonus_stats = Dictionary[int, ExtResource("1_dms1g")]({
-1: SubResource("Resource_ta6fk"),
-5: SubResource("Resource_ut468"),
-7: SubResource("Resource_4wkig"),
-13: SubResource("Resource_mk3bg")
+bonus_stats = Dictionary[int, ExtResource("1_stat")]({
+1: SubResource("Resource_s0"),
+5: SubResource("Resource_s1"),
+7: SubResource("Resource_s2"),
+13: SubResource("Resource_s3")
 })
 item_id = "11301287814-153132-65158-1110102-104702928131002"
 name = "Staff of Eternity"
 rarity = 4
-icon = ExtResource("2_1sq0n")
+icon = ExtResource("2_icon")
 description = "An ancient staff humming with limitless arcane reserves."
 item_type = 1
-item_level = 60
+item_level = 100
 custom_item_value = 0

@@ -76,6 +76,16 @@ var _existing_uids: Dictionary = {}
 
 func _initialize() -> void:
 	print("=== Item content generator ===")
+	# Surgical mode: regenerate ONLY uniques (+ their drop tables) without re-running
+	# the full generator, which would re-randomize every item's item_id. Preserve UIDs
+	# (don't clear the dirs, so equip tables in DROP_DIR and all other items are untouched).
+	if "--uniques-only" in OS.get_cmdline_user_args():
+		_harvest_uids(UNIQUE_DIR)
+		_harvest_uids(DROP_DIR)
+		_generate_uniques()
+		print("Regenerated %d uniques (+ their drop tables) @ boss rate." % _counts["uniques"])
+		quit()
+		return
 	for d in [WEAPON_DIR, ARMOR_DIR, CONSUMABLE_DIR, UNIQUE_DIR, DROP_DIR]:
 		DirAccess.make_dir_recursive_absolute(d)
 		_harvest_uids(d)
@@ -247,24 +257,39 @@ func _make_consumable(cname: String, icon: String, effect: Script, prop: String,
 
 # --- Unique items: hand-tuned legendaries, one set per class -----------------
 func _generate_uniques() -> void:
-	_make_unique_weapon("Dawnbreaker", 0, 5, 50, "sword",
-		"A radiant greatsword said to have been quenched in dawnlight.",
-		{WEAPONATK: 95, STR: 30, CRITDMG: 25, HEALTH: 200})
-	_make_unique_weapon("Stormpiercer", 1, 6, 55, "bow",
-		"A bow that looses arrows wreathed in crackling wind.",
-		{WEAPONATK: 88, DEX: 35, CRITCHANCE: 22, CRITDMG: 30})
-	_make_unique_weapon("Staff of Eternity", 2, 4, 60, "staff",
+	# --- Final boss (Eternal Warlord, Lv100) weapon uniques: best-in-game, one per weapon ---
+	_make_unique_weapon("Dawnbreaker", 0, 5, 100, "sword",
+		"A radiant greatsword quenched in dawnlight — the Warlord's bane.",
+		{WEAPONATK: 230, STR: 80, CRITDMG: 45, HEALTH: 800})
+	_make_unique_weapon("Stormpiercer", 1, 6, 100, "bow",
+		"A bow that looses arrows wreathed in screaming wind.",
+		{WEAPONATK: 215, DEX: 90, CRITCHANCE: 32, CRITDMG: 60})
+	_make_unique_weapon("Staff of Eternity", 2, 4, 100, "staff",
 		"An ancient staff humming with limitless arcane reserves.",
-		{MAGICATK: 110, INT: 40, MANA: 500, MPREGEN: 20})
-	_make_unique_weapon("Shadowfang", 3, 9, 55, "dagger",
-		"A blackened fang that seems to drink the light around it.",
-		{WEAPONATK: 70, LUCK: 38, CRITCHANCE: 28, CRITDMG: 40})
-	_make_unique_armor("Aegis of the Vanguard", 1, 60, "armor1",
-		"An impregnable bulwark worn by legendary Swordsmen.",
-		{DEF: 70, MDEF: 45, HEALTH: 600, STR: 25})
-	_make_unique_armor("Ironwill Helm", 0, 40, "armor0",
-		"A battered helm that has never once been split.",
-		{DEF: 35, HEALTH: 300, STR: 15, HPREGEN: 12})
+		{MAGICATK: 270, INT: 100, MANA: 1400, MPREGEN: 50})
+	_make_unique_weapon("Shadowfang", 3, 9, 100, "dagger",
+		"A blackened fang that drinks the light around it.",
+		{WEAPONATK: 175, LUCK: 95, CRITCHANCE: 40, CRITDMG: 80})
+	# --- Mid boss (Thornroot Warchief, Lv30) weapon uniques: one per weapon ---
+	_make_unique_weapon("Thornroot Cleaver", 0, 5, 30, "sword",
+		"A jagged greatblade grown from the Hollow's deepest root.",
+		{WEAPONATK: 82, STR: 26, CRITDMG: 20, HEALTH: 200})
+	_make_unique_weapon("Bramblefang Bow", 1, 6, 30, "bow",
+		"A living bow strung with barbed bramble.",
+		{WEAPONATK: 76, DEX: 28, CRITCHANCE: 16, CRITDMG: 22})
+	_make_unique_weapon("Hollowroot Staff", 2, 4, 30, "staff",
+		"A gnarled staff that channels the Hollow's hungry sap.",
+		{MAGICATK: 92, INT: 30, MANA: 360, MPREGEN: 16})
+	_make_unique_weapon("Thorn Fang", 3, 9, 30, "dagger",
+		"A thorn honed to a venomous edge.",
+		{WEAPONATK: 62, LUCK: 30, CRITCHANCE: 20, CRITDMG: 30})
+	# --- Final boss (Eternal Warlord, Lv100) armour uniques: chest + helm ---
+	_make_unique_armor("Aegis of the Vanguard", 1, 100, "armor1",
+		"An impregnable bulwark that has turned a hundred embers.",
+		{DEF: 180, MDEF: 120, HEALTH: 1600, STR: 60})
+	_make_unique_armor("Ironwill Helm", 0, 100, "armor0",
+		"A crown-helm that has never once been split.",
+		{DEF: 110, HEALTH: 1000, STR: 40, HPREGEN: 40})
 	_make_unique_armor("Windrunner's Garb", 1, 50, "armor1",
 		"Featherlight armour that never slows its wearer.",
 		{DEF: 48, DEX: 30, CRITCHANCE: 15, HEALTH: 350})
@@ -357,15 +382,16 @@ func _make_drop_table(item: ItemData, chance: float, randomize: bool,
 # retune tool (tools/retune_drops.gd) and any regen stay in sync.
 const RARITY_WEIGHTS := {"COMMON": 100, "UNCOMMON": 32, "RARE": 15, "EPIC": 5, "LEGENDARY": 2}
 
-# Equipment drop chance RISES with item level (was a 3.5%->1.1% decay that made endgame
-# gear droughts; now flat ~3.5% early climbing to ~5% at lv100 so deep maps reward more).
+# Equipment drop chance FALLS with item level (SpiritVale-style, 2026-06-19): trash
+# gear is common early (~6% @Lv1) and tapers to ~1% by Lv100. Endgame gear is the
+# BOSS chase (boss-exclusive tier tables @25% + uniques @10%), not trash farming.
 func _equip_drop_chance(lv: int) -> float:
-	return clampf(0.035 + lv * 0.00015, 0.035, 0.05)
+	return clampf(0.06 - lv * 0.0005, 0.01, 0.06)
 
 
-# Uniques are rare everywhere and rarer the higher their level.
-func _unique_drop_chance(lv: int) -> float:
-	return clampf(0.015 - lv * 0.0001, 0.004, 0.015)
+# Uniques drop ONLY from bosses — generous flat boss rate (user choice 2026-06-19).
+func _unique_drop_chance(_lv: int) -> float:
+	return 0.10
 
 
 # --- Helpers -----------------------------------------------------------------

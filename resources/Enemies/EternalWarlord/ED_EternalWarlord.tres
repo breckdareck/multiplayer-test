@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=20 format=3 uid="uid://dmr25eig7wwau"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=24 format=3 uid="uid://dmr25eig7wwau"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
@@ -14,6 +14,10 @@
 [ext_resource type="Resource" uid="uid://bjclxscn01aml" path="res://resources/DropTables/Generated/Eternal_Pathfinder_Mail.tres" id="d_8"]
 [ext_resource type="Resource" uid="uid://d26ci26nnsll7" path="res://resources/DropTables/Generated/Dawnbreaker.tres" id="d_9"]
 [ext_resource type="Resource" uid="uid://bntk6hgy3jxuc" path="res://resources/DropTables/Generated/Staff_of_Eternity.tres" id="d_10"]
+[ext_resource type="Resource" uid="uid://y57jt5qwn3av" path="res://resources/DropTables/Generated/Stormpiercer.tres" id="d_11"]
+[ext_resource type="Resource" uid="uid://dajv83ker3f7a" path="res://resources/DropTables/Generated/Shadowfang.tres" id="d_12"]
+[ext_resource type="Resource" uid="uid://k3gmqn7xxf0i" path="res://resources/DropTables/Generated/Aegis_of_the_Vanguard.tres" id="d_13"]
+[ext_resource type="Resource" uid="uid://by0uofwagas3h" path="res://resources/DropTables/Generated/Ironwill_Helm.tres" id="d_14"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -71,5 +75,5 @@ special_attack_damage_mult = 2.5
 special_attacks = Array[ExtResource("13_wiq80")]([SubResource("Resource_wiq80")])
 boss_bgm = "res://assets/music/emberwilds_boss4.ogg"
 enrage_bgm = "res://assets/music/emberwilds_boss.ogg"
-item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6"), ExtResource("d_7"), ExtResource("d_8"), ExtResource("d_9"), ExtResource("d_10")])
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin"), ExtResource("d_1"), ExtResource("d_2"), ExtResource("d_3"), ExtResource("d_4"), ExtResource("d_5"), ExtResource("d_6"), ExtResource("d_7"), ExtResource("d_8"), ExtResource("d_9"), ExtResource("d_10"), ExtResource("d_11"), ExtResource("d_12"), ExtResource("d_13"), ExtResource("d_14")])
 metadata/_custom_type_script = "uid://dv7aj5x3e50cg"

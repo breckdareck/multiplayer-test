@@ -7,4 +7,4 @@ script = ExtResource("1_yxwty")
 item_name = "Worn Pathfinder Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.035
+drop_chance = 0.059

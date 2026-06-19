@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemDropResource" format=3 uid="uid://b32y2rcyw8dna"]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+
+[resource]
+script = ExtResource("1_drop")
+item_name = "Thorn Fang"
+drop_chance = 0.1

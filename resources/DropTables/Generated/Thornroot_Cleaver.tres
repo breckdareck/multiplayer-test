@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="ItemDropResource" format=3 uid="uid://c2aompjudfyev"]
+
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+
+[resource]
+script = ExtResource("1_drop")
+item_name = "Thornroot Cleaver"
+drop_chance = 0.1

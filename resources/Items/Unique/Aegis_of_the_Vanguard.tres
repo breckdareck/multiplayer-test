@@ -1,46 +1,48 @@
 [gd_resource type="Resource" script_class="ArmorData" load_steps=8 format=3 uid="uid://cthvb01o6vo28"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_niaf6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Aegis_of_the_Vanguard.png" id="2_jf0eu"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_hf8hk"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Aegis_of_the_Vanguard.png" id="2_icon"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/ArmorData.gd" id="3_cls"]
 
-[sub_resource type="Resource" id="Resource_8n4wl"]
-script = ExtResource("1_niaf6")
-stat_type = 8
+[sub_resource type="Resource" id="Resource_s0"]
+script = ExtResource("1_stat")
+stat_type = 0
 base_value = 0
-flat_bonus_value = 70
+flat_bonus_value = 60
 
-[sub_resource type="Resource" id="Resource_8t0y6"]
-script = ExtResource("1_niaf6")
-stat_type = 9
-base_value = 0
-flat_bonus_value = 45
-
-[sub_resource type="Resource" id="Resource_o5byn"]
-script = ExtResource("1_niaf6")
+[sub_resource type="Resource" id="Resource_s1"]
+script = ExtResource("1_stat")
 stat_type = 4
 base_value = 0
-flat_bonus_value = 600
+flat_bonus_value = 1600
 
-[sub_resource type="Resource" id="Resource_sbmgm"]
-script = ExtResource("1_niaf6")
+[sub_resource type="Resource" id="Resource_s2"]
+script = ExtResource("1_stat")
+stat_type = 8
 base_value = 0
-flat_bonus_value = 25
+flat_bonus_value = 180
+
+[sub_resource type="Resource" id="Resource_s3"]
+script = ExtResource("1_stat")
+stat_type = 9
+base_value = 0
+flat_bonus_value = 120
 
 [resource]
-script = ExtResource("3_hf8hk")
+script = ExtResource("3_cls")
 armor_type = 1
-bonus_stats = Dictionary[int, ExtResource("1_niaf6")]({
-0: SubResource("Resource_sbmgm"),
-4: SubResource("Resource_o5byn"),
-8: SubResource("Resource_8n4wl"),
-9: SubResource("Resource_8t0y6")
+equipment_type = 1
+bonus_stats = Dictionary[int, ExtResource("1_stat")]({
+0: SubResource("Resource_s0"),
+4: SubResource("Resource_s1"),
+8: SubResource("Resource_s2"),
+9: SubResource("Resource_s3")
 })
 item_id = "1463101211134-104153-9935-8831-071044414653015"
 name = "Aegis of the Vanguard"
 rarity = 4
-icon = ExtResource("2_jf0eu")
-description = "An impregnable bulwark worn by legendary Swordsmen."
+icon = ExtResource("2_icon")
+description = "An impregnable bulwark that has turned a hundred embers."
 item_type = 1
-item_level = 60
+item_level = 100
 custom_item_value = 0

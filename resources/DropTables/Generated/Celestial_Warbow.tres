@@ -7,4 +7,4 @@ script = ExtResource("1_cdl61")
 item_name = "Celestial Warbow"
 randomize_stats = true
 possible_stats = Array[int]([12, 2, 10])
-drop_chance = 0.047
+drop_chance = 0.017

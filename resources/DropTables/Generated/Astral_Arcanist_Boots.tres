@@ -7,4 +7,4 @@ script = ExtResource("1_t4hte")
 item_name = "Astral Arcanist Boots"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 1, 5, 7, 16])
-drop_chance = 0.049
+drop_chance = 0.013

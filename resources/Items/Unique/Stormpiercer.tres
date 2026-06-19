@@ -1,49 +1,49 @@
 [gd_resource type="Resource" script_class="WeaponData" load_steps=8 format=3 uid="uid://cnuav2bxo7hkn"]
 
-[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_33bm3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="2_kqs2s"]
-[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_a6pec"]
+[ext_resource type="Script" path="res://scripts/Resources/StatSystem/StatData.gd" id="1_stat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Items/generated_px/Unique/Stormpiercer.png" id="2_icon"]
+[ext_resource type="Script" path="res://scripts/Resources/ItemSystem/WeaponData.gd" id="3_cls"]
 
-[sub_resource type="Resource" id="Resource_w0dof"]
-script = ExtResource("1_33bm3")
-stat_type = 12
-base_value = 0
-flat_bonus_value = 88
-
-[sub_resource type="Resource" id="Resource_a46vb"]
-script = ExtResource("1_33bm3")
+[sub_resource type="Resource" id="Resource_s0"]
+script = ExtResource("1_stat")
 stat_type = 2
 base_value = 0
-flat_bonus_value = 35
+flat_bonus_value = 90
 
-[sub_resource type="Resource" id="Resource_1s6k2"]
-script = ExtResource("1_33bm3")
+[sub_resource type="Resource" id="Resource_s1"]
+script = ExtResource("1_stat")
 stat_type = 10
 base_value = 0
-flat_bonus_value = 22
+flat_bonus_value = 32
 
-[sub_resource type="Resource" id="Resource_nk1pr"]
-script = ExtResource("1_33bm3")
+[sub_resource type="Resource" id="Resource_s2"]
+script = ExtResource("1_stat")
 stat_type = 11
 base_value = 0
-flat_bonus_value = 30
+flat_bonus_value = 60
+
+[sub_resource type="Resource" id="Resource_s3"]
+script = ExtResource("1_stat")
+stat_type = 12
+base_value = 0
+flat_bonus_value = 215
 
 [resource]
-script = ExtResource("3_a6pec")
+script = ExtResource("3_cls")
 weapon_type = 1
 weapon_attack_speed = 6
 equipment_type = 1
-bonus_stats = Dictionary[int, ExtResource("1_33bm3")]({
-2: SubResource("Resource_a46vb"),
-10: SubResource("Resource_1s6k2"),
-11: SubResource("Resource_nk1pr"),
-12: SubResource("Resource_w0dof")
+bonus_stats = Dictionary[int, ExtResource("1_stat")]({
+2: SubResource("Resource_s0"),
+10: SubResource("Resource_s1"),
+11: SubResource("Resource_s2"),
+12: SubResource("Resource_s3")
 })
 item_id = "1510131322102-4952-5101113-115152-13354614107824"
 name = "Stormpiercer"
 rarity = 4
-icon = ExtResource("2_kqs2s")
-description = "A bow that looses arrows wreathed in crackling wind."
+icon = ExtResource("2_icon")
+description = "A bow that looses arrows wreathed in screaming wind."
 item_type = 1
-item_level = 55
+item_level = 100
 custom_item_value = 0
