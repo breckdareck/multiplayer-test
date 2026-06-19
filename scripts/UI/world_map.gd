@@ -30,11 +30,11 @@ const LAYOUT_WORLD := {
 	"brackenway":      Vector2(0.217, 0.178),
 	# central hearth (spokes converge)
 	"emberwatch":      Vector2(0.522, 0.436),
-	# spoke 1 — Lantern's delve (4 maps)
-	"ruins":           Vector2(0.500, 0.265),
-	"old_battlefield": Vector2(0.702, 0.515),
-	"thornroot":       Vector2(0.475, 0.649),
-	"the_reliquary":   Vector2(0.389, 0.475),
+	# spoke 1 — Lantern's delve (4 maps) — straight radial line, no spiral
+	"ruins":           Vector2(0.504, 0.151),
+	"old_battlefield": Vector2(0.509, 0.222),
+	"thornroot":       Vector2(0.513, 0.294),
+	"the_reliquary":   Vector2(0.518, 0.365),
 	# spoke 2 — Wickmoor overland (4 maps)
 	"three_terraces":  Vector2(0.809, 0.655),
 	"bandit_bluffs":   Vector2(0.737, 0.600),
