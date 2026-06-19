@@ -13,6 +13,7 @@ const SHEETS := {
 	2: "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png",
 	3: "res://assets/sprites/grass_slopes.png",
 	5: "res://assets/sprites/bridge_tiles.png",
+	6: "res://assets/sprites/water_tiles.png",
 }
 const MAPS := [
 	"lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces",

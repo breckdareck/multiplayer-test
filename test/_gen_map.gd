@@ -28,6 +28,7 @@ const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
 ## so you walk straight up instead of jumping a staircase. Trapezoid collision per tile.
 const SLOPE_SRC := 3
 const BRIDGE_SRC := 5    # bridge_tiles.png injected as sources/5 by _inject_bridge (solid planks)
+const WATER_SRC := 6     # water_tiles.png injected as sources/6 by _inject_water (surface walkable, body deco)
 const SLOPE_UR_LOW := Vector2i(0, 0)    # up-right ramp, low (left) half
 const SLOPE_UR_HIGH := Vector2i(1, 0)   # up-right ramp, high (right) half
 const SLOPE_UL_HIGH := Vector2i(2, 0)   # down-right ramp, high (left) half
@@ -55,6 +56,7 @@ func _init() -> void:
 	if "--terraces" in _args: wave = _wave_terraces_demo()
 	elif "--gorge" in _args: wave = _wave_gorge_demo()
 	elif "--shaft" in _args: wave = _wave_shaft_demo()
+	elif "--causeway" in _args: wave = _wave_causeway_demo()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -65,6 +67,7 @@ func _init() -> void:
 			"terraces": m = _build_terraces(cfg)
 			"gorge": m = _build_gorge(cfg)
 			"shaft": m = _build_shaft(cfg)
+			"causeway": m = _build_causeway(cfg)
 			_: m = _build_field(cfg)
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
@@ -494,6 +497,63 @@ func _build_shaft(cfg: Dictionary) -> Dictionary:
 		"safe_rows": [perch], "ladders": ladders, "player_spawn": Vector2i(wall + 2, perch - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
 		"bgwall": bgwall, "rock_top": true, "no_trees": true, "no_village_bg": true, "no_deco": true,
+	}
+
+## Demo wave: a single standalone Causeway test map (gen_causeway.tscn). Run: generator -- --causeway
+func _wave_causeway_demo() -> Array:
+	return [
+		{"name": "gen_causeway", "arch": "causeway", "seed": 3301, "width": 88,
+			"display_name": "Causeway (test)", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8],
+				["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8],
+				["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8]]},
+	]
+
+## CAUSEWAY archetype: a long WALKABLE strip over water. The middle is shallow water-SURFACE tiles
+## (solid/walkable — no swim, no damage), with scenic deep water-BODY behind/below (Background2, no
+## collision). Shores at both ends; a couple low stepping platforms + a left safe spawn perch. Water
+## is pure scenery. New-tile pipeline: _inject_water adds the water source (collision on surface only).
+func _build_causeway(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 8
+	var shore := 9
+	var ground := {}; var plat := {}; var water := {}; var water_body := {}
+	for x in range(0, shore):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # left shore
+	for x in range(width - shore, width):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # right shore
+	for x in range(shore, width - shore):
+		water[Vector2i(x, base_r)] = [0, 0]                                       # walkable shallows (surface)
+		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]   # scenic depth (behind)
+	# Two low stepping platforms over the water (verticality / ranged perches).
+	var p1 := base_r - 4
+	_seg(plat, int(width * 0.24), int(width * 0.44), p1)
+	_seg(plat, int(width * 0.56), int(width * 0.76), p1)
+	# Left safe spawn perch.
+	var perch := base_r - 3
+	_seg(plat, 2, 8, perch)
+	var ladders := [
+		[perch, base_r, 4, "rope"],
+		[p1, base_r, int(width * 0.28), "rope"],
+		[p1, base_r, int(width * 0.72), "rope"],
+	]
+	# Explicit spawns: shores, the shallows, and the two platforms.
+	var spawn_spots := []
+	var c := 4
+	while c < shore - 1: spawn_spots.append(Vector2i(c, base_r)); c += 5
+	c = shore + 2
+	while c < width - shore - 2: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	c = width - shore + 1
+	while c < width - 3: spawn_spots.append(Vector2i(c, base_r)); c += 5
+	for px in [int(width * 0.32), int(width * 0.64)]: spawn_spots.append(Vector2i(px, p1))
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
+		"water": water, "water_body": water_body, "no_village_bg": true,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
+		"player_spawn": Vector2i(4, perch - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
 	}
 
 ## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass
@@ -1044,11 +1104,15 @@ func _emit(m: Dictionary) -> void:
 		for cell in picks:
 			if picks[cell][1] == 5 and picks[cell][0] >= 17 and picks[cell][0] <= 19:
 				rocktop[cell] = [picks[cell][0] - 13, 0]
-	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop, m.get("bridge", {})))
+	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop, m.get("bridge", {}), m.get("water", {})))
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	var bgwall: Dictionary = m.get("bgwall", {})
-	text = _replace_layer(text, "Background2", _layer_b64(bgwall, 1) if not bgwall.is_empty() else "")
+	var water_body: Dictionary = m.get("water_body", {})
+	if not water_body.is_empty():                                  # scenic deep water behind the path
+		text = _replace_layer(text, "Background2", _layer_b64(water_body, WATER_SRC))
+	else:
+		text = _replace_layer(text, "Background2", _layer_b64(bgwall, 1) if not bgwall.is_empty() else "")
 	text = text.replace('display_name = "The Ruins"', 'display_name = "%s"' % m.get("display_name", "Gen " + str(m["name"])))
 	if m.has("bgm"): text = text.replace('bgm_path = "res://assets/music/emberwilds_ruins.ogg"', 'bgm_path = "%s"' % m["bgm"])
 	text = _strip_clone_clutter(text)
@@ -1056,6 +1120,7 @@ func _emit(m: Dictionary) -> void:
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("bridge", {}).is_empty(): text = _inject_bridge(text)
+	if not m.get("water", {}).is_empty(): text = _inject_water(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
 	if not m.get("bosses", []).is_empty(): text = _inject_bosses(text, m)
@@ -1226,7 +1291,7 @@ func _layer_b64(cells: Dictionary, src: int) -> String:
 ## Mid (solid ground) layer with two sources: autotiled country-village ground (source 1)
 ## plus explicit slope ramp tiles (source SLOPE_SRC). Slope cells are dropped from the
 ## autotiled set so the ramp tile isn't overwritten by a flat grass-top.
-func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}, bridge: Dictionary = {}) -> String:
+func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}, bridge: Dictionary = {}, water: Dictionary = {}) -> String:
 	var l := TileMapLayer.new()
 	for cell in picks:
 		if slopes.has(cell) or rocktop.has(cell): continue
@@ -1237,6 +1302,8 @@ func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}, b
 		l.set_cell(cell, SLOPE_SRC, Vector2i(rocktop[cell][0], rocktop[cell][1]))
 	for cell in bridge:                               # solid wooden bridge planks (source BRIDGE_SRC)
 		l.set_cell(cell, BRIDGE_SRC, Vector2i(bridge[cell][0], bridge[cell][1]))
+	for cell in water:                                # walkable shallow water surface (source WATER_SRC)
+		l.set_cell(cell, WATER_SRC, Vector2i(water[cell][0], water[cell][1]))
 	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
 
 func _plat_b64(plat: Dictionary) -> String:
@@ -1494,6 +1561,29 @@ func _inject_bridge(text: String) -> String:
 	if sidx != -1:
 		var seol := text.find("\n", sidx)
 		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenBridgeAtlas")' % BRIDGE_SRC + text.substr(seol)
+	return text
+
+
+## Inject water_tiles.png as sources/WATER_SRC. Tile 0 (surface) gets solid floor collision so it's
+## walkable shallows; tiles 1 (body) / 2 (overlay) are decorative (no collision). Mirrors _inject_bridge.
+func _inject_water(text: String) -> String:
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))
+	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/water_tiles.png" id="gen_water"]' + text.substr(nl)
+	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenWaterAtlas"]\ntexture = ExtResource("gen_water")\ntexture_region_size = Vector2i(16, 16)\n'
+	atlas += '0:0/0 = 0\n0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)\n'   # surface = solid floor
+	atlas += '1:0/0 = 0\n2:0/0 = 0\n\n'                                                                              # body + overlay = decorative
+	var ti := text.find('[sub_resource type="TileSet" id=')
+	if ti != -1:
+		text = text.substr(0, ti) + atlas + text.substr(ti)
+	var sidx := text.find("sources/3 = SubResource(")
+	if sidx == -1: sidx = text.find("sources/2 = SubResource(")
+	if sidx != -1:
+		var seol := text.find("\n", sidx)
+		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenWaterAtlas")' % WATER_SRC + text.substr(seol)
 	return text
 
 
