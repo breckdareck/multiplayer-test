@@ -49,7 +49,7 @@ func _init() -> void:
 	# Five new gap-filler maps for the hybrid world (2026-06-17), each on a DISTINCT archetype
 	# (open tiers / cave / cliffs / tower / dark-open) so the road stops feeling same-y. Portals
 	# are wired separately by tools/rebuild_portals.gd, so the configs omit them.
-	for cfg in _wave_v4():
+	for cfg in _wave_fix():
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
 			"open": m = _build_open(cfg)
@@ -60,6 +60,47 @@ func _init() -> void:
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
 	quit()
+
+## Roster-balance pass (2026-06-19): regenerate off-band maps with the SAME terrain
+## (same arch/seed/amp/width) but a level-appropriate roster, so each map's enemies fit its
+## band. Enemy LEVELS are unchanged (shared EnemyData) — only WHICH enemies are placed; loot
+## follows the tier automatically. Re-run rebuild_portals.gd afterwards (regen drops portals).
+func _wave_fix() -> Array:
+	return [
+		# --- outer ring (low) ---
+		{"name": "tinderfields", "arch": "open", "seed": 2101, "amp": 2, "width": 84,
+			"display_name": "Tinderfields", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8], ["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8], ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8]]},
+		{"name": "bramble_downs", "arch": "open", "seed": 1501, "amp": 2, "width": 96,
+			"display_name": "Bramble Downs", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8], ["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8], ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 8]]},
+		{"name": "brackenway", "arch": "cliffs", "seed": 2201, "width": 84,
+			"display_name": "Brackenway", "bgm": "res://assets/music/emberwilds_near_wilds.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8], ["res://scenes/NPC/goblin_warrior.tscn", "uid://bj7nxg5um1rn6", 8], ["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 8]]},
+		# --- spokes (mid) ---
+		{"name": "mirefen", "arch": "cave", "seed": 2301, "width": 96,
+			"display_name": "Mirefen", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 8], ["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 8], ["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 8]]},
+		{"name": "the_reliquary", "arch": "cave", "seed": 2501, "width": 100,
+			"display_name": "The Reliquary", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/cat_robber.tscn", "uid://dl6nk8ypor2fd", 8], ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8], ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8", 8]]},
+		{"name": "wolfsreach", "arch": "cliffs", "seed": 2601, "width": 96,
+			"display_name": "Wolfsreach", "bgm": "res://assets/music/emberwilds_dust_warren.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8", 8], ["res://scenes/NPC/Beastmen/deer_druid.tscn", "uid://b7uy8wgb0j1t3", 8], ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 8]]},
+		{"name": "the_undercroft", "arch": "cave", "seed": 1601, "width": 104,
+			"display_name": "The Undercroft", "bgm": "res://assets/music/emberwilds_mines.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/deer_druid.tscn", "uid://b7uy8wgb0j1t3", 8], ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 9], ["res://scenes/NPC/Beastmen/rabbit_wizard.tscn", "uid://dppxdoxl4kf2k", 8]]},
+		# --- core (high) ---
+		{"name": "mustering_fields", "seed": 1201, "amp": 2, "width": 110,
+			"display_name": "The Mustering Fields", "bgm": "res://assets/music/emberwilds_keep.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/panda_warrior.tscn", "uid://dolpinlm1tsc0", 9], ["res://scenes/NPC/Minifolks/shadow_fox.tscn", "uid://c6qy8yi07kf2x", 8], ["res://scenes/NPC/Minifolks/runed_boar.tscn", "uid://tbl7yfcl3xwe", 8]]},
+		{"name": "the_scorchline", "arch": "tower", "seed": 1801, "width": 52,
+			"display_name": "The Scorchline", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/shadow_fox.tscn", "uid://c6qy8yi07kf2x", 8], ["res://scenes/NPC/Minifolks/runed_boar.tscn", "uid://tbl7yfcl3xwe", 8], ["res://scenes/NPC/fire_slime.tscn", "uid://bvjs3vxpdjkfj", 8]]},
+		{"name": "cinderwaste", "seed": 1401, "amp": 4, "width": 120,
+			"display_name": "The Cinderwaste", "bgm": "res://assets/music/emberwilds_emberscar.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/ember_fox.tscn", "uid://bichmn1gb8cd2", 8], ["res://scenes/NPC/Minifolks/wild_boar.tscn", "uid://oarco6h8le8s", 8], ["res://scenes/NPC/Minifolks/celestial_hare.tscn", "uid://cywi7283fngxu", 8]]},
+	]
 
 ## Spoke-balance maps (2026-06-18): two mid maps so each town is 4 maps from Emberwatch (4/4/4).
 ## The Reliquary (deep old-world vault on the Lantern's "delve" spoke) + Wolfsreach (wolf crags on

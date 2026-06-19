@@ -1,8 +1,8 @@
 [gd_scene load_steps=52 format=4]
 [ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
 [ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://cnes7f1n2altk" path="res://scenes/NPC/cave_goblin.tscn" id="gen_mob0"]
-[ext_resource type="PackedScene" uid="uid://d2ciakulevex6" path="res://scenes/NPC/stone_slime.tscn" id="gen_mob1"]
+[ext_resource type="PackedScene" uid="uid://c0fdrl7mq5ou7" path="res://scenes/NPC/goblin.tscn" id="gen_mob0"]
+[ext_resource type="PackedScene" uid="uid://cnes7f1n2altk" path="res://scenes/NPC/cave_goblin.tscn" id="gen_mob1"]
 [ext_resource type="PackedScene" uid="uid://b3drshokinfof" path="res://scenes/NPC/Minifolks/tusk_brute.tscn" id="gen_mob2"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
@@ -692,70 +692,70 @@ script = ExtResource("9_pjyxy")
 
 
 
-[node name="Spawn_cave_goblin" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="Spawn_goblin" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob0")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
 spawn_container = NodePath("../Enemies")
 pool_size = 8
 
-[node name="M0" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M0" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(209, -93)
 
-[node name="M1" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M1" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(849, -93)
 
-[node name="M2" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M2" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(433, -13)
 
-[node name="M3" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M3" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(1169, -13)
 
-[node name="M4" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M4" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(641, 67)
 
-[node name="M5" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M5" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(177, 131)
 
-[node name="M6" type="Marker2D" parent="Spawn_cave_goblin"]
+[node name="M6" type="Marker2D" parent="Spawn_goblin"]
 position = Vector2(657, 131)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_cave_goblin" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://cnes7f1n2altk")
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_goblin" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://c0fdrl7mq5ou7")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_stone_slime" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+[node name="Spawn_cave_goblin" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob1")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5"), NodePath("M6")]
 spawn_container = NodePath("../Enemies")
 pool_size = 8
 
-[node name="M0" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M0" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(385, -93)
 
-[node name="M1" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M1" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(1025, -93)
 
-[node name="M2" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M2" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(673, -13)
 
-[node name="M3" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M3" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(225, 67)
 
-[node name="M4" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M4" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(897, 67)
 
-[node name="M5" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M5" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(337, 131)
 
-[node name="M6" type="Marker2D" parent="Spawn_stone_slime"]
+[node name="M6" type="Marker2D" parent="Spawn_cave_goblin"]
 position = Vector2(817, 131)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_stone_slime" node_paths=PackedStringArray("enemy_spawner")]
-_spawnable_scenes = PackedStringArray("uid://d2ciakulevex6")
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_cave_goblin" node_paths=PackedStringArray("enemy_spawner")]
+_spawnable_scenes = PackedStringArray("uid://cnes7f1n2altk")
 spawn_path = NodePath("../../Enemies")
 script = ExtResource("gen_msp")
 enemy_spawner = NodePath("..")
