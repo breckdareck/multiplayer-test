@@ -21,14 +21,17 @@ world = {}
 for i, m in enumerate(ring):
     world[m] = polar(1.0, 90 - i*(360.0/len(ring)))
 # spoke1 spiral (rim->emberwatch), like the single-view spiral but ending at emberwatch
-spoke1 = ["ruins","old_battlefield","thornroot","mines","the_undercroft","emberwatch"]
+# 4/4/4 spokes: each town is 4 maps from Emberwatch.
+spoke1 = ["ruins","old_battlefield","thornroot","the_reliquary","emberwatch"]   # Lantern's delve
 for i, m in enumerate(spoke1):
     t = i/(len(spoke1)-1)
-    world[m] = polar(0.56*(1-t)+0.18*t*0, 90 - 1.05*360*t) if False else polar(0.56 - 0.40*t, 90 - 1.05*360*t)
+    world[m] = polar(0.56 - 0.40*t, 90 - 1.05*360*t)
 emb = world["emberwatch"]
 def interp(a,b,t): return (a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t)
-for i,m in enumerate(["three_terraces","bandit_bluffs","dust_warren"]): world[m]=interp(world["wickmoor"],emb,(i+1)/4)
-for i,m in enumerate(["mirefen","stonereach"]): world[m]=interp(world["hollowmere"],emb,(i+1)/3)
+spoke2 = ["three_terraces","bandit_bluffs","dust_warren","wolfsreach"]           # Wickmoor overland
+spoke3 = ["mirefen","stonereach","mines","the_undercroft"]                       # Hollowmere deep road
+for i,m in enumerate(spoke2): world[m]=interp(world["wickmoor"],emb,(i+1)/(len(spoke2)+1))
+for i,m in enumerate(spoke3): world[m]=interp(world["hollowmere"],emb,(i+1)/(len(spoke3)+1))
 CORE_GATE = (0.50, 0.58)   # synthetic gateway in the world view (clearly below Emberwatch)
 
 # ---- CORE view positions (emberwatch entry + deep descent spiral to warlord) ----
@@ -76,7 +79,7 @@ def render(pos, gate, gate_label, fname, title):
 e1=render(world, CORE_GATE, "The Core  v", "tools/_wm_world.png", "WORLD view — rim + spokes + The Core gateway")
 e2=render(core, SURFACE_GATE, "^ The Surface", "tools/_wm_core.png", "CORE view — Emberwatch -> the descent -> Warlord")
 print("WORLD view:", len(world), "maps,", e1, "edges  |  CORE view:", len(core), "maps,", e2, "edges")
-world_order = ring + ["ruins","old_battlefield","thornroot","mines","the_undercroft","emberwatch","three_terraces","bandit_bluffs","dust_warren","mirefen","stonereach"]
+world_order = ring + spoke1 + spoke2 + spoke3
 print("=== WORLD layout (bake into LAYOUT_WORLD) ===")
 for m in world_order:
     print(f'\t"{m}": Vector2({world[m][0]:.3f}, {world[m][1]:.3f}),')

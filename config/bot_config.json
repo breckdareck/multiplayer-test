@@ -207,6 +207,14 @@
     "stonereach": {
       "min_level": 34,
       "max_level": 42
+    },
+    "the_reliquary": {
+      "min_level": 38,
+      "max_level": 42
+    },
+    "wolfsreach": {
+      "min_level": 42,
+      "max_level": 46
     }
   }
 }

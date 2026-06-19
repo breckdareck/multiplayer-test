@@ -4,7 +4,7 @@ extends SceneTree
 ## floor-level markers near a door move (platform markers above stay); map-agnostic (matches any
 ## M# Marker2D regardless of spawner naming — Spawn_* or <Enemy>Spawner).
 const BUFFER := 4
-const MAPS := ["lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces", "old_battlefield", "thornroot", "dust_warren", "mines", "emberwatch", "deep_woods", "keep", "mustering_fields", "emberscar", "cinderwaste", "ashvigil", "weave", "warlord", "bramble_downs", "bandit_bluffs", "the_undercroft", "the_scorchline", "the_unraveling", "tinderfields", "brackenway", "mirefen", "stonereach", "wickmoor", "hollowmere"]
+const MAPS := ["lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces", "old_battlefield", "thornroot", "dust_warren", "mines", "emberwatch", "deep_woods", "keep", "mustering_fields", "emberscar", "cinderwaste", "ashvigil", "weave", "warlord", "bramble_downs", "bandit_bluffs", "the_undercroft", "the_scorchline", "the_unraveling", "tinderfields", "brackenway", "mirefen", "stonereach", "wickmoor", "hollowmere", "the_reliquary", "wolfsreach"]
 
 func _init() -> void:
 	for m in MAPS: _do(m)

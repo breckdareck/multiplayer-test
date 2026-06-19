@@ -49,7 +49,7 @@ func _init() -> void:
 	# Five new gap-filler maps for the hybrid world (2026-06-17), each on a DISTINCT archetype
 	# (open tiers / cave / cliffs / tower / dark-open) so the road stops feeling same-y. Portals
 	# are wired separately by tools/rebuild_portals.gd, so the configs omit them.
-	for cfg in _wave_v3():
+	for cfg in _wave_v4():
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
 			"open": m = _build_open(cfg)
@@ -60,6 +60,19 @@ func _init() -> void:
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
 	quit()
+
+## Spoke-balance maps (2026-06-18): two mid maps so each town is 4 maps from Emberwatch (4/4/4).
+## The Reliquary (deep old-world vault on the Lantern's "delve" spoke) + Wolfsreach (wolf crags on
+## the Wickmoor "overland" spoke). monsters: [[scene_path, uid, pool], ...].
+func _wave_v4() -> Array:
+	return [
+		{"name": "the_reliquary", "arch": "cave", "seed": 2501, "width": 100,
+			"display_name": "The Reliquary", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/fox_swordsman.tscn", "uid://cdl2mfbs8qlub", 8], ["res://scenes/NPC/stone_slime.tscn", "uid://d2ciakulevex6", 8], ["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 8]]},
+		{"name": "wolfsreach", "arch": "cliffs", "seed": 2601, "width": 96,
+			"display_name": "Wolfsreach", "bgm": "res://assets/music/emberwilds_dust_warren.ogg",
+			"monsters": [["res://scenes/NPC/Beastmen/wolf_pathfinder.tscn", "uid://wjbryq6x0qx5", 9], ["res://scenes/NPC/Minifolks/mithril_hare.tscn", "uid://dvymxl60snfn8", 8], ["res://scenes/NPC/war_goblin.tscn", "uid://cppmohti6r7s0", 8]]},
+	]
 
 ## Radial-world fill maps (2026-06-18): 2 low outer-ring fields (open/cliffs) + 2 mid spoke maps
 ## (cave/cliffs) for the Sleepywood wheel. Towns (Wickmoor/Hollowmere) are CLONED from

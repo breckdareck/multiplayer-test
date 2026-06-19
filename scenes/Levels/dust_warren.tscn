@@ -840,10 +840,10 @@ target_spawn_point_name = "BanditBluffs_DustWarren_Portal_Spawn"
 [node name="DustWarren_BanditBluffs_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToWolfsreach" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1929, 83)
-target_map_id = "emberwatch"
-target_spawn_point_name = "Emberwatch_DustWarren_Portal_Spawn"
+target_map_id = "wolfsreach"
+target_spawn_point_name = "Wolfsreach_DustWarren_Portal_Spawn"
 
-[node name="DustWarren_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+[node name="DustWarren_Wolfsreach_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1905, 87)

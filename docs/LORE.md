@@ -317,10 +317,12 @@ Three routes off the rim toward the centre; here the warping turns *clever* — 
 | **Mirefen** *(`mirefen`)* | 22–30 | A sunken bog-cavern off the spoke — lightless, dripping, goblin-haunted. | Cave Goblin, Stone Slime, Tusk Brute |
 | **Bandit Bluffs** *(`bandit_bluffs`)* | 28–34 | Ravine-country where bandit-beasts den in the crags and prey on the spoke. | Cat Robber, Fox Swordsman, Tusk Brute |
 | **Thornroot Hollow** *(`thornroot`)* | 28–38 | Overgrown sunken hollow where the warping turns clever. | Tusk Brute, Fox Swordsman, Stone Slime, Cat Robber |
+| **The Reliquary** *(`the_reliquary`)* | 38–42 | An old-world vault where the first binding-arts were kept; tool-beasts den among the relics. *(Lantern's delve, deepest before Emberwatch.)* | Fox Swordsman, Stone Slime, Wolf Pathfinder |
 | **Stonereach** *(`stonereach`)* | 34–42 | Old-world quarry-mesas, worked for binding-stone then abandoned. | Cat Robber, Dust Fox, Wolf Pathfinder |
 | **The Dust Warren** *(`dust_warren`)* | 36–44 | A dry burrow-country of bandit-beasts and dust-pale foxes. | Cat Robber, Dust Fox, Wolf Pathfinder, Mithril Hare |
+| **Wolfsreach** *(`wolfsreach`)* | 42–46 | Wind-scoured crags past the Warren where the wolf-packs reach deepest. *(Wickmoor overland, deepest before Emberwatch.)* | Wolf Pathfinder, Mithril Hare, War Goblin |
 | **The Drowned Mines** *(`mines`)* | 40–48 | Flooded old-world workings, goblin-thick and dark; pathfinder wolves stalk the tunnels. | Wolf Pathfinder, War Goblin, Rabbit Wizard, Deer Druid, Mithril Hare |
-| **The Undercroft** *(`the_undercroft`)* | 44–48 | The vaults beneath the mines — deeper, older, where the diggings broke into the dark. | War Goblin, Wolf Pathfinder, Rabbit Wizard |
+| **The Undercroft** *(`the_undercroft`)* | 44–48 | The vaults beneath the mines — deeper, older, where the diggings broke into the dark. *(Hollowmere deep road, deepest before Emberwatch.)* | War Goblin, Wolf Pathfinder, Rabbit Wizard |
 
 ### The centre & the Core (Lv 48–100)
 

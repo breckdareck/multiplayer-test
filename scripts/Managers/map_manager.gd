@@ -48,6 +48,8 @@ const MAP_SCENES = {
 	"brackenway": "res://scenes/Levels/brackenway.tscn",
 	"mirefen": "res://scenes/Levels/mirefen.tscn",
 	"stonereach": "res://scenes/Levels/stonereach.tscn",
+	"the_reliquary": "res://scenes/Levels/the_reliquary.tscn",
+	"wolfsreach": "res://scenes/Levels/wolfsreach.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -88,6 +90,8 @@ const MAP_DISPLAY_NAMES = {
 	"brackenway": "Brackenway",
 	"mirefen": "Mirefen",
 	"stonereach": "Stonereach",
+	"the_reliquary": "The Reliquary",
+	"wolfsreach": "Wolfsreach",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

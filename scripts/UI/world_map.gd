@@ -28,20 +28,23 @@ const LAYOUT_WORLD := {
 	"hollowmere":      Vector2(0.119, 0.710),
 	"bramble_downs":   Vector2(0.067, 0.427),
 	"brackenway":      Vector2(0.217, 0.178),
-	# spoke 1 (the delve)
-	"ruins":           Vector2(0.500, 0.265),
-	"old_battlefield": Vector2(0.705, 0.450),
-	"thornroot":       Vector2(0.585, 0.647),
-	"mines":           Vector2(0.397, 0.592),
-	"the_undercroft":  Vector2(0.411, 0.446),
 	# central hearth (spokes converge)
 	"emberwatch":      Vector2(0.522, 0.436),
-	# spoke 2 (Wickmoor) + spoke 3 (Hollowmere)
-	"three_terraces":  Vector2(0.791, 0.642),
-	"bandit_bluffs":   Vector2(0.701, 0.573),
-	"dust_warren":     Vector2(0.612, 0.505),
-	"mirefen":         Vector2(0.253, 0.619),
-	"stonereach":      Vector2(0.387, 0.527),
+	# spoke 1 — Lantern's delve (4 maps)
+	"ruins":           Vector2(0.500, 0.265),
+	"old_battlefield": Vector2(0.702, 0.515),
+	"thornroot":       Vector2(0.475, 0.649),
+	"the_reliquary":   Vector2(0.389, 0.475),
+	# spoke 2 — Wickmoor overland (4 maps)
+	"three_terraces":  Vector2(0.809, 0.655),
+	"bandit_bluffs":   Vector2(0.737, 0.600),
+	"dust_warren":     Vector2(0.665, 0.546),
+	"wolfsreach":      Vector2(0.594, 0.491),
+	# spoke 3 — Hollowmere deep road (4 maps)
+	"mirefen":         Vector2(0.200, 0.655),
+	"stonereach":      Vector2(0.280, 0.600),
+	"mines":           Vector2(0.361, 0.546),
+	"the_undercroft":  Vector2(0.441, 0.491),
 }
 const LAYOUT_CORE := {
 	"emberwatch":      Vector2(0.500, 0.100),    # entry (also shown in world view)

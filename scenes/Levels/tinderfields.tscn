@@ -689,7 +689,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 8
 
 [node name="M0" type="Marker2D" parent="Spawn_boar"]
-position = Vector2(-47, 131)
+position = Vector2(17, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_boar"]
 position = Vector2(209, 99)
@@ -799,7 +799,7 @@ position = Vector2(657, 99)
 position = Vector2(913, 131)
 
 [node name="M4" type="Marker2D" parent="Spawn_slime"]
-position = Vector2(1105, 131)
+position = Vector2(1089, 131)
 
 [node name="M5" type="Marker2D" parent="Spawn_slime"]
 position = Vector2(401, 19)

@@ -21,21 +21,23 @@ const GRAPH := {
 	"hollowmere": ["ember_meadows", "bramble_downs", "mirefen"],
 	"bramble_downs": ["hollowmere", "brackenway"],
 	"brackenway": ["bramble_downs", "lanterns_rest"],
-	# --- Spoke 1 (from Lantern's Rest): the delve ---
+	# --- Spoke 1 (from Lantern's Rest): the delve — 4 maps to Emberwatch ---
 	"ruins": ["lanterns_rest", "old_battlefield"],
 	"old_battlefield": ["ruins", "thornroot"],
-	"thornroot": ["old_battlefield", "mines"],
-	"mines": ["thornroot", "the_undercroft"],
-	"the_undercroft": ["mines", "emberwatch"],
-	# --- Spoke 2 (from Wickmoor): the overland trail ---
+	"thornroot": ["old_battlefield", "the_reliquary"],
+	"the_reliquary": ["thornroot", "emberwatch"],
+	# --- Spoke 2 (from Wickmoor): the overland trail — 4 maps to Emberwatch ---
 	"three_terraces": ["wickmoor", "bandit_bluffs"],
 	"bandit_bluffs": ["three_terraces", "dust_warren"],
-	"dust_warren": ["bandit_bluffs", "emberwatch"],
-	# --- Spoke 3 (from Hollowmere): the mire road ---
+	"dust_warren": ["bandit_bluffs", "wolfsreach"],
+	"wolfsreach": ["dust_warren", "emberwatch"],
+	# --- Spoke 3 (from Hollowmere): the deep road — 4 maps to Emberwatch ---
 	"mirefen": ["hollowmere", "stonereach"],
-	"stonereach": ["mirefen", "emberwatch"],
+	"stonereach": ["mirefen", "mines"],
+	"mines": ["stonereach", "the_undercroft"],
+	"the_undercroft": ["mines", "emberwatch"],
 	# --- Central Hearth + the Core descent to the centre ---
-	"emberwatch": ["the_undercroft", "dust_warren", "stonereach", "deep_woods"],
+	"emberwatch": ["the_reliquary", "wolfsreach", "the_undercroft", "deep_woods"],
 	"deep_woods": ["emberwatch", "keep"],
 	"keep": ["deep_woods", "mustering_fields"],
 	"mustering_fields": ["keep", "the_scorchline"],
@@ -60,6 +62,7 @@ const TOKEN := {
 	"the_unraveling": "Unraveling", "wickmoor": "Wickmoor", "hollowmere": "Hollowmere",
 	"tinderfields": "Tinderfields", "brackenway": "Brackenway",
 	"mirefen": "Mirefen", "stonereach": "Stonereach",
+	"the_reliquary": "Reliquary", "wolfsreach": "Wolfsreach",
 }
 const LEVEL := {
 	"lanterns_rest": 0, "wickmoor": 0, "hollowmere": 0,
@@ -67,7 +70,7 @@ const LEVEL := {
 	"bramble_downs": 12, "brackenway": 14,
 	"ruins": 20, "three_terraces": 22, "old_battlefield": 24, "mirefen": 26,
 	"bandit_bluffs": 30, "thornroot": 33, "stonereach": 38, "dust_warren": 40,
-	"mines": 44, "the_undercroft": 46, "emberwatch": 48,
+	"the_reliquary": 40, "mines": 44, "wolfsreach": 44, "the_undercroft": 46, "emberwatch": 48,
 	"deep_woods": 55, "keep": 60, "mustering_fields": 66, "the_scorchline": 72,
 	"emberscar": 78, "cinderwaste": 84, "weave": 90, "the_unraveling": 94,
 	"ashvigil": 96, "warlord": 100,

@@ -1169,12 +1169,12 @@ position = Vector2(1537, 131)
 [node name="M11" type="Marker2D" parent="Spawn_mithril_hare"]
 position = Vector2(1969, 131)
 
-[node name="PortalToThornroot" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToStonereach" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "thornroot"
-target_spawn_point_name = "Thornroot_Mines_Portal_Spawn"
+target_map_id = "stonereach"
+target_spawn_point_name = "Stonereach_Mines_Portal_Spawn"
 
-[node name="Mines_Thornroot_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Mines_Stonereach_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
 [node name="PortalToUndercroft" parent="." instance=ExtResource("3_76n2i")]

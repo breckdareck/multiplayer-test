@@ -683,7 +683,7 @@ spawn_container = NodePath("../Enemies")
 pool_size = 8
 
 [node name="M0" type="Marker2D" parent="Spawn_fox"]
-position = Vector2(-47, 131)
+position = Vector2(17, 131)
 
 [node name="M1" type="Marker2D" parent="Spawn_fox"]
 position = Vector2(337, 35)

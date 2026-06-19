@@ -1018,7 +1018,7 @@
 			"avg_level": 39,
 			"connections": [
 				"bandit_bluffs",
-				"emberwatch"
+				"wolfsreach"
 			],
 			"display_name": "The Dust Warren",
 			"enemies": [
@@ -1736,8 +1736,8 @@
 		"emberwatch": {
 			"avg_level": 0,
 			"connections": [
-				"stonereach",
-				"dust_warren",
+				"the_reliquary",
+				"wolfsreach",
 				"the_undercroft",
 				"deep_woods"
 			],
@@ -2122,7 +2122,7 @@
 		"mines": {
 			"avg_level": 45,
 			"connections": [
-				"thornroot",
+				"stonereach",
 				"the_undercroft"
 			],
 			"display_name": "The Drowned Mines",
@@ -3521,7 +3521,7 @@
 			"avg_level": 38,
 			"connections": [
 				"mirefen",
-				"emberwatch"
+				"mines"
 			],
 			"display_name": "Stonereach",
 			"enemies": [
@@ -3689,6 +3689,179 @@
 			"is_town": false,
 			"max_level": 40,
 			"min_level": 36
+		},
+		"the_reliquary": {
+			"avg_level": 35,
+			"connections": [
+				"thornroot",
+				"emberwatch"
+			],
+			"display_name": "The Reliquary",
+			"enemies": [
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png",
+							"ilvl": 27,
+							"item": "Iron Longsword",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Helm.png",
+							"ilvl": 27,
+							"item": "Iron Vanguard Helm",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Mail.png",
+							"ilvl": 27,
+							"item": "Iron Vanguard Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Boots.png",
+							"ilvl": 27,
+							"item": "Iron Vanguard Boots",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 33,
+					"name": "Fox Swordsman",
+					"sf": "res://resources/Enemies/FoxSwordsman/SF_FoxSwordsman.tres"
+				},
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png",
+							"ilvl": 27,
+							"item": "Iron Longsword",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
+							"ilvl": 27,
+							"item": "Iron Spellstaff",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Mail.png",
+							"ilvl": 27,
+							"item": "Iron Vanguard Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Helm.png",
+							"ilvl": 27,
+							"item": "Iron Arcanist Helm",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
+							"ilvl": 27,
+							"item": "Iron Arcanist Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.029,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Legguards.png",
+							"ilvl": 27,
+							"item": "Iron Arcanist Legguards",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 33,
+					"name": "Stone Slime",
+					"sf": "res://resources/Enemies/Slime/SF_Slime.tres"
+				},
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
+							"ilvl": 35,
+							"item": "Steel Warbow",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Helm",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Legguards",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 40,
+					"name": "Wolf Pathfinder",
+					"sf": "res://resources/Enemies/WolfPathfinder/SF_WolfPathfinder.tres"
+				}
+			],
+			"is_town": false,
+			"max_level": 40,
+			"min_level": 33
 		},
 		"the_scorchline": {
 			"avg_level": 66,
@@ -4213,7 +4386,7 @@
 			"avg_level": 32,
 			"connections": [
 				"old_battlefield",
-				"mines"
+				"the_reliquary"
 			],
 			"display_name": "Thornroot Hollow",
 			"enemies": [
@@ -5077,6 +5250,195 @@
 			"is_town": false,
 			"max_level": 1,
 			"min_level": 1
+		},
+		"wolfsreach": {
+			"avg_level": 44,
+			"connections": [
+				"dust_warren",
+				"emberwatch"
+			],
+			"display_name": "Wolfsreach",
+			"enemies": [
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
+							"ilvl": 35,
+							"item": "Steel Warbow",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Helm",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.027,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
+							"ilvl": 35,
+							"item": "Steel Pathfinder Legguards",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 40,
+					"name": "Wolf Pathfinder",
+					"sf": "res://resources/Enemies/WolfPathfinder/SF_WolfPathfinder.tres"
+				},
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
+							"ilvl": 43,
+							"item": "Mithril Spellstaff",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
+							"ilvl": 43,
+							"item": "Mithril Arcanist Helm",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
+							"ilvl": 43,
+							"item": "Mithril Arcanist Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
+							"ilvl": 43,
+							"item": "Mithril Arcanist Boots",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png",
+							"ilvl": 43,
+							"item": "Mithril Pathfinder Legguards",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Helm.png",
+							"ilvl": 43,
+							"item": "Mithril Vanguard Helm",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 43,
+					"name": "Mithril Hare",
+					"sf": "res://resources/Enemies/Bunny/SF_Bunny.tres"
+				},
+				{
+					"drops": [
+						{
+							"chance": 0.9,
+							"icon": "res://assets/sprites/Items/generated_px/Coin.png",
+							"ilvl": 0,
+							"item": "Coin",
+							"max": 16,
+							"min": 10
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png",
+							"ilvl": 43,
+							"item": "Mithril Longsword",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Dirk.png",
+							"ilvl": 43,
+							"item": "Mithril Dirk",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Warbow.png",
+							"ilvl": 43,
+							"item": "Mithril Warbow",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Mail.png",
+							"ilvl": 43,
+							"item": "Mithril Vanguard Mail",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Legguards.png",
+							"ilvl": 43,
+							"item": "Mithril Vanguard Legguards",
+							"max": 1,
+							"min": 1
+						},
+						{
+							"chance": 0.025,
+							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png",
+							"ilvl": 43,
+							"item": "Mithril Nightshade Mail",
+							"max": 1,
+							"min": 1
+						}
+					],
+					"is_boss": false,
+					"level": 48,
+					"name": "War Goblin",
+					"sf": "res://resources/Enemies/Goblin/SF_Goblin.tres"
+				}
+			],
+			"is_town": false,
+			"max_level": 48,
+			"min_level": 40
 		}
 	}
 }

@@ -800,10 +800,10 @@ target_spawn_point_name = "OldBattlefield_Thornroot_Portal_Spawn"
 [node name="Thornroot_OldBattlefield_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
 
-[node name="PortalToMines" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToReliquary" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1449, 147)
-target_map_id = "mines"
-target_spawn_point_name = "Mines_Thornroot_Portal_Spawn"
+target_map_id = "the_reliquary"
+target_spawn_point_name = "Reliquary_Thornroot_Portal_Spawn"
 
-[node name="Thornroot_Mines_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Thornroot_Reliquary_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1425, 151)
