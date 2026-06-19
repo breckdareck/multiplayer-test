@@ -33,6 +33,8 @@ const MAP_SCENES = {
 	"gen_open": "res://scenes/Levels/gen_open.tscn",
 	"gen_tower": "res://scenes/Levels/gen_tower.tscn",
 	"gen_cliffs": "res://scenes/Levels/gen_cliffs.tscn",
+	"gen_terraces": "res://scenes/Levels/gen_terraces.tscn",
+	"gen_gorge": "res://scenes/Levels/gen_gorge.tscn",
 	"old_battlefield": "res://scenes/Levels/old_battlefield.tscn",
 	"mustering_fields": "res://scenes/Levels/mustering_fields.tscn",
 	"ashvigil": "res://scenes/Levels/ashvigil.tscn",

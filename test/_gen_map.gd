@@ -27,6 +27,7 @@ const PLAT := {"L":[17,9], "M":[18,9], "R":[19,9]}
 ## _inject_slopes. 2:1 ramps: each 1-tile rise spans 2 columns (a low half + a high half),
 ## so you walk straight up instead of jumping a staircase. Trapezoid collision per tile.
 const SLOPE_SRC := 3
+const BRIDGE_SRC := 5    # bridge_tiles.png injected as sources/5 by _inject_bridge (solid planks)
 const SLOPE_UR_LOW := Vector2i(0, 0)    # up-right ramp, low (left) half
 const SLOPE_UR_HIGH := Vector2i(1, 0)   # up-right ramp, high (right) half
 const SLOPE_UL_HIGH := Vector2i(2, 0)   # down-right ramp, high (left) half
@@ -49,13 +50,19 @@ func _init() -> void:
 	# Five new gap-filler maps for the hybrid world (2026-06-17), each on a DISTINCT archetype
 	# (open tiers / cave / cliffs / tower / dark-open) so the road stops feeling same-y. Portals
 	# are wired separately by tools/rebuild_portals.gd, so the configs omit them.
-	for cfg in _wave_fix():
+	var _args := OS.get_cmdline_user_args()
+	var wave := _wave_fix()
+	if "--terraces" in _args: wave = _wave_terraces_demo()
+	elif "--gorge" in _args: wave = _wave_gorge_demo()
+	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
 			"open": m = _build_open(cfg)
 			"cave": m = _build_cave(cfg)
 			"cliffs": m = _build_cliffs(cfg)
 			"tower": m = _build_tower(cfg)
+			"terraces": m = _build_terraces(cfg)
+			"gorge": m = _build_gorge(cfg)
 			_: m = _build_field(cfg)
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
@@ -311,6 +318,115 @@ func _build_open(cfg: Dictionary) -> Dictionary:
 	if cfg.has("bosses"): d["bosses"] = cfg["bosses"]
 	if cfg.has("npcs"): d["npcs"] = cfg["npcs"]
 	return d
+
+## Demo wave: a single standalone Terraces test map (scratch file gen_terraces.tscn), so we can
+## eyeball the archetype before wiring it into the real world. Run: generator -- --terraces
+func _wave_terraces_demo() -> Array:
+	return [
+		{"name": "gen_terraces", "arch": "terraces", "seed": 3001, "width": 88,
+			"display_name": "Terraces (test)", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8],
+				["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8],
+				["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8]]},
+	]
+
+## TERRACES archetype: a flat base floor + an orderly ASCENDING STAIRCASE of wide one-way shelves,
+## each shifted sideways and linked to the one below by a rope/ladder. Every gap is >1 tile, so you
+## always CLIMB — never a blind jump. Top shelf is the SAFE/AFK tier (no spawns). Clean grind lanes.
+func _build_terraces(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 10
+	var ground := {}; var plat := {}; var slopes := {}
+	var surf := []; surf.resize(width)
+	for x in range(width):
+		surf[x] = base_r
+		for y in range(base_r, bottom + 1):
+			ground[Vector2i(x, y)] = true
+	# Left SAFE perch: enemy-free spawn + AFK spot, off the enemy floor (3 tiles up).
+	var safe_row := base_r - 3
+	_shelf(plat, surf, safe_row, [[2, 12]])
+	var step := 4
+	var t1 := base_r - step; var t2 := base_r - 2 * step; var t3 := base_r - 3 * step; var t4 := base_r - 4 * step
+	_shelf(plat, surf, t1, [[int(width * 0.18), int(width * 0.58)]])
+	_shelf(plat, surf, t2, [[int(width * 0.30), int(width * 0.80)]])
+	_shelf(plat, surf, t3, [[int(width * 0.12), int(width * 0.58)]])
+	_shelf(plat, surf, t4, [[int(width * 0.40), int(width * 0.86)]])   # SAFE top tier
+	var ladders := [
+		[safe_row, base_r, 5, "rope"],               # spawn perch -> floor (climb down to grind)
+		[t1, base_r, int(width * 0.22), "rope"],     # floor -> T1
+		[t2, t1, int(width * 0.42), "rope"],         # T1 -> T2
+		[t3, t2, int(width * 0.45), "ladder"],       # T2 -> T3
+		[t4, t3, int(width * 0.50), "rope"],         # T3 -> T4 (safe)
+	]
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [safe_row, t4], "ladders": ladders, "player_spawn": Vector2i(5, safe_row - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+
+## Demo wave: a single standalone Gorge test map (gen_gorge.tscn). Run: generator -- --gorge
+func _wave_gorge_demo() -> Array:
+	return [
+		{"name": "gen_gorge", "arch": "gorge", "seed": 3101, "width": 92,
+			"display_name": "Gorge (test)", "bgm": "res://assets/music/emberwilds_ember_meadows.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8],
+				["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8],
+				["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8]]},
+	]
+
+## GORGE archetype: two solid rims split by a deep chasm, crossed by a WOODEN BRIDGE at walk
+## level (solid plank tiles, source BRIDGE_SRC). Left rim has the safe spawn perch; right rim has
+## a vantage shelf (safe) reached by rope. Enemies on both rims + on the bridge. The void under the
+## bridge is dark bgwall so the depth reads. New-tile pipeline: _inject_bridge adds the plank source.
+func _build_gorge(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var base_r := FLOOR_Y
+	var bottom := base_r + 12
+	var ground := {}; var plat := {}; var slopes := {}; var bridge := {}; var bgwall := {}
+	var surf := []; surf.resize(width)
+	for x in range(width): surf[x] = base_r
+	var left_end := int(width * 0.34)        # left rim = cols [0, left_end)
+	var right_start := int(width * 0.66)     # right rim = cols [right_start, width)
+	for x in range(0, left_end):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true
+	for x in range(right_start, width):
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true
+	# Wooden bridge across the chasm at walk level (solid). L / mid / R plank tiles.
+	for x in range(left_end, right_start):
+		var tx := 1
+		if x == left_end: tx = 0
+		elif x == right_start - 1: tx = 2
+		bridge[Vector2i(x, base_r)] = [tx, 0]
+	# Dark void under the bridge (depth).
+	for x in range(left_end, right_start):
+		for y in range(base_r + 1, bottom + 1): bgwall[Vector2i(x, y)] = [4, 7]
+	# Left safe spawn perch + right vantage shelf (both enemy-free).
+	var perch := base_r - 3
+	_shelf(plat, surf, perch, [[3, 12]])
+	var vant := base_r - 6
+	_shelf(plat, surf, vant, [[int(width * 0.74), int(width * 0.94)]])
+	var ladders := [
+		[perch, base_r, 5, "rope"],                          # perch -> left rim floor
+		[vant, base_r, int(width * 0.80), "rope"],           # right rim floor -> vantage shelf
+	]
+	# Explicit spawns: left rim, bridge, right rim (skips the perch/vantage safe shelves).
+	var spawn_spots := []
+	var c := 4
+	while c < left_end - 2: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	c = left_end + 3
+	while c < right_start - 2: spawn_spots.append(Vector2i(c, base_r)); c += 7   # on the bridge
+	c = right_start + 2
+	while c < width - 3: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
+		"bridge": bridge, "bgwall": bgwall, "no_village_bg": true,
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [perch, vant], "ladders": ladders, "spawn_spots": spawn_spots,
+		"player_spawn": Vector2i(5, perch - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
 
 ## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass
 ## ramps you walk straight up (no jumping steps). A one-way vantage shelf floats over each wide
@@ -860,7 +976,7 @@ func _emit(m: Dictionary) -> void:
 		for cell in picks:
 			if picks[cell][1] == 5 and picks[cell][0] >= 17 and picks[cell][0] <= 19:
 				rocktop[cell] = [picks[cell][0] - 13, 0]
-	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop))
+	text = _replace_layer(text, "Mid", _mid_b64(picks, slopes, rocktop, m.get("bridge", {})))
 	text = _replace_layer(text, "Platform", _plat_b64(plat))
 	text = _replace_layer(text, "Background", _layer_b64(deco, 2))
 	var bgwall: Dictionary = m.get("bgwall", {})
@@ -871,6 +987,7 @@ func _emit(m: Dictionary) -> void:
 	if m.get("no_village_bg", false): text = _remove_node(text, "VillageBackground")
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
+	if not m.get("bridge", {}).is_empty(): text = _inject_bridge(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
 	if not m.get("bosses", []).is_empty(): text = _inject_bosses(text, m)
@@ -1041,7 +1158,7 @@ func _layer_b64(cells: Dictionary, src: int) -> String:
 ## Mid (solid ground) layer with two sources: autotiled country-village ground (source 1)
 ## plus explicit slope ramp tiles (source SLOPE_SRC). Slope cells are dropped from the
 ## autotiled set so the ramp tile isn't overwritten by a flat grass-top.
-func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}) -> String:
+func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}, bridge: Dictionary = {}) -> String:
 	var l := TileMapLayer.new()
 	for cell in picks:
 		if slopes.has(cell) or rocktop.has(cell): continue
@@ -1050,6 +1167,8 @@ func _mid_b64(picks: Dictionary, slopes: Dictionary, rocktop: Dictionary = {}) -
 		l.set_cell(cell, SLOPE_SRC, slopes[cell])
 	for cell in rocktop:                              # rock-top surface tiles (source SLOPE_SRC)
 		l.set_cell(cell, SLOPE_SRC, Vector2i(rocktop[cell][0], rocktop[cell][1]))
+	for cell in bridge:                               # solid wooden bridge planks (source BRIDGE_SRC)
+		l.set_cell(cell, BRIDGE_SRC, Vector2i(bridge[cell][0], bridge[cell][1]))
 	var b := Marshalls.raw_to_base64(l.tile_map_data); l.free(); return b
 
 func _plat_b64(plat: Dictionary) -> String:
@@ -1286,6 +1405,30 @@ func _attr(s: String, key: String) -> String:
 ## climbable ladder.gd Area2D nodes, reusing the clone's ladder script + sprite. Each
 ## hangs from the upper branch (world tile (col,row) -> (col*16-119, row*16-269)) with
 ## its bottom dangling ~1.5 tiles above the platform below.
+## Inject bridge_tiles.png as sources/BRIDGE_SRC (3 solid plank tiles, full-square floor
+## collision on physics_layer_0). Mirrors _inject_slopes. The clone already carries sources 0-3.
+func _inject_bridge(text: String) -> String:
+	var nl := text.find("\n")
+	var header := text.substr(0, nl)
+	var lm := RegEx.new(); lm.compile("load_steps=(\\d+)")
+	var n := int(lm.search(header).get_string(1))
+	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))   # +1 ext, +1 sub
+	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/bridge_tiles.png" id="gen_bridge"]' + text.substr(nl)
+	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenBridgeAtlas"]\ntexture = ExtResource("gen_bridge")\ntexture_region_size = Vector2i(16, 16)\n'
+	for i in range(3):
+		atlas += '%d:0/0 = 0\n%d:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)\n' % [i, i]
+	atlas += "\n"
+	var ti := text.find('[sub_resource type="TileSet" id=')
+	if ti != -1:
+		text = text.substr(0, ti) + atlas + text.substr(ti)
+	var sidx := text.find("sources/3 = SubResource(")
+	if sidx == -1: sidx = text.find("sources/2 = SubResource(")
+	if sidx != -1:
+		var seol := text.find("\n", sidx)
+		text = text.substr(0, seol) + '\nsources/%d = SubResource("GenBridgeAtlas")' % BRIDGE_SRC + text.substr(seol)
+	return text
+
+
 func _inject_ladders(text: String, specs: Array) -> String:
 	var lid := _find_ext_id(text, "res://scripts/Gameplay/ladder.gd")
 	var lat := _find_atlas_under(text, "Ladders")

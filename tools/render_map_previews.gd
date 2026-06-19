@@ -12,6 +12,7 @@ const SHEETS := {
 	1: "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/country village tileset.png",
 	2: "res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png",
 	3: "res://assets/sprites/grass_slopes.png",
+	5: "res://assets/sprites/bridge_tiles.png",
 }
 const MAPS := [
 	"lanterns_rest", "near_wilds", "meadow_path", "ember_meadows", "ruins", "three_terraces",
@@ -37,6 +38,12 @@ const MANUAL_CONNECTORS := {
 		[14, 22, 27, "rope"],     # mesa-1 shelf -> mesa 1
 		[11, 19, 43, "ladder"],   # peak shelf -> peak
 		[16, 22, 58, "rope"],     # mesa-3 shelf -> mesa 3
+	],
+	"gen_terraces": [
+		[22, 26, 12, "rope"],     # floor -> T1
+		[18, 22, 36, "rope"],     # T1 -> T2
+		[14, 18, 39, "ladder"],   # T2 -> T3
+		[10, 14, 44, "rope"],     # T3 -> T4 (safe top)
 	],
 	# Mirrors _open()'s ladder set. Floor climbers' lower row is approximated at FLOOR_Y here
 	# (the real ones read the rolling surf); shelf-to-shelf rows are exact.
@@ -78,7 +85,11 @@ func _init() -> void:
 		if im.load(SHEETS[s]) == OK:
 			im.convert(Image.FORMAT_RGBA8); imgs[s] = im
 	var manifest := []
-	for name in MAPS:
+	var maps := MAPS
+	var args := OS.get_cmdline_user_args()   # render only the named maps when given (e.g. -- gen_terraces)
+	if not args.is_empty():
+		maps = args
+	for name in maps:
 		var entry := _render(name, imgs)
 		if not entry.is_empty():
 			manifest.append(entry)
