@@ -5,6 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://b8r3ov605pnuj" path="res://assets/sprites/Country-village_asset_pack/1_Tileset & props/Country_village_props.png" id="3_yw7pp"]
 [ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="4_qomyi"]
 [ext_resource type="Texture2D" uid="uid://caog58fopq2n0" path="res://assets/sprites/rock_top_tiles.png" id="5_pg2ew"]
+[ext_resource type="Texture2D" uid="uid://b5bk2p47185w5" path="res://assets/sprites/bridge_tiles.png" id="6_bb5b5"]
+[ext_resource type="Texture2D" uid="uid://c6vd64jtvmf36" path="res://assets/sprites/water_tiles.png" id="7_oggy0"]
+[ext_resource type="Texture2D" uid="uid://5xnpr784kk8e" path="res://assets/sprites/stone_columns.png" id="8_2mr74"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("1_7jm8j")
@@ -167,10 +170,6 @@ texture = ExtResource("1_7jm8j")
 2:4/0 = 0
 0:4/0 = 0
 0:3/0 = 0
-13:4/0 = 0
-13:4/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, -8, -8, 8, 8, -8, 8)
-14:4/0 = 0
-14:4/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, 8, 8, -8, 8, 8)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_j167y"]
 texture = ExtResource("2_pg2ew")
@@ -259,7 +258,6 @@ texture = ExtResource("2_pg2ew")
 3:7/0 = 0
 3:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 4:7/0 = 0
-4:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 5:7/0 = 0
 5:7/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 6:7/0 = 0
@@ -470,9 +468,17 @@ texture = ExtResource("3_yw7pp")
 14:8/0 = 0
 13:9/0 = 0
 14:9/0 = 0
+14:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(8, -8, 8, -6, -8, -6, -8, -8)
+14:9/0/physics_layer_1/polygon_0/one_way = true
 15:9/0 = 0
+15:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(8, -8, 8, -6, -8, -6, -8, -8)
+15:9/0/physics_layer_1/polygon_0/one_way = true
 16:9/0 = 0
+16:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(8, -8, 8, -6, -8, -6, -8, -8)
+16:9/0/physics_layer_1/polygon_0/one_way = true
 17:9/0 = 0
+17:9/0/physics_layer_1/polygon_0/points = PackedVector2Array(8, -2, 8, 0, -8, -6, -8, -8)
+17:9/0/physics_layer_1/polygon_0/one_way = true
 18:9/0 = 0
 13:10/0 = 0
 14:10/0 = 0
@@ -487,15 +493,23 @@ texture = ExtResource("3_yw7pp")
 6:11/0 = 0
 7:11/0 = 0
 8:11/0 = 0
+8:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-4, -7, 5, -7, 8, -4, 8, -2, -7, -2, -7, -4)
+8:11/0/physics_layer_1/polygon_0/one_way = true
 10:11/0 = 0
+10:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(8, -5, 8, -2, -8, -2, -8, -5)
+10:11/0/physics_layer_1/polygon_0/one_way = true
 11:11/0 = 0
+11:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-1, -5, -1, -2, -8, -2, -8, -5)
+11:11/0/physics_layer_1/polygon_0/one_way = true
 12:11/0 = 0
 13:11/0 = 0
 14:11/0 = 0
 15:11/0 = 0
 16:11/0 = 0
 17:11/0 = 0
+17:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-2, -4, 1, -7, 8, -7, 8, -4)
 18:11/0 = 0
+18:11/0/physics_layer_1/polygon_0/points = PackedVector2Array(-3, -4, -6, -7, -8, -7, -8, -4)
 
 [sub_resource type="TileSetAtlasSource" id="GenSlopeAtlas"]
 texture = ExtResource("4_qomyi")
@@ -540,6 +554,65 @@ texture = ExtResource("5_pg2ew")
 9:0/0/physics_layer_1/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 1, -8, 1)
 9:0/0/physics_layer_1/polygon_0/one_way = true
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1jmle"]
+texture = ExtResource("6_bb5b5")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -3, -8, -3)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -3, -8, -3)
+2:0/0 = 0
+2:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, -3, -8, -3)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8ndti"]
+texture = ExtResource("7_oggy0")
+0:0/animation_columns = 4
+0:0/animation_speed = 4.0
+0:0/animation_frame_0/duration = 1.0
+0:0/animation_frame_1/duration = 1.0
+0:0/animation_frame_2/duration = 1.0
+0:0/animation_frame_3/duration = 1.0
+0:0/0 = 0
+0:1/animation_columns = 4
+0:1/animation_speed = 4.0
+0:1/animation_frame_0/duration = 1.0
+0:1/animation_frame_1/duration = 1.0
+0:1/animation_frame_2/duration = 1.0
+0:1/animation_frame_3/duration = 1.0
+0:1/0 = 0
+0:2/animation_frame_0/duration = 1.0
+0:2/animation_frame_1/duration = 1.0
+0:2/animation_frame_2/duration = 1.0
+0:2/animation_frame_3/duration = 1.0
+0:2/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tarjn"]
+texture = ExtResource("8_2mr74")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+0:1/0 = 0
+2:1/0 = 0
+1:1/0 = 0
+2:2/0 = 0
+1:2/0 = 0
+0:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+0:4/0 = 0
+1:4/0 = 0
+2:4/0 = 0
+2:5/0 = 0
+2:6/0 = 0
+1:6/0 = 0
+0:5/0 = 0
+1:5/0 = 0
+0:6/0 = 0
+0:7/0 = 0
+1:7/0 = 0
+2:7/0 = 0
+
 [resource]
 physics_layer_0/collision_layer = 1
 physics_layer_0/collision_mask = 2
@@ -550,3 +623,6 @@ sources/1 = SubResource("TileSetAtlasSource_j167y")
 sources/2 = SubResource("TileSetAtlasSource_kgokg")
 sources/3 = SubResource("GenSlopeAtlas")
 sources/4 = SubResource("TileSetAtlasSource_yw7pp")
+sources/5 = SubResource("TileSetAtlasSource_1jmle")
+sources/6 = SubResource("TileSetAtlasSource_8ndti")
+sources/7 = SubResource("TileSetAtlasSource_tarjn")

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=55 format=3 uid="uid://ckcbsuhp72f5i"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://ckcbsuhp72f5i"]
 
 [ext_resource type="Texture2D" uid="uid://cc4r2w14hxt0a" path="res://assets/sprites/Goblin/Attack3.png" id="1_afqgp"]
 [ext_resource type="Texture2D" uid="uid://dgyi3yc7r6a88" path="res://assets/sprites/Goblin/Attack2.png" id="2_dxmac"]
@@ -235,7 +235,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8rrak")
 }],
-"loop": false,
+"loop": 0,
 "name": &"bomb_attack",
 "speed": 10.0
 }, {
@@ -264,7 +264,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_8dbjm")
 }],
-"loop": false,
+"loop": 0,
 "name": &"dash_attack",
 "speed": 10.0
 }, {
@@ -281,7 +281,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_hc3b0")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -298,7 +298,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_7wobk")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -315,7 +315,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0ydaj")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -341,7 +341,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_880id")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }, {
@@ -370,7 +370,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_os5nw")
 }],
-"loop": false,
+"loop": 0,
 "name": &"slash_attack",
 "speed": 10.0
 }]
