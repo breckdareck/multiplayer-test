@@ -33,14 +33,19 @@ for i,m in enumerate(spoke2): world[m]=interp(world["wickmoor"],emb,(i+1)/(len(s
 for i,m in enumerate(spoke3): world[m]=interp(world["hollowmere"],emb,(i+1)/(len(spoke3)+1))
 CORE_GATE = (0.50, 0.63)   # synthetic gateway DIRECTLY below the centred Emberwatch
 
-# ---- CORE view positions (emberwatch entry + deep descent spiral to warlord) ----
+# ---- CORE view positions: an inward SPIRAL descent (Emberwatch -> Warlord centre) ----
+# It's a spiral on purpose (a descent into the core), but spread out: the radius
+# eases from the rim down to a healthy FLOOR (never collapsing onto the centre) and
+# the turns are gentle, so consecutive maps stay well apart. Warlord is the centre.
 core_order = ["emberwatch","deep_woods","keep","mustering_fields","the_scorchline","emberscar","cinderwaste","weave","the_unraveling","ashvigil"]
 core = {}
-CRX, CRY, CT = 0.42, 0.40, 1.5
+CRX, CRY, CT, RFLOOR = 0.48, 0.44, 1.15, 0.26
+N = len(core_order)
 for i, m in enumerate(core_order):
-    t = i/len(core_order)            # 0..(<1); warlord is the centre
-    core[m] = (CX + CRX*(1-t)*math.cos(math.radians(90 - CT*360*t)),
-               CY - CRY*(1-t)*math.sin(math.radians(90 - CT*360*t)))
+    t = i/(N-1)                      # 0..1 rim->innermost
+    rf = RFLOOR + (1.0 - RFLOOR) * (1 - t)   # 1.0 at rim -> RFLOOR at the last map
+    ang = math.radians(90 - CT*360*t)
+    core[m] = (0.5 + CRX*rf*math.cos(ang), 0.5 - CRY*rf*math.sin(ang))
 core["warlord"] = (0.5, 0.5)
 SURFACE_GATE = (0.085, 0.09)        # synthetic back-to-world gateway in the core view
 

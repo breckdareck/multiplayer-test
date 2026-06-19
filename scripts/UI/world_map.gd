@@ -47,16 +47,17 @@ const LAYOUT_WORLD := {
 	"the_undercroft":  Vector2(0.424, 0.542),
 }
 const LAYOUT_CORE := {
-	"emberwatch":      Vector2(0.500, 0.100),    # entry (also shown in world view)
-	"deep_woods":      Vector2(0.806, 0.288),
-	"keep":            Vector2(0.820, 0.599),
-	"mustering_fields":Vector2(0.591, 0.766),
-	"the_scorchline":  Vector2(0.352, 0.694),
-	"emberscar":       Vector2(0.290, 0.500),
-	"cinderwaste":     Vector2(0.401, 0.371),
-	"weave":           Vector2(0.539, 0.386),
-	"the_unraveling":  Vector2(0.580, 0.475),
-	"ashvigil":        Vector2(0.534, 0.524),
+	# Inward spiral descent (spread out): entry at the rim -> Warlord at the centre.
+	"emberwatch":      Vector2(0.500, 0.060),    # entry (also shown in world view)
+	"deep_woods":      Vector2(0.817, 0.219),
+	"keep":            Vector2(0.901, 0.513),
+	"mustering_fields":Vector2(0.742, 0.746),
+	"the_scorchline":  Vector2(0.478, 0.795),
+	"emberscar":       Vector2(0.283, 0.667),
+	"cinderwaste":     Vector2(0.258, 0.477),
+	"weave":           Vector2(0.375, 0.353),
+	"the_unraveling":  Vector2(0.523, 0.351),
+	"ashvigil":        Vector2(0.601, 0.433),
 	"warlord":         Vector2(0.500, 0.500),
 }
 ## Synthetic gateway nodes (not real maps): id, normalized pos, label, the view it switches to.
