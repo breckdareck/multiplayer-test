@@ -54,6 +54,7 @@ func _init() -> void:
 	var wave := _wave_fix()
 	if "--terraces" in _args: wave = _wave_terraces_demo()
 	elif "--gorge" in _args: wave = _wave_gorge_demo()
+	elif "--shaft" in _args: wave = _wave_shaft_demo()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -63,6 +64,7 @@ func _init() -> void:
 			"tower": m = _build_tower(cfg)
 			"terraces": m = _build_terraces(cfg)
 			"gorge": m = _build_gorge(cfg)
+			"shaft": m = _build_shaft(cfg)
 			_: m = _build_field(cfg)
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
@@ -428,6 +430,70 @@ func _build_gorge(cfg: Dictionary) -> Dictionary:
 		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
 		"player_spawn": Vector2i(5, perch - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+
+## Demo wave: a single standalone Shaft test map (gen_shaft.tscn). Run: generator -- --shaft
+func _wave_shaft_demo() -> Array:
+	return [
+		{"name": "gen_shaft", "arch": "shaft", "seed": 3201, "width": 30,
+			"display_name": "Shaft (test)", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/Minifolks/boar.tscn", "uid://betkg72vd7iav", 8],
+				["res://scenes/NPC/Minifolks/deer.tscn", "uid://b31vj57j18ae2", 8],
+				["res://scenes/NPC/Minifolks/fox.tscn", "uid://sxpgdsdpf5ma", 8]]},
+	]
+
+## SHAFT / ROPEWORKS archetype: a tall, NARROW, enclosed rock shaft (solid walls both sides) with
+## alternating one-way ledges rising up the centre, each linked to the one below by a ROPE (the
+## ascent is rope-dominant — ledges are >1 tile apart). Left bottom is the safe spawn perch; every
+## other ledge (incl. the top) has mobs. Dark rock void behind (rock_top + bgwall).
+func _build_shaft(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var bottom := 55
+	var floor_y := bottom - 4
+	var wall := 3
+	var ground := {}; var plat := {}
+	for x in range(width):
+		for y in range(floor_y, bottom + 1): ground[Vector2i(x, y)] = true   # floor
+	for x in range(0, wall):
+		for y in range(6, bottom + 1): ground[Vector2i(x, y)] = true          # left wall
+	for x in range(width - wall, width):
+		for y in range(6, bottom + 1): ground[Vector2i(x, y)] = true          # right wall
+	# Alternating ledges rising up the shaft, overlapping in the centre. ledge0 = RIGHT (away from
+	# the left spawn perch), then alternate L/R.
+	var ledges := []
+	var r := floor_y - 5; var idx := 0
+	while r > 10:
+		var x0: int; var x1: int
+		if idx % 2 == 0: x0 = int(width * 0.40); x1 = width - wall    # right ledge
+		else: x0 = wall; x1 = int(width * 0.60)                       # left ledge
+		_seg(plat, x0, x1, r)
+		ledges.append([x0, x1, r])
+		r -= 5; idx += 1
+	# Ropes: floor -> ledge0, then each ledge -> the one below it (centre-overlap column).
+	var ladders := []
+	if ledges.size() > 0:
+		var b0 = ledges[0]
+		ladders.append([int(b0[2]), floor_y, int((b0[0] + b0[1]) / 2.0), "rope"])
+	for i in range(1, ledges.size()):
+		var up = ledges[i]; var lo = ledges[i - 1]
+		var ov0: int = maxi(int(up[0]), int(lo[0])); var ov1: int = mini(int(up[1]), int(lo[1]))
+		var col: int = int((ov0 + ov1) / 2.0) if ov0 <= ov1 else int((up[0] + up[1]) / 2.0)
+		ladders.append([int(up[2]), int(lo[2]), col, "rope"])
+	# Left safe spawn perch (enemy-free) + rope down to the floor.
+	var perch := floor_y - 3
+	_seg(plat, wall, wall + 7, perch)
+	ladders.append([perch, floor_y, wall + 2, "rope"])
+	var bgwall := {}
+	for x in range(width):
+		for y in range(bottom + 1):
+			var cell := Vector2i(x, y)
+			if not ground.has(cell): bgwall[cell] = [4, 7]
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [perch], "ladders": ladders, "player_spawn": Vector2i(wall + 2, perch - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+		"bgwall": bgwall, "rock_top": true, "no_trees": true, "no_village_bg": true, "no_deco": true,
 	}
 
 ## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass
