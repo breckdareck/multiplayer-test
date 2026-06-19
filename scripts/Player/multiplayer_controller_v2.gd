@@ -70,6 +70,11 @@ var _current_party_id: int = -1
 ## change (see MapManager) and it rides the normal save; the client receives it
 ## via load data and augments it live from its own current map.
 var visited_maps: Array = []
+## Loot bad-luck protection, per-character, server-authoritative + PERSISTED (rides the
+## "stats" save). rare_pity = equip drops since last RARE+, legendary_pity = since last
+## Legendary. enemy_base.gd reads/advances these on each kill-drop. (Restored in _load_data.)
+var rare_pity: int = 0
+var legendary_pity: int = 0
 
 var direction: int = 0 # The current input direction from the synchronizer
 var facing_direction: int = 1 # The last non-zero direction, for facing
@@ -792,6 +797,8 @@ func _get_stats_data() -> Dictionary:
 		'character_type': weapon_mastery_component.primary_discipline if is_instance_valid(weapon_mastery_component) else 0,
 		'attribute_points': stats_component.save_attributes() if is_instance_valid(stats_component) else {},
 		'visited_maps': visited_maps,
+		'rare_pity': rare_pity,
+		'legendary_pity': legendary_pity,
 	}
 
 
@@ -822,6 +829,10 @@ func _load_data(data: Dictionary) -> void:
 	var loaded_visited = data.get("visited_maps", [])
 	if loaded_visited is Array:
 		visited_maps = loaded_visited.duplicate()
+
+	# Restore loot pity counters (bad-luck protection survives disconnect/relogin).
+	rare_pity = int(data.get("rare_pity", 0))
+	legendary_pity = int(data.get("legendary_pity", 0))
 
 	if is_instance_valid(level_component):
 		level_component.set_block_signals(true)

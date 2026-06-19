@@ -64,6 +64,11 @@ class Player(db.Model):
     # Must match MapManager.DEFAULT_MAP — "town" no longer exists in MAP_SCENES.
     last_map = db.Column(db.String(255), default="lanterns_rest")
     monies = db.Column(db.Integer, default=0)
+    # Loot bad-luck protection (per-character). rare_pity = equip drops since the last
+    # RARE+ (forces a RARE+ at its threshold); legendary_pity = since the last Legendary.
+    # Persisted so the guarantee survives a disconnect/relogin. Ride the "stats" save.
+    rare_pity = db.Column(db.Integer, nullable=False, server_default=db.text('0'), default=0)
+    legendary_pity = db.Column(db.Integer, nullable=False, server_default=db.text('0'), default=0)
     # Legacy single-pool ability points. PR 4 replaced this with
     # `ability_points_per_discipline` (a JSONB dict keyed by lowercase weapon
     # discipline -- "sword" / "bow" / "staff" / "dagger"). The legacy column
@@ -496,7 +501,9 @@ def load_player():
             'current_mana': player.current_mana,
             'max_mana': player.max_mana,
             'last_map': player.last_map,
-            'monies': player.monies
+            'monies': player.monies,
+            'rare_pity': player.rare_pity,
+            'legendary_pity': player.legendary_pity
         }
         
         # Reconstruct Inventory — slim dicts; Godot re-derives static fields
@@ -645,6 +652,8 @@ def save_player():
         if 'current_mana' in data: player.current_mana = data['current_mana']
         if 'max_mana' in data: player.max_mana = data['max_mana']
         if 'last_map' in data: player.last_map = data['last_map']
+        if 'rare_pity' in data: player.rare_pity = data['rare_pity']
+        if 'legendary_pity' in data: player.legendary_pity = data['legendary_pity']
 
         # Update Inventory
         if 'inventory' in data:
@@ -952,6 +961,9 @@ def _run_migrations():
     migrations = [
         ("players", "current_mana", "ALTER TABLE players ADD COLUMN current_mana INTEGER DEFAULT 100"),
         ("players", "max_mana",     "ALTER TABLE players ADD COLUMN max_mana INTEGER DEFAULT 100"),
+        # Loot bad-luck protection counters (per-character, persisted).
+        ("players", "rare_pity",      "ALTER TABLE players ADD COLUMN rare_pity INTEGER NOT NULL DEFAULT 0"),
+        ("players", "legendary_pity", "ALTER TABLE players ADD COLUMN legendary_pity INTEGER NOT NULL DEFAULT 0"),
         ("player_buffs", "total_duration", "ALTER TABLE player_buffs ADD COLUMN total_duration FLOAT DEFAULT 0"),
         ("player_items", "variant", "ALTER TABLE player_items ADD COLUMN variant JSONB"),
         ("player_equipment", "variant", "ALTER TABLE player_equipment ADD COLUMN variant JSONB"),
