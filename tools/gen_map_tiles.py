@@ -93,35 +93,48 @@ water.save(os.path.join(ROOT, "assets/sprites/water_tiles.png"))
 # ---------------- STONE COLUMNS: L/M/R x capital/shaft/base/broken ------------------------------
 # 3 cols (Left/Middle/Right edge) x 4 rows (capital/shaft/base/broken). Build a column of ANY width
 # by tiling L + (N-2) M + R; stack shaft rows for height. Broken row = jagged ruined top.
-SC_RUB = (96, 86, 106, 255)
+# Richer 6-value stone palette + texture for detail comparable to the country tiles.
+S_HL = (176, 166, 184, 255); S_HI = (146, 136, 158, 255); S_MD = (112, 102, 124, 255)
+S_LO = (82, 72, 92, 255); S_DK = (56, 46, 64, 255); SOUT = (38, 28, 44, 255); SC_RUB = (98, 88, 108, 255)
 col = Image.new("RGBA", (48, 64), T)
 JAG = [5, 3, 6, 4, 7, 5, 4, 6, 3, 5, 6, 4, 7, 5, 3, 6]
 def cput(x, y, c):
     if 0 <= x < 48 and 0 <= y < 64: col.putpixel((x, y), c)
+def flute(x):                            # 4px fluting: groove -> rise -> bright ridge -> fall (tiles)
+    return [S_LO, S_MD, S_HL, S_MD][x % 4]
+def speck(x, y):                         # sparse, subtle weathering pits (not noisy)
+    if (x * 7 + y * 13) % 23 == 0: return S_LO
+    return None
 def col_tile(cc, cr, edge, piece):       # cc col, cr row; edge 0L/1M/2R; piece 0cap/1shaft/2base/3broken
     bx, by = cc * 16, cr * 16
     for x in range(16):
-        for y in range(16): cput(bx + x, by + y, S_MD)
-    for fx in (3, 8, 13):                 # flutes (line up across tiles)
-        for y in range(16): cput(bx + fx, by + y, S_LO)
-    if edge == 0:                         # left edge
-        for y in range(16): cput(bx + 0, by + y, OUT); cput(bx + 1, by + y, S_HI)
-    elif edge == 2:                       # right edge
-        for y in range(16): cput(bx + 15, by + y, OUT); cput(bx + 14, by + y, S_LO)
-    if piece == 0:                        # capital: top molding band (full width -> tiles)
+        for y in range(16):
+            c = flute(x)
+            if y == 0: c = S_DK                       # stacked-drum joint (top of each 16px drum)
+            elif y == 1 and c != S_HI: c = S_LO       #   shadow under the joint
+            else:
+                sp = speck(x, y)
+                if sp is not None: c = sp
+            cput(bx + x, by + y, c)
+    if edge == 0:                                     # left side: outline + shadow + a deep groove
+        for y in range(16): cput(bx + 0, by + y, SOUT); cput(bx + 1, by + y, S_LO); cput(bx + 2, by + y, S_DK)
+    elif edge == 2:                                   # right side
+        for y in range(16): cput(bx + 15, by + y, SOUT); cput(bx + 14, by + y, S_LO); cput(bx + 13, by + y, S_DK)
+    if piece == 0:                                    # capital: abacus + echinus + necking molding
         for x in range(16):
-            cput(bx + x, by + 0, OUT); cput(bx + x, by + 1, S_HI); cput(bx + x, by + 2, S_HI)
-            cput(bx + x, by + 3, S_MD); cput(bx + x, by + 4, OUT)
-    elif piece == 2:                      # base: bottom molding band
+            cput(bx + x, by + 0, S_HL); cput(bx + x, by + 1, S_HI); cput(bx + x, by + 2, SOUT)
+            cput(bx + x, by + 3, S_HI); cput(bx + x, by + 4, S_MD); cput(bx + x, by + 5, S_LO)
+    elif piece == 2:                                  # base: necking groove + torus + plinth
         for x in range(16):
-            cput(bx + x, by + 11, OUT); cput(bx + x, by + 12, S_HI); cput(bx + x, by + 13, S_MD)
-            cput(bx + x, by + 14, S_LO); cput(bx + x, by + 15, OUT)
-    elif piece == 3:                      # broken: jagged top, rubble, clear above the break
+            cput(bx + x, by + 10, S_LO); cput(bx + x, by + 11, S_HI); cput(bx + x, by + 12, S_MD)
+            cput(bx + x, by + 13, S_MD); cput(bx + x, by + 14, S_LO); cput(bx + x, by + 15, SOUT)
+    elif piece == 3:                                  # broken: jagged top, bright rim, rubble + crack
         for x in range(16):
             t = JAG[x]
             for y in range(0, t): cput(bx + x, by + y, T)
-            cput(bx + x, by + t, S_HI)
+            cput(bx + x, by + t, S_HL)
             if t + 1 < 16: cput(bx + x, by + t + 1, SC_RUB)
+            if t + 2 < 16: cput(bx + x, by + t + 2, S_DK)
 for piece in range(4):
     for edge in range(3):
         col_tile(edge, piece, edge, piece)
