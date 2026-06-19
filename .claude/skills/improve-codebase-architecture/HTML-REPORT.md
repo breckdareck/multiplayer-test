@@ -54,7 +54,7 @@ straight into the candidates.
 ## Candidate card
 
 The diagrams carry the weight. Prose is sparse, plain, and uses the glossary
-terms ([LANGUAGE.md](LANGUAGE.md)) without ceremony.
+terms ([the /codebase-design glossary](../codebase-design/SKILL.md)) without ceremony.
 
 Each candidate is one `<article>`:
 
@@ -171,7 +171,7 @@ card. That's it.
 ## Tone
 
 Plain English, concise — but the architectural nouns and verbs come straight
-from [LANGUAGE.md](LANGUAGE.md), and the domain nouns from
+from [the /codebase-design glossary](../codebase-design/SKILL.md), and the domain nouns from
 [CONTEXT.md](../../../CONTEXT.md). Concision is not an excuse to drift.
 
 **Use exactly:** module, interface, implementation, depth, deep, shallow,
@@ -198,5 +198,5 @@ earn their place.
 
 No hedging, no throat-clearing, no "it's worth noting that…". If a sentence
 could be a bullet, make it a bullet. If a bullet could be cut, cut it. If a
-term isn't in [LANGUAGE.md](LANGUAGE.md) or [CONTEXT.md](../../../CONTEXT.md),
+term isn't in [the /codebase-design glossary](../codebase-design/SKILL.md) or [CONTEXT.md](../../../CONTEXT.md),
 reach for one that is before inventing a new one.

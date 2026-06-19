@@ -1,10 +1,10 @@
-# Interface Design
+# Design It Twice
 
 When the user wants to explore alternative interfaces for a chosen deepening
 candidate, use this parallel sub-agent pattern. Based on "Design It Twice"
 (Ousterhout) — your first idea is unlikely to be the best.
 
-Uses the vocabulary in [LANGUAGE.md](LANGUAGE.md) — **module**, **interface**,
+Uses the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**,
 **seam**, **adapter**, **leverage**.
 
 ## Process
@@ -45,7 +45,7 @@ Give each agent a different design constraint:
   dependencies (e.g. ENet RPCs as the transport adapter, an in-memory
   adapter for tests)."
 
-Include both [LANGUAGE.md](LANGUAGE.md) vocabulary and
+Include both [SKILL.md](SKILL.md) vocabulary and
 [CONTEXT.md](../../../CONTEXT.md) vocabulary in the brief so each sub-agent
 names things consistently with the architecture language and the project's
 domain language. Tell each sub-agent that **Component** is a domain term in

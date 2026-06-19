@@ -24,33 +24,61 @@ Each subsystem guide loads additively when Claude works in that directory.
 
 Repeatable workflows. The `add-*` skills are content recipes, path-scoped
 (`paths:` frontmatter) so they auto-activate when Claude works in matching
-files. `grill-with-docs`, `improve-codebase-architecture`, and `create-gdd`
-are intent-triggered (no path scope) — invoked when the user wants to
-pressure-test a plan, hunt for deepening opportunities, or author the
-Game Design Document.
+files. `create-gdd` is intent-triggered. The grilling / architecture skills
+(ported from [mattpocock/skills](https://github.com/mattpocock/skills)) form a
+**composable graph**: three model-invocable **engines** — `grilling`,
+`domain-modeling`, `codebase-design` — that auto-trigger on intent, and three
+user-invoked **orchestrators** (`disable-model-invocation`) that compose them.
 
-| Skill | Path scope |
+| Skill | Role / trigger |
 |---|---|
-| `add-ability` | `resources/Abilities/`, `scripts/Abilities/` |
-| `add-buff` | `resources/Buffs/`, `scripts/Buffs/` |
-| `add-item` | `resources/Items/`, `scripts/Resources/ItemSystem/` |
-| `add-enemy` | `resources/Enemies/`, `scripts/Enemy/`, `scenes/NPC/` |
-| `add-map` | `scenes/Levels/`, `scripts/Gameplay/` |
-| `add-backend-endpoint` | `backend/` |
-| `grill-with-docs` | — (intent-triggered: "grill this plan", "poke holes in X", "what am I missing before I build Y") |
-| `improve-codebase-architecture` | — (intent-triggered: "what's shallow here", "find refactors", "where can we deepen", "review the architecture") |
+| `add-ability` | path: `resources/Abilities/`, `scripts/Abilities/` |
+| `add-buff` | path: `resources/Buffs/`, `scripts/Buffs/` |
+| `add-item` | path: `resources/Items/`, `scripts/Resources/ItemSystem/` |
+| `add-enemy` | path: `resources/Enemies/`, `scripts/Enemy/`, `scenes/NPC/` |
+| `add-map` | path: `scenes/Levels/`, `scripts/Gameplay/` |
+| `add-backend-endpoint` | path: `backend/` |
+| `grilling` *(engine)* | model-invoked: the interview loop; grills against `INVARIANTS.md` ("grill this plan", "poke holes in X", "what am I missing") |
+| `domain-modeling` *(engine)* | model-invoked: maintains the `CONTEXT.md` glossary and `docs/adr/` ("pin down this term", "record this decision") |
+| `codebase-design` *(engine)* | model-invoked: deep-module vocabulary + principles ("design this interface", "where's the seam") |
+| `grill-me` *(orchestrator)* | `/grill-me` — grilling, no doc side-effects |
+| `grill-with-docs` *(orchestrator)* | `/grill-with-docs` — grilling + domain-modeling |
+| `improve-codebase-architecture` *(orchestrator)* | `/improve-codebase-architecture` — explore → HTML report → grilling loop; composes all three engines |
 | `create-gdd` | — (intent-triggered: "draft the GDD", "update the design doc", "write the combat chapter") |
+| `ask-matt` *(router)* | `/ask-matt` — names the user-invoked skills and the idea→ship flow |
+| `tdd` *(engine)* | model-invoked: test-first red-green-refactor against the `test/` harness |
+| `diagnosing-bugs` *(engine)* | model-invoked: feedback-loop-first bug/perf diagnosis ("debug this", "it's slow") |
+| `prototype` *(orchestrator)* | `/prototype` — throwaway logic TUI or UI variants to answer a design question |
+| `handoff` *(orchestrator)* | `/handoff` — compact the thread into a handoff doc for a fresh session |
+| `to-prd` *(orchestrator)* | `/to-prd` — synthesize the thread into a PRD on the issue tracker |
+| `to-issues` *(orchestrator)* | `/to-issues` — split a plan/PRD into tracer-bullet issues |
+| `triage` *(orchestrator)* | `/triage` — move incoming issues/PRs through triage roles |
+| `setup-matt-pocock-skills` *(orchestrator)* | `/setup-matt-pocock-skills` — one-time issue-tracker/labels/domain config |
+| `teach` *(orchestrator)* | `/teach` — multi-session learning workspace |
+| `writing-great-skills` *(orchestrator)* | `/writing-great-skills` — reference + glossary for authoring skills |
+| `git-guardrails-claude-code` *(engine)* | model-invoked: install a hook blocking dangerous git commands |
+| `setup-pre-commit` *(engine)* | model-invoked: Husky + lint-staged + Prettier (JS/TS subtrees only) |
+| `migrate-to-shoehorn` *(engine)* | model-invoked: TS-only test-assertion migration (not the game) |
+| `scaffold-exercises` *(engine)* | model-invoked: ai-hero-cli course-authoring layout (not the game) |
+
+The 15 skills below the divider are ported from
+[mattpocock/skills](https://github.com/mattpocock/skills) — faithfully, with
+light adaptation where this repo's tooling differs (the `test/` harness,
+Windows/PowerShell paths, `ask-matt` rewired to this repo's catalog). Four
+(`migrate-to-shoehorn`, `scaffold-exercises`, `setup-pre-commit`,
+`git-guardrails-claude-code`) target the JS/TS ecosystem and apply only to
+tooling subtrees, not the Godot game itself.
 
 `add-ability` uses progressive disclosure — its `references/ability-fields.md`
-holds the full field and formula reference, loaded only when needed.
-`grill-with-docs` uses the same pattern: its `CONTEXT-FORMAT.md` and
-`ADR-FORMAT.md` siblings only load when the skill is about to write a glossary
-entry or an ADR. `improve-codebase-architecture` follows suit: its
-`LANGUAGE.md` (vocabulary), `DEEPENING.md` (dependency categories),
-`HTML-REPORT.md` (report scaffold), and `INTERFACE-DESIGN.md` (Design-It-Twice
-sub-agent pattern) load only when the skill is mid-process. It re-uses
-`grill-with-docs`'s `CONTEXT-FORMAT.md` and `ADR-FORMAT.md` for side-effect
-writes. `create-gdd` does the same: `assets/gdd-template.md` (the 20-section
+holds the full field and formula reference, loaded only when needed. The
+engine skills do the same: `grilling`'s `INVARIANTS.md` (server-authority rules
++ content-task routing), `domain-modeling`'s `CONTEXT-FORMAT.md` /
+`ADR-FORMAT.md` (side-effect write formats), and `codebase-design`'s
+`DEEPENING.md` (dependency categories) and `DESIGN-IT-TWICE.md` (parallel
+sub-agent interface exploration) load only when the relevant step is reached.
+The orchestrators stay tiny and delegate: `improve-codebase-architecture` keeps
+only its `HTML-REPORT.md` (report scaffold) and routes vocabulary, glossary, and
+grilling through the engines. `create-gdd` does the same: `assets/gdd-template.md` (the 20-section
 skeleton), `assets/styles.css` (preview stylesheet), `references/gdd-sections.md`
 (per-section guidance), `references/design-principles.md` (core loops, MDA,
 Bartle, flow, juice), and `scripts/render_html.py` all load only when the

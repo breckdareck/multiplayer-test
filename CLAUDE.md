@@ -191,10 +191,15 @@ classes recursively — no manual registration. See
 
 Repeatable workflows packaged as Claude Code skills under `.claude/skills/`.
 The `add-*` skills are path-scoped and load automatically when you work in
-the matching files; `grill-with-docs`, `improve-codebase-architecture`, and
-`create-gdd` are intent-triggered (no path scope) — invoke them when you
-want to stress-test a plan, surface deepening opportunities, or author the
-Game Design Document.
+the matching files. `create-gdd` is intent-triggered.
+
+The grilling / architecture skills form a **composable graph** (ported from
+[mattpocock/skills](https://github.com/mattpocock/skills)): three model-invocable
+**engines** — `grilling`, `domain-modeling`, `codebase-design` — and three
+user-invoked **orchestrators** (`disable-model-invocation`) that compose them:
+`grill-me`, `grill-with-docs`, `improve-codebase-architecture`. The engines
+auto-trigger on intent; run an orchestrator with `/` when you want its specific
+combination (e.g. grilling *with* doc side-effects).
 
 | Skill | Use when |
 |---|---|
@@ -204,9 +209,38 @@ Game Design Document.
 | `add-enemy` | Creating an enemy (`resources/Enemies/`, `scenes/NPC/`) |
 | `add-map` | Creating a map/level (`scenes/Levels/`) |
 | `add-backend-endpoint` | Adding a Flask route or model (`backend/`) |
-| `grill-with-docs` | Socratic interview that stress-tests a plan against this repo's server-authoritative invariants, components, .tres content, RPC patterns, and persistence layers; maintains `CONTEXT.md` glossary and `docs/adr/`. No path scope — invoke by intent. |
-| `improve-codebase-architecture` | Surface architectural friction and propose **deepening opportunities** — shallow → deep refactors. Renders an HTML report of candidates, then drops into a grilling loop on the chosen one. Uses `CONTEXT.md` for the domain language and `LANGUAGE.md` (module / interface / seam / depth) for the architecture language. No path scope — invoke by intent. |
+| `grilling` *(engine)* | The reusable interview loop. Stress-tests a plan one question at a time (each with a recommended answer) against the repo's server-authoritative invariants (`grilling/INVARIANTS.md`). Auto-triggers on grill/pressure-test/"poke holes" intent. |
+| `domain-modeling` *(engine)* | Builds and sharpens the domain model: challenges fuzzy terms, maintains the `CONTEXT.md` glossary and `docs/adr/` decision records inline. Owns `CONTEXT-FORMAT.md` / `ADR-FORMAT.md`. |
+| `codebase-design` *(engine)* | The deep-module vocabulary (module / interface / depth / seam / adapter / leverage / locality) + principles, the `DEEPENING.md` dependency-category guide, and the `DESIGN-IT-TWICE.md` parallel-sub-agent interface exploration. |
+| `grill-me` *(orchestrator)* | `/grill-me` — runs a grilling session with no doc side-effects. |
+| `grill-with-docs` *(orchestrator)* | `/grill-with-docs` — grilling **plus** `domain-modeling`, so `CONTEXT.md` and ADRs stay current as terms and decisions crystallise. |
+| `improve-codebase-architecture` *(orchestrator)* | `/improve-codebase-architecture` — scans for **deepening opportunities** (shallow → deep refactors), renders an HTML report of candidates (`HTML-REPORT.md`), then grills through the chosen one. Composes all three engines. |
 | `create-gdd` | Authoring or refreshing the Game Design Document (`docs/GDD.md`). Pulls from CLAUDE.md, CONTEXT.md, ADRs, and memory pointers (verifying claims against source before citing), fills a 20-section template, and renders a styled standalone HTML preview via the bundled Python script. No path scope — invoke by intent. |
+
+### More ported mattpocock/skills
+
+The rest of the [mattpocock/skills](https://github.com/mattpocock/skills) set,
+ported (faithfully; lightly adapted where this repo's tooling differs). The
+**idea → ship flow** chains several of these — run `/ask-matt` if you're unsure
+which fits.
+
+| Skill | Use when |
+|---|---|
+| `ask-matt` *(router)* | `/ask-matt` — names the user-invoked skills and which flow each fits. Start here when you don't remember what exists. |
+| `tdd` *(model-invoked)* | Test-first red-green-refactor against the `test/` harness; "build this test-first", "red-green-refactor". |
+| `diagnosing-bugs` *(model-invoked)* | Hard bug / perf regression — builds a tight feedback loop first. "diagnose", "debug this", something broken/slow. |
+| `prototype` *(orchestrator)* | `/prototype` — throwaway code to answer a design question (logic TUI, or UI variants). |
+| `handoff` *(orchestrator)* | `/handoff` — compact the conversation into a markdown handoff doc for a fresh session. |
+| `to-prd` *(orchestrator)* | `/to-prd` — synthesize the current thread into a PRD on the issue tracker (no interview). |
+| `to-issues` *(orchestrator)* | `/to-issues` — split a plan/PRD into independently-grabbable tracer-bullet issues. |
+| `triage` *(orchestrator)* | `/triage` — move incoming issues/PRs through triage roles, write agent-ready briefs. |
+| `setup-matt-pocock-skills` *(orchestrator)* | `/setup-matt-pocock-skills` — one-time config (issue tracker, triage labels, domain docs) the triage/PRD/issues skills assume. |
+| `teach` *(orchestrator)* | `/teach` — learn a concept over multiple sessions in a stateful workspace. |
+| `writing-great-skills` *(orchestrator)* | `/writing-great-skills` — reference + glossary for authoring skills well. |
+| `git-guardrails-claude-code` *(model-invoked)* | Install a PreToolUse hook that blocks dangerous git commands. |
+| `setup-pre-commit` *(model-invoked)* | Set up Husky + lint-staged + Prettier pre-commit hooks (JS/TS subtrees only). |
+| `migrate-to-shoehorn` *(model-invoked)* | TS-only: replace `as` assertions in tests with shoehorn. Applies only to TS tooling, not the game. |
+| `scaffold-exercises` *(model-invoked)* | ai-hero-cli course-authoring layout; not specific to the game. |
 
 ## The AI Layer
 
