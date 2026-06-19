@@ -517,49 +517,44 @@ func _build_causeway(cfg: Dictionary) -> Dictionary:
 	var width: int = int(cfg["width"])
 	var base_r := FLOOR_Y
 	var bottom := base_r + 8
-	# Layout: more GROUND, less water. Left ground shore -> walkable SHALLOWS -> a deep-water GAP
-	# the shallows can't cross, spanned by the BRIDGE -> right ground shore.
-	var sh_l := int(width * 0.16)        # left shore  = [0, sh_l)
-	var gap0 := int(width * 0.50)        # gap+bridge  = [gap0, sh_r)
-	var sh_r := int(width * 0.66)        # right shore = [sh_r, width)
-	var ground := {}; var plat := {}; var water := {}; var water_body := {}; var bridge := {}
+	# Mostly GROUND with a central water GAP the BRIDGE spans end-to-end. Water is BACKGROUND
+	# only (Background2, behind the bridge) — pure scenery, never walked on.
+	var sh_l := int(width * 0.30)        # left ground shore  = [0, sh_l)
+	var sh_r := int(width * 0.66)        # right ground shore = [sh_r, width); gap = [sh_l, sh_r)
+	var ground := {}; var plat := {}; var water_body := {}; var bridge := {}
 	for x in range(0, sh_l):
-		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # left shore (ground)
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # left shore
 	for x in range(sh_r, width):
-		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # right shore (ground)
-	for x in range(sh_l, gap0):
-		water[Vector2i(x, base_r)] = [0, 0]                                       # walkable shallows (surface)
-	for x in range(gap0, sh_r):                                                   # wooden bridge over the deep gap
+		for y in range(base_r, bottom + 1): ground[Vector2i(x, y)] = true        # right shore
+	for x in range(sh_l, sh_r):                                                   # bridge across the WHOLE gap
 		var tx := 1
-		if x == gap0: tx = 0
+		if x == sh_l: tx = 0
 		elif x == sh_r - 1: tx = 2
 		bridge[Vector2i(x, base_r)] = [tx, 0]
-	for x in range(sh_l, sh_r):                                                   # scenic deep water below shallows + gap
-		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]
-	# One low stepping platform over the shallows (ranged perch).
-	var p1 := base_r - 4
-	_seg(plat, int(width * 0.22), int(width * 0.42), p1)
-	# Left safe spawn perch.
+	for x in range(sh_l, sh_r):                                                   # water = background scenery in the gap
+		water_body[Vector2i(x, base_r)] = [0, 0]                                  # surface row (behind the planks)
+		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]   # deep body
+	# Left safe spawn perch + one ranged platform above the bridge.
 	var perch := base_r - 3
 	_seg(plat, 2, 8, perch)
+	var p1 := base_r - 5
+	_seg(plat, int(width * 0.40), int(width * 0.58), p1)
 	var ladders := [
 		[perch, base_r, 4, "rope"],
-		[p1, base_r, int(width * 0.30), "rope"],
+		[p1, base_r, int(width * 0.46), "rope"],
 	]
-	# Explicit spawns: left shore, shallows, bridge, right shore, platform.
+	# Explicit spawns: left shore, the bridge, right shore, platform.
 	var spawn_spots := []
 	var c := 4
 	while c < sh_l - 1: spawn_spots.append(Vector2i(c, base_r)); c += 5
 	c = sh_l + 2
-	while c < gap0 - 1: spawn_spots.append(Vector2i(c, base_r)); c += 6
-	c = gap0 + 3
 	while c < sh_r - 2: spawn_spots.append(Vector2i(c, base_r)); c += 6
 	c = sh_r + 2
 	while c < width - 3: spawn_spots.append(Vector2i(c, base_r)); c += 5
-	spawn_spots.append(Vector2i(int(width * 0.30), p1))
+	spawn_spots.append(Vector2i(int(width * 0.48), p1))
 	return {
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
-		"water": water, "water_body": water_body, "bridge": bridge, "no_village_bg": true,
+		"water_body": water_body, "bridge": bridge, "no_village_bg": true,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
 		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
 		"player_spawn": Vector2i(4, perch - 1),
@@ -1130,7 +1125,7 @@ func _emit(m: Dictionary) -> void:
 	text = _inject_playable(text, m)
 	if not slopes.is_empty(): text = _inject_slopes(text)
 	if not m.get("bridge", {}).is_empty(): text = _inject_bridge(text)
-	if not m.get("water", {}).is_empty(): text = _inject_water(text)
+	if not m.get("water", {}).is_empty() or not m.get("water_body", {}).is_empty(): text = _inject_water(text)
 	if not m.get("portals", []).is_empty(): text = _inject_portals(text, m)
 	if not m.get("npcs", []).is_empty(): text = _inject_npcs(text, m)
 	if not m.get("bosses", []).is_empty(): text = _inject_bosses(text, m)

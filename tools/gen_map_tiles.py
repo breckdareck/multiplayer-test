@@ -45,25 +45,47 @@ bridge = sheet(3)
 plank(bridge, 0, "L"); plank(bridge, 1); plank(bridge, 2, "R")
 bridge.save(os.path.join(ROOT, "assets/sprites/bridge_tiles.png"))
 
-# ---------------- WATER: surface, body, shallow overlay (alpha) ----------------
+# ---------------- WATER: surface, body, shallow overlay — juiced (dither + waves + foam) -----
+# Muted-teal palette with 5 values (matches the country style); dithering instead of flat bands,
+# wavy highlight lines, a foam crest, and sparkles. Body tile is seamlessly tileable.
+FOAM = (198, 234, 238, 255); WHI = (128, 196, 206, 255); WMD = (72, 140, 156, 255)
+WLO = (48, 104, 122, 255); WDK = (34, 80, 98, 255)
+WAVE = [0, 1, 1, 0, 0, -1, -1, 0]   # period-8 offset so highlight lines tile horizontally
 water = sheet(3)
-# 0: surface — foam crest on top, deepening down
+
+def body_px(tx, x, y):              # tileable body fill: dither deep into the lower half + sparse DK
+    c = WMD
+    if (x + y) % 2 == 0 and y >= 8: c = WLO
+    if (x * 3 + y * 5) % 11 == 0 and y >= 11: c = WDK
+    put(water, tx, x, y, c)
+
+def waves(tx, rows):                # wavy HI highlight lines + a few foam sparkles
+    for x in range(16):
+        for ry in rows:
+            yy = ry + WAVE[x % 8]
+            put(water, tx, x, yy, WHI)
+            if yy + 1 < 16: put(water, tx, x, yy + 1, WLO)
+    for sx, sy in [(3, 5), (10, 9), (6, 13), (13, 3)]:
+        put(water, tx, sx, sy, FOAM)
+
+# 0: surface — wavy foam crest, then juiced body
 for x in range(16):
-    put(water, 0, x, 0, T); put(water, 0, x, 1, A_HI)
-    for y in range(2, 16):
-        water.putpixel((x, y), A_MD if y < 9 else A_LO)
-for x in range(0, 16, 4):                       # crest dips
-    put(water, 0, x, 1, A_MD); put(water, 0, x + 1, 1, A_MD)
-hline(water, 0, 6, 0, 15, A_LO); hline(water, 0, 12, 0, 15, A_HI)
-# 1: body
+    for y in range(2, 16): body_px(0, x, y)
 for x in range(16):
-    for y in range(16): water.putpixel((1 * 16 + x, y), A_MD)
-hline(water, 1, 4, 0, 15, A_LO); hline(water, 1, 9, 0, 15, A_HI); hline(water, 1, 13, 0, 15, A_LO)
-# 2: shallow overlay (semi-transparent — drawn OVER walkable ground)
-OL = (118, 176, 184, 96); OLH = (150, 200, 208, 140)
+    cy = WAVE[x % 8]                                  # crest rides the wave
+    put(water, 0, x, 0, T if cy < 0 else FOAM)
+    put(water, 0, x, 1, FOAM if cy <= 0 else WHI)
+waves(0, [5, 11])
+# 1: body — fully juiced, tileable
+for x in range(16):
+    for y in range(16): body_px(1, x, y)
+waves(1, [2, 8, 13])
+# 2: shallow overlay (semi-transparent — for wading-over-ground use)
+OL = (118, 176, 184, 96); OLH = (180, 224, 230, 150)
 for x in range(16):
     for y in range(16): water.putpixel((2 * 16 + x, y), OL)
-for x in range(0, 16, 3): put(water, 2, x, 7, OLH); put(water, 2, x + 1, 8, OLH)
+for x in range(16):
+    put(water, 2, x, 6 + WAVE[x % 8], OLH); put(water, 2, x, 12 + WAVE[x % 8], OLH)
 water.save(os.path.join(ROOT, "assets/sprites/water_tiles.png"))
 
 # ---------------- STONE COLUMNS: capital, shaft, base, broken ----------------
