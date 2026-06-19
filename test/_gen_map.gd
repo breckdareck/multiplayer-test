@@ -532,8 +532,8 @@ func _build_causeway(cfg: Dictionary) -> Dictionary:
 		elif x == sh_r - 1: tx = 2
 		bridge[Vector2i(x, base_r)] = [tx, 0]
 	for x in range(sh_l, sh_r):                                                   # water = background scenery in the gap
-		water_body[Vector2i(x, base_r)] = [0, 0]                                  # surface row (behind the planks)
-		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [1, 0]   # deep body
+		water_body[Vector2i(x, base_r)] = [0, 0]                                  # surface (sheet row 0, anim base)
+		for y in range(base_r + 1, bottom + 1): water_body[Vector2i(x, y)] = [0, 1]   # deep body (sheet row 1, anim base)
 	# Left safe spawn perch + one ranged platform above the bridge.
 	var perch := base_r - 3
 	_seg(plat, 2, 8, perch)
@@ -1578,9 +1578,14 @@ func _inject_water(text: String) -> String:
 	var n := int(lm.search(header).get_string(1))
 	header = header.replace("load_steps=%d" % n, "load_steps=%d" % (n + 2))
 	text = header + '\n[ext_resource type="Texture2D" path="res://assets/sprites/water_tiles.png" id="gen_water"]' + text.substr(nl)
+	# Sheet is 4 cols (anim frames) x 3 rows: surface (0,0), body (0,1), overlay (0,2). Each is an
+	# ANIMATED tile (4 frames, scrolls horizontally) with NO collision — water is background scenery.
 	var atlas := '[sub_resource type="TileSetAtlasSource" id="GenWaterAtlas"]\ntexture = ExtResource("gen_water")\ntexture_region_size = Vector2i(16, 16)\n'
-	atlas += '0:0/0 = 0\n0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)\n'   # surface = solid floor
-	atlas += '1:0/0 = 0\n2:0/0 = 0\n\n'                                                                              # body + overlay = decorative
+	for ty in range(3):
+		atlas += '0:%d/animation_columns = 4\n0:%d/animation_speed = 3.0\n' % [ty, ty]
+		for f in range(4): atlas += '0:%d/animation_frame_%d/duration = 1.0\n' % [ty, f]
+		atlas += '0:%d/0 = 0\n' % ty
+	atlas += "\n"
 	var ti := text.find('[sub_resource type="TileSet" id=')
 	if ti != -1:
 		text = text.substr(0, ti) + atlas + text.substr(ti)

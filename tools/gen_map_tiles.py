@@ -45,47 +45,49 @@ bridge = sheet(3)
 plank(bridge, 0, "L"); plank(bridge, 1); plank(bridge, 2, "R")
 bridge.save(os.path.join(ROOT, "assets/sprites/bridge_tiles.png"))
 
-# ---------------- WATER: surface, body, shallow overlay — juiced (dither + waves + foam) -----
-# Muted-teal palette with 5 values (matches the country style); dithering instead of flat bands,
-# wavy highlight lines, a foam crest, and sparkles. Body tile is seamlessly tileable.
+# ---------------- WATER: ANIMATED — 4 columns = anim frames, each tile on its own row -----------
+# Sheet is 4x3 tiles (64x48): row0 surface, row1 body, row2 shallow-overlay; the 4 columns are the
+# animation frames (the wave/dither pattern scrolls 4px per frame -> seamless horizontal flow).
+# Muted-teal, dithered (not flat), wavy highlight lines, foam crest, sparkles; tileable.
 FOAM = (198, 234, 238, 255); WHI = (128, 196, 206, 255); WMD = (72, 140, 156, 255)
 WLO = (48, 104, 122, 255); WDK = (34, 80, 98, 255)
-WAVE = [0, 1, 1, 0, 0, -1, -1, 0]   # period-8 offset so highlight lines tile horizontally
-water = sheet(3)
+WAVE = [0, 1, 1, 0, 0, -1, -1, 0]   # period-8 -> tiles horizontally
+water = Image.new("RGBA", (64, 48), T)
 
-def body_px(tx, x, y):              # tileable body fill: dither deep into the lower half + sparse DK
-    c = WMD
-    if (x + y) % 2 == 0 and y >= 8: c = WLO
-    if (x * 3 + y * 5) % 11 == 0 and y >= 11: c = WDK
-    put(water, tx, x, y, c)
+def wput(bx, by, x, y, c):
+    if 0 <= x < 16 and 0 <= y < 16: water.putpixel((bx + x, by + y), c)
 
-def waves(tx, rows):                # wavy HI highlight lines + a few foam sparkles
+def draw_water(bx, by, sh, kind):   # one 16x16 frame at (bx,by), pattern scrolled by `sh`
     for x in range(16):
+        sx = (x + sh) % 16
+        y0 = 2 if kind == "surface" else 0
+        for y in range(y0, 16):
+            if kind == "overlay":
+                c = (118, 176, 184, 96)
+            else:
+                c = WMD
+                if (sx + y) % 2 == 0 and y >= 8: c = WLO
+                if (sx * 3 + y * 5) % 11 == 0 and y >= 11: c = WDK
+            wput(bx, by, x, y, c)
+        if kind == "surface":                          # wavy foam crest
+            cy = WAVE[sx % 8]
+            wput(bx, by, x, 0, T if cy < 0 else FOAM)
+            wput(bx, by, x, 1, FOAM if cy <= 0 else WHI)
+    rows = [5, 11] if kind == "surface" else ([6, 12] if kind == "overlay" else [2, 8, 13])
+    hi = (180, 224, 230, 150) if kind == "overlay" else WHI
+    for x in range(16):
+        sx = (x + sh) % 16
         for ry in rows:
-            yy = ry + WAVE[x % 8]
-            put(water, tx, x, yy, WHI)
-            if yy + 1 < 16: put(water, tx, x, yy + 1, WLO)
-    for sx, sy in [(3, 5), (10, 9), (6, 13), (13, 3)]:
-        put(water, tx, sx, sy, FOAM)
+            yy = ry + WAVE[sx % 8]
+            wput(bx, by, x, yy, hi)
+            if kind != "overlay" and yy + 1 < 16: wput(bx, by, x, yy + 1, WLO)
+    if kind != "overlay":
+        for spx, spy in [(3, 5), (10, 9), (6, 13), (13, 3)]:
+            wput(bx, by, (spx + sh) % 16, spy, FOAM)
 
-# 0: surface — wavy foam crest, then juiced body
-for x in range(16):
-    for y in range(2, 16): body_px(0, x, y)
-for x in range(16):
-    cy = WAVE[x % 8]                                  # crest rides the wave
-    put(water, 0, x, 0, T if cy < 0 else FOAM)
-    put(water, 0, x, 1, FOAM if cy <= 0 else WHI)
-waves(0, [5, 11])
-# 1: body — fully juiced, tileable
-for x in range(16):
-    for y in range(16): body_px(1, x, y)
-waves(1, [2, 8, 13])
-# 2: shallow overlay (semi-transparent — for wading-over-ground use)
-OL = (118, 176, 184, 96); OLH = (180, 224, 230, 150)
-for x in range(16):
-    for y in range(16): water.putpixel((2 * 16 + x, y), OL)
-for x in range(16):
-    put(water, 2, x, 6 + WAVE[x % 8], OLH); put(water, 2, x, 12 + WAVE[x % 8], OLH)
+for ti, kind in enumerate(["surface", "body", "overlay"]):
+    for f in range(4):
+        draw_water(f * 16, ti * 16, f * 4, kind)        # 4 frames, scroll 4px each -> 16px loop
 water.save(os.path.join(ROOT, "assets/sprites/water_tiles.png"))
 
 # ---------------- STONE COLUMNS: capital, shaft, base, broken ----------------
