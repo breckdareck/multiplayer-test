@@ -57,6 +57,7 @@ func _init() -> void:
 	elif "--gorge" in _args: wave = _wave_gorge_demo()
 	elif "--shaft" in _args: wave = _wave_shaft_demo()
 	elif "--causeway" in _args: wave = _wave_causeway_demo()
+	elif "--warren" in _args: wave = _wave_warren_demo()
 	for cfg in wave:
 		var m: Dictionary
 		match str(cfg.get("arch", "field")):
@@ -68,6 +69,7 @@ func _init() -> void:
 			"gorge": m = _build_gorge(cfg)
 			"shaft": m = _build_shaft(cfg)
 			"causeway": m = _build_causeway(cfg)
+			"warren": m = _build_warren(cfg)
 			_: m = _build_field(cfg)
 		_emit(m)
 		print("WROTE ", cfg["name"], " [", cfg.get("arch", "field"), "]")
@@ -559,6 +561,70 @@ func _build_causeway(cfg: Dictionary) -> Dictionary:
 		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
 		"player_spawn": Vector2i(4, perch - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+	}
+
+## Demo wave: a single standalone Warren test map (gen_warren.tscn). Run: generator -- --warren
+func _wave_warren_demo() -> Array:
+	return [
+		{"name": "gen_warren", "arch": "warren", "seed": 3401, "width": 60,
+			"display_name": "Warren (test)", "bgm": "res://assets/music/emberwilds_ruins.ogg",
+			"monsters": [["res://scenes/NPC/goblin.tscn", "uid://c0fdrl7mq5ou7", 8],
+				["res://scenes/NPC/cave_goblin.tscn", "uid://cnes7f1n2altk", 8],
+				["res://scenes/NPC/Minifolks/tusk_brute.tscn", "uid://b3drshokinfof", 8]]},
+	]
+
+## WARREN archetype: a solid rock mass carved into a maze of small ROOMS. A lower row of rooms is
+## linked by horizontal TUNNELS (walk through); two upper dead-end POCKETS are reached only by a
+## ROPE up a carved shaft. Leftmost lower room is the safe spawn (no mobs); every other room has
+## mobs. Dark rock (rock_top + bgwall). No new tiles.
+func _build_warren(cfg: Dictionary) -> Dictionary:
+	var width: int = int(cfg["width"])
+	var top := 8
+	var bottom := 36
+	var floor_lo := 30
+	var floor_hi := 18
+	var ground := {}; var plat := {}
+	var empty := {}
+	var lower := [[4, 18], [23, 37], [42, 56]]    # rooms A, B, C (share floor_lo)
+	for rm in lower:
+		for x in range(rm[0], rm[1]):
+			for y in range(floor_lo - 5, floor_lo): empty[Vector2i(x, y)] = true
+	for gx in [[18, 23], [37, 42]]:               # tunnels between adjacent lower rooms
+		for x in range(gx[0], gx[1]):
+			for y in range(floor_lo - 2, floor_lo): empty[Vector2i(x, y)] = true
+	var upper := [[10, 24], [36, 50]]             # rooms D, E (dead-end pockets, floor_hi)
+	for rm in upper:
+		for x in range(rm[0], rm[1]):
+			for y in range(floor_hi - 5, floor_hi): empty[Vector2i(x, y)] = true
+	for sx in [[13, 15], [45, 47]]:               # vertical rope shafts (A->D, C->E)
+		for x in range(sx[0], sx[1]):
+			for y in range(floor_hi, floor_lo): empty[Vector2i(x, y)] = true
+	for x in range(width):                        # fill solid rock except carved cavities
+		for y in range(top, bottom + 1):
+			var cell := Vector2i(x, y)
+			if not empty.has(cell): ground[cell] = true
+	var ladders := [
+		[floor_hi, floor_lo, 13, "rope"],         # A -> D
+		[floor_hi, floor_lo, 45, "rope"],         # C -> E
+	]
+	# Explicit spawns: rooms B, C (lower) + D, E (upper). Room A = safe spawn (no spots).
+	var spawn_spots := []
+	for cx in [28, 33]: spawn_spots.append(Vector2i(cx, floor_lo))
+	for cx in [46, 51]: spawn_spots.append(Vector2i(cx, floor_lo))
+	for cx in [14, 20]: spawn_spots.append(Vector2i(cx, floor_hi))
+	for cx in [40, 46]: spawn_spots.append(Vector2i(cx, floor_hi))
+	var bgwall := {}
+	for x in range(width):
+		for y in range(bottom + 1):
+			var cell := Vector2i(x, y)
+			if not ground.has(cell): bgwall[cell] = [4, 7]
+	return {
+		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": {},
+		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
+		"safe_rows": [], "ladders": ladders, "spawn_spots": spawn_spots,
+		"player_spawn": Vector2i(8, floor_lo - 1),
+		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
+		"bgwall": bgwall, "rock_top": true, "no_trees": true, "no_village_bg": true, "no_deco": true,
 	}
 
 ## CLIFFS archetype: a left-to-right chain of solid mesas at varied heights, joined by 2:1 grass

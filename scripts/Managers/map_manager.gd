@@ -37,6 +37,7 @@ const MAP_SCENES = {
 	"gen_gorge": "res://scenes/Levels/gen_gorge.tscn",
 	"gen_shaft": "res://scenes/Levels/gen_shaft.tscn",
 	"gen_causeway": "res://scenes/Levels/gen_causeway.tscn",
+	"gen_warren": "res://scenes/Levels/gen_warren.tscn",
 	"old_battlefield": "res://scenes/Levels/old_battlefield.tscn",
 	"mustering_fields": "res://scenes/Levels/mustering_fields.tscn",
 	"ashvigil": "res://scenes/Levels/ashvigil.tscn",
