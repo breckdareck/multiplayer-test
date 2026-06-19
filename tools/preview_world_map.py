@@ -12,25 +12,33 @@ from PIL import Image, ImageDraw, ImageFont
 W, H = 1780, 916
 CX, CY = 0.5, 0.5
 
-# ---- WORLD view positions (outer ring + spokes + emberwatch) ----
-RX, RY = 0.44, 0.42
-def polar(rf, ang, rx=RX, ry=RY):
-    a = math.radians(ang); return (CX + rx*rf*math.cos(a), CY - ry*ry/ry*rf*math.sin(a)) if False else (CX + rx*rf*math.cos(a), CY - ry*rf*math.sin(a))
-ring = ["lanterns_rest","near_wilds","meadow_path","wickmoor","tinderfields","ember_meadows","hollowmere","bramble_downs","brackenway"]
-world = {}
-for i, m in enumerate(ring):
-    world[m] = polar(1.0, 90 - i*(360.0/len(ring)))
-# Emberwatch is the DEAD CENTRE of the wheel; all THREE spokes run STRAIGHT into
-# it (no spiral). 4/4/4 spokes: each town is 4 maps from Emberwatch.
-world["emberwatch"] = (0.500, 0.500)
-emb = world["emberwatch"]
-def interp(a,b,t): return (a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t)
-spoke1 = ["ruins","old_battlefield","thornroot","the_reliquary"]                 # Lantern's delve
-spoke2 = ["three_terraces","bandit_bluffs","dust_warren","wolfsreach"]           # Wickmoor overland
-spoke3 = ["mirefen","stonereach","mines","the_undercroft"]                       # Hollowmere deep road
-for i,m in enumerate(spoke1): world[m]=interp(world["lanterns_rest"],emb,(i+1)/(len(spoke1)+1))
-for i,m in enumerate(spoke2): world[m]=interp(world["wickmoor"],emb,(i+1)/(len(spoke2)+1))
-for i,m in enumerate(spoke3): world[m]=interp(world["hollowmere"],emb,(i+1)/(len(spoke3)+1))
+# ---- WORLD view positions: the Lantern's Rest ARM (crossway, Stage 2) ----
+# Explicit coordinates kept in lockstep with LAYOUT_WORLD in scripts/UI/world_map.gd.
+# Town far-left; a branchy low-frontier lens funnels at Ember-Meadows; the climb arcs
+# along the bottom up into the centred Emberwatch. Right/top thirds open for future arms.
+world = {
+    "lanterns_rest":   (0.050, 0.500),
+    "near_wilds":      (0.110, 0.360),
+    "firefly_hollow":  (0.110, 0.640),
+    "meadow_path":     (0.180, 0.270),
+    "brackenway":      (0.180, 0.630),
+    "glimmerfen":      (0.250, 0.210),
+    "bramble_downs":   (0.250, 0.710),
+    "lanternwood":     (0.320, 0.300),
+    "tinderfields":    (0.320, 0.640),
+    "hollow_warren":   (0.430, 0.330),
+    "ember_meadows":   (0.400, 0.480),
+    "watchers_ruin":   (0.440, 0.640),
+    "beacon_rise":     (0.430, 0.790),
+    "old_causeway":    (0.530, 0.860),
+    "ruins":           (0.640, 0.840),
+    "thornroot":       (0.730, 0.740),
+    "old_battlefield": (0.760, 0.620),
+    "the_reliquary":   (0.690, 0.540),
+    "embergate":       (0.595, 0.505),
+    "emberwatch":      (0.500, 0.500),
+}
+world_order = list(world.keys())
 CORE_GATE = (0.50, 0.63)   # synthetic gateway DIRECTLY below the centred Emberwatch
 
 # ---- CORE view positions: an inward SPIRAL descent (Emberwatch -> Warlord centre) ----
@@ -93,10 +101,9 @@ def render(pos, gate, gate_label, fname, title):
     d.text((20,16),title,fill=(150,150,160),font=FT)
     img.save(os.path.join(ROOT,fname)); return len(seen)
 
-e1=render(world, CORE_GATE, "The Core  v", "tools/_wm_world.png", "WORLD view — rim + spokes + The Core gateway")
+e1=render(world, CORE_GATE, "The Core  v", "tools/_wm_world.png", "WORLD view — Lantern's Rest arm (Lv2-47) -> Emberwatch + The Core gateway")
 e2=render(core, SURFACE_GATE, "^ The Surface", "tools/_wm_core.png", "CORE view — Emberwatch -> the descent -> Warlord")
 print("WORLD view:", len(world), "maps,", e1, "edges  |  CORE view:", len(core), "maps,", e2, "edges")
-world_order = ring + ["emberwatch"] + spoke1 + spoke2 + spoke3
 print("=== WORLD layout (bake into LAYOUT_WORLD) ===")
 for m in world_order:
     print(f'\t"{m}": Vector2({world[m][0]:.3f}, {world[m][1]:.3f}),')
