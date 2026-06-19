@@ -108,45 +108,70 @@ func _do_map(map: String) -> void:
 	right_elev.sort_custom(func(a, b): return a.x > b.x)   # closest to right edge first
 
 	var conns: Array = GRAPH[map].duplicate()
-	conns.sort_custom(func(a, b): return LEVEL[a] < LEVEL[b])
+	var my_level: int = LEVEL[map]
 	var n: int = conns.size()
-	# Placement: lowest-level dest on the LEFT edge, highest on the RIGHT edge (the two side doors);
-	# branch portals go on an elevated platform near a side, stacked above the side door — alternating
-	# right/left so a 3rd door sits over the right edge, a 4th over the left.
-	var place := []; place.resize(n)
 	var center := (mincol + maxcol) / 2.0
-	var lc: int = _flat_near(floor_top, mincol + 3, 1, mincol, maxcol); place[0] = Vector2i(lc, floor_top[lc])
-	if n >= 2:
-		var rc: int = _flat_near(floor_top, maxcol - 1, -1, mincol, maxcol); place[n - 1] = Vector2i(rc, floor_top[rc])
-	var b := 0
-	for i in range(1, n - 1):
-		var pri = right_elev if b % 2 == 0 else left_elev
-		var alt = left_elev if b % 2 == 0 else right_elev
-		if not pri.is_empty(): place[i] = pri.pop_front()
-		elif not alt.is_empty(): place[i] = alt.pop_front()
-		else:  # no elevated platform — fall back to an inset floor spot near a side
-			var fc: int = _nearest(floor_top, (maxcol - 10) if b % 2 == 0 else (mincol + 10))
-			place[i] = Vector2i(fc, floor_top[fc])
-		b += 1
+
+	# Per-edge SIDE, decided ONLY from the (this, other) level pair — so BOTH endpoints
+	# of an edge agree and end up on OPPOSITE sides: exit right <-> arrive left, always.
+	# Forward (higher-level destination) = RIGHT door (walk right to progress); a
+	# lower-level destination = LEFT door (backtrack). Equal levels use a symmetric
+	# name tiebreak so the two ends still disagree on side.
+	var right_side := []   # forward / progress
+	var left_side := []    # backward / return
+	for other in conns:
+		var fwd: bool = (LEVEL[other] > my_level) if LEVEL[other] != my_level else (map < other)
+		if fwd: right_side.append(other)
+		else: left_side.append(other)
+	right_side.sort_custom(func(a, c): return LEVEL[a] < LEVEL[c])   # easiest forward at the floor edge
+	left_side.sort_custom(func(a, c): return LEVEL[a] > LEVEL[c])    # nearest backward at the floor edge
+
+	# Seat each side's doors: the primary on that side's floor edge, extras on an
+	# elevated shelf if one exists, else fanned across that HALF so multi-door hubs
+	# never push a door past the centre line (which would flip its apparent side).
+	var pos_by_other := {}
+	_place_side(right_side, floor_top, mincol, maxcol, center, true, right_elev, pos_by_other)
+	_place_side(left_side, floor_top, mincol, maxcol, center, false, left_elev, pos_by_other)
 
 	var body := ""
 	for i in n:
 		var other: String = conns[i]
-		var px: int = place[i].x * 16 + off.x
-		var py: int = place[i].y * 16 + off.y
+		var p: Vector2i = pos_by_other[other]
+		var px: int = p.x * 16 + off.x
+		var py: int = p.y * 16 + off.y
 		# Portal sits 16px ABOVE the surface (foot rests on it); arrival marker 12px above (land on it).
 		body += '\n[node name="PortalTo%s" parent="." instance=ExtResource("%s")]\n' % [TOKEN[other], pid]
 		body += 'position = Vector2(%d, %d)\n' % [px, py - 16]
 		body += 'target_map_id = "%s"\n' % other
 		body += 'target_spawn_point_name = "%s_%s_Portal_Spawn"\n' % [TOKEN[other], TOKEN[map]]
 		# Arrival on the INNER side of the door: left-side portal -> spawn to its right; right-side -> left.
-		var dx: int = 24 if place[i].x <= center else -24
+		var dx: int = 24 if p.x <= center else -24
 		body += '\n[node name="%s_%s_Portal_Spawn" type="Marker2D" parent="."]\n' % [TOKEN[map], TOKEN[other]]
 		body += 'position = Vector2(%d, %d)\n' % [px + dx, py - 12]
 
 	text = text.rstrip("\n") + "\n" + body
 	var w := FileAccess.open(path, FileAccess.WRITE); w.store_string(text); w.close()
 	print(map, ": ", n, " portals -> ", conns)
+
+# Seat a side's doors. j==0 -> the floor EDGE (flat seat). Extras -> an elevated
+# shelf on that side if available, else fanned evenly across that half toward (but
+# never past) the centre, so every door stays unambiguously on its side.
+func _place_side(group: Array, floor_top: Dictionary, mincol: int, maxcol: int, center: float, is_right: bool, elev: Array, out: Dictionary) -> void:
+	var k: int = group.size()
+	for j in k:
+		var other: String = group[j]
+		if j == 0:
+			var ec: int = _flat_near(floor_top, (maxcol - 1) if is_right else (mincol + 3), -1 if is_right else 1, mincol, maxcol)
+			out[other] = Vector2i(ec, floor_top[ec])
+		elif not elev.is_empty():
+			out[other] = elev.pop_front()
+		else:
+			var edge := float(maxcol - 1) if is_right else float(mincol + 3)
+			var inner := center + (4.0 if is_right else -4.0)
+			var target := int(lerp(edge, inner, float(j) / float(k)))
+			var col: int = _nearest(floor_top, target)
+			out[other] = Vector2i(col, floor_top[col])
+
 
 func _portal_id(text: String) -> String:
 	var i := text.find('path="res://scenes/Gameplay/portal.tscn"')
