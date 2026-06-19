@@ -1096,12 +1096,12 @@ preprocess = 7.0
 process_material = SubResource("ParticleProcessMaterial_h50lt")
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(-176, -608)
+position = Vector2(224, -608)
 target_map_id = "ember_meadows"
 target_spawn_point_name = "EmberMeadows_Hollowmere_Portal_Spawn"
 
 [node name="Hollowmere_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-152, -604)
+position = Vector2(200, -604)
 
 [node name="PortalToBramble" parent="." instance=ExtResource("3_knl1o")]
 position = Vector2(176, -672)
@@ -1112,9 +1112,9 @@ target_spawn_point_name = "Bramble_Hollowmere_Portal_Spawn"
 position = Vector2(152, -668)
 
 [node name="PortalToMirefen" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(224, -608)
+position = Vector2(112, -608)
 target_map_id = "mirefen"
 target_spawn_point_name = "Mirefen_Hollowmere_Portal_Spawn"
 
 [node name="Hollowmere_Mirefen_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(200, -604)
+position = Vector2(88, -604)

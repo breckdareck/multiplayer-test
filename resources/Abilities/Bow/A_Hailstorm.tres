@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://strafearc01x"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://strafearc01x"]
 
 [ext_resource type="Texture2D" uid="uid://e06e71gew6xq" path="res://assets/sprites/Abilities/generated_px/Bow/A_Hailstorm.png" id="1_py52j"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_strf1"]
@@ -13,7 +13,7 @@
 [ext_resource type="Resource" uid="uid://dmtnk4sc6xi77" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Flurry.tres" id="13_fl"]
 [ext_resource type="Resource" uid="uid://y3epx7mng13s" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_Bloodletting.tres" id="14_bl"]
 [ext_resource type="Resource" uid="uid://dldwvu35db2e4" path="res://resources/Abilities/Bow/Upgrades/U_HAIL_SuppressingFire.tres" id="15_sf"]
-[ext_resource type="Script" path="res://scripts/Abilities/AL_WeakenOnHit.gd" id="90_weakhit"]
+[ext_resource type="Script" uid="uid://bmd8ynomp7bha" path="res://scripts/Abilities/AL_WeakenOnHit.gd" id="90_weakhit"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aa4ap"]
 size = Vector2(160, 46)

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=16 format=3 uid="uid://b0deer1mfa01o"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b0deer1mfa01o"]
 
 [ext_resource type="Texture2D" uid="uid://b3y1g7qhtpimy" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniDeer1.png" id="1_deer"]
 
@@ -73,7 +73,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_l2hpo")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 8.0
 }, {
@@ -84,7 +84,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1cep5")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -101,7 +101,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d_i3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 6.0
 }, {
@@ -118,7 +118,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pb1ln")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 8.0
 }]

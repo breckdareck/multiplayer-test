@@ -643,7 +643,7 @@ func _deferred_death_processing(_killer: Node) -> void:
 				
 	# Spawn drops for all eligible players
 	if not eligible_player_ids_for_drops.is_empty():
-		_spawn_drops(eligible_player_ids_for_drops)
+		_spawn_drops(eligible_player_ids_for_drops, killer_player_id)
 		
 	attack_hitbox.monitoring = false
 	body_hitbox.monitoring = false
@@ -669,7 +669,14 @@ func _deferred_death_processing(_killer: Node) -> void:
 			get_tree().create_timer(corpse_linger).timeout.connect(queue_free)
 
 
-func _spawn_drops(eligible_player_ids: Array[int]) -> void:
+## Bad-luck protection (two tracks). Counters live PER-CHARACTER on the killer's player node
+## (rare_pity / legendary_pity) and PERSIST via the "stats" save, so they survive disconnect/
+## relogin. At a threshold the next equip drop is floored: RARE+ at RARE_PITY_THRESHOLD,
+## Legendary at LEGENDARY_PITY_THRESHOLD. A drop of that tier (rolled OR granted) resets it.
+const RARE_PITY_THRESHOLD := 12
+const LEGENDARY_PITY_THRESHOLD := 150
+
+func _spawn_drops(eligible_player_ids: Array[int], killer_id: int = -1) -> void:
 	if not multiplayer.is_server():
 		return
 	
@@ -706,31 +713,59 @@ func _spawn_drops(eligible_player_ids: Array[int]) -> void:
 		push_error("EnemyBase: GlobalDropHandler not found in map %s" % map_instance.name)
 		return
 	
+	# Pity target: the killer's player node (fallback to first eligible). Bots/no-node -> no pity.
+	var pity_id: int = killer_id if killer_id != -1 else (eligible_player_ids[0] if not eligible_player_ids.is_empty() else -1)
+	var pity_node: MultiplayerPlayerV2 = (PlayerManager.get_player_node(pity_id) as MultiplayerPlayerV2) if pity_id != -1 else null
+	var pity_changed := false
 	for drop_resource in item_drops:
 		if drop_resource == null:
 			continue
-		
+
 		# Check if this drop should occur
 		if not drop_resource.should_drop():
 			continue
-		
+
+		# Equip drops honor + advance the killer's pity; force the floor tier at each threshold.
+		var is_equip: bool = drop_resource.randomize_stats
+		var min_rarity: int = -1
+		if is_equip and pity_node != null:
+			if pity_node.legendary_pity >= LEGENDARY_PITY_THRESHOLD:
+				min_rarity = Constants.ItemRarity.LEGENDARY
+			elif pity_node.rare_pity >= RARE_PITY_THRESHOLD:
+				min_rarity = Constants.ItemRarity.RARE
 		# Get the item data
-		var item = drop_resource.get_item_data()
+		var item = drop_resource.get_item_data(min_rarity)
 		if item == null:
 			push_warning("Item '%s' not found in ResourceManager" % drop_resource.item_name)
 			continue
-		
+		if is_equip and pity_node != null:
+			var r: int = int((item as EquipmentData).rarity)
+			if r >= Constants.ItemRarity.LEGENDARY:
+				pity_node.legendary_pity = 0
+				pity_node.rare_pity = 0
+			elif r >= Constants.ItemRarity.RARE:
+				pity_node.rare_pity = 0
+				pity_node.legendary_pity += 1
+			else:
+				pity_node.rare_pity += 1
+				pity_node.legendary_pity += 1
+			pity_changed = true
+
 		# Determine stack amount
 		var amount = drop_resource.get_drop_amount()
-		
+
 		# Position it at enemy's location with slight offset to prevent stacking
 		var offset = Vector2(randf_range(-10, 10), randf_range(-10, 0))
 		var spawn_pos = global_position + offset
-		
+
 		# Delegate spawning to GlobalDropHandler which handles RPCs and map filtering
 		drop_handler.create_dropped_item(item, amount, spawn_pos, eligible_player_ids, map_instance)
-		
+
 		#print("Enemy '%s' dropped %dx %s for eligible players: %s" % [name, amount, item.name, str(eligible_player_ids)])
+
+	# Persist the updated pity via the debounced "stats" save (survives disconnect/relogin).
+	if pity_changed and pity_node != null and pity_node.has_method("_data_changed"):
+		pity_node._data_changed("stats")
 
 
 @rpc("authority", "call_local", "reliable")
@@ -793,8 +828,13 @@ func pool_deactivate() -> void:
 	if sync:
 		sync.set_process_mode(Node.PROCESS_MODE_DISABLED)
 	
-	# Move far away to prevent any lingering interactions.
-	global_position = Vector2(INF, INF)
+	# Move far away to prevent any lingering interactions. MUST be finite:
+	# Vector2(INF, INF) converts to node-local space through the parent's inverse
+	# transform, where the off-diagonal 0 * INF = NaN, leaving global_position at
+	# (NaN, NaN). A NaN transform makes the renderer (and child GPUParticles2D)
+	# emit "Vector2 cannot be normalized" warnings on every resident pooled enemy.
+	# A large finite offset is just as "far away" without poisoning the transform.
+	global_position = Vector2(1_000_000, 1_000_000)
 	
 	if multiplayer.is_server():
 		for pid in _get_real_players_on_same_map():

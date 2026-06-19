@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=25 format=3 uid="uid://beihov08u6kyg"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://beihov08u6kyg"]
 
 [ext_resource type="Texture2D" uid="uid://rr01d8q84aln" path="res://assets/sprites/Abilities/generated_px/Sword/A_SentinelsMark.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

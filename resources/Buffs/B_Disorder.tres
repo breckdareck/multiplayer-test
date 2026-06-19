@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=6 format=3 uid="uid://bdisorder0001"]
+[gd_resource type="Resource" script_class="BuffData" format=3 uid="uid://bdisorder0001"]
 
 [ext_resource type="Texture2D" uid="uid://dliub1pvja86r" path="res://assets/sprites/Abilities/disorder.webp" id="1_26chg"]
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_dis02"]

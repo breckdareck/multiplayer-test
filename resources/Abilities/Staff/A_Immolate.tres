@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://bf0rhhq7rgdjb"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://bf0rhhq7rgdjb"]
 
 [ext_resource type="Texture2D" uid="uid://bpl48ekkskwal" path="res://assets/sprites/Abilities/generated_px/Staff/A_Immolate.png" id="1_im1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_im1"]

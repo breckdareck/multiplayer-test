@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://shrpeyes001x"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://shrpeyes001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://ctc0nyf4lder5" path="res://assets/sprites/Abilities/generated_px/Bow/A_Eagle_Eye.png" id="1_chef7"]

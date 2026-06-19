@@ -6,7 +6,7 @@ const GROUND_CHECK_DISTANCE: float = 33.0
 const LANDING_OFFSET: float = 1.0
 const STEP_SIZE: float = 8.0
 const HORIZONTAL_HEIGHT_TOLERANCE: float = 33.0
-const DEBUG_DRAW: bool = true
+const DEBUG_DRAW: bool = false
 const DEBUG_DURATION: float = 3.0
 
 ## Brief i-frame window after a successful blink — the mage's escape mirrors the

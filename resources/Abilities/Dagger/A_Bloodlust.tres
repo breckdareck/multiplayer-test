@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://c37bseifhg1hl"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://c37bseifhg1hl"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://bdd8je8j6u3gc" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Bloodlust.png" id="1_t12uv"]

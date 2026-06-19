@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://ghcqfbgpncwa"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://ghcqfbgpncwa"]
 
 [ext_resource type="Texture2D" uid="uid://7ce7ug8tn30f" path="res://assets/sprites/Abilities/generated_px/Sword/A_Aggression.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

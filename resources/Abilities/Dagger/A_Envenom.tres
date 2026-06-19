@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://jybdswmtditj"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://jybdswmtditj"]
 
 [ext_resource type="Texture2D" uid="uid://bq3hdbicv14kt" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Envenom.png" id="1_env1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_env1"]

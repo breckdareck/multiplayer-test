@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="BuffData" load_steps=6 format=3 uid="uid://b7m6nox1s53pv"]
+[gd_resource type="Resource" script_class="BuffData" format=3 uid="uid://b7m6nox1s53pv"]
 
 [ext_resource type="Script" uid="uid://bcuvemv85jprb" path="res://scripts/Resources/BuffSystem/BuffData.gd" id="1_bd"]
 [ext_resource type="Texture2D" uid="uid://ky00whwbxbmx" path="res://assets/sprites/Abilities/power_guard.png" id="1_m5d6n"]

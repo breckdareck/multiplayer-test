@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://b8rgttmi4n14f"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://b8rgttmi4n14f"]
 
 [ext_resource type="Texture2D" uid="uid://ulcnmb52vscd" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Toxicology.png" id="1_exw1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_exw1"]

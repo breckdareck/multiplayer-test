@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=14 format=3 uid="uid://b0bird1mfa01o"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b0bird1mfa01o"]
 
 [ext_resource type="Texture2D" uid="uid://bbioo215kbqww" path="res://assets/sprites/MinifolksForestAnimals/Outline/MiniBird.png" id="1_bird"]
 
@@ -62,7 +62,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b_d1")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -70,7 +70,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b_h0")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -87,7 +87,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b_i3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 6.0
 }, {
@@ -104,7 +104,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_b_p3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 12.0
 }]

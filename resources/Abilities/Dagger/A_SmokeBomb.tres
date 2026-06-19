@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=20 format=3 uid="uid://clyv267q7aed1"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://clyv267q7aed1"]
 
 [ext_resource type="Texture2D" uid="uid://4wqxwiq08113" path="res://assets/sprites/Abilities/generated_px/Dagger/A_SmokeBomb.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

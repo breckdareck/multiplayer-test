@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://c5mkwiv4gj5cx"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://c5mkwiv4gj5cx"]
 
 [ext_resource type="Texture2D" uid="uid://ccqd0ml2vln0e" path="res://assets/sprites/Abilities/generated_px/Sword/A_Earthsplitter.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

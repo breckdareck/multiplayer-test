@@ -1206,10 +1206,19 @@ func spawn_projectile(ability: AbilityData, level_stats: AbilityLevelData, targe
 		var target_position = target.global_position
 		if target.has_node("aim_target"):
 			target_position = target.get_node("aim_target").global_position
-		initial_direction = (target_position - owner.global_position).normalized()
+		var to_target: Vector2 = target_position - owner.global_position
+		# A non-finite (NaN/inf) or zero offset makes normalize() warn and yield
+		# (0,0). Fall back to facing direction and name the culprit so a recurring
+		# non-finite position can be root-caused.
+		if to_target.is_finite() and not to_target.is_zero_approx():
+			initial_direction = to_target.normalized()
+		else:
+			if not to_target.is_finite():
+				push_warning("Projectile aim got a non-finite offset (target=%s @ %s, owner @ %s); firing along facing instead." % [target, target_position, owner.global_position])
+			initial_direction = Vector2(owner.facing_direction, 0)
 	else:
 		# No target, fire straight ahead based on player's facing direction.
-		initial_direction = Vector2(owner.facing_direction, 0).normalized()
+		initial_direction = Vector2(owner.facing_direction, 0)
 
 	var projectile_instance = active_behavior.projectile_scene.instantiate()
 	var proj_name := "Proj_%d_%d" % [Time.get_ticks_msec(), randi()]

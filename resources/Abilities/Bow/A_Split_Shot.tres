@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dblshot0001x"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://dblshot0001x"]
 
 [ext_resource type="Texture2D" uid="uid://c50abltto4vdr" path="res://assets/sprites/Abilities/generated_px/Bow/A_Split_Shot.png" id="1_3k7tx"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_dbsh1"]

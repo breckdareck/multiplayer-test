@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=24 format=3 uid="uid://cgywubtniaon0"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://cgywubtniaon0"]
 
 [ext_resource type="PackedScene" uid="uid://7v8f1uwug0qe" path="res://scenes/Gameplay/fireball.tscn" id="2_xltx3"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="3_hkoui"]

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://dqy5wuncp8cu6"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://dqy5wuncp8cu6"]
 
 [ext_resource type="Texture2D" uid="uid://duskorsffqli6" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Killer_Instinct.png" id="1_kin1"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_kin1"]

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=18 format=3 uid="uid://fei5h0kw8ykp"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://fei5h0kw8ykp"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_h56gw"]
 [ext_resource type="Texture2D" uid="uid://labtoxvnp0j3" path="res://assets/sprites/Goblin/Bomb_sprite.png" id="1_hs673"]

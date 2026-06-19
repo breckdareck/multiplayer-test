@@ -81,7 +81,9 @@ func _rebuild_bolts() -> void:
 ## with random perpendicular jitter on the interior points, endpoints pinned.
 func _make_bolt(from: Vector2, to: Vector2) -> PackedVector2Array:
 	var pts: PackedVector2Array = PackedVector2Array()
-	var perp: Vector2 = (to - from).orthogonal().normalized()
+	var diff := to - from
+	# A non-finite/zero anchor offset would make normalize() warn; skip the jitter.
+	var perp: Vector2 = diff.orthogonal().normalized() if diff.is_finite() and not diff.is_zero_approx() else Vector2.ZERO
 	for i in range(SEGMENTS_PER_ARC + 1):
 		var t: float = float(i) / float(SEGMENTS_PER_ARC)
 		var point: Vector2 = from.lerp(to, t)

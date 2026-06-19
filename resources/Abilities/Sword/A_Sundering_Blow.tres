@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dq088g6civvd8"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://dq088g6civvd8"]
 
 [ext_resource type="Texture2D" uid="uid://bfvwk7vlyaf4o" path="res://assets/sprites/Abilities/generated_px/Sword/A_Sundering_Blow.png" id="1_v0yfe"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_vuhxl"]

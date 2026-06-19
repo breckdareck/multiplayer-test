@@ -49,10 +49,13 @@ func _physics_process(delta: float) -> void:
 		var target_position = target.global_position
 		if target.has_node("AimTarget"):
 			target_position = target.get_node("AimTarget").global_position
-		current_direction = (target_position - global_position).normalized()
+		var to_target: Vector2 = target_position - global_position
+		# Guard normalize() against a non-finite/zero offset (e.g. a target that
+		# reached a NaN position) — keep the last heading rather than warn + stall.
+		current_direction = to_target.normalized() if to_target.is_finite() and not to_target.is_zero_approx() else initial_direction
 	else:
 		# Non-homing projectile, moves in a straight line
-		current_direction = initial_direction.normalized()
+		current_direction = initial_direction.normalized() if initial_direction.is_finite() and not initial_direction.is_zero_approx() else Vector2.RIGHT
 		monitoring = false
 
 	global_position += current_direction * speed * delta

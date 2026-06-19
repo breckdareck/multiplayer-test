@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=15 format=3 uid="uid://07p8o1vbtdvj"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://07p8o1vbtdvj"]
 
 [ext_resource type="Texture2D" uid="uid://d3vefn3pwy0ej" path="res://assets/sprites/Abilities/generated_px/Staff/A_ElementalAffinity.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

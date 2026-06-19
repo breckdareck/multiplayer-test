@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=21 format=3 uid="uid://dx2ttlgm0apv"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://dx2ttlgm0apv"]
 
 [ext_resource type="Texture2D" uid="uid://bakgt2sbombmg" path="res://assets/sprites/Abilities/generated_px/Bow/A_SkyVolley.png" id="1_icon"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_abd"]

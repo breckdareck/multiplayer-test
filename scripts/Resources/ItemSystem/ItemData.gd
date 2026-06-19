@@ -42,9 +42,9 @@ var original_resource_path: String
 var instance_id: String
 
 
-func _get_property_list():
+func _get_property_list() -> Array[Dictionary]:
+	var ret: Array[Dictionary] = []
 	if OS.has_feature("editor"):
-		var ret = []
 		if item_type != Constants.ItemType.EQUIPMENT:
 			ret.append({
 				"name": &"can_stack",
@@ -61,8 +61,7 @@ func _get_property_list():
 				"type": TYPE_INT,
 				"usage": PROPERTY_USAGE_DEFAULT,
 				})
-		return ret
-	return []
+	return ret
 
 
 func generate_uuid() -> String:

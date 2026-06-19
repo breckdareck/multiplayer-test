@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://focusabl001x"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://focusabl001x"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_focs2"]
 [ext_resource type="Texture2D" uid="uid://kib3sb4anygh" path="res://assets/sprites/Abilities/generated_px/Bow/A_Steady_Aim.png" id="1_xyi1c"]

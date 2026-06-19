@@ -776,18 +776,18 @@ position = Vector2(81, 115)
 [node name="Hub_Meadow_Spawn" type="Marker2D" parent="."]
 position = Vector2(938, 135)
 
-[node name="PortalToWickmoor" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
-target_map_id = "wickmoor"
-target_spawn_point_name = "Wickmoor_Meadow_Portal_Spawn"
-
-[node name="Meadow_Wickmoor_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
-
 [node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(969, 131)
+position = Vector2(-71, 131)
 target_map_id = "near_wilds"
 target_spawn_point_name = "NearWilds_Meadow_Portal_Spawn"
 
 [node name="Meadow_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(945, 135)
+position = Vector2(-47, 135)
+
+[node name="PortalToWickmoor" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-7, 19)
+target_map_id = "wickmoor"
+target_spawn_point_name = "Wickmoor_Meadow_Portal_Spawn"
+
+[node name="Meadow_Wickmoor_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(17, 23)

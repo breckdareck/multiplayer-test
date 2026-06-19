@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://dgrevisc001x"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://dgrevisc001x"]
 
 [ext_resource type="Texture2D" uid="uid://0d3r4x7xfyxw" path="res://assets/sprites/Abilities/generated_px/Dagger/A_Eviscerate.png" id="1_evi1"]
 [ext_resource type="Script" uid="uid://b8y62rc8nb40j" path="res://scripts/Resources/AbilitySystem/AbilityData.gd" id="2_evi1"]

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=23 format=3 uid="uid://ctuuha6kutnms"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://ctuuha6kutnms"]
 
 [ext_resource type="Texture2D" uid="uid://cofavhwfjicjb" path="res://assets/sprites/Abilities/generated_px/Sword/A_Steel_Flurry.png" id="1_wr37i"]
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="2_xjwtl"]

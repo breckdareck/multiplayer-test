@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="AbilityData" load_steps=28 format=3 uid="uid://bkdmqdujl55nf"]
+[gd_resource type="Resource" script_class="AbilityData" format=3 uid="uid://bkdmqdujl55nf"]
 
 [ext_resource type="Script" uid="uid://1raaatfhww5y" path="res://scripts/Resources/AbilitySystem/ActiveBehaviorData.gd" id="1_behav"]
 [ext_resource type="Texture2D" uid="uid://bypu3jlrsdch7" path="res://assets/sprites/Abilities/generated_px/Staff/A_Communion.png" id="1_h4exd"]

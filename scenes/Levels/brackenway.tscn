@@ -798,18 +798,18 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
-target_map_id = "lanterns_rest"
-target_spawn_point_name = "LanternsRest_Brackenway_Portal_Spawn"
-
-[node name="Brackenway_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
-
 [node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1193, 131)
+position = Vector2(-71, 131)
 target_map_id = "bramble_downs"
 target_spawn_point_name = "Bramble_Brackenway_Portal_Spawn"
 
 [node name="Brackenway_Bramble_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1169, 135)
+position = Vector2(-47, 135)
+
+[node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(265, -61)
+target_map_id = "lanterns_rest"
+target_spawn_point_name = "LanternsRest_Brackenway_Portal_Spawn"
+
+[node name="Brackenway_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(289, -57)
