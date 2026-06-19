@@ -54,6 +54,15 @@ hearths = {"lanterns_rest","wickmoor","hollowmere","emberwatch","ashvigil"}
 try: F=ImageFont.truetype("arial.ttf",15); FT=ImageFont.truetype("arial.ttf",18)
 except Exception: F=ImageFont.load_default(); FT=F
 
+def lvl_label(m):
+    info = cat.get(m, {})
+    if m in hearths or info.get("is_town"):
+        return "TOWN"
+    lo, hi = info.get("min_level"), info.get("max_level")
+    if lo is None:
+        return ""
+    return ("Lv %d" % lo) if lo == hi else ("Lv %d-%d" % (lo, hi))
+
 def render(pos, gate, gate_label, fname, title):
     img=Image.new("RGB",(W,H),(8,10,18)); d=ImageDraw.Draw(img)
     def px(m): return (pos[m][0]*W, pos[m][1]*H)
@@ -73,6 +82,10 @@ def render(pos, gate, gate_label, fname, title):
         (d.rectangle if (m in hearths or m=="warlord") else d.ellipse)([x-R,y-R,x+R,y+R],fill=col,outline=(20,20,20))
         nm=cat.get(m,{}).get("display_name") or m
         tb=d.textbbox((0,0),nm,font=F); d.text((x-(tb[2]-tb[0])/2,y+R+2),nm,fill=(228,228,228),font=F)
+        ll=lvl_label(m)
+        if ll:
+            tb2=d.textbbox((0,0),ll,font=F)
+            d.text((x-(tb2[2]-tb2[0])/2,y+R+19),ll,fill=(255,209,77) if ll=="TOWN" else (120,196,255),font=F)
     # gateway node (purple, double ring)
     d.ellipse([gx[0]-19,gx[1]-19,gx[0]+19,gx[1]+19],fill=(150,110,210),outline=(230,220,255))
     d.ellipse([gx[0]-11,gx[1]-11,gx[0]+11,gx[1]+11],outline=(20,16,30))
