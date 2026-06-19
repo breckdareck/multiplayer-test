@@ -665,7 +665,7 @@ script = ExtResource("9_pjyxy")
 [node name="Spawn_boar" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob0")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
 spawn_container = NodePath("../Enemies")
 pool_size = 8
 
@@ -684,6 +684,9 @@ position = Vector2(881, 131)
 [node name="M4" type="Marker2D" parent="Spawn_boar"]
 position = Vector2(1169, 131)
 
+[node name="M5" type="Marker2D" parent="Spawn_boar"]
+position = Vector2(1089, 35)
+
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_boar" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://betkg72vd7iav")
 spawn_path = NodePath("../../Enemies")
@@ -693,7 +696,7 @@ enemy_spawner = NodePath("..")
 [node name="Spawn_deer" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob1")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4"), NodePath("M5")]
 spawn_container = NodePath("../Enemies")
 pool_size = 8
 
@@ -712,6 +715,9 @@ position = Vector2(977, 131)
 [node name="M4" type="Marker2D" parent="Spawn_deer"]
 position = Vector2(1265, 131)
 
+[node name="M5" type="Marker2D" parent="Spawn_deer"]
+position = Vector2(1185, 35)
+
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://b31vj57j18ae2")
 spawn_path = NodePath("../../Enemies")
@@ -721,7 +727,7 @@ enemy_spawner = NodePath("..")
 [node name="Spawn_fox" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
 script = ExtResource("gen_spw")
 enemy_scene = ExtResource("gen_mob2")
-spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3")]
+spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3"), NodePath("M4")]
 spawn_container = NodePath("../Enemies")
 pool_size = 8
 
@@ -736,6 +742,9 @@ position = Vector2(769, 131)
 
 [node name="M3" type="Marker2D" parent="Spawn_fox"]
 position = Vector2(1073, 131)
+
+[node name="M4" type="Marker2D" parent="Spawn_fox"]
+position = Vector2(993, 35)
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_fox" node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://sxpgdsdpf5ma")

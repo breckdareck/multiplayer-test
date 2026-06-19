@@ -351,7 +351,7 @@ func _build_terraces(cfg: Dictionary) -> Dictionary:
 	_shelf(plat, surf, t1, [[int(width * 0.18), int(width * 0.58)]])
 	_shelf(plat, surf, t2, [[int(width * 0.30), int(width * 0.80)]])
 	_shelf(plat, surf, t3, [[int(width * 0.12), int(width * 0.58)]])
-	_shelf(plat, surf, t4, [[int(width * 0.40), int(width * 0.86)]])   # SAFE top tier
+	_shelf(plat, surf, t4, [[int(width * 0.40), int(width * 0.86)]])   # top tier (has mobs)
 	var ladders := [
 		[safe_row, base_r, 5, "rope"],               # spawn perch -> floor (climb down to grind)
 		[t1, base_r, int(width * 0.22), "rope"],     # floor -> T1
@@ -362,7 +362,7 @@ func _build_terraces(cfg: Dictionary) -> Dictionary:
 	return {
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
-		"safe_rows": [safe_row, t4], "ladders": ladders, "player_spawn": Vector2i(5, safe_row - 1),
+		"safe_rows": [safe_row], "ladders": ladders, "player_spawn": Vector2i(5, safe_row - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
 	}
 
@@ -378,7 +378,7 @@ func _wave_gorge_demo() -> Array:
 
 ## GORGE archetype: two solid rims split by a deep chasm, crossed by a WOODEN BRIDGE at walk
 ## level (solid plank tiles, source BRIDGE_SRC). Left rim has the safe spawn perch; right rim has
-## a vantage shelf (safe) reached by rope. Enemies on both rims + on the bridge. The void under the
+## a vantage shelf (also has mobs) reached by rope. Enemies on both rims + bridge + vantage. The void under the
 ## bridge is dark bgwall so the depth reads. New-tile pipeline: _inject_bridge adds the plank source.
 func _build_gorge(cfg: Dictionary) -> Dictionary:
 	var width: int = int(cfg["width"])
@@ -419,11 +419,13 @@ func _build_gorge(cfg: Dictionary) -> Dictionary:
 	while c < right_start - 2: spawn_spots.append(Vector2i(c, base_r)); c += 7   # on the bridge
 	c = right_start + 2
 	while c < width - 3: spawn_spots.append(Vector2i(c, base_r)); c += 6
+	c = int(width * 0.76)                                          # mobs on the top vantage shelf too
+	while c < int(width * 0.92): spawn_spots.append(Vector2i(c, vant)); c += 6
 	return {
 		"name": cfg["name"], "real": true, "ground": ground, "plat": plat, "slopes": slopes,
 		"bridge": bridge, "bgwall": bgwall, "no_village_bg": true,
 		"monsters": cfg.get("monsters", []), "portals": cfg.get("portals", []),
-		"safe_rows": [perch, vant], "ladders": ladders, "spawn_spots": spawn_spots,
+		"safe_rows": [perch], "ladders": ladders, "spawn_spots": spawn_spots,
 		"player_spawn": Vector2i(5, perch - 1),
 		"display_name": cfg["display_name"], "bgm": cfg["bgm"], "width": width, "bottom": bottom,
 	}
