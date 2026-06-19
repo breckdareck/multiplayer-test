@@ -7,4 +7,4 @@ script = ExtResource("1_qync8")
 item_name = "Rough Pathfinder Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.033
+drop_chance = 0.036

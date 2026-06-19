@@ -7,4 +7,4 @@ script = ExtResource("1_klnw6")
 item_name = "Astral Pathfinder Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.013000000000000001
+drop_chance = 0.049

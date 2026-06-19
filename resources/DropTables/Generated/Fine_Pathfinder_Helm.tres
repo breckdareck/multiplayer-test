@@ -7,4 +7,4 @@ script = ExtResource("1_4wsh6")
 item_name = "Fine Pathfinder Helm"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.03
+drop_chance = 0.038

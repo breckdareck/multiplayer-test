@@ -7,4 +7,4 @@ script = ExtResource("1_j3lgm")
 item_name = "Dragonbone Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.017
+drop_chance = 0.046

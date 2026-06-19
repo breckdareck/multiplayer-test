@@ -7,4 +7,4 @@ script = ExtResource("1_5llpl")
 item_name = "Iron Warbow"
 randomize_stats = true
 possible_stats = Array[int]([12, 2, 10])
-drop_chance = 0.029
+drop_chance = 0.039

@@ -7,4 +7,4 @@ script = ExtResource("1_tmkxs")
 item_name = "Celestial Pathfinder Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 2, 10, 11, 17, 16])
-drop_chance = 0.015
+drop_chance = 0.047

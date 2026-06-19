@@ -76,8 +76,10 @@ const AFFIX_WEIGHT_FLOOR := 25.0
 @export_group("Randomization")
 @export var randomize_stats: bool = false
 
-## Relative weights for each rarity tier (higher = more likely)
-@export var rarity_chances: Dictionary = {"COMMON": 100, "UNCOMMON": 30, "RARE": 10, "EPIC": 3, "LEGENDARY": 1}
+## Relative weights for each rarity tier (higher = more likely). Eased 2026-06-19 (was
+## 100/30/10/3/1) so build-defining gear isn't a multi-hour drought: P(RARE+) 9.7%->14.3%,
+## P(EPIC+) 2.8%->4.5%. Generated drop tables inherit this default (they don't override it).
+@export var rarity_chances: Dictionary = {"COMMON": 100, "UNCOMMON": 32, "RARE": 15, "EPIC": 5, "LEGENDARY": 2}
 @export var possible_stats: Array[Constants.StatType]
 
 @export_group("Drop Settings")
@@ -130,7 +132,9 @@ func get_drop_amount() -> int:
 	return randi_range(min_amount, max_amount)
 
 ## Gets the ItemData from ResourceManager
-func get_item_data() -> ItemData:
+## min_rarity (a Constants.ItemRarity int, -1 = no floor) raises a randomized equip
+## drop's rarity to at least that tier — used by the kill-drop pity (bad-luck protection).
+func get_item_data(min_rarity: int = -1) -> ItemData:
 	if item_name.is_empty():
 		return null
 	
@@ -141,14 +145,16 @@ func get_item_data() -> ItemData:
 	var dropped_item = base_item.duplicate_with_path(true) as ItemData
 	
 	if randomize_stats and dropped_item is EquipmentData:
-		_apply_random_stats(dropped_item as EquipmentData)
-		
+		_apply_random_stats(dropped_item as EquipmentData, min_rarity)
+
 	return dropped_item
 
 
-func _apply_random_stats(item: EquipmentData) -> void:
+func _apply_random_stats(item: EquipmentData, min_rarity: int = -1) -> void:
 	# 1. Rarity drives BOTH the affix count and the per-affix magnitude.
 	var rarity = _choose_random_rarity()
+	if min_rarity >= 0 and int(rarity) < min_rarity:
+		rarity = min_rarity as Constants.ItemRarity   # pity floor (bad-luck protection)
 	item.rarity = rarity
 	var ilv: int = maxi(1, item.item_level)
 	var rmult: float = float(RARITY_AFFIX_MULT.get(rarity, 1.0))

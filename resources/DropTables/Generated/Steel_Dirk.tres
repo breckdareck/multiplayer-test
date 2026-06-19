@@ -7,4 +7,4 @@ script = ExtResource("1_pnva4")
 item_name = "Steel Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.027
+drop_chance = 0.04

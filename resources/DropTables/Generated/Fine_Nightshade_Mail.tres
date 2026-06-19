@@ -7,4 +7,4 @@ script = ExtResource("1_2ac6j")
 item_name = "Fine Nightshade Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 3, 11, 10, 17, 16])
-drop_chance = 0.03
+drop_chance = 0.038

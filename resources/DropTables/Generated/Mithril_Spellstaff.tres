@@ -7,4 +7,4 @@ script = ExtResource("1_daeel")
 item_name = "Mithril Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.025
+drop_chance = 0.041

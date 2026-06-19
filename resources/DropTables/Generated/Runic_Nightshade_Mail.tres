@@ -7,4 +7,4 @@ script = ExtResource("1_6woog")
 item_name = "Runic Nightshade Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 3, 11, 10, 17, 16])
-drop_chance = 0.019
+drop_chance = 0.045

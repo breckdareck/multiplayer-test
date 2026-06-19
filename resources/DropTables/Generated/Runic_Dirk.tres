@@ -7,4 +7,4 @@ script = ExtResource("1_gjtbl")
 item_name = "Runic Dirk"
 randomize_stats = true
 possible_stats = Array[int]([12, 3, 10])
-drop_chance = 0.019
+drop_chance = 0.045

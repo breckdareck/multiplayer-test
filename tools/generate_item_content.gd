@@ -348,14 +348,19 @@ func _make_drop_table(item: ItemData, chance: float, randomize: bool,
 		for k in (item as EquipmentData).bonus_stats.keys():
 			ps.append(k)
 		dt.possible_stats = ps
-		dt.rarity_chances = {"COMMON": 100, "UNCOMMON": 30, "RARE": 10, "EPIC": 3, "LEGENDARY": 1}
+		dt.rarity_chances = RARITY_WEIGHTS.duplicate()
 	_save(dt, DROP_DIR + _fname(item.name) + ".tres")
 	_counts["drops"] += 1
 
 
-# Equipment drop chance falls off with item level: ~0.035 at lv1 -> ~0.011 at lv100.
+# Gear-drop progression weights (anti-drought, 2026-06-19). Shared so the surgical
+# retune tool (tools/retune_drops.gd) and any regen stay in sync.
+const RARITY_WEIGHTS := {"COMMON": 100, "UNCOMMON": 32, "RARE": 15, "EPIC": 5, "LEGENDARY": 2}
+
+# Equipment drop chance RISES with item level (was a 3.5%->1.1% decay that made endgame
+# gear droughts; now flat ~3.5% early climbing to ~5% at lv100 so deep maps reward more).
 func _equip_drop_chance(lv: int) -> float:
-	return clampf(0.035 - lv * 0.00024, 0.01, 0.035)
+	return clampf(0.035 + lv * 0.00015, 0.035, 0.05)
 
 
 # Uniques are rare everywhere and rarer the higher their level.

@@ -7,4 +7,4 @@ script = ExtResource("1_rys22")
 item_name = "Dragonbone Vanguard Boots"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 0, 4, 6, 14])
-drop_chance = 0.017
+drop_chance = 0.046

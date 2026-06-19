@@ -32,7 +32,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -40,7 +40,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -48,7 +48,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -56,7 +56,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Boots",
@@ -80,7 +80,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png",
 							"ilvl": 27,
 							"item": "Iron Longsword",
@@ -88,7 +88,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Helm",
@@ -96,7 +96,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Mail",
@@ -104,7 +104,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Boots.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Boots",
@@ -128,7 +128,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png",
 							"ilvl": 27,
 							"item": "Iron Warbow",
@@ -136,7 +136,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -144,7 +144,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Helm",
@@ -152,7 +152,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Mail",
@@ -160,7 +160,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -168,7 +168,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Nightshade Mail",
@@ -205,7 +205,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png",
 							"ilvl": 8,
 							"item": "Rough Dirk",
@@ -213,7 +213,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Helm",
@@ -221,7 +221,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Boots.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Boots",
@@ -229,7 +229,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Pathfinder Helm",
@@ -253,7 +253,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Dirk.png",
 							"ilvl": 13,
 							"item": "Bronze Dirk",
@@ -261,7 +261,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Warbow.png",
 							"ilvl": 13,
 							"item": "Bronze Warbow",
@@ -269,7 +269,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Legguards",
@@ -277,7 +277,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Pathfinder_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Pathfinder Mail",
@@ -285,7 +285,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Nightshade Mail",
@@ -293,7 +293,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Legguards",
@@ -317,7 +317,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Longsword.png",
 							"ilvl": 13,
 							"item": "Bronze Longsword",
@@ -325,7 +325,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Spellstaff.png",
 							"ilvl": 13,
 							"item": "Bronze Spellstaff",
@@ -333,7 +333,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Helm",
@@ -341,7 +341,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Mail",
@@ -349,7 +349,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Helm",
@@ -357,7 +357,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Mail",
@@ -434,7 +434,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png",
 							"ilvl": 8,
 							"item": "Rough Dirk",
@@ -442,7 +442,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Helm",
@@ -450,7 +450,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Boots.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Boots",
@@ -458,7 +458,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Pathfinder Helm",
@@ -482,7 +482,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Dirk.png",
 							"ilvl": 13,
 							"item": "Bronze Dirk",
@@ -490,7 +490,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Warbow.png",
 							"ilvl": 13,
 							"item": "Bronze Warbow",
@@ -498,7 +498,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Legguards",
@@ -506,7 +506,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Pathfinder_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Pathfinder Mail",
@@ -514,7 +514,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Nightshade Mail",
@@ -522,7 +522,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Legguards",
@@ -559,7 +559,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Dirk.png",
 							"ilvl": 77,
 							"item": "Dragonbone Dirk",
@@ -567,7 +567,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Warbow.png",
 							"ilvl": 77,
 							"item": "Dragonbone Warbow",
@@ -575,7 +575,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Mail",
@@ -583,7 +583,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Helm.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Helm",
@@ -591,7 +591,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Pathfinder_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Pathfinder Mail",
@@ -599,7 +599,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Boots.png",
 							"ilvl": 77,
 							"item": "Dragonbone Arcanist Boots",
@@ -623,7 +623,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Warbow.png",
 							"ilvl": 77,
 							"item": "Dragonbone Warbow",
@@ -631,7 +631,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Spellstaff.png",
 							"ilvl": 77,
 							"item": "Dragonbone Spellstaff",
@@ -639,7 +639,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Pathfinder_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Pathfinder Mail",
@@ -647,7 +647,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Arcanist Mail",
@@ -655,7 +655,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Vanguard_Legguards.png",
 							"ilvl": 77,
 							"item": "Dragonbone Vanguard Legguards",
@@ -663,7 +663,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Boots.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Boots",
@@ -687,7 +687,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Spellstaff.png",
 							"ilvl": 85,
 							"item": "Celestial Spellstaff",
@@ -695,7 +695,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Longsword.png",
 							"ilvl": 85,
 							"item": "Celestial Longsword",
@@ -703,7 +703,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Mail.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Mail",
@@ -711,7 +711,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Helm",
@@ -719,7 +719,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Legguards.png",
 							"ilvl": 85,
 							"item": "Celestial Vanguard Legguards",
@@ -727,7 +727,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Pathfinder Helm",
@@ -764,7 +764,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Longsword.png",
 							"ilvl": 50,
 							"item": "Adamant Longsword",
@@ -772,7 +772,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Helm",
@@ -780,7 +780,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Mail",
@@ -788,7 +788,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Legguards.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Legguards",
@@ -812,7 +812,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Longsword.png",
 							"ilvl": 50,
 							"item": "Adamant Longsword",
@@ -820,7 +820,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Dirk.png",
 							"ilvl": 50,
 							"item": "Adamant Dirk",
@@ -828,7 +828,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Mail",
@@ -836,7 +836,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Nightshade Mail",
@@ -844,7 +844,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Pathfinder_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Pathfinder Helm",
@@ -852,7 +852,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Arcanist_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Arcanist Helm",
@@ -876,7 +876,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Longsword.png",
 							"ilvl": 50,
 							"item": "Adamant Longsword",
@@ -884,7 +884,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Helm",
@@ -892,7 +892,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Mail",
@@ -900,7 +900,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Boots.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Boots",
@@ -924,7 +924,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Spellstaff.png",
 							"ilvl": 50,
 							"item": "Adamant Spellstaff",
@@ -932,7 +932,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Warbow.png",
 							"ilvl": 50,
 							"item": "Adamant Warbow",
@@ -940,7 +940,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Arcanist_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Arcanist Mail",
@@ -948,7 +948,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Arcanist_Legguards.png",
 							"ilvl": 50,
 							"item": "Adamant Arcanist Legguards",
@@ -956,7 +956,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Pathfinder_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Pathfinder Helm",
@@ -964,7 +964,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Nightshade_Boots.png",
 							"ilvl": 50,
 							"item": "Adamant Nightshade Boots",
@@ -1001,7 +1001,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -1009,7 +1009,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -1017,7 +1017,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -1025,7 +1025,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Boots",
@@ -1049,7 +1049,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -1057,7 +1057,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -1065,7 +1065,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -1073,7 +1073,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Boots",
@@ -1081,7 +1081,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -1089,7 +1089,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -1113,7 +1113,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -1121,7 +1121,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Helm",
@@ -1129,7 +1129,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -1137,7 +1137,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Legguards",
@@ -1161,7 +1161,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -1169,7 +1169,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -1177,7 +1177,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -1185,7 +1185,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -1193,7 +1193,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Pathfinder Legguards",
@@ -1201,7 +1201,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Helm",
@@ -1326,7 +1326,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png",
 							"ilvl": 8,
 							"item": "Rough Dirk",
@@ -1334,7 +1334,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Helm",
@@ -1342,7 +1342,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Boots.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Boots",
@@ -1350,7 +1350,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Pathfinder Helm",
@@ -1374,7 +1374,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Dirk.png",
 							"ilvl": 13,
 							"item": "Bronze Dirk",
@@ -1382,7 +1382,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Warbow.png",
 							"ilvl": 13,
 							"item": "Bronze Warbow",
@@ -1390,7 +1390,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Legguards",
@@ -1398,7 +1398,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Pathfinder_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Pathfinder Mail",
@@ -1406,7 +1406,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Nightshade Mail",
@@ -1414,7 +1414,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Legguards",
@@ -1451,7 +1451,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png",
 							"ilvl": 68,
 							"item": "Runic Longsword",
@@ -1459,7 +1459,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Spellstaff.png",
 							"ilvl": 68,
 							"item": "Runic Spellstaff",
@@ -1467,7 +1467,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Mail",
@@ -1475,7 +1475,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Helm",
@@ -1483,7 +1483,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Legguards.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Legguards",
@@ -1491,7 +1491,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Boots.png",
 							"ilvl": 68,
 							"item": "Runic Pathfinder Boots",
@@ -1515,7 +1515,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png",
 							"ilvl": 68,
 							"item": "Runic Longsword",
@@ -1523,7 +1523,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Spellstaff.png",
 							"ilvl": 68,
 							"item": "Runic Spellstaff",
@@ -1531,7 +1531,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Mail",
@@ -1539,7 +1539,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Mail",
@@ -1547,7 +1547,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Helm",
@@ -1555,7 +1555,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Helm",
@@ -1579,7 +1579,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Dirk.png",
 							"ilvl": 77,
 							"item": "Dragonbone Dirk",
@@ -1587,7 +1587,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Warbow.png",
 							"ilvl": 77,
 							"item": "Dragonbone Warbow",
@@ -1595,7 +1595,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Mail",
@@ -1603,7 +1603,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Helm.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Helm",
@@ -1611,7 +1611,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Pathfinder_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Pathfinder Mail",
@@ -1619,7 +1619,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Boots.png",
 							"ilvl": 77,
 							"item": "Dragonbone Arcanist Boots",
@@ -1643,7 +1643,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Warbow.png",
 							"ilvl": 77,
 							"item": "Dragonbone Warbow",
@@ -1651,7 +1651,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Dragonbone_Spellstaff.png",
 							"ilvl": 77,
 							"item": "Dragonbone Spellstaff",
@@ -1659,7 +1659,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Pathfinder_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Pathfinder Mail",
@@ -1667,7 +1667,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Arcanist_Mail.png",
 							"ilvl": 77,
 							"item": "Dragonbone Arcanist Mail",
@@ -1675,7 +1675,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Vanguard_Legguards.png",
 							"ilvl": 77,
 							"item": "Dragonbone Vanguard Legguards",
@@ -1683,7 +1683,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.017,
+							"chance": 0.046,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Dragonbone_Nightshade_Boots.png",
 							"ilvl": 77,
 							"item": "Dragonbone Nightshade Boots",
@@ -1755,7 +1755,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Longsword.png",
 							"ilvl": 50,
 							"item": "Adamant Longsword",
@@ -1763,7 +1763,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Helm",
@@ -1771,7 +1771,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Mail",
@@ -1779,7 +1779,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Legguards.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Legguards",
@@ -1803,7 +1803,7 @@
 							"min": 16
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Longsword.png",
 							"ilvl": 60,
 							"item": "Pristine Longsword",
@@ -1811,7 +1811,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Helm.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Helm",
@@ -1819,7 +1819,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Mail",
@@ -1827,7 +1827,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Legguards.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Legguards",
@@ -1851,7 +1851,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Dirk.png",
 							"ilvl": 60,
 							"item": "Pristine Dirk",
@@ -1859,7 +1859,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Warbow.png",
 							"ilvl": 60,
 							"item": "Pristine Warbow",
@@ -1867,7 +1867,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Mail",
@@ -1875,7 +1875,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Helm.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Helm",
@@ -1883,7 +1883,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Pathfinder Mail",
@@ -1891,7 +1891,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Arcanist Mail",
@@ -1915,7 +1915,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Adamant_Longsword.png",
 							"ilvl": 50,
 							"item": "Adamant Longsword",
@@ -1923,7 +1923,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Helm.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Helm",
@@ -1931,7 +1931,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Mail.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Mail",
@@ -1939,7 +1939,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.023,
+							"chance": 0.043,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Adamant_Vanguard_Boots.png",
 							"ilvl": 50,
 							"item": "Adamant Vanguard Boots",
@@ -2106,7 +2106,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -2114,7 +2114,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Helm",
@@ -2122,7 +2122,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -2130,7 +2130,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Legguards",
@@ -2154,7 +2154,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png",
 							"ilvl": 43,
 							"item": "Mithril Longsword",
@@ -2162,7 +2162,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Dirk.png",
 							"ilvl": 43,
 							"item": "Mithril Dirk",
@@ -2170,7 +2170,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Warbow.png",
 							"ilvl": 43,
 							"item": "Mithril Warbow",
@@ -2178,7 +2178,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Mail",
@@ -2186,7 +2186,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Legguards",
@@ -2194,7 +2194,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Nightshade Mail",
@@ -2218,7 +2218,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -2226,7 +2226,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -2234,7 +2234,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -2242,7 +2242,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -2266,7 +2266,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -2274,7 +2274,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -2282,7 +2282,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -2290,7 +2290,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Legguards",
@@ -2314,7 +2314,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -2322,7 +2322,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -2330,7 +2330,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -2338,7 +2338,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -2346,7 +2346,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Pathfinder Legguards",
@@ -2354,7 +2354,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Helm",
@@ -2391,7 +2391,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Longsword.png",
 							"ilvl": 13,
 							"item": "Bronze Longsword",
@@ -2399,7 +2399,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Spellstaff.png",
 							"ilvl": 13,
 							"item": "Bronze Spellstaff",
@@ -2407,7 +2407,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Helm",
@@ -2415,7 +2415,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Mail",
@@ -2423,7 +2423,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Helm",
@@ -2431,7 +2431,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Mail",
@@ -2455,7 +2455,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Longsword.png",
 							"ilvl": 20,
 							"item": "Fine Longsword",
@@ -2463,7 +2463,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Dirk.png",
 							"ilvl": 20,
 							"item": "Fine Dirk",
@@ -2471,7 +2471,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Helm.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Helm",
@@ -2479,7 +2479,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Mail.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Mail",
@@ -2487,7 +2487,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Legguards.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Legguards",
@@ -2495,7 +2495,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Boots.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Boots",
@@ -2519,7 +2519,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png",
 							"ilvl": 27,
 							"item": "Iron Warbow",
@@ -2527,7 +2527,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -2535,7 +2535,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Helm",
@@ -2543,7 +2543,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Mail",
@@ -2551,7 +2551,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -2559,7 +2559,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Nightshade Mail",
@@ -2596,7 +2596,7 @@
 							"min": 16
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Longsword.png",
 							"ilvl": 60,
 							"item": "Pristine Longsword",
@@ -2604,7 +2604,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Helm.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Helm",
@@ -2612,7 +2612,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Mail",
@@ -2620,7 +2620,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Vanguard_Legguards.png",
 							"ilvl": 60,
 							"item": "Pristine Vanguard Legguards",
@@ -2644,7 +2644,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Dirk.png",
 							"ilvl": 60,
 							"item": "Pristine Dirk",
@@ -2652,7 +2652,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Warbow.png",
 							"ilvl": 60,
 							"item": "Pristine Warbow",
@@ -2660,7 +2660,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Mail",
@@ -2668,7 +2668,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Helm.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Helm",
@@ -2676,7 +2676,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Pathfinder Mail",
@@ -2684,7 +2684,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Arcanist Mail",
@@ -2708,7 +2708,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png",
 							"ilvl": 68,
 							"item": "Runic Longsword",
@@ -2716,7 +2716,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Spellstaff.png",
 							"ilvl": 68,
 							"item": "Runic Spellstaff",
@@ -2724,7 +2724,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Mail",
@@ -2732,7 +2732,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Helm",
@@ -2740,7 +2740,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Legguards.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Legguards",
@@ -2748,7 +2748,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Boots.png",
 							"ilvl": 68,
 							"item": "Runic Pathfinder Boots",
@@ -3001,7 +3001,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png",
 							"ilvl": 8,
 							"item": "Rough Dirk",
@@ -3009,7 +3009,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Helm",
@@ -3017,7 +3017,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Boots.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Boots",
@@ -3025,7 +3025,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Pathfinder Helm",
@@ -3062,7 +3062,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png",
 							"ilvl": 27,
 							"item": "Iron Warbow",
@@ -3070,7 +3070,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -3078,7 +3078,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Helm",
@@ -3086,7 +3086,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Mail",
@@ -3094,7 +3094,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -3102,7 +3102,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Nightshade Mail",
@@ -3126,7 +3126,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Longsword.png",
 							"ilvl": 20,
 							"item": "Fine Longsword",
@@ -3134,7 +3134,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Dirk.png",
 							"ilvl": 20,
 							"item": "Fine Dirk",
@@ -3142,7 +3142,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Helm.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Helm",
@@ -3150,7 +3150,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Mail.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Mail",
@@ -3158,7 +3158,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Legguards.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Legguards",
@@ -3166,7 +3166,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Boots.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Boots",
@@ -3190,7 +3190,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Longsword.png",
 							"ilvl": 13,
 							"item": "Bronze Longsword",
@@ -3198,7 +3198,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Spellstaff.png",
 							"ilvl": 13,
 							"item": "Bronze Spellstaff",
@@ -3206,7 +3206,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Helm",
@@ -3214,7 +3214,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Mail",
@@ -3222,7 +3222,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Helm",
@@ -3230,7 +3230,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Mail",
@@ -3267,7 +3267,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Dirk.png",
 							"ilvl": 13,
 							"item": "Bronze Dirk",
@@ -3275,7 +3275,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Warbow.png",
 							"ilvl": 13,
 							"item": "Bronze Warbow",
@@ -3283,7 +3283,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Legguards",
@@ -3291,7 +3291,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Pathfinder_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Pathfinder Mail",
@@ -3299,7 +3299,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Nightshade_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Nightshade Mail",
@@ -3307,7 +3307,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Legguards.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Legguards",
@@ -3331,7 +3331,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Longsword.png",
 							"ilvl": 13,
 							"item": "Bronze Longsword",
@@ -3339,7 +3339,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Spellstaff.png",
 							"ilvl": 13,
 							"item": "Bronze Spellstaff",
@@ -3347,7 +3347,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Helm",
@@ -3355,7 +3355,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Mail",
@@ -3363,7 +3363,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Helm",
@@ -3371,7 +3371,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Mail",
@@ -3395,7 +3395,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Longsword.png",
 							"ilvl": 20,
 							"item": "Fine Longsword",
@@ -3403,7 +3403,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Dirk.png",
 							"ilvl": 20,
 							"item": "Fine Dirk",
@@ -3411,7 +3411,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Helm.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Helm",
@@ -3419,7 +3419,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Mail.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Mail",
@@ -3427,7 +3427,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Legguards.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Legguards",
@@ -3435,7 +3435,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Boots.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Boots",
@@ -3459,7 +3459,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png",
 							"ilvl": 27,
 							"item": "Iron Warbow",
@@ -3467,7 +3467,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -3475,7 +3475,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Helm",
@@ -3483,7 +3483,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Mail",
@@ -3491,7 +3491,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -3499,7 +3499,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Nightshade Mail",
@@ -3536,7 +3536,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -3544,7 +3544,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -3552,7 +3552,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -3560,7 +3560,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Boots",
@@ -3584,7 +3584,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -3592,7 +3592,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -3600,7 +3600,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -3608,7 +3608,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Boots",
@@ -3616,7 +3616,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -3624,7 +3624,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -3648,7 +3648,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -3656,7 +3656,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Helm",
@@ -3664,7 +3664,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -3672,7 +3672,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Legguards",
@@ -3709,7 +3709,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -3717,7 +3717,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -3725,7 +3725,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -3733,7 +3733,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Boots",
@@ -3757,7 +3757,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -3765,7 +3765,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Helm",
@@ -3773,7 +3773,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Mail",
@@ -3781,7 +3781,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Pathfinder_Legguards.png",
 							"ilvl": 35,
 							"item": "Steel Pathfinder Legguards",
@@ -3805,7 +3805,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -3813,7 +3813,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -3821,7 +3821,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -3829,7 +3829,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -3837,7 +3837,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Pathfinder Legguards",
@@ -3845,7 +3845,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Helm",
@@ -3882,7 +3882,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Dirk.png",
 							"ilvl": 60,
 							"item": "Pristine Dirk",
@@ -3890,7 +3890,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Pristine_Warbow.png",
 							"ilvl": 60,
 							"item": "Pristine Warbow",
@@ -3898,7 +3898,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Mail",
@@ -3906,7 +3906,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Nightshade_Helm.png",
 							"ilvl": 60,
 							"item": "Pristine Nightshade Helm",
@@ -3914,7 +3914,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Pathfinder_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Pathfinder Mail",
@@ -3922,7 +3922,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.021,
+							"chance": 0.044,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Pristine_Arcanist_Mail.png",
 							"ilvl": 60,
 							"item": "Pristine Arcanist Mail",
@@ -3946,7 +3946,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png",
 							"ilvl": 68,
 							"item": "Runic Longsword",
@@ -3954,7 +3954,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Spellstaff.png",
 							"ilvl": 68,
 							"item": "Runic Spellstaff",
@@ -3962,7 +3962,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Mail",
@@ -3970,7 +3970,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Helm",
@@ -3978,7 +3978,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Legguards.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Legguards",
@@ -3986,7 +3986,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Pathfinder_Boots.png",
 							"ilvl": 68,
 							"item": "Runic Pathfinder Boots",
@@ -4010,7 +4010,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Longsword.png",
 							"ilvl": 68,
 							"item": "Runic Longsword",
@@ -4018,7 +4018,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Runic_Spellstaff.png",
 							"ilvl": 68,
 							"item": "Runic Spellstaff",
@@ -4026,7 +4026,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Mail",
@@ -4034,7 +4034,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Mail.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Mail",
@@ -4042,7 +4042,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Arcanist_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Arcanist Helm",
@@ -4050,7 +4050,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.019,
+							"chance": 0.045,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Runic_Vanguard_Helm.png",
 							"ilvl": 68,
 							"item": "Runic Vanguard Helm",
@@ -4087,7 +4087,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -4095,7 +4095,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -4103,7 +4103,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -4111,7 +4111,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Legguards",
@@ -4135,7 +4135,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png",
 							"ilvl": 43,
 							"item": "Mithril Longsword",
@@ -4143,7 +4143,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Dirk.png",
 							"ilvl": 43,
 							"item": "Mithril Dirk",
@@ -4151,7 +4151,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Warbow.png",
 							"ilvl": 43,
 							"item": "Mithril Warbow",
@@ -4159,7 +4159,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Mail",
@@ -4167,7 +4167,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Legguards",
@@ -4175,7 +4175,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Nightshade Mail",
@@ -4199,7 +4199,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -4207,7 +4207,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -4215,7 +4215,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -4223,7 +4223,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -4260,7 +4260,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Spellstaff.png",
 							"ilvl": 85,
 							"item": "Celestial Spellstaff",
@@ -4268,7 +4268,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Longsword.png",
 							"ilvl": 85,
 							"item": "Celestial Longsword",
@@ -4276,7 +4276,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Mail.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Mail",
@@ -4284,7 +4284,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Helm",
@@ -4292,7 +4292,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Legguards.png",
 							"ilvl": 85,
 							"item": "Celestial Vanguard Legguards",
@@ -4300,7 +4300,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Pathfinder Helm",
@@ -4324,7 +4324,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Longsword.png",
 							"ilvl": 93,
 							"item": "Astral Longsword",
@@ -4332,7 +4332,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Spellstaff.png",
 							"ilvl": 93,
 							"item": "Astral Spellstaff",
@@ -4340,7 +4340,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Warbow.png",
 							"ilvl": 93,
 							"item": "Astral Warbow",
@@ -4348,7 +4348,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Dirk.png",
 							"ilvl": 93,
 							"item": "Astral Dirk",
@@ -4356,7 +4356,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Vanguard Mail",
@@ -4364,7 +4364,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Arcanist_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Arcanist Mail",
@@ -4372,7 +4372,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Nightshade_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Nightshade Mail",
@@ -4380,7 +4380,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Pathfinder Mail",
@@ -4417,7 +4417,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Warbow.png",
 							"ilvl": 27,
 							"item": "Iron Warbow",
@@ -4425,7 +4425,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -4433,7 +4433,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Helm",
@@ -4441,7 +4441,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Pathfinder_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Pathfinder Mail",
@@ -4449,7 +4449,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -4457,7 +4457,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Nightshade_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Nightshade Mail",
@@ -4481,7 +4481,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png",
 							"ilvl": 27,
 							"item": "Iron Longsword",
@@ -4489,7 +4489,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Helm",
@@ -4497,7 +4497,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Mail",
@@ -4505,7 +4505,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Boots.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Boots",
@@ -4529,7 +4529,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Longsword.png",
 							"ilvl": 27,
 							"item": "Iron Longsword",
@@ -4537,7 +4537,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Iron_Spellstaff.png",
 							"ilvl": 27,
 							"item": "Iron Spellstaff",
@@ -4545,7 +4545,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Vanguard_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Vanguard Mail",
@@ -4553,7 +4553,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Helm.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Helm",
@@ -4561,7 +4561,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Mail.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Mail",
@@ -4569,7 +4569,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.029,
+							"chance": 0.039,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Iron_Arcanist_Legguards.png",
 							"ilvl": 27,
 							"item": "Iron Arcanist Legguards",
@@ -4593,7 +4593,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -4601,7 +4601,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Helm.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Helm",
@@ -4609,7 +4609,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Mail",
@@ -4617,7 +4617,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Nightshade_Boots.png",
 							"ilvl": 35,
 							"item": "Steel Nightshade Boots",
@@ -4641,7 +4641,7 @@
 							"min": 6
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Longsword.png",
 							"ilvl": 35,
 							"item": "Steel Longsword",
@@ -4649,7 +4649,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Warbow.png",
 							"ilvl": 35,
 							"item": "Steel Warbow",
@@ -4657,7 +4657,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Spellstaff.png",
 							"ilvl": 35,
 							"item": "Steel Spellstaff",
@@ -4665,7 +4665,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Steel_Dirk.png",
 							"ilvl": 35,
 							"item": "Steel Dirk",
@@ -4673,7 +4673,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.027,
+							"chance": 0.04,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Steel_Vanguard_Mail.png",
 							"ilvl": 35,
 							"item": "Steel Vanguard Mail",
@@ -4710,7 +4710,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Longsword.png",
 							"ilvl": 13,
 							"item": "Bronze Longsword",
@@ -4718,7 +4718,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Bronze_Spellstaff.png",
 							"ilvl": 13,
 							"item": "Bronze Spellstaff",
@@ -4726,7 +4726,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Helm",
@@ -4734,7 +4734,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Vanguard_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Vanguard Mail",
@@ -4742,7 +4742,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Helm.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Helm",
@@ -4750,7 +4750,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.032,
+							"chance": 0.037,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Bronze_Arcanist_Mail.png",
 							"ilvl": 13,
 							"item": "Bronze Arcanist Mail",
@@ -4774,7 +4774,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Longsword.png",
 							"ilvl": 20,
 							"item": "Fine Longsword",
@@ -4782,7 +4782,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Fine_Dirk.png",
 							"ilvl": 20,
 							"item": "Fine Dirk",
@@ -4790,7 +4790,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Helm.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Helm",
@@ -4798,7 +4798,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Mail.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Mail",
@@ -4806,7 +4806,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Legguards.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Legguards",
@@ -4814,7 +4814,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.03,
+							"chance": 0.038,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Fine_Vanguard_Boots.png",
 							"ilvl": 20,
 							"item": "Fine Vanguard Boots",
@@ -4939,7 +4939,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Rough_Dirk.png",
 							"ilvl": 8,
 							"item": "Rough Dirk",
@@ -4947,7 +4947,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Helm",
@@ -4955,7 +4955,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Nightshade_Boots.png",
 							"ilvl": 8,
 							"item": "Rough Nightshade Boots",
@@ -4963,7 +4963,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.033,
+							"chance": 0.036,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Rough_Pathfinder_Helm.png",
 							"ilvl": 8,
 							"item": "Rough Pathfinder Helm",
@@ -4999,7 +4999,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Eternal_Longsword.png",
 							"ilvl": 100,
 							"item": "Eternal Longsword",
@@ -5007,7 +5007,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Eternal_Spellstaff.png",
 							"ilvl": 100,
 							"item": "Eternal Spellstaff",
@@ -5015,7 +5015,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Eternal_Warbow.png",
 							"ilvl": 100,
 							"item": "Eternal Warbow",
@@ -5023,7 +5023,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Eternal_Dirk.png",
 							"ilvl": 100,
 							"item": "Eternal Dirk",
@@ -5031,7 +5031,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Vanguard_Mail.png",
 							"ilvl": 100,
 							"item": "Eternal Vanguard Mail",
@@ -5039,7 +5039,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Arcanist_Mail.png",
 							"ilvl": 100,
 							"item": "Eternal Arcanist Mail",
@@ -5047,7 +5047,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Nightshade_Mail.png",
 							"ilvl": 100,
 							"item": "Eternal Nightshade Mail",
@@ -5055,7 +5055,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.011,
+							"chance": 0.05,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Eternal_Pathfinder_Mail.png",
 							"ilvl": 100,
 							"item": "Eternal Pathfinder Mail",
@@ -5108,7 +5108,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Spellstaff.png",
 							"ilvl": 85,
 							"item": "Celestial Spellstaff",
@@ -5116,7 +5116,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Celestial_Longsword.png",
 							"ilvl": 85,
 							"item": "Celestial Longsword",
@@ -5124,7 +5124,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Mail.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Mail",
@@ -5132,7 +5132,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Arcanist_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Arcanist Helm",
@@ -5140,7 +5140,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Vanguard_Legguards.png",
 							"ilvl": 85,
 							"item": "Celestial Vanguard Legguards",
@@ -5148,7 +5148,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.015,
+							"chance": 0.047,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Celestial_Pathfinder_Helm.png",
 							"ilvl": 85,
 							"item": "Celestial Pathfinder Helm",
@@ -5172,7 +5172,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Longsword.png",
 							"ilvl": 93,
 							"item": "Astral Longsword",
@@ -5180,7 +5180,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Spellstaff.png",
 							"ilvl": 93,
 							"item": "Astral Spellstaff",
@@ -5188,7 +5188,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Warbow.png",
 							"ilvl": 93,
 							"item": "Astral Warbow",
@@ -5196,7 +5196,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Astral_Dirk.png",
 							"ilvl": 93,
 							"item": "Astral Dirk",
@@ -5204,7 +5204,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Vanguard_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Vanguard Mail",
@@ -5212,7 +5212,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Arcanist_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Arcanist Mail",
@@ -5220,7 +5220,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Nightshade_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Nightshade Mail",
@@ -5228,7 +5228,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.013,
+							"chance": 0.049,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Astral_Pathfinder_Mail.png",
 							"ilvl": 93,
 							"item": "Astral Pathfinder Mail",
@@ -5286,7 +5286,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -5294,7 +5294,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -5302,7 +5302,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -5310,7 +5310,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Boots.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Boots",
@@ -5318,7 +5318,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Pathfinder_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Pathfinder Legguards",
@@ -5326,7 +5326,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Helm",
@@ -5350,7 +5350,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Spellstaff.png",
 							"ilvl": 43,
 							"item": "Mithril Spellstaff",
@@ -5358,7 +5358,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Helm.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Helm",
@@ -5366,7 +5366,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Mail",
@@ -5374,7 +5374,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Arcanist_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Arcanist Legguards",
@@ -5398,7 +5398,7 @@
 							"min": 10
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Longsword.png",
 							"ilvl": 43,
 							"item": "Mithril Longsword",
@@ -5406,7 +5406,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Dirk.png",
 							"ilvl": 43,
 							"item": "Mithril Dirk",
@@ -5414,7 +5414,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Weapons/Generated/Mithril_Warbow.png",
 							"ilvl": 43,
 							"item": "Mithril Warbow",
@@ -5422,7 +5422,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Mail",
@@ -5430,7 +5430,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Vanguard_Legguards.png",
 							"ilvl": 43,
 							"item": "Mithril Vanguard Legguards",
@@ -5438,7 +5438,7 @@
 							"min": 1
 						},
 						{
-							"chance": 0.025,
+							"chance": 0.041,
 							"icon": "res://assets/sprites/Items/generated_px/Armor/Generated/Mithril_Nightshade_Mail.png",
 							"ilvl": 43,
 							"item": "Mithril Nightshade Mail",

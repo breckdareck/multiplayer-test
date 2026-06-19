@@ -7,4 +7,4 @@ script = ExtResource("1_7wbwg")
 item_name = "Fine Vanguard Mail"
 randomize_stats = true
 possible_stats = Array[int]([8, 9, 15, 0, 4, 6, 14])
-drop_chance = 0.03
+drop_chance = 0.038

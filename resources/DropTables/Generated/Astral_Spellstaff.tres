@@ -7,4 +7,4 @@ script = ExtResource("1_6774i")
 item_name = "Astral Spellstaff"
 randomize_stats = true
 possible_stats = Array[int]([13, 1, 5])
-drop_chance = 0.013000000000000001
+drop_chance = 0.049

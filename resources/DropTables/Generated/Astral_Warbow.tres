@@ -7,4 +7,4 @@ script = ExtResource("1_o2k24")
 item_name = "Astral Warbow"
 randomize_stats = true
 possible_stats = Array[int]([12, 2, 10])
-drop_chance = 0.013000000000000001
+drop_chance = 0.049
