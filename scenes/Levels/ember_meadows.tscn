@@ -845,14 +845,6 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToLanternwood" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
-target_map_id = "lanternwood"
-target_spawn_point_name = "Lanternwood_EmberMeadows_Portal_Spawn"
-
-[node name="EmberMeadows_Lanternwood_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
-
 [node name="PortalToTinderfields" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
 target_map_id = "tinderfields"
@@ -868,11 +860,3 @@ target_spawn_point_name = "HollowWarren_EmberMeadows_Portal_Spawn"
 
 [node name="EmberMeadows_HollowWarren_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1745, 119)
-
-[node name="PortalToWatchersRuin" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1657, 19)
-target_map_id = "watchers_ruin"
-target_spawn_point_name = "WatchersRuin_EmberMeadows_Portal_Spawn"
-
-[node name="EmberMeadows_WatchersRuin_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1633, 23)

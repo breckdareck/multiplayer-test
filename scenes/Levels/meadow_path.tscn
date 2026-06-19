@@ -912,26 +912,10 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToFireflyHollow" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "near_wilds"
-target_spawn_point_name = "NearWilds_Meadow_Portal_Spawn"
+target_map_id = "firefly_hollow"
+target_spawn_point_name = "FireflyHollow_Meadow_Portal_Spawn"
 
-[node name="Meadow_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Meadow_FireflyHollow_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
-
-[node name="PortalToGlimmerfen" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(937, -125)
-target_map_id = "glimmerfen"
-target_spawn_point_name = "Glimmerfen_Meadow_Portal_Spawn"
-
-[node name="Meadow_Glimmerfen_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(913, -121)
-
-[node name="PortalToBrackenway" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1129, 131)
-target_map_id = "brackenway"
-target_spawn_point_name = "Brackenway_Meadow_Portal_Spawn"
-
-[node name="Meadow_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1105, 135)

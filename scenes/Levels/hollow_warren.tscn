@@ -744,3 +744,11 @@ target_spawn_point_name = "EmberMeadows_HollowWarren_Portal_Spawn"
 
 [node name="HollowWarren_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-15, 199)
+
+[node name="PortalToBeaconRise" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(873, -157)
+target_map_id = "beacon_rise"
+target_spawn_point_name = "BeaconRise_HollowWarren_Portal_Spawn"
+
+[node name="HollowWarren_BeaconRise_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(849, -153)

@@ -922,17 +922,25 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
+position = Vector2(9, 35)
 target_map_id = "lanterns_rest"
 target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
 
 [node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
+position = Vector2(33, 39)
 
-[node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToGlimmerfen" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1769, 147)
-target_map_id = "meadow_path"
-target_spawn_point_name = "Meadow_NearWilds_Portal_Spawn"
+target_map_id = "glimmerfen"
+target_spawn_point_name = "Glimmerfen_NearWilds_Portal_Spawn"
 
-[node name="NearWilds_Meadow_Portal_Spawn" type="Marker2D" parent="."]
+[node name="NearWilds_Glimmerfen_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1745, 151)
+
+[node name="PortalToFireflyHollow" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-71, 131)
+target_map_id = "firefly_hollow"
+target_spawn_point_name = "FireflyHollow_NearWilds_Portal_Spawn"
+
+[node name="NearWilds_FireflyHollow_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-47, 135)

@@ -189,8 +189,7 @@
 		"beacon_rise": {
 			"avg_level": 16,
 			"connections": [
-				"watchers_ruin",
-				"old_causeway"
+				"hollow_warren"
 			],
 			"display_name": "Beacon Rise",
 			"enemies": [
@@ -330,8 +329,7 @@
 		"brackenway": {
 			"avg_level": 7,
 			"connections": [
-				"meadow_path",
-				"firefly_hollow",
+				"glimmerfen",
 				"bramble_downs"
 			],
 			"display_name": "Brackenway",
@@ -480,8 +478,7 @@
 		"bramble_downs": {
 			"avg_level": 8,
 			"connections": [
-				"brackenway",
-				"tinderfields"
+				"brackenway"
 			],
 			"display_name": "Bramble Downs",
 			"enemies": [
@@ -1260,10 +1257,8 @@
 		"ember_meadows": {
 			"avg_level": 11,
 			"connections": [
-				"lanternwood",
 				"tinderfields",
-				"hollow_warren",
-				"watchers_ruin"
+				"hollow_warren"
 			],
 			"display_name": "Ember-Meadows",
 			"enemies": [
@@ -1905,8 +1900,8 @@
 		"firefly_hollow": {
 			"avg_level": 3,
 			"connections": [
-				"lanterns_rest",
-				"brackenway"
+				"near_wilds",
+				"meadow_path"
 			],
 			"display_name": "Firefly Hollow",
 			"enemies": [
@@ -3018,8 +3013,9 @@
 		"glimmerfen": {
 			"avg_level": 7,
 			"connections": [
-				"meadow_path",
-				"lanternwood"
+				"near_wilds",
+				"tinderfields",
+				"brackenway"
 			],
 			"display_name": "Glimmerfen",
 			"enemies": [
@@ -3119,7 +3115,8 @@
 		"hollow_warren": {
 			"avg_level": 16,
 			"connections": [
-				"ember_meadows"
+				"ember_meadows",
+				"beacon_rise"
 			],
 			"display_name": "Hollow Warren",
 			"enemies": [
@@ -3502,7 +3499,7 @@
 			"avg_level": 1,
 			"connections": [
 				"near_wilds",
-				"firefly_hollow"
+				"old_causeway"
 			],
 			"display_name": "Lantern's Rest",
 			"enemies": [
@@ -3521,8 +3518,8 @@
 		"lanternwood": {
 			"avg_level": 8,
 			"connections": [
-				"glimmerfen",
-				"ember_meadows"
+				"tinderfields",
+				"watchers_ruin"
 			],
 			"display_name": "Lanternwood",
 			"enemies": [
@@ -3622,9 +3619,7 @@
 		"meadow_path": {
 			"avg_level": 3,
 			"connections": [
-				"near_wilds",
-				"glimmerfen",
-				"brackenway"
+				"firefly_hollow"
 			],
 			"display_name": "Slime Meadow",
 			"enemies": [
@@ -4460,7 +4455,8 @@
 			"avg_level": 5,
 			"connections": [
 				"lanterns_rest",
-				"meadow_path"
+				"glimmerfen",
+				"firefly_hollow"
 			],
 			"display_name": "The Near-Wilds",
 			"enemies": [
@@ -4957,7 +4953,7 @@
 		"old_causeway": {
 			"avg_level": 21,
 			"connections": [
-				"beacon_rise",
+				"lanterns_rest",
 				"ruins"
 			],
 			"display_name": "The Old Causeway",
@@ -6514,8 +6510,9 @@
 		"tinderfields": {
 			"avg_level": 11,
 			"connections": [
-				"bramble_downs",
-				"ember_meadows"
+				"glimmerfen",
+				"ember_meadows",
+				"lanternwood"
 			],
 			"display_name": "Tinderfields",
 			"enemies": [
@@ -6779,8 +6776,7 @@
 		"watchers_ruin": {
 			"avg_level": 16,
 			"connections": [
-				"ember_meadows",
-				"beacon_rise"
+				"lanternwood"
 			],
 			"display_name": "Watcher's Ruin",
 			"enemies": [

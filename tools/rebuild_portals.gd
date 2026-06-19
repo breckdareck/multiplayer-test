@@ -16,23 +16,25 @@ const PORTAL_UID := "uid://brfb5t5im33fl"
 ## The Wickmoor / Hollowmere arms + the old ring/spoke maps are intentionally DROPPED from the graph
 ## (their scenes remain on disk, unwired & unreachable) until they're cloned in a later stage.
 const GRAPH := {
-	# --- Lantern's Rest arm: town + two Lv2-3 starts (both sides of the lantern line) ---
-	"lanterns_rest": ["near_wilds", "firefly_hollow"],
-	"near_wilds": ["lanterns_rest", "meadow_path"],
-	"firefly_hollow": ["lanterns_rest", "brackenway"],
-	# --- LOW FRONTIER (Lv4-16): branchy meadow country, pockets off the spine ---
-	"meadow_path": ["near_wilds", "glimmerfen", "brackenway"],
-	"brackenway": ["meadow_path", "firefly_hollow", "bramble_downs"],
-	"glimmerfen": ["meadow_path", "lanternwood"],
-	"bramble_downs": ["brackenway", "tinderfields"],
-	"lanternwood": ["glimmerfen", "ember_meadows"],
-	"tinderfields": ["bramble_downs", "ember_meadows"],
-	"ember_meadows": ["lanternwood", "tinderfields", "hollow_warren", "watchers_ruin"],
-	"hollow_warren": ["ember_meadows"],                       # dead-end pocket
-	"watchers_ruin": ["ember_meadows", "beacon_rise"],
-	"beacon_rise": ["watchers_ruin", "old_causeway"],
-	# --- the CLIMB to Emberwatch (Lv17-47): the long ascent / last half of the first act ---
-	"old_causeway": ["beacon_rise", "ruins"],
+	# FISHBONE (opt7 mockup): Lantern's Rest in the MIDDLE — a branchy LOW FRONTIER of dead-end
+	# grinding pockets hangs off one side; a straight CLIMB to Emberwatch runs off the other.
+	"lanterns_rest": ["near_wilds", "old_causeway"],
+	# --- LOW FRONTIER spine (the main side-grind path, ascending away from town) ---
+	"near_wilds": ["lanterns_rest", "glimmerfen", "firefly_hollow"],
+	"glimmerfen": ["near_wilds", "tinderfields", "brackenway"],
+	"tinderfields": ["glimmerfen", "ember_meadows", "lanternwood"],
+	"ember_meadows": ["tinderfields", "hollow_warren"],
+	# --- LOW FRONTIER pockets (dead-end grinding chains hanging off the spine) ---
+	"firefly_hollow": ["near_wilds", "meadow_path"],
+	"meadow_path": ["firefly_hollow"],
+	"brackenway": ["glimmerfen", "bramble_downs"],
+	"bramble_downs": ["brackenway"],
+	"lanternwood": ["tinderfields", "watchers_ruin"],
+	"watchers_ruin": ["lanternwood"],
+	"hollow_warren": ["ember_meadows", "beacon_rise"],
+	"beacon_rise": ["hollow_warren"],
+	# --- the CLIMB to Emberwatch (Lv18-47): the straight inward ascent ---
+	"old_causeway": ["lanterns_rest", "ruins"],
 	"ruins": ["old_causeway", "thornroot"],
 	"thornroot": ["ruins", "old_battlefield"],
 	"old_battlefield": ["thornroot", "the_reliquary"],

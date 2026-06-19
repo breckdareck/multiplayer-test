@@ -928,11 +928,3 @@ target_spawn_point_name = "Brackenway_Bramble_Portal_Spawn"
 
 [node name="Bramble_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
-
-[node name="PortalToTinderfields" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1385, 163)
-target_map_id = "tinderfields"
-target_spawn_point_name = "Tinderfields_Bramble_Portal_Spawn"
-
-[node name="Bramble_Tinderfields_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1361, 167)

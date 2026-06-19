@@ -909,13 +909,13 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
-target_map_id = "bramble_downs"
-target_spawn_point_name = "Bramble_Tinderfields_Portal_Spawn"
+[node name="PortalToGlimmerfen" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-7, 67)
+target_map_id = "glimmerfen"
+target_spawn_point_name = "Glimmerfen_Tinderfields_Portal_Spawn"
 
-[node name="Tinderfields_Bramble_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
+[node name="Tinderfields_Glimmerfen_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(17, 71)
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1161, 131)
@@ -924,3 +924,11 @@ target_spawn_point_name = "EmberMeadows_Tinderfields_Portal_Spawn"
 
 [node name="Tinderfields_EmberMeadows_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1137, 135)
+
+[node name="PortalToLanternwood" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-71, 131)
+target_map_id = "lanternwood"
+target_spawn_point_name = "Lanternwood_Tinderfields_Portal_Spawn"
+
+[node name="Tinderfields_Lanternwood_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-47, 135)

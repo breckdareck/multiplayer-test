@@ -918,18 +918,26 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-71, 131)
-target_map_id = "meadow_path"
-target_spawn_point_name = "Meadow_Glimmerfen_Portal_Spawn"
+[node name="PortalToNearWilds" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-7, 67)
+target_map_id = "near_wilds"
+target_spawn_point_name = "NearWilds_Glimmerfen_Portal_Spawn"
 
-[node name="Glimmerfen_Meadow_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(-47, 135)
+[node name="Glimmerfen_NearWilds_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(17, 71)
 
-[node name="PortalToLanternwood" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToTinderfields" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1241, 115)
-target_map_id = "lanternwood"
-target_spawn_point_name = "Lanternwood_Glimmerfen_Portal_Spawn"
+target_map_id = "tinderfields"
+target_spawn_point_name = "Tinderfields_Glimmerfen_Portal_Spawn"
 
-[node name="Glimmerfen_Lanternwood_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Glimmerfen_Tinderfields_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(1217, 119)
+
+[node name="PortalToBrackenway" parent="." instance=ExtResource("3_76n2i")]
+position = Vector2(-71, 131)
+target_map_id = "brackenway"
+target_spawn_point_name = "Brackenway_Glimmerfen_Portal_Spawn"
+
+[node name="Glimmerfen_Brackenway_Portal_Spawn" type="Marker2D" parent="."]
+position = Vector2(-47, 135)

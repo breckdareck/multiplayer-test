@@ -904,18 +904,10 @@ patch_margin_top = 2
 patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
-[node name="PortalToWatchersRuin" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToHollowWarren" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
-target_map_id = "watchers_ruin"
-target_spawn_point_name = "WatchersRuin_BeaconRise_Portal_Spawn"
+target_map_id = "hollow_warren"
+target_spawn_point_name = "HollowWarren_BeaconRise_Portal_Spawn"
 
-[node name="BeaconRise_WatchersRuin_Portal_Spawn" type="Marker2D" parent="."]
+[node name="BeaconRise_HollowWarren_Portal_Spawn" type="Marker2D" parent="."]
 position = Vector2(-47, 135)
-
-[node name="PortalToOldCauseway" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1193, 131)
-target_map_id = "old_causeway"
-target_spawn_point_name = "OldCauseway_BeaconRise_Portal_Spawn"
-
-[node name="BeaconRise_OldCauseway_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1169, 135)

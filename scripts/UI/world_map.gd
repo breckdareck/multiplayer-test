@@ -17,36 +17,35 @@ const CATALOG_PATH := "res://config/world_map_data.json"
 ## positions within the content rect; edges come from the real connection graph (drawn only between
 ## maps in the active view). Generated/retuned by tools/preview_world_map.py — re-run + paste here.
 ## ADD EVERY NEW MAP to the right view's layout, or it won't render.
-## CROSSWAY world view (Stage 2): the Lantern's Rest ARM only (the first built arm). Town at the
-## far-left edge; a branchy LOW FRONTIER lens funnels at Ember-Meadows; a CLIMB arcs along the
-## bottom up into Emberwatch at the centre. The right + top thirds are left open for the Wickmoor /
-## Hollowmere arms (cloned later). Back-half maps live in LAYOUT_CORE (the Core view). Edges are
-## drawn from the real portal catalog, filtered to nodes present here.
+## CROSSWAY world view (Stage 2, opt7 FISHBONE): the Lantern's Rest ARM only (first built arm).
+## Lantern's Rest sits in the MIDDLE of a horizontal line: a branchy LOW FRONTIER of dead-end
+## grinding pockets hangs off to the LEFT; a straight CLIMB to Emberwatch runs off to the RIGHT,
+## with the Core gateway below Emberwatch. The Wickmoor / Hollowmere arms (cloned later) will sit
+## as parallel fishbones around the centred Emberwatch. Back-half maps live in LAYOUT_CORE.
+## Nodes/edges draw only for maps present here (edges from the real portal catalog).
 const LAYOUT_WORLD := {
-	# town + the two Lv2-3 starts (both sides of the lantern line)
-	"lanterns_rest":   Vector2(0.050, 0.500),
-	"near_wilds":      Vector2(0.110, 0.360),
-	"firefly_hollow":  Vector2(0.110, 0.640),
-	# low frontier lens (Lv4-13): spine + pockets weaving to the funnel
-	"meadow_path":     Vector2(0.180, 0.270),
-	"brackenway":      Vector2(0.180, 0.630),
-	"glimmerfen":      Vector2(0.250, 0.210),
-	"bramble_downs":   Vector2(0.250, 0.710),
-	"lanternwood":     Vector2(0.320, 0.300),
-	"tinderfields":    Vector2(0.320, 0.640),
-	"hollow_warren":   Vector2(0.430, 0.330),   # dead-end pocket
-	"ember_meadows":   Vector2(0.400, 0.480),   # funnel
-	# the climb (Lv14-47): arcs along the bottom up into the central hearth
-	"watchers_ruin":   Vector2(0.440, 0.640),
-	"beacon_rise":     Vector2(0.430, 0.790),
-	"old_causeway":    Vector2(0.530, 0.860),
-	"ruins":           Vector2(0.640, 0.840),
-	"thornroot":       Vector2(0.730, 0.740),
-	"old_battlefield": Vector2(0.760, 0.620),
-	"the_reliquary":   Vector2(0.690, 0.540),
-	"embergate":       Vector2(0.595, 0.505),
-	# central hearth (halfway point) — Core gate sits just below it
-	"emberwatch":      Vector2(0.500, 0.500),
+	"lanterns_rest":   Vector2(0.295, 0.500),   # TOWN, middle of the line
+	# --- LOW FRONTIER, off to the LEFT: spine (flat) + dead-end pockets (up / down) ---
+	"near_wilds":      Vector2(0.235, 0.500),
+	"glimmerfen":      Vector2(0.175, 0.500),
+	"tinderfields":    Vector2(0.115, 0.500),
+	"ember_meadows":   Vector2(0.058, 0.500),
+	"firefly_hollow":  Vector2(0.252, 0.372),   # pocket up off near_wilds
+	"meadow_path":     Vector2(0.212, 0.268),
+	"brackenway":      Vector2(0.172, 0.628),   # pocket down off glimmerfen
+	"bramble_downs":   Vector2(0.132, 0.732),
+	"lanternwood":     Vector2(0.098, 0.372),   # pocket up off tinderfields
+	"watchers_ruin":   Vector2(0.050, 0.268),
+	"hollow_warren":   Vector2(0.040, 0.628),   # pocket down off ember_meadows
+	"beacon_rise":     Vector2(0.078, 0.732),
+	# --- the CLIMB, off to the RIGHT: a straight inward ascent to Emberwatch ---
+	"old_causeway":    Vector2(0.420, 0.500),
+	"ruins":           Vector2(0.520, 0.500),
+	"thornroot":       Vector2(0.620, 0.500),
+	"old_battlefield": Vector2(0.715, 0.500),
+	"the_reliquary":   Vector2(0.808, 0.500),
+	"embergate":       Vector2(0.888, 0.500),
+	"emberwatch":      Vector2(0.958, 0.500),   # TOWN, line's end — Core gate sits below it
 }
 const LAYOUT_CORE := {
 	# Inward spiral descent (spread out): entry at the rim -> Warlord at the centre.
@@ -63,7 +62,7 @@ const LAYOUT_CORE := {
 	"warlord":         Vector2(0.500, 0.500),
 }
 ## Synthetic gateway nodes (not real maps): id, normalized pos, label, the view it switches to.
-const CORE_GATE := {"id": "__core__", "pos": Vector2(0.500, 0.630), "label": "The Core  ▾", "to": "core"}
+const CORE_GATE := {"id": "__core__", "pos": Vector2(0.950, 0.660), "label": "The Core  ▾", "to": "core"}
 const SURFACE_GATE := {"id": "__surface__", "pos": Vector2(0.085, 0.090), "label": "↑  The Surface", "to": "world"}
 const GATE_R := 18.0
 ## Core-only maps (used to auto-open the right view from the current location).

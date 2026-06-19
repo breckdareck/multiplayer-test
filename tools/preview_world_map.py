@@ -17,29 +17,29 @@ CX, CY = 0.5, 0.5
 # Town far-left; a branchy low-frontier lens funnels at Ember-Meadows; the climb arcs
 # along the bottom up into the centred Emberwatch. Right/top thirds open for future arms.
 world = {
-    "lanterns_rest":   (0.050, 0.500),
-    "near_wilds":      (0.110, 0.360),
-    "firefly_hollow":  (0.110, 0.640),
-    "meadow_path":     (0.180, 0.270),
-    "brackenway":      (0.180, 0.630),
-    "glimmerfen":      (0.250, 0.210),
-    "bramble_downs":   (0.250, 0.710),
-    "lanternwood":     (0.320, 0.300),
-    "tinderfields":    (0.320, 0.640),
-    "hollow_warren":   (0.430, 0.330),
-    "ember_meadows":   (0.400, 0.480),
-    "watchers_ruin":   (0.440, 0.640),
-    "beacon_rise":     (0.430, 0.790),
-    "old_causeway":    (0.530, 0.860),
-    "ruins":           (0.640, 0.840),
-    "thornroot":       (0.730, 0.740),
-    "old_battlefield": (0.760, 0.620),
-    "the_reliquary":   (0.690, 0.540),
-    "embergate":       (0.595, 0.505),
-    "emberwatch":      (0.500, 0.500),
+    "lanterns_rest":   (0.295, 0.500),
+    "near_wilds":      (0.235, 0.500),
+    "glimmerfen":      (0.175, 0.500),
+    "tinderfields":    (0.115, 0.500),
+    "ember_meadows":   (0.058, 0.500),
+    "firefly_hollow":  (0.252, 0.372),
+    "meadow_path":     (0.212, 0.268),
+    "brackenway":      (0.172, 0.628),
+    "bramble_downs":   (0.132, 0.732),
+    "lanternwood":     (0.098, 0.372),
+    "watchers_ruin":   (0.050, 0.268),
+    "hollow_warren":   (0.040, 0.628),
+    "beacon_rise":     (0.078, 0.732),
+    "old_causeway":    (0.420, 0.500),
+    "ruins":           (0.520, 0.500),
+    "thornroot":       (0.620, 0.500),
+    "old_battlefield": (0.715, 0.500),
+    "the_reliquary":   (0.808, 0.500),
+    "embergate":       (0.888, 0.500),
+    "emberwatch":      (0.958, 0.500),
 }
 world_order = list(world.keys())
-CORE_GATE = (0.50, 0.63)   # synthetic gateway DIRECTLY below the centred Emberwatch
+CORE_GATE = (0.950, 0.660)   # synthetic gateway DIRECTLY below Emberwatch (line's right end)
 
 # ---- CORE view positions: an inward SPIRAL descent (Emberwatch -> Warlord centre) ----
 # It's a spiral on purpose (a descent into the core), but spread out: the radius
