@@ -81,12 +81,26 @@ via the engine. Godot is at `C:\Program Files\Godot\Godot.exe`.
    `tools/rebuild_portals.gd`. A safe hub = empty `monsters: []`. `amp` = terrain
    roughness (1 calm … 4 jagged); `width` in tiles; pull enemy `uid`s from the existing
    configs.
-2. **Emit it** via the archetype — point `_init()` at your config and call:
-   - `_build_field(cfg)` — outdoor rolling field: 2:1-sloped ground, auto safe perches
-     + ropes, tree/tuft decoration. The default.
-   - `_build_cave(cfg)` — enclosed cave: rolling floor + spiky black-core ceiling +
-     tiered rock ledges + ropes (see `mines`).
-   Both return `real: true`, so `_emit` writes `scenes/Levels/<name>.tscn` (overwriting).
+2. **Pick the archetype** via the config's `"arch"` key (dispatched in `_init`); each builder
+   returns `real: true`, so `_emit` writes `scenes/Levels/<name>.tscn` (overwriting):
+   - `field` (default) — outdoor rolling 2:1-sloped field + auto safe perches + ropes + trees.
+   - `open` — rolling floor + 3 floating fighting tiers linked by ropes (Henesys field).
+   - `cave` — enclosed chamber: rolling floor + spiky black-core ceiling + rock ledges (mines).
+   - `cliffs` — solid mesas joined by 2:1 grass ramps + a vantage shelf per mesa.
+   - `tower` — organic vertical climb of branch platforms (Ellinia).
+   - `terraces` — ascending one-way shelf staircase, rope/ladder per tier.
+   - `gorge` — two rims split by a chasm, crossed by a solid wooden BRIDGE; vantage shelf.
+   - `shaft` — tall narrow enclosed rock shaft, alternating rope-linked ledges.
+   - `causeway` — mostly ground with a central water GAP the bridge spans; water = animated bg scenery.
+   - `warren` — solid rock carved into rooms linked by tunnels + rope-shaft upper pockets.
+   - `hall` — open floor framed by decorative stone columns (non-colliding) + broken upper ledges.
+
+   The 6 newer archetypes (terraces/gorge/shaft/causeway/warren/hall) + their new TILE pipelines
+   (bridge=src5, water=src6 animated, columns=src7, drawn by `tools/gen_map_tiles.py`) are detailed
+   in the **project_map_archetypes** memory; each has a `_wave_<x>_demo()` + a `--<x>` cmdline flag.
+   ⚠️ Run the generator/portal/audit/dump tools on the **Godot 4.7** binary
+   (`C:\Users\breck\OneDrive\Desktop\GameDev\Godot_v4.7-stable_win64.exe`) for resource-loading ops;
+   `dump_world_map.gd` needs the 4.5 binary (`C:\Program Files\Godot\Godot.exe`) due to an autoload quirk.
 3. **Run:** `"C:\Program Files\Godot\Godot.exe" --headless --path . --script res://test/_gen_map.gd`
 4. **Integrate:** register `<name>` in `MAP_SCENES` + `MAP_DISPLAY_NAMES` (step 3 above);
    add a bot band to `config/bot_config.json` `map_difficulty`; wire portals with
@@ -223,15 +237,18 @@ same-band maps cross-link, and there can be more than one route forward.
 `tools/rebuild_portals.gd` rebuilds the entire portal graph from a `GRAPH` adjacency dict (+ a
 `TOKEN` map for the marker-name convention, + a `LEVEL` map for ordering). Per map it: clears old
 portal instances + `*_Portal_Spawn` markers, then lays one (portal + co-located arrival marker)
-pair per connection. **Placement convention: portals go on the SIDES — the lowest-level destination
-on the LEFT edge (back toward home), the highest on the RIGHT edge (forward toward the boss). A branch
-(3rd+) portal stacks on an ELEVATED platform near a side, above the side door (alternating right then
-left) — never spread across the open floor.** **Offset convention: the portal sits 16px ABOVE the
-ground (its foot rests on the surface) and the arrival marker 12px above (so you land ON the ground,
-not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`. Side doors sit on FLAT floor (scan in from
-the edge for a column whose surface row matches both neighbours — not a slope). The arrival marker
-goes on the door's INNER side: a LEFT-side door spawns you to its RIGHT (+x), a RIGHT-side door spawns
-you to its LEFT (−x), so you always land facing into the map.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
+pair per connection. **Placement convention: portals go on the SIDES by destination level — lower-level
+destinations on the LEFT (back toward home), higher on the RIGHT (forward toward the boss), so both ends
+of an edge land on OPPOSITE sides (exit one side → arrive the opposite side of the next map). EVERY door
+sits ON THE GROUND: the primary at that side's floor edge, and any extra same-side doors fanned INWARD
+along the FLOOR at flat, reachable columns. NEVER place a door on an elevated shelf or in an upper room
+— that was the old `_place_side` behavior and it was REVERSED 2026-06-19 (`audit_portals.gd` flagged 19
+doors floating on shelves; doors must be on the ground).** **Offset convention: the portal sits 16px
+ABOVE the ground (its foot rests on the surface) and the arrival marker 12px above (so you land ON the
+ground, not embedded in it) — i.e. `portal.y = ground - 16`, `arrival.y = ground - 12`. Side doors sit on
+FLAT floor (scan in from the edge for a column whose surface row matches both neighbours — not a slope).
+The arrival marker goes on the door's INNER side: a LEFT-side door spawns you to its RIGHT (+x), a
+RIGHT-side door spawns you to its LEFT (−x), so you always land facing into the map.** Names follow `<OtherToken>_<ThisToken>_Portal_Spawn`
 for the target and `<ThisToken>_<OtherToken>_Portal_Spawn` for the arrival marker. Tokens are NOT
 pure PascalCase — extract them from existing markers (meadow_path→`Meadow`, three_terraces→`Terraces`).
 GRAPH must be symmetric (A lists B ⟺ B lists A) or you get one-way doors.
@@ -240,8 +257,10 @@ Verify after: (1) `tools/check_load.gd` smoke-loads every map; (2) grep each por
 `target_spawn_point_name` against `name="…"` in the target scene (0 misses); (3) regenerate
 `config/world_map_data.json` via `tools/dump_world_map.gd` (it emits per-map `connections` +
 `min/max/avg_level` + `enemies`; an autoload compile-warning is non-fatal — check it still prints
-"wrote …"). Realign bot routing bands in `config/bot_config.json` `map_difficulty` to the lore
-levels in the same pass.
+"wrote …"); (4) **`tools/audit_portals.gd`** — decodes every map's floor from its `Mid` layer and
+asserts each portal is ON THE GROUND and each edge's two doors are on OPPOSITE sides (target: 0
+ground violations, 0 side violations). Run it whenever portals or terrain change. Realign bot routing
+bands in `config/bot_config.json` `map_difficulty` to the lore levels in the same pass.
 
 Watch for a generator bug: a spawner's `enemy_scene` ext_resource can disagree with its
 `MultiplayerSpawner` `_spawnable_scenes` uid and its node name (mines shipped goblins while named/
@@ -261,6 +280,26 @@ maps (the generator already distributes enemies on platforms; a full re-place wo
 generator makes pooled spawners directly, so a safe hub = a config with empty `monsters`. (If you ever
 import a map with hard-placed enemy *instances*, `convert_to_spawners.gd` migrates them — its node regex
 must match end-of-line `[^\n]*\]`, not `[^\]]*\]`, so a `groups=[…]` `]` in a Mob header doesn't truncate it.)
+
+### World map UI (editable, image-backed — 2026-06-19)
+
+The in-game world map (M key, in `local_player_ui.tscn` → `MoveableWindows/WorldMap`) is NOT
+code-drawn anymore — both views are painted background images with draggable pins:
+- **World view** = `MapArea` (TextureRect, `assets/sprites/ui/world_map_bg.png`) → `Edges`
+  (`scripts/UI/map_edges.gd`, draws roads from the catalog + live pin positions) + `Pins` (one
+  `MapPin` = `scripts/UI/map_pin.gd` per map, anchor-normalised with a centred 24px hit-box so it's
+  drag-editable in the 2D editor).
+- **Core view** = `CoreArea`/`CoreEdges`/`CorePins` (same setup, `core_map_bg.png`, the descent spiral).
+- `world_map.gd` shows the active area + pin set, fills in live label/level/colour/current-location,
+  handles the world↔Core gateway pins, and dims the image via `self_modulate` so pins/text stay legible.
+
+**When you add a new connected map, add a pin for it** or it won't show on the M-map. Seed/realign
+pins with `tools/render_world_overlay.py` (world) / `tools/render_core_overlay.py` (Core): they
+composite the pins onto the real PNG (→ `tools/_wm_overlay.png` for review) AND emit the scene node
+block to splice under the right `Pins`/`CorePins`. Pin positions are normalised anchors (so they track
+the fullscreen image). ⚠️ The Godot editor auto-saves an open scene over disk writes — commit before
+hand-editing `local_player_ui.tscn`, and don't write it from a tool while it's open. Full detail:
+**project_crossway_world_stage2** memory.
 
 ### Fixing a hand-edited map (surgery toolset — mines pass, 2026-06-17)
 
