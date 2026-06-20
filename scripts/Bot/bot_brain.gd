@@ -73,7 +73,6 @@ const MANA_POTION_THRESHOLD: float = 0.3
 
 var _shop_check_timer: float = 0.0
 const SHOP_CHECK_INTERVAL: float = 10.0
-const TOWN_MAP_ID: String = "lanterns_rest"
 ## Inventory & shopping — sell junk, restock potions, route to a town merchant.
 var _economy = BotEconomy.new(self)
 
@@ -655,7 +654,7 @@ func _consider_retreat() -> bool:
 	# Town is safe and has the merchant — never recover here. Standing idle to
 	# regen wastes time when the bot can shop, heal and head back out; staying
 	# in retreat would also leave it stuck if HP regenerates slowly.
-	if MapManager.get_player_map(bot_id) == TOWN_MAP_ID:
+	if MapManager.get_player_map(bot_id) in MapManager.HEARTH_MAPS:
 		_recovering = false
 		return false
 
@@ -766,9 +765,13 @@ func _consider_restock_trip() -> bool:
 	if not (_economy.needs_restock or _economy.needs_sell):
 		return false
 	var my_map := MapManager.get_player_map(bot_id)
-	if my_map == TOWN_MAP_ID:
+	if my_map in MapManager.HEARTH_MAPS:
 		return false
-	var hop := MapManager.get_next_map_toward(my_map, TOWN_MAP_ID)
+	# Route to the CLOSEST town, not a single hardcoded one — the world has
+	# several hearths (one per arm). A hardcoded town sent a bot trekking across
+	# the whole map for a restock instead of stepping back to its adjacent town.
+	var town := MapManager.get_nearest_hearth(my_map)
+	var hop := MapManager.get_next_map_toward(my_map, town)
 	if hop.is_empty():
 		return false
 	if not is_instance_valid(target_portal) or target_portal.target_map_id != hop:
@@ -797,7 +800,7 @@ func _consider_follow_leader() -> bool:
 	var my_map := MapManager.get_player_map(bot_id)
 	if leader_map == my_map:
 		return false
-	if leader_map.is_empty() or leader_map == TOWN_MAP_ID:
+	if leader_map.is_empty() or leader_map in MapManager.HEARTH_MAPS:
 		return false
 	# Step toward the leader's map via the next directly-connected hop, then
 	# walk to and through that portal like any other travel action.

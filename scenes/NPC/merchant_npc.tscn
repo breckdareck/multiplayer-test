@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://f4gho8l6o1ld"]
+[gd_scene load_steps=29 format=3 uid="uid://f4gho8l6o1ld"]
 
 [ext_resource type="Script" uid="uid://b5ruuv5nk2ken" path="res://scripts/NPC/npc_interaction.gd" id="1_t0ows"]
 [ext_resource type="Texture2D" uid="uid://de0rqgxih2rii" path="res://assets/sprites/MinifolksVillagers2/Original/Outline/MiniSuspiciousMerchant.png" id="2_m01lu"]
@@ -6,6 +6,22 @@
 [ext_resource type="Script" uid="uid://c8fllkah6qfdg" path="res://scripts/Components/inventory.gd" id="4_6x56j"]
 [ext_resource type="PackedScene" uid="uid://dk63ctw7epbmm" path="res://scenes/UI/shop_window.tscn" id="5_ujwm7"]
 [ext_resource type="FontFile" uid="uid://c8e0uior67hgl" path="res://assets/fonts/PixelOperator8.ttf" id="6_wnio7"]
+[ext_resource type="Resource" uid="uid://cjl5ggbs3c237" path="res://resources/Items/Consumables/Grape_Potion.tres" id="10_grape"]
+[ext_resource type="Resource" uid="uid://bwlru2cwcphdy" path="res://resources/Items/Consumables/Mana_Potion.tres" id="11_mana"]
+[ext_resource type="Resource" uid="uid://jwwtuktlssm4" path="res://resources/Items/Consumables/Exp_Potion.tres" id="12_exp"]
+[ext_resource type="Resource" uid="uid://cpjl8touji5vt" path="res://resources/Items/Consumables/Hearthstone.tres" id="13_hearth"]
+[ext_resource type="Resource" uid="uid://bwy06fjcsbcqk" path="res://resources/Items/Consumables/Generated/Lesser_Healing_Draught.tres" id="14_lhd"]
+[ext_resource type="Resource" uid="uid://ic87qn8144l7" path="res://resources/Items/Consumables/Generated/Lesser_Mana_Draught.tres" id="15_lmd"]
+[ext_resource type="Resource" uid="uid://jcdx6xjdvlag" path="res://resources/Items/Consumables/Generated/Healing_Draught.tres" id="16_hd"]
+[ext_resource type="Resource" uid="uid://dlqvvt3gv82jc" path="res://resources/Items/Consumables/Generated/Mana_Draught.tres" id="17_md"]
+[ext_resource type="Resource" uid="uid://r25iljcogvay" path="res://resources/Items/Consumables/Generated/Greater_Healing_Draught.tres" id="18_ghd"]
+[ext_resource type="Resource" uid="uid://buoekv8unc18u" path="res://resources/Items/Consumables/Generated/Greater_Mana_Draught.tres" id="19_gmd"]
+[ext_resource type="Resource" uid="uid://dhvpuopshjch7" path="res://resources/Items/Consumables/Generated/Grand_Healing_Draught.tres" id="20_grhd"]
+[ext_resource type="Resource" uid="uid://6yjeaof3r55y" path="res://resources/Items/Consumables/Generated/Grand_Mana_Draught.tres" id="21_grmd"]
+[ext_resource type="Resource" uid="uid://dtoref1fhkeit" path="res://resources/Items/Consumables/Generated/Superior_Healing_Draught.tres" id="22_suhd"]
+[ext_resource type="Resource" uid="uid://w62fp0tsjx7m" path="res://resources/Items/Consumables/Generated/Superior_Mana_Draught.tres" id="23_sumd"]
+[ext_resource type="Resource" uid="uid://co2rco5i8u5to" path="res://resources/Items/Consumables/Generated/Supreme_Healing_Draught.tres" id="24_sphd"]
+[ext_resource type="Resource" uid="uid://du18ipmsccmp1" path="res://resources/Items/Consumables/Generated/Supreme_Mana_Draught.tres" id="25_spmd"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pd7st"]
 atlas = ExtResource("2_m01lu")
@@ -96,6 +112,39 @@ mouse_filter = 1
 
 [node name="MerchantInventory" type="Node" parent="."]
 script = ExtResource("3_2jayf")
+base_stock_config = Array[Dictionary]([{
+ExtResource("10_grape"): -1
+}, {
+ExtResource("11_mana"): -1
+}, {
+ExtResource("12_exp"): 10
+}, {
+ExtResource("13_hearth"): -1
+}, {
+ExtResource("14_lhd"): -1
+}, {
+ExtResource("15_lmd"): -1
+}, {
+ExtResource("16_hd"): -1
+}, {
+ExtResource("17_md"): -1
+}, {
+ExtResource("18_ghd"): -1
+}, {
+ExtResource("19_gmd"): -1
+}, {
+ExtResource("20_grhd"): -1
+}, {
+ExtResource("21_grmd"): -1
+}, {
+ExtResource("22_suhd"): -1
+}, {
+ExtResource("23_sumd"): -1
+}, {
+ExtResource("24_sphd"): -1
+}, {
+ExtResource("25_spmd"): -1
+}])
 
 [node name="Inventory" type="Node" parent="MerchantInventory"]
 script = ExtResource("4_6x56j")

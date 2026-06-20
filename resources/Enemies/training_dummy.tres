@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=10 format=3 uid="uid://blx5g1kkwltd3"]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://blx5g1kkwltd3"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_adjew"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_tra84"]
@@ -36,7 +36,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3cfoj")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }]

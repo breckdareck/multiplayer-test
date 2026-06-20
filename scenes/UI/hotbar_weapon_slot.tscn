@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://b0pr3whpnswap"]
+[gd_scene format=3 uid="uid://b0pr3whpnswap"]
 
-[ext_resource type="Script" path="res://scripts/UI/hotbar_weapon_slot.gd" id="1_wslot"]
+[ext_resource type="Script" uid="uid://blld8vtkc6gln" path="res://scripts/UI/hotbar_weapon_slot.gd" id="1_wslot"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wslot"]
 content_margin_left = 3.0
@@ -18,34 +18,35 @@ corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
 
-[node name="HotbarWeaponSlot" type="PanelContainer"]
+[node name="HotbarWeaponSlot" type="PanelContainer" unique_id=1906267113]
 custom_minimum_size = Vector2(58, 58)
 offset_right = 58.0
 offset_bottom = 58.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_wslot")
 script = ExtResource("1_wslot")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=550739474]
 layout_mode = 2
 theme_override_constants/margin_left = 2
 theme_override_constants/margin_top = 2
 theme_override_constants/margin_right = 2
 theme_override_constants/margin_bottom = 2
 
-[node name="IconRect" type="TextureRect" parent="MarginContainer"]
+[node name="IconRect" type="TextureRect" parent="MarginContainer" unique_id=60776069]
 visible = false
 texture_filter = 1
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CooldownOverlay" type="ColorRect" parent="MarginContainer"]
+[node name="CooldownOverlay" type="ColorRect" parent="MarginContainer" unique_id=25887941]
 visible = false
 layout_mode = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0.55)
 
-[node name="SlotLabel" type="Label" parent="MarginContainer"]
+[node name="SlotLabel" type="Label" parent="MarginContainer" unique_id=1504458322]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8

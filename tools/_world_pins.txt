@@ -1,0 +1,856 @@
+
+[node name="MapArea" type="TextureRect" parent="MoveableWindows/WorldMap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("wm_bg")
+expand_mode = 1
+
+[node name="Edges" type="Control" parent="MoveableWindows/WorldMap/MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("wm_edges")
+
+[node name="Pins" type="Control" parent="MoveableWindows/WorldMap/MapArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="emberwatch" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5000
+anchor_top = 0.4450
+anchor_right = 0.5000
+anchor_bottom = 0.4450
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "emberwatch"
+
+[node name="lanterns_rest" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5000
+anchor_top = 0.2168
+anchor_right = 0.5000
+anchor_bottom = 0.2168
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "lanterns_rest"
+
+[node name="near_wilds" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5258
+anchor_top = 0.1800
+anchor_right = 0.5258
+anchor_bottom = 0.1800
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "near_wilds"
+
+[node name="glimmerfen" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4742
+anchor_top = 0.1460
+anchor_right = 0.4742
+anchor_bottom = 0.1460
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "glimmerfen"
+
+[node name="tinderfields" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5258
+anchor_top = 0.1120
+anchor_right = 0.5258
+anchor_bottom = 0.1120
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "tinderfields"
+
+[node name="ember_meadows" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4742
+anchor_top = 0.0788
+anchor_right = 0.4742
+anchor_bottom = 0.0788
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "ember_meadows"
+
+[node name="firefly_hollow" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4218
+anchor_top = 0.1874
+anchor_right = 0.4218
+anchor_bottom = 0.1874
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "firefly_hollow"
+
+[node name="meadow_path" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.3620
+anchor_top = 0.1948
+anchor_right = 0.3620
+anchor_bottom = 0.1948
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "meadow_path"
+
+[node name="brackenway" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5782
+anchor_top = 0.1506
+anchor_right = 0.5782
+anchor_bottom = 0.1506
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "brackenway"
+
+[node name="bramble_downs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.6380
+anchor_top = 0.1580
+anchor_right = 0.6380
+anchor_bottom = 0.1580
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "bramble_downs"
+
+[node name="lanternwood" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4218
+anchor_top = 0.1138
+anchor_right = 0.4218
+anchor_bottom = 0.1138
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "lanternwood"
+
+[node name="watchers_ruin" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.3620
+anchor_top = 0.1212
+anchor_right = 0.3620
+anchor_bottom = 0.1212
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "watchers_ruin"
+
+[node name="hollow_warren" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5782
+anchor_top = 0.0807
+anchor_right = 0.5782
+anchor_bottom = 0.0807
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "hollow_warren"
+
+[node name="beacon_rise" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.6380
+anchor_top = 0.0880
+anchor_right = 0.6380
+anchor_bottom = 0.0880
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "beacon_rise"
+
+[node name="old_causeway" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5258
+anchor_top = 0.2518
+anchor_right = 0.5258
+anchor_bottom = 0.2518
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "old_causeway"
+
+[node name="ruins" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4742
+anchor_top = 0.2831
+anchor_right = 0.4742
+anchor_bottom = 0.2831
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "ruins"
+
+[node name="thornroot" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5258
+anchor_top = 0.3125
+anchor_right = 0.5258
+anchor_bottom = 0.3125
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "thornroot"
+
+[node name="old_battlefield" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4742
+anchor_top = 0.3401
+anchor_right = 0.4742
+anchor_bottom = 0.3401
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "old_battlefield"
+
+[node name="the_reliquary" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5258
+anchor_top = 0.3640
+anchor_right = 0.5258
+anchor_bottom = 0.3640
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_reliquary"
+
+[node name="embergate" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4742
+anchor_top = 0.3843
+anchor_right = 0.4742
+anchor_bottom = 0.3843
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "embergate"
+
+[node name="wickmoor" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.2470
+anchor_top = 0.4450
+anchor_right = 0.2470
+anchor_bottom = 0.4450
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "wickmoor"
+
+[node name="reedmire" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.2062
+anchor_top = 0.4164
+anchor_right = 0.2062
+anchor_bottom = 0.4164
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "reedmire"
+
+[node name="sodden_flats" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1685
+anchor_top = 0.4736
+anchor_right = 0.1685
+anchor_bottom = 0.4736
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "sodden_flats"
+
+[node name="heatherreach" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1308
+anchor_top = 0.4164
+anchor_right = 0.1308
+anchor_bottom = 0.4164
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "heatherreach"
+
+[node name="blackpeat" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.0940
+anchor_top = 0.4736
+anchor_right = 0.0940
+anchor_bottom = 0.4736
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "blackpeat"
+
+[node name="glowmoss_burrow" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.2144
+anchor_top = 0.5317
+anchor_right = 0.2144
+anchor_bottom = 0.5317
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "glowmoss_burrow"
+
+[node name="peat_steps" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.2226
+anchor_top = 0.5980
+anchor_right = 0.2226
+anchor_bottom = 0.5980
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "peat_steps"
+
+[node name="the_brackens" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1736
+anchor_top = 0.3583
+anchor_right = 0.1736
+anchor_bottom = 0.3583
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_brackens"
+
+[node name="gorse_downs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1818
+anchor_top = 0.2920
+anchor_right = 0.1818
+anchor_bottom = 0.2920
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "gorse_downs"
+
+[node name="willowmere" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1328
+anchor_top = 0.5317
+anchor_right = 0.1328
+anchor_bottom = 0.5317
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "willowmere"
+
+[node name="drowned_shrine" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1410
+anchor_top = 0.5980
+anchor_right = 0.1410
+anchor_bottom = 0.5980
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "drowned_shrine"
+
+[node name="mudwarren" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.0961
+anchor_top = 0.3583
+anchor_right = 0.0961
+anchor_bottom = 0.3583
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "mudwarren"
+
+[node name="bogbeacon" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.1042
+anchor_top = 0.2920
+anchor_right = 0.1042
+anchor_bottom = 0.2920
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "bogbeacon"
+
+[node name="long_ford" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.2858
+anchor_top = 0.4164
+anchor_right = 0.2858
+anchor_bottom = 0.4164
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "long_ford"
+
+[node name="the_sluice" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.3205
+anchor_top = 0.4736
+anchor_right = 0.3205
+anchor_bottom = 0.4736
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_sluice"
+
+[node name="mirewarren" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.3531
+anchor_top = 0.4164
+anchor_right = 0.3531
+anchor_bottom = 0.4164
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "mirewarren"
+
+[node name="bonemarsh" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.3837
+anchor_top = 0.4736
+anchor_right = 0.3837
+anchor_bottom = 0.4736
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "bonemarsh"
+
+[node name="the_oubliette" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4102
+anchor_top = 0.4164
+anchor_right = 0.4102
+anchor_bottom = 0.4164
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_oubliette"
+
+[node name="marshgate" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4327
+anchor_top = 0.4736
+anchor_right = 0.4327
+anchor_bottom = 0.4736
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "marshgate"
+
+[node name="hollowmere" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.7629
+anchor_top = 0.4450
+anchor_right = 0.7629
+anchor_bottom = 0.4450
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "hollowmere"
+
+[node name="the_shallows" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8053
+anchor_top = 0.4747
+anchor_right = 0.8053
+anchor_bottom = 0.4747
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_shallows"
+
+[node name="craghollow" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8445
+anchor_top = 0.4153
+anchor_right = 0.8445
+anchor_bottom = 0.4153
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "craghollow"
+
+[node name="echo_downs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8837
+anchor_top = 0.4747
+anchor_right = 0.8837
+anchor_bottom = 0.4747
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "echo_downs"
+
+[node name="greymoor" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.9219
+anchor_top = 0.4153
+anchor_right = 0.9219
+anchor_bottom = 0.4153
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "greymoor"
+
+[node name="pebble_warren" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.7968
+anchor_top = 0.3549
+anchor_right = 0.7968
+anchor_bottom = 0.3549
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "pebble_warren"
+
+[node name="cairn_steps" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.7883
+anchor_top = 0.2860
+anchor_right = 0.7883
+anchor_bottom = 0.2860
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "cairn_steps"
+
+[node name="gullstone_bluffs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8392
+anchor_top = 0.5351
+anchor_right = 0.8392
+anchor_bottom = 0.5351
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "gullstone_bluffs"
+
+[node name="windward_downs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8307
+anchor_top = 0.6040
+anchor_right = 0.8307
+anchor_bottom = 0.6040
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "windward_downs"
+
+[node name="mistfield" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8816
+anchor_top = 0.3549
+anchor_right = 0.8816
+anchor_bottom = 0.3549
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "mistfield"
+
+[node name="sunken_hall" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.8731
+anchor_top = 0.2860
+anchor_right = 0.8731
+anchor_bottom = 0.2860
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "sunken_hall"
+
+[node name="hollow_deep" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.9198
+anchor_top = 0.5351
+anchor_right = 0.9198
+anchor_bottom = 0.5351
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "hollow_deep"
+
+[node name="beacon_crag" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.9113
+anchor_top = 0.6040
+anchor_right = 0.9113
+anchor_bottom = 0.6040
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "beacon_crag"
+
+[node name="stone_span" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.7226
+anchor_top = 0.4747
+anchor_right = 0.7226
+anchor_bottom = 0.4747
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "stone_span"
+
+[node name="riftway" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.6866
+anchor_top = 0.4153
+anchor_right = 0.6866
+anchor_bottom = 0.4153
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "riftway"
+
+[node name="gravewarren" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.6526
+anchor_top = 0.4747
+anchor_right = 0.6526
+anchor_bottom = 0.4747
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "gravewarren"
+
+[node name="shattercliffs" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.6208
+anchor_top = 0.4153
+anchor_right = 0.6208
+anchor_bottom = 0.4153
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "shattercliffs"
+
+[node name="deepshaft" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5933
+anchor_top = 0.4747
+anchor_right = 0.5933
+anchor_bottom = 0.4747
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "deepshaft"
+
+[node name="hollowgate" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.5700
+anchor_top = 0.4153
+anchor_right = 0.5700
+anchor_bottom = 0.4153
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "hollowgate"
+
+[node name="CoreGate" type="Control" parent="MoveableWindows/WorldMap/MapArea/Pins"]
+layout_mode = 1
+anchor_left = 0.4870
+anchor_top = 0.6550
+anchor_right = 0.4870
+anchor_bottom = 0.6550
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "__core__"

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnm8gdq5w44qj"
-path="res://.godot/imported/_gen_sunken_hall.png-2e3d0b0f6cb9325239320fc5797373ba.ctex"
+uid="uid://oitrx54dmooc"
+path="res://.godot/imported/_wm_core_overlay.png-e2df8ad6a4e4b63a7589f6a4efb43b67.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://_gen_sunken_hall.png"
-dest_files=["res://.godot/imported/_gen_sunken_hall.png-2e3d0b0f6cb9325239320fc5797373ba.ctex"]
+source_file="res://tools/_wm_core_overlay.png"
+dest_files=["res://.godot/imported/_wm_core_overlay.png-e2df8ad6a4e4b63a7589f6a4efb43b67.ctex"]
 
 [params]
 

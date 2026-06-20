@@ -44,19 +44,23 @@ static func _ensure_loaded() -> void:
 	if _loaded:
 		return
 	_loaded = true
-	var dir := DirAccess.open(VFX_DIR)
-	if dir == null:
-		push_warning("VfxCatalog: VFX folder not found (%s) — run tools/gen_vfx_effects.gd" % VFX_DIR)
+	# Use ResourceLoader.list_directory (NOT raw DirAccess): in an exported build
+	# Godot converts .tres → binary .res and writes a .remap sidecar, so a raw
+	# directory scan for the "tres" extension finds nothing and every VFX silently
+	# vanishes. ResourceLoader.list_directory is remap-aware and returns the
+	# loadable resource names — the same export-safe pattern ResourceManager uses.
+	var items := ResourceLoader.list_directory(VFX_DIR)
+	if items.is_empty():
+		push_warning("VfxCatalog: no VFX resources found in %s — run tools/gen_vfx_effects.gd" % VFX_DIR)
 		return
-	dir.list_dir_begin()
-	var fname := dir.get_next()
-	while fname != "":
-		if not dir.current_is_dir() and fname.get_extension() == "tres":
-			var res = load("%s/%s" % [VFX_DIR, fname])
-			if res is VfxEffectData and res.effect_key != "":
-				_defs[res.effect_key] = _def_from_resource(res)
-		fname = dir.get_next()
-	dir.list_dir_end()
+	for item_name in items:
+		if item_name.ends_with("/"):
+			continue  # subdirectory; the VFX folder is flat
+		if not (item_name.ends_with(".tres") or item_name.ends_with(".res")):
+			continue
+		var res = ResourceLoader.load("%s/%s" % [VFX_DIR, item_name])
+		if res is VfxEffectData and res.effect_key != "":
+			_defs[res.effect_key] = _def_from_resource(res)
 
 
 ## Flattens a VfxEffectData into the recipe dict consumers read.

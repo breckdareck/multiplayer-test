@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=44 format=3 uid="uid://mtw60mg8lyd6"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://mtw60mg8lyd6"]
 
 [ext_resource type="Texture2D" uid="uid://bshcalc66raf" path="res://assets/sprites/MiniBeastmens/MiniBeastmens/Outline/MiniBearWarrior-Sheet.png" id="1_s01a2"]
 
@@ -200,7 +200,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_xvq7j")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -247,7 +247,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pn5u8")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -273,7 +273,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3nkrq")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -284,7 +284,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_c6lfi")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -301,7 +301,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_oqarn")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -324,7 +324,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_u7qhq")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

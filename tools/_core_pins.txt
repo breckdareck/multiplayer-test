@@ -1,0 +1,199 @@
+
+[node name="CoreArea" type="TextureRect" parent="MoveableWindows/WorldMap"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("core_bg")
+expand_mode = 1
+
+[node name="CoreEdges" type="Control" parent="MoveableWindows/WorldMap/CoreArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("wm_edges")
+
+[node name="CorePins" type="Control" parent="MoveableWindows/WorldMap/CoreArea"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="emberwatch" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5000
+anchor_top = 0.0700
+anchor_right = 0.5000
+anchor_bottom = 0.0700
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "emberwatch"
+
+[node name="deep_woods" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.8201
+anchor_top = 0.2676
+anchor_right = 0.8201
+anchor_bottom = 0.2676
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "deep_woods"
+
+[node name="keep" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.8198
+anchor_top = 0.5878
+anchor_right = 0.8198
+anchor_bottom = 0.5878
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "keep"
+
+[node name="mustering_fields" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5657
+anchor_top = 0.7433
+anchor_right = 0.5657
+anchor_bottom = 0.7433
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "mustering_fields"
+
+[node name="the_scorchline" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.3234
+anchor_top = 0.6450
+anchor_right = 0.3234
+anchor_bottom = 0.6450
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_scorchline"
+
+[node name="emberscar" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.2876
+anchor_top = 0.4387
+anchor_right = 0.2876
+anchor_bottom = 0.4387
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "emberscar"
+
+[node name="cinderwaste" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.4268
+anchor_top = 0.3252
+anchor_right = 0.4268
+anchor_bottom = 0.3252
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "cinderwaste"
+
+[node name="weave" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5657
+anchor_top = 0.3667
+anchor_right = 0.5657
+anchor_bottom = 0.3667
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "weave"
+
+[node name="the_unraveling" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5858
+anchor_top = 0.4650
+anchor_right = 0.5858
+anchor_bottom = 0.4650
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "the_unraveling"
+
+[node name="ashvigil" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5264
+anchor_top = 0.5016
+anchor_right = 0.5264
+anchor_bottom = 0.5016
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "ashvigil"
+
+[node name="warlord" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.5000
+anchor_top = 0.4700
+anchor_right = 0.5000
+anchor_bottom = 0.4700
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "warlord"
+
+[node name="SurfaceGate" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+layout_mode = 1
+anchor_left = 0.0780
+anchor_top = 0.0900
+anchor_right = 0.0780
+anchor_bottom = 0.0900
+offset_left = -12.0
+offset_top = -12.0
+offset_right = 12.0
+offset_bottom = 12.0
+mouse_filter = 2
+script = ExtResource("wm_pin")
+map_id = "__surface__"

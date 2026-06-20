@@ -1,15 +1,6 @@
-[gd_scene load_steps=51 format=4]
-[ext_resource type="Texture2D" path="res://assets/sprites/stone_columns.png" id="gen_columns"]
-[ext_resource type="Script" path="res://scripts/Enemy/enemy_spawner.gd" id="gen_spw"]
-[ext_resource type="Script" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="gen_msp"]
-[ext_resource type="PackedScene" uid="uid://dvymxl60snfn8" path="res://scenes/NPC/Minifolks/mithril_hare.tscn" id="gen_mob0"]
-[ext_resource type="PackedScene" uid="uid://b7uy8wgb0j1t3" path="res://scenes/NPC/Beastmen/deer_druid.tscn" id="gen_mob1"]
-[ext_resource type="PackedScene" uid="uid://dppxdoxl4kf2k" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="gen_mob2"]
-[ext_resource type="PackedScene" uid="uid://cppmohti6r7s0" path="res://scenes/NPC/war_goblin.tscn" id="gen_mob3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/bridge_tiles.png" id="gen_bridge"]
+[gd_scene format=4 uid="uid://brwex2hh8j1uh"]
 
 [ext_resource type="Script" uid="uid://dfj1ny2sygjrj" path="res://scripts/Gameplay/map_base.gd" id="1_p8yym"]
-[ext_resource type="PackedScene" uid="uid://cvbk0n8a7q2x1" path="res://scenes/Gameplay/village_background.tscn" id="2_fik1o"]
 [ext_resource type="Script" uid="uid://b1ruh77vt7mdu" path="res://scripts/VFX/damage_numbers.gd" id="2_rrhmt"]
 [ext_resource type="PackedScene" uid="uid://brfb5t5im33fl" path="res://scenes/Gameplay/portal.tscn" id="3_76n2i"]
 [ext_resource type="Texture2D" uid="uid://jorjvuc5wn72" path="res://assets/sprites/world_tileset.png" id="4_kt7l5"]
@@ -21,6 +12,12 @@
 [ext_resource type="Script" uid="uid://br1domvn1uea5" path="res://scripts/Gameplay/ladder.gd" id="9_rrhmt"]
 [ext_resource type="Script" uid="uid://b4ed7py37e6nt" path="res://scripts/Gameplay/enemy_multiplayer_spawner.gd" id="conv_msp"]
 [ext_resource type="Script" uid="uid://bwpy3okndk0cu" path="res://scripts/Enemy/enemy_spawner.gd" id="conv_spw"]
+[ext_resource type="Texture2D" uid="uid://b5bk2p47185w5" path="res://assets/sprites/bridge_tiles.png" id="gen_bridge"]
+[ext_resource type="Texture2D" uid="uid://5xnpr784kk8e" path="res://assets/sprites/stone_columns.png" id="gen_columns"]
+[ext_resource type="PackedScene" uid="uid://dvymxl60snfn8" path="res://scenes/NPC/Minifolks/mithril_hare.tscn" id="gen_mob0"]
+[ext_resource type="PackedScene" uid="uid://b7uy8wgb0j1t3" path="res://scenes/NPC/Beastmen/deer_druid.tscn" id="gen_mob1"]
+[ext_resource type="PackedScene" uid="uid://dppxdoxl4kf2k" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="gen_mob2"]
+[ext_resource type="PackedScene" uid="uid://cppmohti6r7s0" path="res://scenes/NPC/war_goblin.tscn" id="gen_mob3"]
 [ext_resource type="Texture2D" uid="uid://cabu52s5bxi2l" path="res://assets/sprites/grass_slopes.png" id="gen_slopes"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
@@ -527,7 +524,6 @@ texture = ExtResource("gen_slopes")
 
 [sub_resource type="TileSetAtlasSource" id="GenBridgeAtlas"]
 texture = ExtResource("gen_bridge")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 1:0/0 = 0
@@ -537,7 +533,6 @@ texture_region_size = Vector2i(16, 16)
 
 [sub_resource type="TileSetAtlasSource" id="GenColumnAtlas"]
 texture = ExtResource("gen_columns")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -578,7 +573,7 @@ sources/5 = SubResource("GenBridgeAtlas")
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_p57ef"]
 
 [sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(4, 89)
+size = Vector2(4, 25)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_fik1o"]
 load_path = "res://.godot/imported/world_tileset.png-61a32465f33c3d9d3bfecb75b6485009.ctex"
@@ -588,104 +583,140 @@ atlas = SubResource("CompressedTexture2D_fik1o")
 region = Rect2(145, 52, 4, 12)
 
 [sub_resource type="RectangleShape2D" id="RectShape_C1"]
-size = Vector2(4, 137)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C2"]
-size = Vector2(4, 105)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C3"]
-size = Vector2(4, 89)
-
-
-[sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(4, 25)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C1"]
-size = Vector2(4, 73)
-
-
-[sub_resource type="RectangleShape2D" id="RectShape_C0"]
-size = Vector2(4, 25)
-
-[sub_resource type="RectangleShape2D" id="RectShape_C1"]
 size = Vector2(4, 89)
 
 [sub_resource type="RectangleShape2D" id="RectShape_C2"]
 size = Vector2(4, 89)
 
-[node name="Game4" type="Node2D"]
+[node name="Game4" type="Node2D" unique_id=512443018]
 script = ExtResource("1_p8yym")
 bgm_path = "res://assets/music/emberwilds_keep.ogg"
 display_name = "Hollowgate"
 camera_top_padding = 430
 camera_bottom_padding = -105
 
-[node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="."]
+[node name="DmgNumberSpawner" type="MultiplayerSpawner" parent="." unique_id=1529975798]
 spawn_path = NodePath("..")
 script = ExtResource("2_rrhmt")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=555812556]
 position = Vector2(-119, -285)
 zoom = Vector2(4, 4)
 process_callback = 0
 limit_enabled = false
 position_smoothing_enabled = true
 
-[node name="PlayerSpawn" type="Marker2D" parent="."]
+[node name="PlayerSpawn" type="Marker2D" parent="." unique_id=1540636641]
 position = Vector2(-39, 83)
 
-[node name="TileMap" type="TileMap" parent="."]
+[node name="TileMap" type="TileMap" parent="." unique_id=169712193]
 position = Vector2(-119, -269)
 tile_set = SubResource("TileSet_lbhrr")
 format = 2
 
-[node name="Background" type="TileMapLayer" parent="TileMap"]
+[node name="Background" type="TileMapLayer" parent="TileMap" unique_id=474999261]
 z_index = -3
 use_parent_material = true
-tile_map_data = PackedByteArray("AAAIAA0ABwAAAAQAAAAIAA4ABwAAAAUAAAAIAA8ABwAAAAUAAAAIABAABwAAAAUAAAAIABEABwAAAAUAAAAIABIABwAAAAUAAAAIABMABwAAAAUAAAAIABQABwAAAAUAAAAIABUABwAAAAUAAAAIABYABwAAAAUAAAAIABcABwAAAAUAAAAIABgABwAAAAUAAAAIABkABwAAAAIAAAAJAA0ABwABAAQAAAAJAA4ABwABAAUAAAAJAA8ABwABAAUAAAAJABAABwABAAUAAAAJABEABwABAAUAAAAJABIABwABAAUAAAAJABMABwABAAUAAAAJABQABwABAAUAAAAJABUABwABAAUAAAAJABYABwABAAUAAAAJABcABwABAAUAAAAJABgABwABAAUAAAAJABkABwABAAIAAAAKAA0ABwACAAQAAAAKAA4ABwACAAUAAAAKAA8ABwACAAUAAAAKABAABwACAAUAAAAKABEABwACAAUAAAAKABIABwACAAUAAAAKABMABwACAAUAAAAKABQABwACAAUAAAAKABUABwACAAUAAAAKABYABwACAAUAAAAKABcABwACAAUAAAAKABgABwACAAUAAAAKABkABwACAAIAAAAWABEABwAAAAMAAAAWABIABwAAAAYAAAAWABMABwAAAAYAAAAWABQABwAAAAYAAAAWABUABwAAAAYAAAAWABYABwAAAAYAAAAWABcABwAAAAYAAAAWABgABwAAAAYAAAAWABkABwAAAAIAAAAXABEABwACAAMAAAAXABIABwACAAYAAAAXABMABwACAAYAAAAXABQABwACAAYAAAAXABUABwACAAYAAAAXABYABwACAAYAAAAXABcABwACAAYAAAAXABgABwACAAYAAAAXABkABwACAAIAAAAoAA0ABwAAAAAAAAAoAA4ABwAAAAEAAAAoAA8ABwAAAAEAAAAnABAABwAAAAEAAAAnABEABwAAAAEAAAAnABIABwAAAAEAAAAnABMABwAAAAEAAAAnABQABwAAAAEAAAAmABUABwAAAAEAAAAmABYABwAAAAEAAAAmABcABwAAAAEAAAAmABgABwAAAAEAAAAmABkABwAAAAIAAAApAA0ABwACAAAAAAApAA4ABwACAAEAAAApAA8ABwACAAEAAAAoABAABwACAAEAAAAoABEABwACAAEAAAAoABIABwACAAEAAAAoABMABwACAAEAAAAoABQABwACAAEAAAAnABUABwACAAEAAAAnABYABwACAAEAAAAnABcABwACAAEAAAAnABgABwACAAEAAAAnABkABwACAAIAAAA0ABAABwAAAAMAAAA0ABEABwAAAAEAAAA0ABIABwAAAAEAAAA0ABMABwAAAAEAAAA0ABQABwAAAAEAAAA0ABUABwAAAAEAAAA0ABYABwAAAAEAAAA0ABcABwAAAAEAAAA0ABgABwAAAAEAAAA0ABkABwAAAAIAAAA1ABAABwABAAMAAAA1ABEABwABAAEAAAA1ABIABwABAAEAAAA1ABMABwABAAEAAAA1ABQABwABAAEAAAA1ABUABwABAAEAAAA1ABYABwABAAEAAAA1ABcABwABAAEAAAA1ABgABwABAAEAAAA1ABkABwABAAIAAAA2ABAABwACAAMAAAA2ABEABwACAAEAAAA2ABIABwACAAEAAAA2ABMABwACAAEAAAA2ABQABwACAAEAAAA2ABUABwACAAEAAAA2ABYABwACAAEAAAA2ABcABwACAAEAAAA2ABgABwACAAEAAAA2ABkABwACAAIAAABAAA0ABwAAAAQAAABAAA4ABwAAAAYAAABAAA8ABwAAAAYAAABAABAABwAAAAYAAABAABEABwAAAAYAAABAABIABwAAAAYAAABAABMABwAAAAYAAABAABQABwAAAAYAAABAABUABwAAAAYAAABAABYABwAAAAYAAABAABcABwAAAAYAAABAABgABwAAAAYAAABAABkABwAAAAIAAABBAA0ABwACAAQAAABBAA4ABwACAAYAAABBAA8ABwACAAYAAABBABAABwACAAYAAABBABEABwACAAYAAABBABIABwACAAYAAABBABMABwACAAYAAABBABQABwACAAYAAABBABUABwACAAYAAABBABYABwACAAYAAABBABcABwACAAYAAABBABgABwACAAYAAABBABkABwACAAIAAAAcABkABwAAAAcAAAAdABkABwABAAcAAAAeABkABwABAAcAAAAfABkABwABAAcAAAAgABkABwABAAcAAAAhABkABwACAAcAAAA=")
+tile_map_data = PackedByteArray("AAAIAA0ABwAAAAQAAAAIAA4ABwAAAAUAAAAIAA8ABwAAAAUAAAAIABAABwAAAAUAAAAIABEABwAAAAUAAAAIABIABwAAAAUAAAAIABMABwAAAAUAAAAIABQABwAAAAUAAAAIABUABwAAAAUAAAAIABYABwAAAAUAAAAIABcABwAAAAUAAAAIABgABwAAAAUAAAAIABkABwAAAAIAAAAJAA0ABwABAAQAAAAJAA4ABwABAAUAAAAJAA8ABwABAAUAAAAJABAABwABAAUAAAAJABEABwABAAUAAAAJABIABwABAAUAAAAJABMABwABAAUAAAAJABQABwABAAUAAAAJABUABwABAAUAAAAJABYABwABAAUAAAAJABcABwABAAUAAAAJABgABwABAAUAAAAJABkABwABAAIAAAAKAA0ABwACAAQAAAAKAA4ABwACAAUAAAAKAA8ABwACAAUAAAAKABAABwACAAUAAAAKABEABwACAAUAAAAKABIABwACAAUAAAAKABMABwACAAUAAAAKABQABwACAAUAAAAKABUABwACAAUAAAAKABYABwACAAUAAAAKABcABwACAAUAAAAKABgABwACAAUAAAAKABkABwACAAIAAAAWABEABwAAAAMAAAAWABIABwAAAAYAAAAWABMABwAAAAYAAAAWABQABwAAAAYAAAAWABUABwAAAAYAAAAWABYABwAAAAYAAAAWABcABwAAAAYAAAAWABgABwAAAAYAAAAWABkABwAAAAIAAAAXABEABwACAAMAAAAXABIABwACAAYAAAAXABMABwACAAYAAAAXABQABwACAAYAAAAXABUABwACAAYAAAAXABYABwACAAYAAAAXABcABwACAAYAAAAXABgABwACAAYAAAAXABkABwACAAIAAAAmABUABwAAAAEAAAAmABYABwAAAAEAAAAmABcABwAAAAEAAAAmABgABwAAAAEAAAAmABkABwAAAAIAAAAnABUABwACAAEAAAAnABYABwACAAEAAAAnABcABwACAAEAAAAnABgABwACAAEAAAAnABkABwACAAIAAAA0ABAABwAAAAMAAAA0ABEABwAAAAEAAAA0ABIABwAAAAEAAAA0ABMABwAAAAEAAAA0ABQABwAAAAEAAAA0ABUABwAAAAEAAAA0ABYABwAAAAEAAAA0ABcABwAAAAEAAAA0ABgABwAAAAEAAAA0ABkABwAAAAIAAAA1ABAABwABAAMAAAA1ABEABwABAAEAAAA1ABIABwABAAEAAAA1ABMABwABAAEAAAA1ABQABwABAAEAAAA1ABUABwABAAEAAAA1ABYABwABAAEAAAA1ABcABwABAAEAAAA1ABgABwABAAEAAAA1ABkABwABAAIAAAA2ABAABwACAAMAAAA2ABEABwACAAEAAAA2ABIABwACAAEAAAA2ABMABwACAAEAAAA2ABQABwACAAEAAAA2ABUABwACAAEAAAA2ABYABwACAAEAAAA2ABcABwACAAEAAAA2ABgABwACAAEAAAA2ABkABwACAAIAAABAAA0ABwAAAAQAAABAAA4ABwAAAAYAAABAAA8ABwAAAAYAAABAABAABwAAAAYAAABAABEABwAAAAYAAABAABIABwAAAAYAAABAABMABwAAAAYAAABAABQABwAAAAYAAABAABUABwAAAAYAAABAABYABwAAAAYAAABAABcABwAAAAYAAABAABgABwAAAAYAAABAABkABwAAAAIAAABBAA0ABwACAAQAAABBAA4ABwACAAYAAABBAA8ABwACAAYAAABBABAABwACAAYAAABBABEABwACAAYAAABBABIABwACAAYAAABBABMABwACAAYAAABBABQABwACAAYAAABBABUABwACAAYAAABBABYABwACAAYAAABBABcABwACAAYAAABBABgABwACAAYAAABBABkABwACAAIAAAAcABkABwAAAAcAAAAdABkABwABAAcAAAAeABkABwABAAcAAAAfABkABwABAAcAAAAgABkABwABAAcAAAAhABkABwACAAcAAAAnABAABwACAAEAAAAnABEABwACAAEAAAAnABIABwACAAEAAAAnABMABwACAAEAAAAnABQABwACAAEAAAAmABAABwAAAAEAAAAmABEABwAAAAEAAAAmABIABwAAAAEAAAAmABMABwAAAAEAAAAmABQABwAAAAEAAAAnAA0ABwACAAAAAAAnAA4ABwACAAEAAAAnAA8ABwACAAEAAAAmAA0ABwAAAAAAAAAmAA4ABwAAAAEAAAAmAA8ABwAAAAEAAAA=")
 tile_set = ExtResource("8_yomll")
 
-[node name="Background2" type="TileMapLayer" parent="TileMap"]
-tile_map_data = PackedByteArray("")
+[node name="Background2" type="TileMapLayer" parent="TileMap" unique_id=1429852219]
 z_index = -2
 use_parent_material = true
 tile_set = ExtResource("8_yomll")
 
-[node name="Platform" type="TileMapLayer" parent="TileMap"]
+[node name="Platform" type="TileMapLayer" parent="TileMap" unique_id=721860625]
 use_parent_material = true
 tile_map_data = PackedByteArray("AAAOABMAAQARAAkAAAAPABMAAQASAAkAAAAQABMAAQASAAkAAAARABMAAQASAAkAAAASABMAAQASAAkAAAATABMAAQASAAkAAAAUABMAAQASAAkAAAAVABMAAQASAAkAAAAWABMAAQASAAkAAAAXABMAAQASAAkAAAAYABMAAQASAAkAAAAZABMAAQASAAkAAAAaABMAAQASAAkAAAAbABMAAQASAAkAAAAcABMAAQASAAkAAAAdABMAAQATAAkAAAAmABMAAQARAAkAAAAnABMAAQASAAkAAAAoABMAAQASAAkAAAApABMAAQASAAkAAAAqABMAAQASAAkAAAArABMAAQASAAkAAAAsABMAAQASAAkAAAAtABMAAQASAAkAAAAuABMAAQASAAkAAAAvABMAAQASAAkAAAAwABMAAQASAAkAAAAxABMAAQASAAkAAAAyABMAAQASAAkAAAAzABMAAQASAAkAAAA0ABMAAQASAAkAAAA1ABMAAQASAAkAAAA2ABMAAQASAAkAAAA3ABMAAQATAAkAAAACABcAAQARAAkAAAADABcAAQASAAkAAAAEABcAAQASAAkAAAAFABcAAQASAAkAAAAGABcAAQASAAkAAAAHABcAAQATAAkAAAA=")
 tile_set = ExtResource("8_yomll")
 
-[node name="Mid" type="TileMapLayer" parent="TileMap"]
+[node name="Mid" type="TileMapLayer" parent="TileMap" unique_id=1466802956]
 use_parent_material = true
 tile_map_data = PackedByteArray("AAAAABoAAQARAAUAAAAAABsAAQARAAYAAAAAABwAAQARAAYAAAAAAB0AAQARAAYAAAAAAB4AAQARAAYAAAAAAB8AAQARAAYAAAAAACAAAQARAAYAAAAAACEAAQARAAYAAAAAACIAAQACAAgAAAABABoAAQASAAUAAAABABsAAQASAAYAAAABABwAAQASAAYAAAABAB0AAQASAAYAAAABAB4AAQASAAYAAAABAB8AAQASAAYAAAABACAAAQASAAYAAAABACEAAQASAAYAAAABACIAAQASAAYAAAACABoAAQASAAUAAAACABsAAQASAAYAAAACABwAAQASAAYAAAACAB0AAQASAAYAAAACAB4AAQASAAYAAAACAB8AAQASAAYAAAACACAAAQASAAYAAAACACEAAQASAAYAAAACACIAAQASAAYAAAADABoAAQASAAUAAAADABsAAQASAAYAAAADABwAAQASAAYAAAADAB0AAQADAAYAAAADAB4AAQADAAcAAAADAB8AAQADAAgAAAADACAAAQASAAYAAAADACEAAQASAAYAAAADACIAAQASAAYAAAAEABoAAQASAAUAAAAEABsAAQASAAYAAAAEABwAAQASAAYAAAAEAB0AAQAEAAYAAAAEAB4AAQAEAAcAAAAEAB8AAQAEAAgAAAAEACAAAQASAAYAAAAEACEAAQASAAYAAAAEACIAAQASAAYAAAAFABoAAQASAAUAAAAFABsAAQASAAYAAAAFABwAAQASAAYAAAAFAB0AAQAEAAYAAAAFAB4AAQAEAAcAAAAFAB8AAQAEAAgAAAAFACAAAQASAAYAAAAFACEAAQASAAYAAAAFACIAAQASAAYAAAAGABoAAQASAAUAAAAGABsAAQASAAYAAAAGABwAAQASAAYAAAAGAB0AAQAEAAYAAAAGAB4AAQAEAAcAAAAGAB8AAQAEAAgAAAAGACAAAQASAAYAAAAGACEAAQASAAYAAAAGACIAAQASAAYAAAAHABoAAQASAAUAAAAHABsAAQASAAYAAAAHABwAAQASAAYAAAAHAB0AAQAEAAYAAAAHAB4AAQAEAAcAAAAHAB8AAQAEAAgAAAAHACAAAQASAAYAAAAHACEAAQASAAYAAAAHACIAAQASAAYAAAAIABoAAQASAAUAAAAIABsAAQASAAYAAAAIABwAAQASAAYAAAAIAB0AAQAEAAYAAAAIAB4AAQAEAAcAAAAIAB8AAQAEAAgAAAAIACAAAQASAAYAAAAIACEAAQASAAYAAAAIACIAAQASAAYAAAAJABoAAQASAAUAAAAJABsAAQASAAYAAAAJABwAAQASAAYAAAAJAB0AAQAEAAYAAAAJAB4AAQAEAAcAAAAJAB8AAQAEAAgAAAAJACAAAQASAAYAAAAJACEAAQASAAYAAAAJACIAAQASAAYAAAAKABoAAQASAAUAAAAKABsAAQASAAYAAAAKABwAAQASAAYAAAAKAB0AAQAEAAYAAAAKAB4AAQAEAAcAAAAKAB8AAQAEAAgAAAAKACAAAQASAAYAAAAKACEAAQASAAYAAAAKACIAAQASAAYAAAALABoAAQASAAUAAAALABsAAQASAAYAAAALABwAAQASAAYAAAALAB0AAQAEAAYAAAALAB4AAQAEAAcAAAALAB8AAQAEAAgAAAALACAAAQASAAYAAAALACEAAQASAAYAAAALACIAAQASAAYAAAAMABoAAQASAAUAAAAMABsAAQASAAYAAAAMABwAAQASAAYAAAAMAB0AAQAEAAYAAAAMAB4AAQAEAAcAAAAMAB8AAQAEAAgAAAAMACAAAQASAAYAAAAMACEAAQASAAYAAAAMACIAAQASAAYAAAANABoAAQASAAUAAAANABsAAQASAAYAAAANABwAAQASAAYAAAANAB0AAQAEAAYAAAANAB4AAQAEAAcAAAANAB8AAQAEAAgAAAANACAAAQASAAYAAAANACEAAQASAAYAAAANACIAAQASAAYAAAAOABoAAQASAAUAAAAOABsAAQASAAYAAAAOABwAAQASAAYAAAAOAB0AAQAEAAYAAAAOAB4AAQAEAAcAAAAOAB8AAQAEAAgAAAAOACAAAQASAAYAAAAOACEAAQASAAYAAAAOACIAAQASAAYAAAAPABoAAQASAAUAAAAPABsAAQASAAYAAAAPABwAAQASAAYAAAAPAB0AAQAEAAYAAAAPAB4AAQAEAAcAAAAPAB8AAQAEAAgAAAAPACAAAQASAAYAAAAPACEAAQASAAYAAAAPACIAAQASAAYAAAAQABoAAQASAAUAAAAQABsAAQASAAYAAAAQABwAAQASAAYAAAAQAB0AAQAEAAYAAAAQAB4AAQAEAAcAAAAQAB8AAQAEAAgAAAAQACAAAQASAAYAAAAQACEAAQASAAYAAAAQACIAAQASAAYAAAARABoAAQASAAUAAAARABsAAQASAAYAAAARABwAAQASAAYAAAARAB0AAQAEAAYAAAARAB4AAQAEAAcAAAARAB8AAQAEAAgAAAARACAAAQASAAYAAAARACEAAQASAAYAAAARACIAAQASAAYAAAASABoAAQASAAUAAAASABsAAQASAAYAAAASABwAAQASAAYAAAASAB0AAQAEAAYAAAASAB4AAQAEAAcAAAASAB8AAQAEAAgAAAASACAAAQASAAYAAAASACEAAQASAAYAAAASACIAAQASAAYAAAATABoAAQASAAUAAAATABsAAQASAAYAAAATABwAAQASAAYAAAATAB0AAQAEAAYAAAATAB4AAQAEAAcAAAATAB8AAQAEAAgAAAATACAAAQASAAYAAAATACEAAQASAAYAAAATACIAAQASAAYAAAAUABoAAQASAAUAAAAUABsAAQASAAYAAAAUABwAAQASAAYAAAAUAB0AAQAEAAYAAAAUAB4AAQAEAAcAAAAUAB8AAQAEAAgAAAAUACAAAQASAAYAAAAUACEAAQASAAYAAAAUACIAAQASAAYAAAAVABoAAQASAAUAAAAVABsAAQASAAYAAAAVABwAAQASAAYAAAAVAB0AAQAEAAYAAAAVAB4AAQAEAAcAAAAVAB8AAQAEAAgAAAAVACAAAQASAAYAAAAVACEAAQASAAYAAAAVACIAAQASAAYAAAAWABoAAQASAAUAAAAWABsAAQASAAYAAAAWABwAAQASAAYAAAAWAB0AAQAEAAYAAAAWAB4AAQAEAAcAAAAWAB8AAQAEAAgAAAAWACAAAQASAAYAAAAWACEAAQASAAYAAAAWACIAAQASAAYAAAAXABoAAQASAAUAAAAXABsAAQASAAYAAAAXABwAAQASAAYAAAAXAB0AAQAEAAYAAAAXAB4AAQAEAAcAAAAXAB8AAQAEAAgAAAAXACAAAQASAAYAAAAXACEAAQASAAYAAAAXACIAAQASAAYAAAAYABoAAQASAAUAAAAYABsAAQASAAYAAAAYABwAAQASAAYAAAAYAB0AAQAEAAYAAAAYAB4AAQAEAAcAAAAYAB8AAQAEAAgAAAAYACAAAQASAAYAAAAYACEAAQASAAYAAAAYACIAAQASAAYAAAAZABoAAQASAAUAAAAZABsAAQASAAYAAAAZABwAAQASAAYAAAAZAB0AAQAEAAYAAAAZAB4AAQAEAAcAAAAZAB8AAQAEAAgAAAAZACAAAQASAAYAAAAZACEAAQASAAYAAAAZACIAAQASAAYAAAAaABoAAQASAAUAAAAaABsAAQASAAYAAAAaABwAAQASAAYAAAAaAB0AAQAEAAYAAAAaAB4AAQAEAAcAAAAaAB8AAQAEAAgAAAAaACAAAQASAAYAAAAaACEAAQASAAYAAAAaACIAAQASAAYAAAAbABoAAQASAAUAAAAbABsAAQASAAYAAAAbABwAAQASAAYAAAAbAB0AAQAEAAYAAAAbAB4AAQAEAAcAAAAbAB8AAQAEAAgAAAAbACAAAQASAAYAAAAbACEAAQASAAYAAAAbACIAAQASAAYAAAAcABoAAQASAAUAAAAcABsAAQASAAYAAAAcABwAAQASAAYAAAAcAB0AAQAEAAYAAAAcAB4AAQAEAAcAAAAcAB8AAQAEAAgAAAAcACAAAQASAAYAAAAcACEAAQASAAYAAAAcACIAAQASAAYAAAAdABoAAQASAAUAAAAdABsAAQASAAYAAAAdABwAAQASAAYAAAAdAB0AAQAEAAYAAAAdAB4AAQAEAAcAAAAdAB8AAQAEAAgAAAAdACAAAQASAAYAAAAdACEAAQASAAYAAAAdACIAAQASAAYAAAAeABoAAQASAAUAAAAeABsAAQASAAYAAAAeABwAAQASAAYAAAAeAB0AAQAEAAYAAAAeAB4AAQAEAAcAAAAeAB8AAQAEAAgAAAAeACAAAQASAAYAAAAeACEAAQASAAYAAAAeACIAAQASAAYAAAAfABoAAQASAAUAAAAfABsAAQASAAYAAAAfABwAAQASAAYAAAAfAB0AAQAEAAYAAAAfAB4AAQAEAAcAAAAfAB8AAQAEAAgAAAAfACAAAQASAAYAAAAfACEAAQASAAYAAAAfACIAAQASAAYAAAAgABoAAQASAAUAAAAgABsAAQASAAYAAAAgABwAAQASAAYAAAAgAB0AAQAEAAYAAAAgAB4AAQAEAAcAAAAgAB8AAQAEAAgAAAAgACAAAQASAAYAAAAgACEAAQASAAYAAAAgACIAAQASAAYAAAAhABoAAQASAAUAAAAhABsAAQASAAYAAAAhABwAAQASAAYAAAAhAB0AAQAEAAYAAAAhAB4AAQAEAAcAAAAhAB8AAQAEAAgAAAAhACAAAQASAAYAAAAhACEAAQASAAYAAAAhACIAAQASAAYAAAAiABoAAQASAAUAAAAiABsAAQASAAYAAAAiABwAAQASAAYAAAAiAB0AAQAEAAYAAAAiAB4AAQAEAAcAAAAiAB8AAQAEAAgAAAAiACAAAQASAAYAAAAiACEAAQASAAYAAAAiACIAAQASAAYAAAAjABoAAQASAAUAAAAjABsAAQASAAYAAAAjABwAAQASAAYAAAAjAB0AAQAEAAYAAAAjAB4AAQAEAAcAAAAjAB8AAQAEAAgAAAAjACAAAQASAAYAAAAjACEAAQASAAYAAAAjACIAAQASAAYAAAAkABoAAQASAAUAAAAkABsAAQASAAYAAAAkABwAAQASAAYAAAAkAB0AAQAEAAYAAAAkAB4AAQAEAAcAAAAkAB8AAQAEAAgAAAAkACAAAQASAAYAAAAkACEAAQASAAYAAAAkACIAAQASAAYAAAAlABoAAQASAAUAAAAlABsAAQASAAYAAAAlABwAAQASAAYAAAAlAB0AAQAEAAYAAAAlAB4AAQAEAAcAAAAlAB8AAQAEAAgAAAAlACAAAQASAAYAAAAlACEAAQASAAYAAAAlACIAAQASAAYAAAAmABoAAQASAAUAAAAmABsAAQASAAYAAAAmABwAAQASAAYAAAAmAB0AAQAEAAYAAAAmAB4AAQAEAAcAAAAmAB8AAQAEAAgAAAAmACAAAQASAAYAAAAmACEAAQASAAYAAAAmACIAAQASAAYAAAAnABoAAQASAAUAAAAnABsAAQASAAYAAAAnABwAAQASAAYAAAAnAB0AAQAEAAYAAAAnAB4AAQAEAAcAAAAnAB8AAQAEAAgAAAAnACAAAQASAAYAAAAnACEAAQASAAYAAAAnACIAAQASAAYAAAAoABoAAQASAAUAAAAoABsAAQASAAYAAAAoABwAAQASAAYAAAAoAB0AAQAEAAYAAAAoAB4AAQAEAAcAAAAoAB8AAQAEAAgAAAAoACAAAQASAAYAAAAoACEAAQASAAYAAAAoACIAAQASAAYAAAApABoAAQASAAUAAAApABsAAQASAAYAAAApABwAAQASAAYAAAApAB0AAQAEAAYAAAApAB4AAQAEAAcAAAApAB8AAQAEAAgAAAApACAAAQASAAYAAAApACEAAQASAAYAAAApACIAAQASAAYAAAAqABoAAQASAAUAAAAqABsAAQASAAYAAAAqABwAAQASAAYAAAAqAB0AAQAEAAYAAAAqAB4AAQAEAAcAAAAqAB8AAQAEAAgAAAAqACAAAQASAAYAAAAqACEAAQASAAYAAAAqACIAAQASAAYAAAArABoAAQASAAUAAAArABsAAQASAAYAAAArABwAAQASAAYAAAArAB0AAQAEAAYAAAArAB4AAQAEAAcAAAArAB8AAQAEAAgAAAArACAAAQASAAYAAAArACEAAQASAAYAAAArACIAAQASAAYAAAAsABoAAQASAAUAAAAsABsAAQASAAYAAAAsABwAAQASAAYAAAAsAB0AAQAEAAYAAAAsAB4AAQAEAAcAAAAsAB8AAQAEAAgAAAAsACAAAQASAAYAAAAsACEAAQASAAYAAAAsACIAAQASAAYAAAAtABoAAQASAAUAAAAtABsAAQASAAYAAAAtABwAAQASAAYAAAAtAB0AAQAEAAYAAAAtAB4AAQAEAAcAAAAtAB8AAQAEAAgAAAAtACAAAQASAAYAAAAtACEAAQASAAYAAAAtACIAAQASAAYAAAAuABoAAQASAAUAAAAuABsAAQASAAYAAAAuABwAAQASAAYAAAAuAB0AAQAEAAYAAAAuAB4AAQAEAAcAAAAuAB8AAQAEAAgAAAAuACAAAQASAAYAAAAuACEAAQASAAYAAAAuACIAAQASAAYAAAAvABoAAQASAAUAAAAvABsAAQASAAYAAAAvABwAAQASAAYAAAAvAB0AAQAEAAYAAAAvAB4AAQAEAAcAAAAvAB8AAQAEAAgAAAAvACAAAQASAAYAAAAvACEAAQASAAYAAAAvACIAAQASAAYAAAAwABoAAQASAAUAAAAwABsAAQASAAYAAAAwABwAAQASAAYAAAAwAB0AAQAEAAYAAAAwAB4AAQAEAAcAAAAwAB8AAQAEAAgAAAAwACAAAQASAAYAAAAwACEAAQASAAYAAAAwACIAAQASAAYAAAAxABoAAQASAAUAAAAxABsAAQASAAYAAAAxABwAAQASAAYAAAAxAB0AAQAEAAYAAAAxAB4AAQAEAAcAAAAxAB8AAQAEAAgAAAAxACAAAQASAAYAAAAxACEAAQASAAYAAAAxACIAAQASAAYAAAAyABoAAQASAAUAAAAyABsAAQASAAYAAAAyABwAAQASAAYAAAAyAB0AAQAEAAYAAAAyAB4AAQAEAAcAAAAyAB8AAQAEAAgAAAAyACAAAQASAAYAAAAyACEAAQASAAYAAAAyACIAAQASAAYAAAAzABoAAQASAAUAAAAzABsAAQASAAYAAAAzABwAAQASAAYAAAAzAB0AAQAEAAYAAAAzAB4AAQAEAAcAAAAzAB8AAQAEAAgAAAAzACAAAQASAAYAAAAzACEAAQASAAYAAAAzACIAAQASAAYAAAA0ABoAAQASAAUAAAA0ABsAAQASAAYAAAA0ABwAAQASAAYAAAA0AB0AAQAEAAYAAAA0AB4AAQAEAAcAAAA0AB8AAQAEAAgAAAA0ACAAAQASAAYAAAA0ACEAAQASAAYAAAA0ACIAAQASAAYAAAA1ABoAAQASAAUAAAA1ABsAAQASAAYAAAA1ABwAAQASAAYAAAA1AB0AAQAEAAYAAAA1AB4AAQAEAAcAAAA1AB8AAQAEAAgAAAA1ACAAAQASAAYAAAA1ACEAAQASAAYAAAA1ACIAAQASAAYAAAA2ABoAAQASAAUAAAA2ABsAAQASAAYAAAA2ABwAAQASAAYAAAA2AB0AAQAEAAYAAAA2AB4AAQAEAAcAAAA2AB8AAQAEAAgAAAA2ACAAAQASAAYAAAA2ACEAAQASAAYAAAA2ACIAAQASAAYAAAA3ABoAAQASAAUAAAA3ABsAAQASAAYAAAA3ABwAAQASAAYAAAA3AB0AAQAEAAYAAAA3AB4AAQAEAAcAAAA3AB8AAQAEAAgAAAA3ACAAAQASAAYAAAA3ACEAAQASAAYAAAA3ACIAAQASAAYAAAA4ABoAAQASAAUAAAA4ABsAAQASAAYAAAA4ABwAAQASAAYAAAA4AB0AAQAEAAYAAAA4AB4AAQAEAAcAAAA4AB8AAQAEAAgAAAA4ACAAAQASAAYAAAA4ACEAAQASAAYAAAA4ACIAAQASAAYAAAA5ABoAAQASAAUAAAA5ABsAAQASAAYAAAA5ABwAAQASAAYAAAA5AB0AAQAEAAYAAAA5AB4AAQAEAAcAAAA5AB8AAQAEAAgAAAA5ACAAAQASAAYAAAA5ACEAAQASAAYAAAA5ACIAAQASAAYAAAA6ABoAAQASAAUAAAA6ABsAAQASAAYAAAA6ABwAAQASAAYAAAA6AB0AAQAEAAYAAAA6AB4AAQAEAAcAAAA6AB8AAQAEAAgAAAA6ACAAAQASAAYAAAA6ACEAAQASAAYAAAA6ACIAAQASAAYAAAA7ABoAAQASAAUAAAA7ABsAAQASAAYAAAA7ABwAAQASAAYAAAA7AB0AAQAEAAYAAAA7AB4AAQAEAAcAAAA7AB8AAQAEAAgAAAA7ACAAAQASAAYAAAA7ACEAAQASAAYAAAA7ACIAAQASAAYAAAA8ABoAAQASAAUAAAA8ABsAAQASAAYAAAA8ABwAAQASAAYAAAA8AB0AAQAEAAYAAAA8AB4AAQAEAAcAAAA8AB8AAQAEAAgAAAA8ACAAAQASAAYAAAA8ACEAAQASAAYAAAA8ACIAAQASAAYAAAA9ABoAAQASAAUAAAA9ABsAAQASAAYAAAA9ABwAAQASAAYAAAA9AB0AAQAEAAYAAAA9AB4AAQAEAAcAAAA9AB8AAQAEAAgAAAA9ACAAAQASAAYAAAA9ACEAAQASAAYAAAA9ACIAAQASAAYAAAA+ABoAAQASAAUAAAA+ABsAAQASAAYAAAA+ABwAAQASAAYAAAA+AB0AAQAEAAYAAAA+AB4AAQAEAAcAAAA+AB8AAQAEAAgAAAA+ACAAAQASAAYAAAA+ACEAAQASAAYAAAA+ACIAAQASAAYAAAA/ABoAAQASAAUAAAA/ABsAAQASAAYAAAA/ABwAAQASAAYAAAA/AB0AAQAEAAYAAAA/AB4AAQAEAAcAAAA/AB8AAQAEAAgAAAA/ACAAAQASAAYAAAA/ACEAAQASAAYAAAA/ACIAAQASAAYAAABAABoAAQASAAUAAABAABsAAQASAAYAAABAABwAAQASAAYAAABAAB0AAQAEAAYAAABAAB4AAQAEAAcAAABAAB8AAQAEAAgAAABAACAAAQASAAYAAABAACEAAQASAAYAAABAACIAAQASAAYAAABBABoAAQASAAUAAABBABsAAQASAAYAAABBABwAAQASAAYAAABBAB0AAQAEAAYAAABBAB4AAQAEAAcAAABBAB8AAQAEAAgAAABBACAAAQASAAYAAABBACEAAQASAAYAAABBACIAAQASAAYAAABCABoAAQASAAUAAABCABsAAQASAAYAAABCABwAAQASAAYAAABCAB0AAQAEAAYAAABCAB4AAQAEAAcAAABCAB8AAQAEAAgAAABCACAAAQASAAYAAABCACEAAQASAAYAAABCACIAAQASAAYAAABDABoAAQASAAUAAABDABsAAQASAAYAAABDABwAAQASAAYAAABDAB0AAQAEAAYAAABDAB4AAQAEAAcAAABDAB8AAQAEAAgAAABDACAAAQASAAYAAABDACEAAQASAAYAAABDACIAAQASAAYAAABEABoAAQASAAUAAABEABsAAQASAAYAAABEABwAAQASAAYAAABEAB0AAQAEAAYAAABEAB4AAQAEAAcAAABEAB8AAQAEAAgAAABEACAAAQASAAYAAABEACEAAQASAAYAAABEACIAAQASAAYAAABFABoAAQASAAUAAABFABsAAQASAAYAAABFABwAAQASAAYAAABFAB0AAQAEAAYAAABFAB4AAQAEAAcAAABFAB8AAQAEAAgAAABFACAAAQASAAYAAABFACEAAQASAAYAAABFACIAAQASAAYAAABGABoAAQASAAUAAABGABsAAQASAAYAAABGABwAAQASAAYAAABGAB0AAQAEAAYAAABGAB4AAQAEAAcAAABGAB8AAQAEAAgAAABGACAAAQASAAYAAABGACEAAQASAAYAAABGACIAAQASAAYAAABHABoAAQASAAUAAABHABsAAQASAAYAAABHABwAAQASAAYAAABHAB0AAQAEAAYAAABHAB4AAQAEAAcAAABHAB8AAQAEAAgAAABHACAAAQASAAYAAABHACEAAQASAAYAAABHACIAAQASAAYAAABIABoAAQASAAUAAABIABsAAQASAAYAAABIABwAAQASAAYAAABIAB0AAQAEAAYAAABIAB4AAQAEAAcAAABIAB8AAQAEAAgAAABIACAAAQASAAYAAABIACEAAQASAAYAAABIACIAAQASAAYAAABJABoAAQASAAUAAABJABsAAQASAAYAAABJABwAAQASAAYAAABJAB0AAQAEAAYAAABJAB4AAQAEAAcAAABJAB8AAQAEAAgAAABJACAAAQASAAYAAABJACEAAQASAAYAAABJACIAAQASAAYAAABKABoAAQASAAUAAABKABsAAQASAAYAAABKABwAAQASAAYAAABKAB0AAQAEAAYAAABKAB4AAQAEAAcAAABKAB8AAQAEAAgAAABKACAAAQASAAYAAABKACEAAQASAAYAAABKACIAAQASAAYAAABLABoAAQASAAUAAABLABsAAQASAAYAAABLABwAAQASAAYAAABLAB0AAQAEAAYAAABLAB4AAQAEAAcAAABLAB8AAQAEAAgAAABLACAAAQASAAYAAABLACEAAQASAAYAAABLACIAAQASAAYAAABMABoAAQASAAUAAABMABsAAQASAAYAAABMABwAAQASAAYAAABMAB0AAQAFAAYAAABMAB4AAQAFAAcAAABMAB8AAQAFAAgAAABMACAAAQASAAYAAABMACEAAQASAAYAAABMACIAAQASAAYAAABNABoAAQASAAUAAABNABsAAQASAAYAAABNABwAAQASAAYAAABNAB0AAQASAAYAAABNAB4AAQASAAYAAABNAB8AAQASAAYAAABNACAAAQASAAYAAABNACEAAQASAAYAAABNACIAAQASAAYAAABOABoAAQASAAUAAABOABsAAQASAAYAAABOABwAAQASAAYAAABOAB0AAQASAAYAAABOAB4AAQASAAYAAABOAB8AAQASAAYAAABOACAAAQASAAYAAABOACEAAQASAAYAAABOACIAAQASAAYAAABPABoAAQATAAUAAABPABsAAQATAAYAAABPABwAAQATAAYAAABPAB0AAQATAAYAAABPAB4AAQATAAYAAABPAB8AAQATAAYAAABPACAAAQATAAYAAABPACEAAQATAAYAAABPACIAAQAGAAgAAAA=")
 tile_set = ExtResource("8_yomll")
 
-[node name="Killzone" parent="." instance=ExtResource("7_r5cd5")]
+[node name="Killzone" parent="." unique_id=1594673581 instance=ExtResource("7_r5cd5")]
 position = Vector2(-119, 355)
 monitoring = false
 monitorable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Killzone" unique_id=2012872523]
 shape = SubResource("WorldBoundaryShape2D_p57ef")
 debug_color = Color(0.9764706, 0, 0, 0.75686276)
 
-[node name="Platforms" type="Node2D" parent="."]
+[node name="Platforms" type="Node2D" parent="." unique_id=454921150]
 position = Vector2(-119, -269)
 
-[node name="Ladders" type="Node2D" parent="."]
+[node name="Ladders" type="Node2D" parent="." unique_id=1638722574]
 
-[node name="Ropes" type="Node2D" parent="."]
+[node name="Ropes" type="Node2D" parent="." unique_id=221391324]
 
-[node name="Players" type="Node2D" parent="."]
+[node name="C0" type="Area2D" parent="Ropes" unique_id=495805079]
+position = Vector2(-47, 110)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
 
-[node name="Enemies" type="Node2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C0" unique_id=2039758379]
+shape = SubResource("RectShape_C0")
 
-[node name="Projectiles" type="Node2D" parent="."]
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C0" unique_id=1251543438]
+offset_left = -2.0
+offset_top = -12.0
+offset_right = 2.0
+offset_bottom = 12.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
 
-[node name="ItemDrops" type="Node2D" parent="."]
+[node name="C1" type="Area2D" parent="Ropes" unique_id=2141060396]
+position = Vector2(177, 78)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
 
-[node name="GlobalDropHandler" type="Control" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C1" unique_id=1628390150]
+shape = SubResource("RectShape_C1")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C1" unique_id=296572065]
+offset_left = -2.0
+offset_top = -44.0
+offset_right = 2.0
+offset_bottom = 44.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C2" type="Area2D" parent="Ropes" unique_id=495945592]
+position = Vector2(593, 78)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("9_rrhmt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C2" unique_id=1547439678]
+shape = SubResource("RectShape_C2")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C2" unique_id=1909637029]
+offset_left = -2.0
+offset_top = -44.0
+offset_right = 2.0
+offset_bottom = 44.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="Players" type="Node2D" parent="." unique_id=1451802360]
+
+[node name="Enemies" type="Node2D" parent="." unique_id=596377183]
+
+[node name="Projectiles" type="Node2D" parent="." unique_id=74176520]
+
+[node name="ItemDrops" type="Node2D" parent="." unique_id=1925823476]
+
+[node name="GlobalDropHandler" type="Control" parent="." unique_id=2040397380]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -699,173 +730,114 @@ grow_vertical = 2
 mouse_filter = 1
 script = ExtResource("9_pjyxy")
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=666647223]
 
-
-
-[node name="Spawn_mithril_hare" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
+[node name="Spawn_mithril_hare" type="Node2D" parent="." unique_id=1355901656 node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
 enemy_scene = ExtResource("gen_mob0")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3")]
 spawn_container = NodePath("../Enemies")
 pool_size = 6
 
-[node name="M0" type="Marker2D" parent="Spawn_mithril_hare"]
+[node name="M0" type="Marker2D" parent="Spawn_mithril_hare" unique_id=1132958149]
 position = Vector2(81, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_mithril_hare"]
+[node name="M1" type="Marker2D" parent="Spawn_mithril_hare" unique_id=368381352]
 position = Vector2(529, 131)
 
-[node name="M2" type="Marker2D" parent="Spawn_mithril_hare"]
+[node name="M2" type="Marker2D" parent="Spawn_mithril_hare" unique_id=988890316]
 position = Vector2(977, 131)
 
-[node name="M3" type="Marker2D" parent="Spawn_mithril_hare"]
+[node name="M3" type="Marker2D" parent="Spawn_mithril_hare" unique_id=266917286]
 position = Vector2(561, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_mithril_hare" node_paths=PackedStringArray("enemy_spawner")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_mithril_hare" unique_id=624313369 node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dvymxl60snfn8")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
+script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_deer_druid" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
+[node name="Spawn_deer_druid" type="Node2D" parent="." unique_id=415730714 node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
 enemy_scene = ExtResource("gen_mob1")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2"), NodePath("M3")]
 spawn_container = NodePath("../Enemies")
 pool_size = 7
 
-[node name="M0" type="Marker2D" parent="Spawn_deer_druid"]
+[node name="M0" type="Marker2D" parent="Spawn_deer_druid" unique_id=2041315840]
 position = Vector2(193, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_deer_druid"]
+[node name="M1" type="Marker2D" parent="Spawn_deer_druid" unique_id=115266754]
 position = Vector2(641, 131)
 
-[node name="M2" type="Marker2D" parent="Spawn_deer_druid"]
+[node name="M2" type="Marker2D" parent="Spawn_deer_druid" unique_id=558739189]
 position = Vector2(1089, 131)
 
-[node name="M3" type="Marker2D" parent="Spawn_deer_druid"]
+[node name="M3" type="Marker2D" parent="Spawn_deer_druid" unique_id=999823481]
 position = Vector2(689, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer_druid" node_paths=PackedStringArray("enemy_spawner")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_deer_druid" unique_id=1836736529 node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://b7uy8wgb0j1t3")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
+script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_rabbit_wizard" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
+[node name="Spawn_rabbit_wizard" type="Node2D" parent="." unique_id=1302492616 node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
 enemy_scene = ExtResource("gen_mob2")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2")]
 spawn_container = NodePath("../Enemies")
 pool_size = 7
 
-[node name="M0" type="Marker2D" parent="Spawn_rabbit_wizard"]
+[node name="M0" type="Marker2D" parent="Spawn_rabbit_wizard" unique_id=1486241291]
 position = Vector2(305, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_rabbit_wizard"]
+[node name="M1" type="Marker2D" parent="Spawn_rabbit_wizard" unique_id=957990735]
 position = Vector2(753, 131)
 
-[node name="M2" type="Marker2D" parent="Spawn_rabbit_wizard"]
+[node name="M2" type="Marker2D" parent="Spawn_rabbit_wizard" unique_id=1870677133]
 position = Vector2(209, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_rabbit_wizard" node_paths=PackedStringArray("enemy_spawner")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_rabbit_wizard" unique_id=262231534 node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://dppxdoxl4kf2k")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
+script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="Spawn_war_goblin" type="Node2D" parent="." node_paths=PackedStringArray("spawn_locations", "spawn_container")]
-script = ExtResource("gen_spw")
+[node name="Spawn_war_goblin" type="Node2D" parent="." unique_id=580759596 node_paths=PackedStringArray("spawn_locations", "spawn_container")]
+script = ExtResource("conv_spw")
 enemy_scene = ExtResource("gen_mob3")
 spawn_locations = [NodePath("M0"), NodePath("M1"), NodePath("M2")]
 spawn_container = NodePath("../Enemies")
 pool_size = 6
 
-[node name="M0" type="Marker2D" parent="Spawn_war_goblin"]
+[node name="M0" type="Marker2D" parent="Spawn_war_goblin" unique_id=1327471015]
 position = Vector2(417, 131)
 
-[node name="M1" type="Marker2D" parent="Spawn_war_goblin"]
+[node name="M1" type="Marker2D" parent="Spawn_war_goblin" unique_id=1730327382]
 position = Vector2(865, 131)
 
-[node name="M2" type="Marker2D" parent="Spawn_war_goblin"]
+[node name="M2" type="Marker2D" parent="Spawn_war_goblin" unique_id=282125537]
 position = Vector2(305, 19)
 
-[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_war_goblin" node_paths=PackedStringArray("enemy_spawner")]
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="Spawn_war_goblin" unique_id=819195662 node_paths=PackedStringArray("enemy_spawner")]
 _spawnable_scenes = PackedStringArray("uid://cppmohti6r7s0")
 spawn_path = NodePath("../../Enemies")
-script = ExtResource("gen_msp")
+script = ExtResource("conv_msp")
 enemy_spawner = NodePath("..")
 
-[node name="C0" type="Area2D" parent="Ropes"]
-position = Vector2(-47, 110)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C0"]
-shape = SubResource("RectShape_C0")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C0"]
-offset_left = -2.0
-offset_top = -12.0
-offset_right = 2.0
-offset_bottom = 12.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C1" type="Area2D" parent="Ropes"]
-position = Vector2(177, 78)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C1"]
-shape = SubResource("RectShape_C1")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C1"]
-offset_left = -2.0
-offset_top = -44.0
-offset_right = 2.0
-offset_bottom = 44.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="C2" type="Area2D" parent="Ropes"]
-position = Vector2(593, 78)
-collision_layer = 0
-collision_mask = 2
-script = ExtResource("9_rrhmt")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C2"]
-shape = SubResource("RectShape_C2")
-
-[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C2"]
-offset_left = -2.0
-offset_top = -44.0
-offset_right = 2.0
-offset_bottom = 44.0
-texture = SubResource("AtlasTexture_p47w5")
-patch_margin_top = 2
-patch_margin_bottom = 2
-axis_stretch_vertical = 1
-
-[node name="PortalToDeepshaft" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToDeepshaft" parent="." unique_id=840421353 instance=ExtResource("3_76n2i")]
 position = Vector2(-71, 131)
 target_map_id = "deepshaft"
 target_spawn_point_name = "Deepshaft_Hollowgate_Portal_Spawn"
 
-[node name="Hollowgate_Deepshaft_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Hollowgate_Deepshaft_Portal_Spawn" type="Marker2D" parent="." unique_id=1237822768]
 position = Vector2(-47, 135)
 
-[node name="PortalToEmberwatch" parent="." instance=ExtResource("3_76n2i")]
+[node name="PortalToEmberwatch" parent="." unique_id=2034503574 instance=ExtResource("3_76n2i")]
 position = Vector2(1129, 131)
 target_map_id = "emberwatch"
 target_spawn_point_name = "Emberwatch_Hollowgate_Portal_Spawn"
 
-[node name="Hollowgate_Emberwatch_Portal_Spawn" type="Marker2D" parent="."]
+[node name="Hollowgate_Emberwatch_Portal_Spawn" type="Marker2D" parent="." unique_id=955612361]
 position = Vector2(1105, 135)

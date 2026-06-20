@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d075wrttj0fuw"
-path="res://.godot/imported/_gen_pebble_warren.png-2c7be71076d6e306fc66c2295ad92464.ctex"
+uid="uid://blgdhpxcv1knp"
+path="res://.godot/imported/_wm_overlay.png-18663cc796063c43b3fdc340e8eda2db.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://_gen_pebble_warren.png"
-dest_files=["res://.godot/imported/_gen_pebble_warren.png-2c7be71076d6e306fc66c2295ad92464.ctex"]
+source_file="res://tools/_wm_overlay.png"
+dest_files=["res://.godot/imported/_wm_overlay.png-18663cc796063c43b3fdc340e8eda2db.ctex"]
 
 [params]
 

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=39 format=3 uid="uid://bb2o580bt50w1"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bb2o580bt50w1"]
 
 [ext_resource type="Texture2D" uid="uid://c2165bo4ywxwk" path="res://assets/sprites/MiniBeastmens/MiniBeastmens/Outline/MiniLionKnight-Sheet.png" id="1_vycyb"]
 
@@ -177,7 +177,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2vpqq")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -215,7 +215,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_taxnr")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -238,7 +238,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_4jfks")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -249,7 +249,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_51dky")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -266,7 +266,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_n0hb2")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -289,7 +289,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1606w")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=38 format=3 uid="uid://culu06oreubu"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://culu06oreubu"]
 
 [ext_resource type="Texture2D" uid="uid://f7m68irpi2xq" path="res://assets/sprites/MiniBeastmens/MiniBeastmens/Outline/MiniDeerDruid-Sheet.png" id="1_3mlt1"]
 
@@ -173,7 +173,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ot4w3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -208,7 +208,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_f62qt")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -231,7 +231,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_rll6y")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -242,7 +242,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_43pgv")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -259,7 +259,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nowjp")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -282,7 +282,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d2j06")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

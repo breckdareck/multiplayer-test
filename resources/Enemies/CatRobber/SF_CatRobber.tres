@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=35 format=3 uid="uid://5mmjlwcgutty"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://5mmjlwcgutty"]
 
 [ext_resource type="Texture2D" uid="uid://byt1wg2vx10o7" path="res://assets/sprites/MiniBeastmens/MiniBeastmens/Outline/MiniCatRobber-Sheet.png" id="1_5v2op"]
 
@@ -158,7 +158,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_er6mg")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -187,7 +187,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t4y4c")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -210,7 +210,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nn7le")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -221,7 +221,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ut0yw")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -238,7 +238,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_oxlv6")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -261,7 +261,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_p0w2w")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=38 format=3 uid="uid://oehyffp700bf"]
+[gd_resource type="SpriteFrames" format=3 uid="uid://oehyffp700bf"]
 
 [ext_resource type="Texture2D" uid="uid://5xv1xatqd0lr" path="res://assets/sprites/MiniBeastmens/MiniBeastmens/Outline/MiniRabbitWizard-Sheet.png" id="1_0men0"]
 
@@ -176,7 +176,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_vqhnm")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -208,7 +208,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_np1jl")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -231,7 +231,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_lv63b")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -242,7 +242,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_yhxd3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -259,7 +259,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_u4w8l")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -282,7 +282,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_i4osw")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]
