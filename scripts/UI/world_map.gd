@@ -132,6 +132,8 @@ const C_HUB := Color(1.0, 0.62, 0.25)    # ember glow pooled at the centred hub
 const C_FLOW := Color(1.0, 0.86, 0.55)   # energy motes drifting along the roads
 const C_RING := Color(0.5, 0.42, 0.3)    # faint concentric wheel guides
 const NODE_R := 13.0
+## Dim ONLY the map image (self_modulate, so pins/labels stay full-bright) for legibility.
+const MAP_DIM := Color(0.55, 0.55, 0.55, 1.0)
 
 var _catalog: Dictionary = {}
 var _font: Font
@@ -212,8 +214,10 @@ func _ready() -> void:
 				_core_pins[str(mid2)] = c
 	if _map_area:
 		_map_area.visible = false
+		_map_area.self_modulate = MAP_DIM
 	if _core_area:
 		_core_area.visible = false
+		_core_area.self_modulate = MAP_DIM
 	set_process(false)
 
 

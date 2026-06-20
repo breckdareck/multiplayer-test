@@ -54,11 +54,13 @@ func _draw() -> void:
 		draw_arc(c, R + 4.0, 0.0, TAU, 24, Color(0.45, 0.85, 1.0, 0.9), 2.0)
 	if town:
 		var s := R + 2.0
+		draw_rect(Rect2(c.x - s - 2.0, c.y - s - 2.0, (s + 2.0) * 2.0, (s + 2.0) * 2.0), Color(0, 0, 0, 0.55))
 		draw_rect(Rect2(c.x - s, c.y - s, s * 2.0, s * 2.0), col)
-		draw_rect(Rect2(c.x - s, c.y - s, s * 2.0, s * 2.0), Color(0, 0, 0, 0.7), false, 2.0)
+		draw_rect(Rect2(c.x - s, c.y - s, s * 2.0, s * 2.0), Color(0, 0, 0, 0.9), false, 2.0)
 	else:
+		draw_circle(c, R + 2.0, Color(0, 0, 0, 0.55))   # dark halo so the dot reads on bright art
 		draw_circle(c, R, col)
-		draw_arc(c, R, 0.0, TAU, 24, Color(0, 0, 0, 0.7), 1.5)
+		draw_arc(c, R, 0.0, TAU, 24, Color(0, 0, 0, 0.9), 2.0)
 		draw_circle(c + Vector2(-R * 0.35, -R * 0.35), R * 0.22, Color(1, 1, 1, 0.5))
 	var fs := 15 if town else 12
 	var lc := Color(1, 0.92, 0.7) if town else Color(0.93, 0.91, 0.84)
@@ -69,5 +71,7 @@ func _draw() -> void:
 func _label(font: Font, s: String, c: Vector2, dy: float, fs: int, col: Color) -> void:
 	var w := font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	var p := Vector2(c.x - w * 0.5, c.y + dy + fs)
-	draw_string(font, p + Vector2(1, 1), s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.75))
+	# full 8-direction black outline so the name reads on any bright/busy terrain
+	for o in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1), Vector2(0, -1), Vector2(0, 1), Vector2(-1, 0), Vector2(1, 0)]:
+		draw_string(font, p + o, s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0, 0, 0, 0.95))
 	draw_string(font, p, s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
