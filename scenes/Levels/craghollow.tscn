@@ -955,12 +955,12 @@ target_spawn_point_name = "Shallows_Craghollow_Portal_Spawn"
 position = Vector2(-47, 135)
 
 [node name="PortalToEchoDowns" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1129, 19)
+position = Vector2(1049, 99)
 target_map_id = "echo_downs"
 target_spawn_point_name = "EchoDowns_Craghollow_Portal_Spawn"
 
 [node name="Craghollow_EchoDowns_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1105, 23)
+position = Vector2(1025, 103)
 
 [node name="PortalToGullstoneBluffs" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1257, 131)

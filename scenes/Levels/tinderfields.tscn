@@ -910,12 +910,12 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToGlimmerfen" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 67)
+position = Vector2(105, 131)
 target_map_id = "glimmerfen"
 target_spawn_point_name = "Glimmerfen_Tinderfields_Portal_Spawn"
 
 [node name="Tinderfields_Glimmerfen_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 71)
+position = Vector2(129, 135)
 
 [node name="PortalToEmberMeadows" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1161, 131)

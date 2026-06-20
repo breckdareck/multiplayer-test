@@ -807,9 +807,9 @@ target_spawn_point_name = "Glimmerfen_Brackenway_Portal_Spawn"
 position = Vector2(1169, 135)
 
 [node name="PortalToBramble" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(841, -77)
+position = Vector2(905, 19)
 target_map_id = "bramble_downs"
 target_spawn_point_name = "Bramble_Brackenway_Portal_Spawn"
 
 [node name="Brackenway_Bramble_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(817, -73)
+position = Vector2(881, 23)

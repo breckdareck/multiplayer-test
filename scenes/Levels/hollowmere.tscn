@@ -1104,9 +1104,9 @@ target_spawn_point_name = "Shallows_Hollowmere_Portal_Spawn"
 position = Vector2(200, -604)
 
 [node name="PortalToStoneSpan" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(176, -672)
+position = Vector2(160, -608)
 target_map_id = "stone_span"
 target_spawn_point_name = "StoneSpan_Hollowmere_Portal_Spawn"
 
 [node name="Hollowmere_StoneSpan_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(152, -668)
+position = Vector2(136, -604)

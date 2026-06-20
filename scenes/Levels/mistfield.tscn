@@ -843,9 +843,9 @@ target_spawn_point_name = "EchoDowns_Mistfield_Portal_Spawn"
 position = Vector2(1345, 151)
 
 [node name="PortalToSunkenHall" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1273, 19)
+position = Vector2(1145, 163)
 target_map_id = "sunken_hall"
 target_spawn_point_name = "SunkenHall_Mistfield_Portal_Spawn"
 
 [node name="Mistfield_SunkenHall_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1249, 23)
+position = Vector2(1121, 167)

@@ -831,9 +831,9 @@ target_spawn_point_name = "Heatherreach_Willowmere_Portal_Spawn"
 position = Vector2(1361, 103)
 
 [node name="PortalToDrownedShrine" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1273, 19)
+position = Vector2(1145, 131)
 target_map_id = "drowned_shrine"
 target_spawn_point_name = "DrownedShrine_Willowmere_Portal_Spawn"
 
 [node name="Willowmere_DrownedShrine_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1249, 23)
+position = Vector2(1121, 135)

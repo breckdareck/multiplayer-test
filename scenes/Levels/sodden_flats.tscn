@@ -958,12 +958,12 @@ target_spawn_point_name = "Reedmire_SoddenFlats_Portal_Spawn"
 position = Vector2(-47, 135)
 
 [node name="PortalToHeatherreach" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(1129, 19)
+position = Vector2(1049, 115)
 target_map_id = "heatherreach"
 target_spawn_point_name = "Heatherreach_SoddenFlats_Portal_Spawn"
 
 [node name="SoddenFlats_Heatherreach_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(1105, 23)
+position = Vector2(1025, 119)
 
 [node name="PortalToBrackens" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1257, 131)

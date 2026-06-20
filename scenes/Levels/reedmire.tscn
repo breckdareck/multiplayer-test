@@ -846,12 +846,12 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToWickmoor" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
+position = Vector2(153, 115)
 target_map_id = "wickmoor"
 target_spawn_point_name = "Wickmoor_Reedmire_Portal_Spawn"
 
 [node name="Reedmire_Wickmoor_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
+position = Vector2(177, 119)
 
 [node name="PortalToSoddenFlats" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1449, 147)

@@ -855,12 +855,12 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToHollowmere" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 19)
+position = Vector2(169, 99)
 target_map_id = "hollowmere"
 target_spawn_point_name = "Hollowmere_Shallows_Portal_Spawn"
 
 [node name="Shallows_Hollowmere_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 23)
+position = Vector2(193, 103)
 
 [node name="PortalToCraghollow" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1449, 99)

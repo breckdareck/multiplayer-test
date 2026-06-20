@@ -922,12 +922,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="PortalToLanternsRest" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(9, 35)
+position = Vector2(201, 99)
 target_map_id = "lanterns_rest"
 target_spawn_point_name = "LanternsRest_NearWilds_Portal_Spawn"
 
 [node name="NearWilds_LanternsRest_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(33, 39)
+position = Vector2(225, 103)
 
 [node name="PortalToGlimmerfen" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1769, 147)

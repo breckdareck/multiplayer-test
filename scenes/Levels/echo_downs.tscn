@@ -933,12 +933,12 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToCraghollow" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 67)
+position = Vector2(153, 115)
 target_map_id = "craghollow"
 target_spawn_point_name = "Craghollow_EchoDowns_Portal_Spawn"
 
 [node name="EchoDowns_Craghollow_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 71)
+position = Vector2(177, 119)
 
 [node name="PortalToGreymoor" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1289, 147)

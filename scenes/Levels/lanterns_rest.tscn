@@ -1104,9 +1104,9 @@ target_spawn_point_name = "NearWilds_LanternsRest_Portal_Spawn"
 position = Vector2(200, -604)
 
 [node name="PortalToOldCauseway" parent="." instance=ExtResource("3_knl1o")]
-position = Vector2(176, -672)
+position = Vector2(160, -608)
 target_map_id = "old_causeway"
 target_spawn_point_name = "OldCauseway_LanternsRest_Portal_Spawn"
 
 [node name="LanternsRest_OldCauseway_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(152, -668)
+position = Vector2(136, -604)

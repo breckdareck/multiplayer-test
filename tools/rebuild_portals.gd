@@ -228,24 +228,24 @@ func _do_map(map: String) -> void:
 	var w := FileAccess.open(path, FileAccess.WRITE); w.store_string(text); w.close()
 	print(map, ": ", n, " portals -> ", conns)
 
-# Seat a side's doors. j==0 -> the floor EDGE (flat seat). Extras -> an elevated
-# shelf on that side if available, else fanned evenly across that half toward (but
-# never past) the centre, so every door stays unambiguously on its side.
+# Seat a side's doors ALL ON THE FLOOR (never on elevated shelves — every portal must be on
+# the ground). j==0 sits at that side's floor edge; extras fan inward across that half toward
+# (but never past) the centre, each landing on a FLAT, reachable floor column.
 func _place_side(group: Array, floor_top: Dictionary, mincol: int, maxcol: int, center: float, is_right: bool, elev: Array, out: Dictionary) -> void:
 	var k: int = group.size()
+	var dir: int = -1 if is_right else 1
+	var edge: int = (maxcol - 1) if is_right else (mincol + 3)
 	for j in k:
 		var other: String = group[j]
+		var col: int
 		if j == 0:
-			var ec: int = _flat_near(floor_top, (maxcol - 1) if is_right else (mincol + 3), -1 if is_right else 1, mincol, maxcol)
-			out[other] = Vector2i(ec, floor_top[ec])
-		elif not elev.is_empty():
-			out[other] = elev.pop_front()
+			col = _flat_near(floor_top, edge, dir, mincol, maxcol)
 		else:
-			var edge := float(maxcol - 1) if is_right else float(mincol + 3)
+			# stagger inward along the floor; land on a flat (reachable) ground column
 			var inner := center + (4.0 if is_right else -4.0)
-			var target := int(lerp(edge, inner, float(j) / float(k)))
-			var col: int = _nearest(floor_top, target)
-			out[other] = Vector2i(col, floor_top[col])
+			var target := int(lerp(float(edge), inner, float(j) / float(k + 1)))
+			col = _flat_near(floor_top, target, dir, mincol, maxcol)
+		out[other] = Vector2i(col, floor_top[col])
 
 
 func _portal_id(text: String) -> String:

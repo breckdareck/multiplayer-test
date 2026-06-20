@@ -760,9 +760,9 @@ target_spawn_point_name = "NearWilds_FireflyHollow_Portal_Spawn"
 position = Vector2(785, -153)
 
 [node name="PortalToMeadow" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(761, -157)
+position = Vector2(665, 195)
 target_map_id = "meadow_path"
 target_spawn_point_name = "Meadow_FireflyHollow_Portal_Spawn"
 
 [node name="FireflyHollow_Meadow_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(737, -153)
+position = Vector2(641, 199)

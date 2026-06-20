@@ -933,12 +933,12 @@ patch_margin_bottom = 2
 axis_stretch_vertical = 1
 
 [node name="PortalToSoddenFlats" parent="." instance=ExtResource("3_76n2i")]
-position = Vector2(-7, 67)
+position = Vector2(121, 131)
 target_map_id = "sodden_flats"
 target_spawn_point_name = "SoddenFlats_Heatherreach_Portal_Spawn"
 
 [node name="Heatherreach_SoddenFlats_Portal_Spawn" type="Marker2D" parent="."]
-position = Vector2(17, 71)
+position = Vector2(145, 135)
 
 [node name="PortalToBlackpeat" parent="." instance=ExtResource("3_76n2i")]
 position = Vector2(1289, 99)
