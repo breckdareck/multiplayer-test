@@ -31,6 +31,8 @@ func _pins() -> Dictionary:
 	var out := {}
 	var node := get_node_or_null("../Pins")
 	if node == null:
+		node = get_node_or_null("../CorePins")
+	if node == null:
 		return out
 	for c in node.get_children():
 		var mid = c.get("map_id")

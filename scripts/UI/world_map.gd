@@ -148,7 +148,11 @@ var _pulse: float = 0.0
 @onready var _map_area: TextureRect = get_node_or_null("MapArea")
 @onready var _pins_holder: Control = get_node_or_null("MapArea/Pins")
 @onready var _edges: Control = get_node_or_null("MapArea/Edges")
-var _pins: Dictionary = {}   # map_id -> MapPin node (from the scene)
+var _pins: Dictionary = {}   # map_id -> MapPin node (world view)
+@onready var _core_area: TextureRect = get_node_or_null("CoreArea")
+@onready var _core_pins_holder: Control = get_node_or_null("CoreArea/CorePins")
+@onready var _core_edges: Control = get_node_or_null("CoreArea/CoreEdges")
+var _core_pins: Dictionary = {}   # map_id -> MapPin node (core view)
 
 
 func _ready() -> void:
@@ -201,8 +205,15 @@ func _ready() -> void:
 			var mid = c.get("map_id")
 			if mid != null and str(mid) != "":
 				_pins[str(mid)] = c
+	if _core_pins_holder:
+		for c in _core_pins_holder.get_children():
+			var mid2 = c.get("map_id")
+			if mid2 != null and str(mid2) != "":
+				_core_pins[str(mid2)] = c
 	if _map_area:
 		_map_area.visible = false
+	if _core_area:
+		_core_area.visible = false
 	set_process(false)
 
 
@@ -244,17 +255,24 @@ func _apply_view() -> void:
 	var is_world := _view == "world"
 	if _map_area:
 		_map_area.visible = is_world and visible
+	if _core_area:
+		_core_area.visible = (not is_world) and visible
 	if is_world:
-		_refresh_pins()
+		_refresh_pin_set(_pins, _edges)
+	else:
+		_refresh_pin_set(_core_pins, _core_edges)
 	queue_redraw()
 
 
-## Push live label / level / colour / current-location state onto each editable pin.
-func _refresh_pins() -> void:
-	for mid in _pins:
-		var pin = _pins[mid]
+## Push live label / level / colour / current-location state onto each editable pin in a set.
+func _refresh_pin_set(pins: Dictionary, edges) -> void:
+	for mid in pins:
+		var pin = pins[mid]
 		if mid == "__core__":
 			pin.configure("The Core  ▾", "", Color(0.62, 0.4, 0.72), false, false, true)
+			continue
+		if mid == "__surface__":
+			pin.configure("↑  The Surface", "", Color(0.62, 0.5, 0.36), false, false, true)
 			continue
 		var info: Dictionary = _catalog.get(mid, {})
 		var dname: String = MapManager.MAP_DISPLAY_NAMES.get(mid, info.get("display_name", mid))
@@ -270,8 +288,8 @@ func _refresh_pins() -> void:
 				lvl = ("Lv %d" % lo) if lo == hi else ("Lv %d-%d" % [lo, hi])
 		var col: Color = C_TOWN if is_town else (C_BOSS if is_boss else C_VISITED)
 		pin.configure(dname, lvl, col, is_town, mid == MapManager.current_map_id, false)
-	if _edges and _edges.has_method("refresh"):
-		_edges.refresh()
+	if edges and edges.has_method("refresh"):
+		edges.refresh()
 
 
 ## Per-map occupant counts (players + bots), refreshed each time the map opens.
@@ -283,10 +301,12 @@ func _on_population_counts(counts: Dictionary) -> void:
 
 
 func _on_resized() -> void:
-	# The fill-rect MapArea + anchor-normalised pins track the screen automatically; just
-	# nudge the roads layer to redraw at the new pin positions.
-	if visible and _view == "world" and _edges and _edges.has_method("refresh"):
-		_edges.refresh()
+	# The fill-rect map areas + anchor-normalised pins track the screen automatically; just
+	# nudge the active roads layer to redraw at the new pin positions.
+	if visible:
+		var edges = _edges if _view == "world" else _core_edges
+		if edges and edges.has_method("refresh"):
+			edges.refresh()
 	queue_redraw()
 
 
@@ -331,25 +351,15 @@ func _process(delta: float) -> void:
 
 
 func _update_hover() -> void:
-	var content := _content_rect()
 	var mouse := get_local_mouse_position()
 	var found := ""
-	if _view == "world":
-		# Hit-test the editable scene pins (CoreGate pin has map_id "__core__").
-		var mg := get_global_mouse_position()
-		for mid in _pins:
-			if mg.distance_to(_pins[mid].center()) <= MapPin.R + 5.0:
-				found = mid
-				break
-	else:
-		for map_id in _active_layout():
-			if not _catalog.has(map_id):
-				continue
-			if mouse.distance_to(_node_pos(map_id, content)) <= NODE_R + 4.0:
-				found = map_id
-				break
-		if found == "" and mouse.distance_to(_gate_pos(content)) <= GATE_R + 4.0:
-			found = String(_active_gate()["id"])   # hovering the synthetic gateway
+	# Hit-test the active view's editable scene pins (gate pins are __core__ / __surface__).
+	var active: Dictionary = _pins if _view == "world" else _core_pins
+	var mg := get_global_mouse_position()
+	for mid in active:
+		if mg.distance_to(active[mid].center()) <= MapPin.R + 5.0:
+			found = mid
+			break
 	if found != _hovered:
 		_hovered = found
 		if found == "" or found.begins_with("__"):
@@ -376,13 +386,10 @@ func _gui_input(event: InputEvent) -> void:
 	# Left-click the gateway to drill in/out (World <-> Core). In world view that's the
 	# CoreGate pin; in core view it's the synthetic "Surface" gateway.
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var hit_gate := false
-		if _view == "world":
-			if _pins.has("__core__") and get_global_mouse_position().distance_to(_pins["__core__"].center()) <= MapPin.R + 6.0:
-				hit_gate = true; _view = "core"
-		elif get_local_mouse_position().distance_to(_gate_pos(_content_rect())) <= GATE_R + 5.0:
-			hit_gate = true; _view = String(_active_gate()["to"])
-		if hit_gate:
+		var active: Dictionary = _pins if _view == "world" else _core_pins
+		var gate_id := "__core__" if _view == "world" else "__surface__"
+		if active.has(gate_id) and get_global_mouse_position().distance_to(active[gate_id].center()) <= MapPin.R + 6.0:
+			_view = "core" if _view == "world" else "world"
 			_hovered = ""
 			_tip.visible = false
 			_apply_view()
@@ -619,39 +626,10 @@ func _draw_gateway(content: Rect2) -> void:
 
 
 func _draw() -> void:
-	var content := _content_rect()
-	if _view == "world":
-		# WORLD view: the painted map image (MapArea child) + the Edges layer + the pins all
-		# render themselves. Here we just lay a dark surround behind the centred image + the title.
-		draw_rect(Rect2(Vector2.ZERO, size), C_BG, true)
-		_draw_title(content)
-		return
-
-	# CORE view: legacy runtime drawing (the descent spiral + nodes + the "Surface" gateway).
-	_draw_backdrop(content)
-	var revealed := _revealed()
-	var layout := _active_layout()
-	if layout.has("emberwatch"):
-		_draw_hub_glow(_node_pos("emberwatch", content))
-	_draw_title(content)
-	var drawn := {}
-	for map_id in _catalog:
-		if not layout.has(map_id):
-			continue
-		for tgt in _catalog[map_id].get("connections", []):
-			if not layout.has(tgt):
-				continue
-			var key: String = map_id + "|" + tgt if map_id < tgt else tgt + "|" + map_id
-			if drawn.has(key):
-				continue
-			drawn[key] = true
-			var both_seen: bool = revealed.has(map_id) and revealed.has(tgt)
-			_draw_edge(_node_pos(map_id, content), _node_pos(tgt, content), both_seen, key)
-	_draw_gateway(content)
-	for map_id in layout:
-		if not _catalog.has(map_id):
-			continue
-		_draw_map_node(map_id, _node_pos(map_id, content), revealed.has(map_id))
+	# Both views are image-backed scenes now (MapArea / CoreArea + their pins + roads render
+	# themselves). Here we just lay a dark surround behind the centred image + draw the title.
+	draw_rect(Rect2(Vector2.ZERO, size), C_BG, true)
+	_draw_title(_content_rect())
 
 
 func _draw_title(content: Rect2) -> void:
