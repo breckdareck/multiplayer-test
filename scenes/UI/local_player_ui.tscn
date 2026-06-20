@@ -14,10 +14,10 @@
 [ext_resource type="PackedScene" uid="uid://1ufb4svp8iwu" path="res://scenes/UI/quest_window.tscn" id="26_quest"]
 [ext_resource type="PackedScene" uid="uid://jtdhvyo8t2y7" path="res://scenes/UI/game_window.tscn" id="34_ghub"]
 [ext_resource type="PackedScene" uid="uid://c66548ep3jkx5" path="res://scenes/UI/boss_hp_bar.tscn" id="40_bosshp"]
+[ext_resource type="Texture2D" uid="uid://cxb0aoap2g860" path="res://assets/sprites/ui/core_map_bg.png" id="core_bg"]
 [ext_resource type="Script" uid="uid://dlr22q3gxy11p" path="res://scripts/UI/local_player_ui.gd" id="ctrl_lpui"]
 [ext_resource type="Script" uid="uid://cnvd4m3hq5xa8" path="res://scripts/UI/minimap.gd" id="minimap_scr"]
 [ext_resource type="Texture2D" uid="uid://d3wra0bjk1jbd" path="res://assets/sprites/ui/world_map_bg.png" id="wm_bg"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ui/core_map_bg.png" id="core_bg"]
 [ext_resource type="Script" uid="uid://b4pr7gpvjswxj" path="res://scripts/UI/map_edges.gd" id="wm_edges"]
 [ext_resource type="Script" uid="uid://cpsaajfwp2bl4" path="res://scripts/UI/map_pin.gd" id="wm_pin"]
 [ext_resource type="Script" uid="uid://c3otg6v6xnqsq" path="res://scripts/UI/world_map.gd" id="worldmap_scr"]
@@ -1458,7 +1458,7 @@ mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "__core__"
 
-[node name="CoreArea" type="TextureRect" parent="MoveableWindows/WorldMap"]
+[node name="CoreArea" type="TextureRect" parent="MoveableWindows/WorldMap" unique_id=318730863]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -1470,7 +1470,7 @@ mouse_filter = 2
 texture = ExtResource("core_bg")
 expand_mode = 1
 
-[node name="CoreEdges" type="Control" parent="MoveableWindows/WorldMap/CoreArea"]
+[node name="CoreEdges" type="Control" parent="MoveableWindows/WorldMap/CoreArea" unique_id=1114692970]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1480,7 +1480,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("wm_edges")
 
-[node name="CorePins" type="Control" parent="MoveableWindows/WorldMap/CoreArea"]
+[node name="CorePins" type="Control" parent="MoveableWindows/WorldMap/CoreArea" unique_id=8849020]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -1489,170 +1489,182 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="emberwatch" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="emberwatch" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=425492977]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-anchor_left = 0.5000
-anchor_top = 0.0700
-anchor_right = 0.5000
-anchor_bottom = 0.0700
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+anchor_left = 0.5
+anchor_top = 0.07
+anchor_right = 0.5
+anchor_bottom = 0.07
+offset_left = -650.0
+offset_top = 819.4
+offset_right = -626.0
+offset_bottom = 843.4
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "emberwatch"
 
-[node name="deep_woods" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="deep_woods" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=137336341]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.8201
 anchor_top = 0.2676
 anchor_right = 0.8201
 anchor_bottom = 0.2676
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = -990.59204
+offset_top = 545.992
+offset_right = -966.59204
+offset_bottom = 569.992
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "deep_woods"
 
-[node name="keep" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="keep" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=1023758947]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.8198
 anchor_top = 0.5878
 anchor_right = 0.8198
 anchor_bottom = 0.5878
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = -741.016
+offset_top = 96.175964
+offset_right = -717.016
+offset_bottom = 120.175964
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "keep"
 
-[node name="mustering_fields" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="mustering_fields" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=2030078471]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.5657
 anchor_top = 0.7433
 anchor_right = 0.5657
 anchor_bottom = 0.7433
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = -10.144043
+offset_top = -131.76404
+offset_right = 13.855957
+offset_bottom = -107.76404
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "mustering_fields"
 
-[node name="the_scorchline" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="the_scorchline" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=360217527]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.3234
-anchor_top = 0.6450
+anchor_top = 0.645
 anchor_right = 0.3234
-anchor_bottom = 0.6450
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+anchor_bottom = 0.645
+offset_left = 522.072
+offset_top = -109.599976
+offset_right = 546.072
+offset_bottom = -85.599976
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "the_scorchline"
 
-[node name="emberscar" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="emberscar" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=1497529495]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.2876
 anchor_top = 0.4387
 anchor_right = 0.2876
 anchor_bottom = 0.4387
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = 539.808
+offset_top = -6.79599
+offset_right = 563.808
+offset_bottom = 17.20401
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "emberscar"
 
-[node name="cinderwaste" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="cinderwaste" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=961933241]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.4268
 anchor_top = 0.3252
 anchor_right = 0.4268
 anchor_bottom = 0.3252
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = 159.54395
+offset_top = 77.784
+offset_right = 183.54395
+offset_bottom = 101.784
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "cinderwaste"
 
-[node name="weave" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="weave" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=1942690854]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.5657
 anchor_top = 0.3667
 anchor_right = 0.5657
 anchor_bottom = 0.3667
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = -233.14404
+offset_top = 93.96402
+offset_right = -209.14404
+offset_bottom = 117.96402
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "weave"
 
-[node name="the_unraveling" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="the_unraveling" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=152995535]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.5858
-anchor_top = 0.4650
+anchor_top = 0.465
 anchor_right = 0.5858
-anchor_bottom = 0.4650
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+anchor_bottom = 0.465
+offset_left = -253.73596
+offset_top = 80.79999
+offset_right = -229.73596
+offset_bottom = 104.79999
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "the_unraveling"
 
-[node name="ashvigil" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="ashvigil" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=1262034340]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
 anchor_left = 0.5264
 anchor_top = 0.5016
 anchor_right = 0.5264
 anchor_bottom = 0.5016
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+offset_left = -4.6880493
+offset_top = 30.271973
+offset_right = 19.31195
+offset_bottom = 54.271973
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "ashvigil"
 
-[node name="warlord" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="warlord" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=1044417057]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-anchor_left = 0.5000
-anchor_top = 0.4700
-anchor_right = 0.5000
-anchor_bottom = 0.4700
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+anchor_left = 0.5
+anchor_top = 0.47
+anchor_right = 0.5
+anchor_bottom = 0.47
+offset_left = -11.0
+offset_top = 44.399994
+offset_right = 13.0
+offset_bottom = 68.399994
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "warlord"
 
-[node name="SurfaceGate" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins"]
+[node name="SurfaceGate" type="Control" parent="MoveableWindows/WorldMap/CoreArea/CorePins" unique_id=127219485]
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 1
-anchor_left = 0.0780
-anchor_top = 0.0900
-anchor_right = 0.0780
-anchor_bottom = 0.0900
-offset_left = -12.0
-offset_top = -12.0
-offset_right = 12.0
-offset_bottom = 12.0
+anchor_left = 0.078
+anchor_top = 0.09
+anchor_right = 0.078
+anchor_bottom = 0.09
+offset_left = -4.76001
+offset_top = 895.8
+offset_right = 19.23999
+offset_bottom = 919.8
 mouse_filter = 2
 script = ExtResource("wm_pin")
 map_id = "__surface__"
