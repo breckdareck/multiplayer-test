@@ -28,12 +28,12 @@ ARMS = [
 ]
 CENTER = (0.500, 0.445)
 CORE_GATE = (0.487, 0.655)
-CLIMB_R = [0.205, 0.170, 0.138, 0.110, 0.086, 0.066]   # c1..c6 (c6 nearest the caldera)
-TOWN_R  = 0.245
-SPINE_R = [0.285, 0.320, 0.355, 0.390]
-POCKET  = [(0.278, 0.072),(0.272, 0.122), (0.318,-0.072),(0.312,-0.122),
-           (0.358, 0.072),(0.352, 0.122), (0.392,-0.072),(0.386,-0.122)]
-WIND = 0.024
+CLIMB_R = [0.210, 0.176, 0.144, 0.114, 0.088, 0.066]   # c1..c6 (c6 nearest the caldera)
+TOWN_R  = 0.248
+SPINE_R = [0.288, 0.325, 0.362, 0.398]
+POCKET  = [(0.280, 0.085),(0.272, 0.150), (0.320,-0.085),(0.312,-0.150),
+           (0.360, 0.085),(0.352, 0.150), (0.396,-0.085),(0.388,-0.150)]
+WIND = 0.028
 
 def arm_pos(angle, scale, idx):
     a = math.radians(angle); ux, uy = math.cos(a), -math.sin(a); px, py = -math.sin(a), -math.cos(a)
@@ -113,18 +113,18 @@ for angle, scale, town, names in ARMS:
 print('CORE_GATE Vector2(%.3f, %.3f)' % CORE_GATE)
 
 # ---- emit the editable scene node block (background + pins) for local_player_ui.tscn ----
-MA, MH = 1408, 768   # MapArea native size (= the art); pins are children in this pixel space
+# Pins are ANCHOR-NORMALISED (anchor = fraction of the fill-rect MapArea), so they track the
+# full-screen-stretched map at any resolution. Edit by dragging in the editor (offsets) or nudging.
 def pin_node(parent, name, mid, nx, ny):
-    x, y = nx * MA, ny * MH
     return ('\n[node name="%s" type="Control" parent="%s"]\n'
-            'layout_mode = 1\noffset_left = %.1f\noffset_top = %.1f\noffset_right = %.1f\noffset_bottom = %.1f\n'
+            'layout_mode = 1\nanchor_left = %.4f\nanchor_top = %.4f\nanchor_right = %.4f\nanchor_bottom = %.4f\n'
             'mouse_filter = 2\nscript = ExtResource("wm_pin")\nmap_id = "%s"\n'
-            % (name, parent, x, y, x, y, mid))
+            % (name, parent, nx, ny, nx, ny, mid))
 PINP = "MoveableWindows/WorldMap/MapArea/Pins"
 blk = (
     '\n[node name="MapArea" type="TextureRect" parent="MoveableWindows/WorldMap"]\n'
-    'layout_mode = 0\noffset_right = 1408.0\noffset_bottom = 768.0\n'
-    'mouse_filter = 2\ntexture = ExtResource("wm_bg")\nexpand_mode = 1\nstretch_mode = 0\n'
+    'layout_mode = 1\nanchors_preset = 15\nanchor_right = 1.0\nanchor_bottom = 1.0\n'
+    'grow_horizontal = 2\ngrow_vertical = 2\nmouse_filter = 2\ntexture = ExtResource("wm_bg")\nexpand_mode = 1\n'
     '\n[node name="Edges" type="Control" parent="MoveableWindows/WorldMap/MapArea"]\n'
     'layout_mode = 1\nanchors_preset = 15\nanchor_right = 1.0\nanchor_bottom = 1.0\n'
     'grow_horizontal = 2\ngrow_vertical = 2\nmouse_filter = 2\nscript = ExtResource("wm_edges")\n'

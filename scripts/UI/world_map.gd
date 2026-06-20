@@ -245,22 +245,8 @@ func _apply_view() -> void:
 	if _map_area:
 		_map_area.visible = is_world and visible
 	if is_world:
-		_fit_map_area()
 		_refresh_pins()
 	queue_redraw()
-
-
-## Scale the native 1408x768 map layer (image + pins + roads) to fill the content rect,
-## so the world map is full-screen at any resolution while pins stay aligned to the art.
-func _fit_map_area() -> void:
-	if not _map_area:
-		return
-	# Full-screen COVER: uniform scale (no distortion), filling the whole control; only the
-	# painted sea border is cropped. Pins are children so they scale + stay aligned to the art.
-	_map_area.size = Vector2(1408, 768)
-	var s: float = maxf(size.x / 1408.0, size.y / 768.0)
-	_map_area.scale = Vector2(s, s)
-	_map_area.position = (size - Vector2(1408, 768) * s) * 0.5
 
 
 ## Push live label / level / colour / current-location state onto each editable pin.
@@ -297,9 +283,11 @@ func _on_population_counts(counts: Dictionary) -> void:
 
 
 func _on_resized() -> void:
-	if visible and _view == "world":
-		_fit_map_area()
-		queue_redraw()
+	# The fill-rect MapArea + anchor-normalised pins track the screen automatically; just
+	# nudge the roads layer to redraw at the new pin positions.
+	if visible and _view == "world" and _edges and _edges.has_method("refresh"):
+		_edges.refresh()
+	queue_redraw()
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -349,9 +337,8 @@ func _update_hover() -> void:
 	if _view == "world":
 		# Hit-test the editable scene pins (CoreGate pin has map_id "__core__").
 		var mg := get_global_mouse_position()
-		var hit_r: float = (MapPin.R + 5.0) * (_map_area.scale.x if _map_area else 1.0)
 		for mid in _pins:
-			if mg.distance_to(_pins[mid].global_position) <= hit_r:
+			if mg.distance_to(_pins[mid].global_position) <= MapPin.R + 5.0:
 				found = mid
 				break
 	else:
