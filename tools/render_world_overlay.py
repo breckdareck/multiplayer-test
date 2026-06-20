@@ -116,8 +116,10 @@ print('CORE_GATE Vector2(%.3f, %.3f)' % CORE_GATE)
 # Pins are ANCHOR-NORMALISED (anchor = fraction of the fill-rect MapArea), so they track the
 # full-screen-stretched map at any resolution. Edit by dragging in the editor (offsets) or nudging.
 def pin_node(parent, name, mid, nx, ny):
+    # anchored at the normalised point, with a centred 24px clickable box (offsets +/-12)
     return ('\n[node name="%s" type="Control" parent="%s"]\n'
             'layout_mode = 1\nanchor_left = %.4f\nanchor_top = %.4f\nanchor_right = %.4f\nanchor_bottom = %.4f\n'
+            'offset_left = -12.0\noffset_top = -12.0\noffset_right = 12.0\noffset_bottom = 12.0\n'
             'mouse_filter = 2\nscript = ExtResource("wm_pin")\nmap_id = "%s"\n'
             % (name, parent, nx, ny, nx, ny, mid))
 PINP = "MoveableWindows/WorldMap/MapArea/Pins"

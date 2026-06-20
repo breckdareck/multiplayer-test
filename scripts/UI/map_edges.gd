@@ -49,12 +49,15 @@ func _draw() -> void:
 			if drawn.has(key):
 				continue
 			drawn[key] = true
-			var pa: Vector2 = pins[a].global_position - global_position
-			var pb: Vector2 = pins[b].global_position - global_position
+			var pa: Vector2 = _ctr(pins[a]) - global_position
+			var pb: Vector2 = _ctr(pins[b]) - global_position
 			draw_line(pa, pb, Color(0.08, 0.06, 0.04, 0.85), 5.0)
 			draw_line(pa, pb, Color(0.84, 0.69, 0.43), 2.0)
 	# gateway road: Emberwatch -> the Core descent
 	if pins.has("emberwatch") and pins.has("__core__"):
-		var pe: Vector2 = pins["emberwatch"].global_position - global_position
-		var pg: Vector2 = pins["__core__"].global_position - global_position
+		var pe: Vector2 = _ctr(pins["emberwatch"]) - global_position
+		var pg: Vector2 = _ctr(pins["__core__"]) - global_position
 		draw_line(pe, pg, Color(0.6, 0.35, 0.25), 3.0)
+
+func _ctr(pin) -> Vector2:
+	return pin.global_position + pin.size * 0.5

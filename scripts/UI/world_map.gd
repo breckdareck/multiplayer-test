@@ -338,7 +338,7 @@ func _update_hover() -> void:
 		# Hit-test the editable scene pins (CoreGate pin has map_id "__core__").
 		var mg := get_global_mouse_position()
 		for mid in _pins:
-			if mg.distance_to(_pins[mid].global_position) <= MapPin.R + 5.0:
+			if mg.distance_to(_pins[mid].center()) <= MapPin.R + 5.0:
 				found = mid
 				break
 	else:
@@ -378,7 +378,7 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var hit_gate := false
 		if _view == "world":
-			if _pins.has("__core__") and get_global_mouse_position().distance_to(_pins["__core__"].global_position) <= MapPin.R + 6.0:
+			if _pins.has("__core__") and get_global_mouse_position().distance_to(_pins["__core__"].center()) <= MapPin.R + 6.0:
 				hit_gate = true; _view = "core"
 		elif get_local_mouse_position().distance_to(_gate_pos(_content_rect())) <= GATE_R + 5.0:
 			hit_gate = true; _view = String(_active_gate()["to"])
