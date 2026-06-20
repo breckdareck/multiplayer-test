@@ -123,10 +123,8 @@ def pin_node(parent, name, mid, nx, ny):
 PINP = "MoveableWindows/WorldMap/MapArea/Pins"
 blk = (
     '\n[node name="MapArea" type="TextureRect" parent="MoveableWindows/WorldMap"]\n'
-    'layout_mode = 1\nanchor_left = 0.5\nanchor_top = 0.5\nanchor_right = 0.5\nanchor_bottom = 0.5\n'
-    'offset_left = -704.0\noffset_top = -384.0\noffset_right = 704.0\noffset_bottom = 384.0\n'
-    'grow_horizontal = 2\ngrow_vertical = 2\nmouse_filter = 2\ntexture = ExtResource("wm_bg")\n'
-    'expand_mode = 1\nstretch_mode = 0\n'
+    'layout_mode = 0\noffset_right = 1408.0\noffset_bottom = 768.0\n'
+    'mouse_filter = 2\ntexture = ExtResource("wm_bg")\nexpand_mode = 1\nstretch_mode = 0\n'
     '\n[node name="Edges" type="Control" parent="MoveableWindows/WorldMap/MapArea"]\n'
     'layout_mode = 1\nanchors_preset = 15\nanchor_right = 1.0\nanchor_bottom = 1.0\n'
     'grow_horizontal = 2\ngrow_vertical = 2\nmouse_filter = 2\nscript = ExtResource("wm_edges")\n'
