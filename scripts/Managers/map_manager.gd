@@ -92,6 +92,7 @@ const MAP_SCENES = {
 	"shattercliffs": "res://scenes/Levels/shattercliffs.tscn",
 	"deepshaft": "res://scenes/Levels/deepshaft.tscn",
 	"hollowgate": "res://scenes/Levels/hollowgate.tscn",
+	"dev_test": "res://scenes/Levels/dev_test.tscn",
 }
 
 ## Themed display names for the loading screen (the in-world zone banner reads the
@@ -170,6 +171,7 @@ const MAP_DISPLAY_NAMES = {
 	"shattercliffs": "The Shattercliffs",
 	"deepshaft": "The Deepshaft",
 	"hollowgate": "Hollowgate",
+	"dev_test": "Dev Test",
 }
 
 const DEFAULT_MAP = "lanterns_rest"

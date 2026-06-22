@@ -28,6 +28,7 @@ script = ExtResource("2_ed")
 monster_name = "Slime"
 movement_speed = 50.0
 archetype = 1
+is_splitter = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_col")

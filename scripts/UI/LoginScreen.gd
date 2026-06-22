@@ -288,8 +288,8 @@ func _on_dev_server_started() -> void:
 
 ## Builds a max-level save dict (level 100, all four masteries capped, every active
 ## ability of `disc` learned at level 1 with the first 8 bound to the primary
-## hotbar). Empty inventory → JoinHandshake grants the starter weapon/armor.
-## Spawns in "near_wilds" (the combat map) so there are enemies to hit immediately.
+## hotbar). Empty inventory + dev_kit_tier="Astral" → JoinHandshake grants the full
+## Astral weapon/armor set. Spawns in "dev_test" (the scratch test map).
 func _build_dev_max_save(username: String, disc: int) -> Dictionary:
 	var weapon_type: int = disc  # ClassType 0-3 aligns 1:1 with WeaponType 0-3
 	var ability_levels: Dictionary = {}
@@ -336,7 +336,10 @@ func _build_dev_max_save(username: String, disc: int) -> Dictionary:
 		"buffs": {},
 		"quests": {},
 		"attribute_points": {},
-		"last_map": "near_wilds",
+		# Dev fast-path drops into the scratch test map with a full Astral kit
+		# (JoinHandshake reads dev_kit_tier when granting the empty-inventory kit).
+		"dev_kit_tier": "Astral",
+		"last_map": "dev_test",
 		"party_id": -1,
 		"pets": [],
 		"summoned_pet_ids": [],

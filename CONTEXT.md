@@ -253,6 +253,92 @@ The per-character account-layer row in Postgres (login, character list,
 owned characters, the unique `username`). Lives behind the Flask API.
 _Avoid_: Account, profile, user record.
 
+## Enemy combat behaviour
+
+**Attack pattern**:
+An enemy's combat-behaviour identity — *how* it attacks — chosen so it pressures
+some weapon disciplines and rewards others (a ranged plinker punishes slow melee,
+a charger punishes kiting). The lever that makes the weapon-discipline choice felt
+moment-to-moment rather than only on the character sheet. See
+[docs/adr/0016-enemy-attack-patterns-ranged-delivery.md](docs/adr/0016-enemy-attack-patterns-ranged-delivery.md).
+_Avoid_: AI type, behaviour profile, archetype (reserved for the defensive
+stat-multiplier `MonsterArchetype`).
+
+**Attack type**:
+The `EnemyData` field (`Constants.AttackType`) selecting attack *delivery*:
+`MELEE` = the contact `slash_attack`; `RANGED`/`MAGIC` = a homing projectile via
+the injected `enemy_ranged_attack` state. Orthogonal to `is_magic_attacker`, which
+is the *damage axis* (physical vs magic) — a caster sets both, a physical archer
+sets `RANGED` with `is_magic_attacker = false`.
+_Avoid_: attack mode, attack delivery (informal).
+
+**Ranged caster**:
+An enemy whose `attack_type` is `RANGED`/`MAGIC`: from `chase` it stops at its
+`attack_range` and fires a homing projectile (the same one the player uses) at its
+target instead of contact-swinging. Only engages targets within the **attack
+box** (see below), and has no kiting AI — enemies have no pathfinding — so it
+keeps casting at point-blank once meleed and dies fast (squishy by design; that
+gap is the melee answer). `RabbitWizard` / `DeerDruid` are the first conversions.
+_Avoid_: mage enemy, shooter, archer (an archer is the physical-projectile variant).
+
+**Attack box**:
+The region an enemy will attack into: within `attack_range` *horizontally* AND
+within ±1 tile (~16px + slack) *vertically* (`EnemyBase.target_in_attack_zone`).
+The vertical clamp is deliberate — it keeps a ranged enemy from firing across
+several platforms; it engages only the same platform or one tile up/down.
+_Avoid_: attack radius, aggro range (that's `detection_radius`), reach.
+
+**Leaper**:
+An enemy (`is_leaper`) that **runs at its target and hops a wall/step in its path**
+to climb one tile up without breaking its charge — following the player onto a
+platform one up. It doesn't bounce everywhere or stop short; it keeps coming and
+rams on contact. The only enemy type that changes platforms (everyone else stays
+on its own). The "charger" of the attack-pattern set: the counter to ranged/kiting,
+denying the vertical escape a ranged caster's ±1-tile band leaves open. Boar is the first.
+See [docs/adr/0017-leaper-enemy-hopping-locomotion.md](docs/adr/0017-leaper-enemy-hopping-locomotion.md).
+_Avoid_: jumper, charger (the role), dasher (a dash is the rejected boss-style variant).
+
+**Blocker**:
+An enemy (`is_blocker`) that periodically raises a **frontal guard** (`enemy_block`
+state, plays its `block` clip) while chasing: for the guard window, damage from the
+front is heavily reduced and its flinch is suppressed, but a hit from **behind**
+ignores the guard. The defensive member of the attack-pattern set — punishes
+hold-to-attack spam, rewards timing (strike on the drop) and flanking (dagger
+backstab). The SW Knight (ARMORED) is the first. See
+[docs/adr/0018-blocker-enemy-frontal-guard.md](docs/adr/0018-blocker-enemy-frontal-guard.md).
+_Avoid_: tank (that's the ARMORED archetype / a stat profile), parry (reactive, not built).
+
+**Splitter**:
+An enemy (`is_splitter`) that, on death, spawns `split_count` smaller, weaker
+copies of its own scene, bounded by `split_generations` so the cascade can't
+runaway. Fills the AoE-vs-single-target axis of the attack-pattern set — single-
+target chip just makes more bodies, AoE clears the cluster. The base Slime is the
+first. See [docs/adr/0019-splitter-exploder-swarm-enemies.md](docs/adr/0019-splitter-exploder-swarm-enemies.md).
+_Avoid_: spawner (that's `EnemySpawner`/the pooling system), summoner.
+
+**Exploder**:
+An enemy (`is_exploder`) that bursts a circular AoE (`explode_radius`,
+`explode_damage_mult`) around itself when it dies — punishes meleeing it / being
+adjacent, rewards killing it from range. Usually `is_aggressive` so it rushes in.
+The FireSlime is the first. See [docs/adr/0019-splitter-exploder-swarm-enemies.md](docs/adr/0019-splitter-exploder-swarm-enemies.md).
+_Avoid_: bomber, kamikaze (informal), boss special (that's the telegraphed system).
+
+**Swarm**:
+Not a per-enemy mechanic but an encounter shape: a fast, low-HP `GLASS` mob (with
+`attack_mult` toned down so the threat is *numbers*, not per-hit) placed in a
+cluster — rewards AoE / punishes single-target. The **Feral Hare** (aggressive
+Bunny-sprite variant) is the first. See [docs/adr/0019-splitter-exploder-swarm-enemies.md](docs/adr/0019-splitter-exploder-swarm-enemies.md).
+_Avoid_: horde, pack (informal); not the same as a **Splitter** (which makes its
+bodies on death).
+
+**Telegraph (telegraphed zone)**:
+A previewed AoE shape shown for a windup dodge-window before its damage resolves,
+server-authoritative (`BossAttackData` + `broadcast_attack_telegraph` /
+`deal_boss_special_damage`). Currently a **boss-only** mechanic — the ranged
+caster fires a projectile, not a zone — but it remains the path if a zone-style
+regular-enemy attack is wanted later.
+_Avoid_: AoE marker, warning indicator, danger zone.
+
 ## Combat pacing
 
 **Cooldown band**:

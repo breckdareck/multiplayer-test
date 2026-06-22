@@ -15,14 +15,24 @@ var level_stats: AbilityLevelData
 ## ambushes, even though they land across different frames after stealth has broken.
 var is_ambush: bool = false
 
+## Server-side one-shot guard: a projectile resolves a single hit, then frees.
+## Stops area_entered + body_entered both firing in the same frame from
+## double-applying damage.
+var _consumed: bool = false
+
 @onready var sprite_2d: Node2D = $Sprite2D
 
 func _ready() -> void:
 	# The projectile should only detect collisions on the server
 	monitoring = multiplayer.is_server()
 	if monitoring:
+		# Player targets are AREAS (the enemy BodyHitbox, layer 8); player targets
+		# of an ENEMY projectile are BODIES (the player CharacterBody2D, layer 2,
+		# has no hurt-area). Connect both so the projectile works in both
+		# directions; _consumed guards against a double-resolve in the same frame.
 		area_entered.connect(_on_area_entered)
-	
+		body_entered.connect(_on_body_entered)
+
 	# Set a lifetime for the projectile in case it never hits anything.
 	# This runs on all peers, ensuring cleanup.
 	get_tree().create_timer(1.0).timeout.connect(queue_free)
@@ -61,42 +71,59 @@ func _physics_process(delta: float) -> void:
 	global_position += current_direction * speed * delta
 	rotation = current_direction.angle()
 
-# Server-side collision detection
+# Server-side collision detection. Player projectiles strike enemy hurt-AREAS
+# (BodyHitbox, layer 8); enemy projectiles strike the player BODY (CharacterBody2D,
+# layer 2). Both route to _try_hit with the struck entity's root node.
 func _on_area_entered(area: Area2D) -> void:
-	# It's possible for this area to be freed if another projectile killed it this frame.
 	if not is_instance_valid(area):
 		return
+	_try_hit(area.owner)
 
-	##print("Projectile: Collision detected with %s (owner: %s)" % [area.name, area.owner.name])
-	# This function is only connected on the server (_ready function)
-	
-	# Don't hit the caster
-	if area.owner == caster:
-		##print("Projectile: Hit caster, ignoring.")
+
+func _on_body_entered(body: Node) -> void:
+	if not is_instance_valid(body):
+		return
+	_try_hit(body)
+
+
+## Resolves a single hit against `hit_root` (a character root node). Only connected
+## on the server. Guarded so area_entered + body_entered can't double-apply.
+func _try_hit(hit_root: Node) -> void:
+	if _consumed or not is_instance_valid(hit_root):
 		return
 
-	# Check if the area belongs to a valid damagable entity
-	if not "health_component" in area.owner:
-		##print("Projectile: %s does not have a health_component, ignoring." % area.owner.name)
+	# Don't hit the caster.
+	if hit_root == caster:
 		return
-		
-	var health_comp = area.owner.get("health_component")
+
+	# Must be a valid, living damageable entity.
+	if not "health_component" in hit_root:
+		return
+	var health_comp = hit_root.get("health_component")
 	if not health_comp or health_comp.is_dead:
-		##print("Projectile: %s health_component is invalid or dead, ignoring." % area.owner.name)
 		return
 
 	# If this is a targeted projectile, only hit the intended target.
-	if is_instance_valid(target) and area.owner != target:
-		##print("Projectile: Targeted projectile hit %s, but target is %s, ignoring." % [area.owner.name, target.name])
+	if is_instance_valid(target) and hit_root != target:
 		return
 
-	# If we've reached here, we have a valid hit.
-	# Instead of dealing damage directly, we tell the caster's CombatComponent to process the hit.
-	if is_instance_valid(caster) and caster.combat_component:
-		##print("Projectile: Valid hit on %s. Telling caster to process damage." % area.owner.name)
-		caster.combat_component.process_projectile_hit(area.owner, ability, level_stats, is_ambush)
+	# Valid hit. Resolve damage through the caster's own pipeline:
+	#  - Players/bots route through CombatComponent.process_projectile_hit (ability
+	#    + crit + on-hit hooks).
+	#  - Enemies have no CombatComponent — they fire projectiles too (ADR-0016), so
+	#    route through the enemy's own damage_on_overlap, which IS its standard
+	#    attack (hit roll, defense mitigation, level scaling). The projectile then
+	#    deals exactly what the enemy's melee would.
+	if not is_instance_valid(caster):
+		printerr("Projectile: Caster is invalid.")
+		return
+	_consumed = true
+	if "combat_component" in caster and caster.combat_component:
+		caster.combat_component.process_projectile_hit(hit_root, ability, level_stats, is_ambush)
+	elif caster.has_method("damage_on_overlap"):
+		caster.damage_on_overlap(hit_root)
 	else:
-		printerr("Projectile: Caster or its CombatComponent is invalid.")
+		printerr("Projectile: Caster %s has no damage pathway." % caster.name)
 
 	# The projectile is destroyed on the server; tell clients to drop their copy.
 	_server_destroy()

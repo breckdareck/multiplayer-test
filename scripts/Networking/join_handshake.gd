@@ -122,16 +122,25 @@ func _phase_init() -> void:
 
 	if not _save or not _save.has("inventory") or (not has_items and not has_equipment):
 		var ec = _player.equipment_component
-		var starter_weapon: String = _pm._starter_weapon_for(_character_type)
-		_grant_starter_equip(ec, "WEAPON", starter_weapon)
-		# Class-appropriate starter armour: the level-1 "Worn" set of the
-		# discipline's family (Vanguard plate / Pathfinder leather / Arcanist robes
-		# / Nightshade cloth), so new characters spawn fully kitted.
 		var fam: String = _pm._starter_armor_family(_character_type)
-		_grant_starter_equip(ec, Constants.ArmorType.HEAD, "Worn %s Helm" % fam)
-		_grant_starter_equip(ec, Constants.ArmorType.CHEST, "Worn %s Mail" % fam)
-		_grant_starter_equip(ec, Constants.ArmorType.LEGS, "Worn %s Legguards" % fam)
-		_grant_starter_equip(ec, Constants.ArmorType.FEET, "Worn %s Boots" % fam)
+		# Dev fast-path: a full endgame "Astral" kit instead of the level-1 starter.
+		var dev_tier: String = _save.get("dev_kit_tier", "") if _save else ""
+		if dev_tier == "Astral":
+			_grant_starter_equip(ec, "WEAPON", _astral_weapon_for(_character_type))
+			_grant_starter_equip(ec, Constants.ArmorType.HEAD, "Astral %s Helm" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.CHEST, "Astral %s Mail" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.LEGS, "Astral %s Legguards" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.FEET, "Astral %s Boots" % fam)
+		else:
+			var starter_weapon: String = _pm._starter_weapon_for(_character_type)
+			_grant_starter_equip(ec, "WEAPON", starter_weapon)
+			# Class-appropriate starter armour: the level-1 "Worn" set of the
+			# discipline's family (Vanguard plate / Pathfinder leather / Arcanist robes
+			# / Nightshade cloth), so new characters spawn fully kitted.
+			_grant_starter_equip(ec, Constants.ArmorType.HEAD, "Worn %s Helm" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.CHEST, "Worn %s Mail" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.LEGS, "Worn %s Legguards" % fam)
+			_grant_starter_equip(ec, Constants.ArmorType.FEET, "Worn %s Boots" % fam)
 
 	# Set health and mana (PRE-recalc). mark_stats_dirty() below defers a stats
 	# recalc that fires during the SYNC phase's await; that recalc can change
@@ -179,6 +188,20 @@ func _grant_starter_equip(ec, key, item_name: String) -> void:
 		return
 	sd.item = ResourceManager.get_item_by_name(item_name)
 	ec.refresh_view(key)
+
+
+## The discipline's endgame "Astral" weapon name (dev fast-path kit). Mirrors
+## PlayerManager._starter_weapon_for but for the top-tier generated weapons.
+func _astral_weapon_for(class_type: int) -> String:
+	match class_type:
+		Constants.ClassType.STAFF, Constants.ClassType.ARCHMAGE:
+			return "Astral Spellstaff"
+		Constants.ClassType.BOW, Constants.ClassType.RANGER:
+			return "Astral Warbow"
+		Constants.ClassType.DAGGER, Constants.ClassType.ASSASSIN:
+			return "Astral Dirk"
+		_:
+			return "Astral Longsword"
 
 
 # ── SYNC ──────────────────────────────────────────────────────────────────────

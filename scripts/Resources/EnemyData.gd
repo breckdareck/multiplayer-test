@@ -89,10 +89,65 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var is_aggressive: bool = false
 ## How far (in pixels) the enemy can spot a target.
 @export var detection_radius: float = 160.0
-## Distance at which an enemy that has an attack state begins its swing.
+## Distance at which an enemy that has an attack state begins its swing. For a
+## ranged attack_type, set this LARGE (e.g. 180-240): the enemy stops out here
+## and casts instead of closing to melee.
 @export var attack_range: float = 36.0
 ## Seconds the enemy must wait between consecutive attacks.
 @export var attack_cooldown: float = 1.4
+
+## Leaper locomotion: when chasing, the enemy moves by HOPPING and can jump up or
+## drop down ~one platform to follow its target (a "ribbon pig"). The only enemies
+## that can change platforms — everyone else stays on its own. Orthogonal to
+## attack_type (a leaper can be a melee rammer or carry an attack). See
+## docs/adr/0017-leaper-enemy-hopping-locomotion.md.
+@export var is_leaper: bool = false
+
+## Splitter: when the enemy dies it spawns smaller, weaker copies of its own
+## scene — rewards AoE / punishes single-target. Bounded by split_generations so
+## it can't runaway. See docs/adr/0019-splitter-exploder-swarm-enemies.md.
+@export var is_splitter: bool = false
+## How many children spawn on death.
+@export var split_count: int = 2
+## How many times a split can cascade. 1 = the parent splits, its children don't.
+@export var split_generations: int = 1
+## Visual scale each split child gets relative to its parent.
+@export var split_child_scale: float = 0.6
+## Health multiplier each split child gets relative to a full enemy of its level.
+@export var split_child_health_mult: float = 0.4
+
+## Exploder: when the enemy dies it bursts a circular AoE around itself — punishes
+## meleeing it / being adjacent, rewards killing it from range. Pair with
+## is_aggressive so it rushes in. See docs/adr/0019-splitter-exploder-swarm-enemies.md.
+@export var is_exploder: bool = false
+## Radius (px) of the death burst.
+@export var explode_radius: float = 64.0
+## Burst damage as a multiple of the enemy's normal attack.
+@export var explode_damage_mult: float = 1.5
+
+## Blocker: while chasing, the enemy periodically raises a frontal guard (plays
+## its "block" clip) that heavily reduces damage taken from the FRONT and suppresses
+## its flinch for the window. Counterplay = wait it out, hit on the drop, or flank
+## it (a hit from behind ignores the guard). See
+## docs/adr/0018-blocker-enemy-frontal-guard.md.
+@export var is_blocker: bool = false
+
+## Attack DELIVERY (not damage axis — that's is_magic_attacker). MELEE = the
+## contact slash_attack state. RANGED / MAGIC = the telegraphed ranged-zone
+## state (enemy_ranged_attack), injected at runtime by enemy_base. A caster sets
+## MAGIC + is_magic_attacker; a physical archer sets RANGED + is_magic_attacker
+## off. See docs/adr/0016-enemy-attack-patterns-ranged-delivery.md.
+@export var attack_type: Constants.AttackType = Constants.AttackType.MELEE
+
+@export_category("Ranged Attack")
+## Projectile a RANGED / MAGIC enemy fires at its target, mirroring the player's
+## homing projectile (scripts/Gameplay/projectile.gd). Leave null to use the
+## shared default scene (scenes/Gameplay/projectile_base.tscn). The hit resolves
+## through the enemy's own damage_on_overlap, so a projectile deals exactly what
+## the enemy's melee would. See docs/adr/0016-enemy-attack-patterns-ranged-delivery.md.
+@export var ranged_projectile_scene: PackedScene = null
+## Projectile travel speed in px/sec.
+@export var ranged_projectile_speed: float = 200.0
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

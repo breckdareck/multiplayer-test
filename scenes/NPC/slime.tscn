@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://q6iqwsi8meq4"]
+[gd_scene format=3 uid="uid://q6iqwsi8meq4"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_fd6lc"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0l8pv"]
@@ -79,7 +79,7 @@ border_width_bottom = 2
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_v5wyi"]
 size = Vector2(64, 37)
 
-[node name="Slime" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
+[node name="Slime" type="CharacterBody2D" unique_id=505021424 node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_fd6lc")
@@ -95,26 +95,26 @@ magic_def_curve = ExtResource("8_5w3s7")
 monies_curve = ExtResource("9_m6m44")
 name_label = NodePath("NameLabel")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=2111077476]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
-[node name="AimTarget" type="Marker2D" parent="."]
+[node name="AimTarget" type="Marker2D" parent="." unique_id=1688903586]
 position = Vector2(0, -7)
 
-[node name="DmgNumOrigin" type="Node2D" parent="."]
+[node name="DmgNumOrigin" type="Node2D" parent="." unique_id=1183086784]
 position = Vector2(0, -47)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=534089827]
 position = Vector2(0, -6)
 shape = SubResource("CircleShape2D_n6pvg")
 
-[node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
+[node name="Health" type="Node" parent="." unique_id=1189135130 node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("2_0l8pv")
 damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
 
-[node name="Stats" type="Node" parent="."]
+[node name="Stats" type="Node" parent="." unique_id=1140411256]
 script = ExtResource("6_ko2xg")
 stats = Dictionary[int, Object]({
 8: SubResource("Resource_ex684"),
@@ -123,7 +123,7 @@ stats = Dictionary[int, Object]({
 13: SubResource("Resource_st7t5")
 })
 
-[node name="StateLabel" type="Label" parent="."]
+[node name="StateLabel" type="Label" parent="." unique_id=1889087229]
 visible = false
 offset_left = -20.0
 offset_top = -48.0
@@ -134,7 +134,7 @@ theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
 
-[node name="NameLabel" type="Label" parent="."]
+[node name="NameLabel" type="Label" parent="." unique_id=348179210]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -157,7 +157,7 @@ text = "Lv.0 Pookie"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=110632022]
 offset_left = -11.0
 offset_top = -19.000004
 offset_right = 89.0
@@ -170,45 +170,45 @@ step = 1.0
 value = 73.0
 show_percentage = false
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -12)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=997819290]
+position = Vector2(0, -10)
 sprite_frames = ExtResource("9_ko2xg")
 animation = &"patrol"
 autoplay = "idle"
 
-[node name="AttackHitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=532708470]
 collision_layer = 8
 collision_mask = 2
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1846746559]
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_v5wyi")
 disabled = true
 
-[node name="BodyHitbox" type="Area2D" parent="."]
+[node name="BodyHitbox" type="Area2D" parent="." unique_id=696785348]
 collision_layer = 8
 collision_mask = 2
 
-[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
+[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox" unique_id=1207462282]
 position = Vector2(0, -6)
 shape = SubResource("CircleShape2D_n6pvg")
 
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
+[node name="StateMachine" type="Node" parent="." unique_id=1583620919 node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("4_2npkn")
 starting_state = NodePath("patrol")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
+[node name="idle" type="Node" parent="StateMachine" unique_id=1002511110 node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("6_v5wyi")
 patrol_state = NodePath("../patrol")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
+[node name="patrol" type="Node" parent="StateMachine" unique_id=1040540820 node_paths=PackedStringArray("idle_state")]
 script = ExtResource("6_fd6lc")
 idle_state = NodePath("../idle")
 animation_name = "patrol"
 
-[node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
+[node name="death" type="Node" parent="StateMachine" unique_id=1636025552 node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("8_0l8pv")
 respawn_state = NodePath("../patrol")
 animation_name = "death"

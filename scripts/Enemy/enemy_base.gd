@@ -113,6 +113,48 @@ var _activation_asleep: bool = false
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
+const _RANGED_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_ranged_attack.gd")
+const _BLOCK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_block.gd")
+## Fraction of damage a blocker still takes from a FRONTAL hit while guarding
+## (0.2 = 80% reduced). Hits from behind ignore the guard entirely.
+const BLOCK_FRONTAL_DAMAGE_TAKEN := 0.2
+## Seconds between a blocker's guards.
+const BLOCK_COOLDOWN := 4.0
+## True while this blocker's frontal guard is up (set by the block state).
+var _guarding: bool = false
+## Clock gate for the next block (mirrors the attack-cooldown pattern).
+var _block_ready_at: int = 0
+## Set when a frontal hit is absorbed by the guard; the block state consumes it to
+## play the impact frames.
+var _block_react_pending: bool = false
+
+## Splitter: remaining split generations for THIS enemy (-1 = uninitialised; set
+## from enemy_data on _ready, or pre-set on a spawned child before it enters tree).
+var _split_gen_left: int = -1
+## True on an enemy spawned as a split child (gets scaled down + reduced HP).
+var _is_split_child: bool = false
+const _DEFAULT_PROJECTILE_SCENE := preload("res://scenes/Gameplay/projectile_base.tscn")
+## Vertical engagement window for an attack: a target must be within this many
+## pixels of the enemy's own Y to be attackable. 16px = one tile; the +8 slack
+## lets "same platform" jitter and exactly one tile up/down pass, while two tiles
+## (32px) is rejected — so a ranged enemy only fires at the same platform or ±1.
+const ATTACK_VERTICAL_REACH := 24.0
+## Vertical AGGRO window: a target more than this far above/below is never even
+## noticed, so an enemy doesn't aggro a player several floors up. 64px = 4 tiles.
+const AGGRO_VERTICAL_REACH := 64.0
+## Player body-hitbox collision layer (enemies sit on 8, players on 2). An enemy
+## projectile masks this so it strikes players, the mirror of the player
+## projectile masking the enemy layer.
+const PLAYER_HITBOX_LAYER := 2
+
+## Leaper ambient idle-hop: even when NOT aggroed, a leaper bounces on its own
+## every AMBIENT_HOP_MIN..MAX seconds (ribbon-pig flavour). A gentle vertical
+## impulse so it lands back in place (no horizontal, so it never hops off a ledge).
+const AMBIENT_HOP_FORCE := 220.0
+const AMBIENT_HOP_MIN := 5.0
+const AMBIENT_HOP_MAX := 15.0
+## Countdown to the next ambient hop (leapers only).
+var _ambient_hop_timer: float = 0.0
 
 # --- Boss state (server-authoritative; only used when enemy_data.is_boss) -----
 ## Pure phase/enrage crossing math, kept in a dependency-free helper so it's
@@ -299,6 +341,15 @@ func _ready() -> void:
 	else:
 		push_error("Enemy '%s' is missing EnemyData resource." % name)
 		return
+	# Stagger the first ambient leaper hop so a group doesn't bounce in unison.
+	_ambient_hop_timer = randf_range(AMBIENT_HOP_MIN, AMBIENT_HOP_MAX)
+	# Splitter: seed remaining generations (children pre-set theirs before entering
+	# the tree, so only initialise when still at the -1 sentinel). A split child is
+	# scaled down on every peer; its reduced HP is applied in the server block below.
+	if _split_gen_left < 0:
+		_split_gen_left = enemy_data.split_generations
+	if _is_split_child:
+		scale = Vector2(enemy_data.split_child_scale, enemy_data.split_child_scale)
 	# Add to networked entities group for proper cleanup during channel switching
 	add_to_group("networked_entities")
 	add_to_group("Enemies")
@@ -317,6 +368,9 @@ func _ready() -> void:
 			health_component.max_health = INVINCIBLE_MAX_HEALTH
 		else:
 			health_component.max_health = maxi(1, int(health_curve.sample(monster_level) * enemy_data.effective_stat_mults()["hp"]))
+		# Split children are chip-HP — reduced so an AoE clears the swarm quickly.
+		if _is_split_child:
+			health_component.max_health = maxi(1, int(health_component.max_health * enemy_data.split_child_health_mult))
 		health_component.current_health = health_component.max_health
 		health_component.died.connect(_on_enemy_died)
 		health_component.damaged.connect(on_enemy_damaged)
@@ -342,6 +396,14 @@ func _ready() -> void:
 	# same pattern as the player.
 	_ensure_chase_state()
 	_ensure_hit_state()
+	# Inject the ranged-attack state for RANGED / MAGIC enemies (telegraphed-zone
+	# caster). Created on every peer so the state-name sync resolves on clients;
+	# its telegraph/damage only advances on the server.
+	if enemy_data != null and enemy_data.attack_type != Constants.AttackType.MELEE:
+		_ensure_ranged_attack_state()
+	# Inject the frontal-guard state for blocker enemies.
+	if enemy_data != null and enemy_data.is_blocker:
+		_ensure_block_state()
 	# [Boss] Inject the telegraphed-special state. Created on every peer (gated by
 	# the data flag, identical everywhere) so the state-name sync resolves on
 	# clients; its windup/damage only advances on the server.
@@ -389,7 +451,24 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if multiplayer.has_multiplayer_peer() and multiplayer.is_server():
+		_tick_ambient_leaper_hop(delta)
 		state_machine.process_physics(delta)
+
+
+## [Server] Ribbon-pig idle bounce: a leaper that isn't chasing anyone hops in
+## place on a 5-15s random timer. Set BEFORE state_machine.process_physics so the
+## active state's gravity + move_and_slide carry the impulse out. Purely vertical
+## (the state owns horizontal), so it never hops the enemy off its platform. While
+## engaged the chase state owns all jumping, so this stands down.
+func _tick_ambient_leaper_hop(delta: float) -> void:
+	if enemy_data == null or not enemy_data.is_leaper:
+		return
+	if is_engaged() or not is_on_floor():
+		return
+	_ambient_hop_timer -= delta
+	if _ambient_hop_timer <= 0.0:
+		velocity.y = -AMBIENT_HOP_FORCE
+		_ambient_hop_timer = randf_range(AMBIENT_HOP_MIN, AMBIENT_HOP_MAX)
 
 
 # --- Mark indicator -------------------------------------------------------
@@ -501,6 +580,10 @@ func _try_enter_hit_state() -> void:
 		return
 	if state_machine.current_state is EnemyAttackState:
 		return
+	# A guarding blocker doesn't flinch — the whole point of the guard is to keep
+	# its footing while the player chips at it.
+	if _guarding:
+		return
 	# A telegraphed boss special is committed — chip damage must not cancel the
 	# windup (else focus fire would stop the special ever landing).
 	var boss_special_state: Node = state_machine.get_node_or_null("boss_special")
@@ -515,6 +598,69 @@ func _try_enter_hit_state() -> void:
 
 func _on_enemy_died(_killer: Node) -> void:
 	call_deferred("_deferred_death_processing", _killer)
+
+
+## [Server] Splitter death: spawn `split_count` smaller, weaker copies of this
+## enemy's own scene at its position, each with one fewer split generation (so the
+## cascade is bounded). Children are added under this enemy's container; a map-level
+## MultiplayerSpawner watching that container replicates them (and the host renders
+## them regardless). No-op unless this is a splitter with generations remaining.
+func _maybe_split() -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
+		return
+	if not enemy_data.is_splitter or _split_gen_left <= 0:
+		return
+	var scene_path := scene_file_path
+	if scene_path.is_empty():
+		return
+	var packed: PackedScene = load(scene_path)
+	if packed == null:
+		return
+	var container := get_parent()
+	if not is_instance_valid(container):
+		return
+	for i in range(maxi(0, enemy_data.split_count)):
+		var child := packed.instantiate()
+		# Pre-set BEFORE entering the tree so the child's _ready picks them up.
+		child._is_split_child = true
+		child._split_gen_left = _split_gen_left - 1
+		container.add_child(child, true)
+		child.global_position = global_position + Vector2(randf_range(-14.0, 14.0), -2.0)
+
+
+## [Server] Exploder death: burst a circular AoE around the death position.
+## NOTE: this can't reuse deal_boss_special_damage — that bails when the attacker is
+## dead, and an exploder is dead exactly when it bursts. So the radius damage is
+## done inline here. Punishes anyone adjacent — i.e. whoever meleed it.
+func _maybe_explode() -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
+		return
+	if not enemy_data.is_exploder or stats_component == null:
+		return
+	var att_stat: int = Constants.StatType.MAGICATTACK if enemy_data.is_magic_attacker else Constants.StatType.WEAPONATTACK
+	if not stats_component.stats.has(att_stat):
+		return
+	var base_att: float = float(stats_component.stats.get(att_stat).total_value)
+	var dmg: int = maxi(1, roundi(base_att * enemy_data.explode_damage_mult))
+	var r2: float = enemy_data.explode_radius * enemy_data.explode_radius
+	for pid in _get_players_on_same_map():
+		var node: Node2D = PlayerManager.get_player_node(pid)
+		if not is_valid_target(node):
+			continue
+		if global_position.distance_squared_to(node.global_position) > r2:
+			continue
+		var health: HealthComponent = node.get_node_or_null("Components/Health")
+		if health == null or health.is_dead:
+			continue
+		# ignore_invuln = true: the burst goes THROUGH i-frames. It's a one-shot
+		# positional punish (dodge it by leaving the radius, not by a lucky contact
+		# graze's invuln window); ignore_invuln also means it grants no new i-frames.
+		health.take_damage(dmg, self, true)
+	# Read the blast on every peer.
+	var emap := _get_map_id()
+	if emap != "":
+		MapManager.broadcast_vfx_everywhere(emap, "explosion", global_position, 2.4, 0.0, false)
+		AudioManager.play_sfx_for_map(emap, "res://assets/sounds/generated/sword_heavy.wav", global_position, 2.0)
 
 
 func _deferred_death_processing(_killer: Node) -> void:
@@ -545,6 +691,11 @@ func _deferred_death_processing(_killer: Node) -> void:
 		else:
 			MapManager.broadcast_vfx_everywhere(_death_map, "explosion", global_position, 1.1, 0.0, false)
 			AudioManager.play_sfx_for_map(_death_map, "res://assets/sounds/generated/enemy_death.wav", global_position, -2.0)
+
+	# Splitter: spawn the smaller copies before this body is pooled/freed.
+	_maybe_split()
+	# Exploder: burst an AoE around the death position.
+	_maybe_explode()
 
 	#print("Enemy died. Killer: ", _killer, " Type: ", typeof(_killer))
 
@@ -1096,7 +1247,10 @@ func apply_knockback(knockback: Vector2) -> void:
 	# Invincible training dummies stay rooted — ignore knockback impulses.
 	if health_component and health_component.invincible:
 		return
-		
+	# A blocker with its guard up is braced — hits don't shove it.
+	if _guarding:
+		return
+
 	velocity.x = knockback.x
 	velocity.y = knockback.y
 
@@ -1221,6 +1375,76 @@ func _ensure_hit_state() -> void:
 	state_machine.add_child(hit)
 
 
+## Creates and attaches the runtime "ranged_attack" state — the telegraphed-zone
+## caster attack. Injected for RANGED / MAGIC enemies (gated by the caller) using
+## the same code-injection pattern as chase/hit, so no per-scene wiring is needed.
+## animation_name is left empty: the state picks a cast clip from the SpriteFrames.
+func _ensure_ranged_attack_state() -> void:
+	if state_machine == null or state_machine.has_node("ranged_attack"):
+		return
+	var s := Node.new()
+	s.set_script(_RANGED_ATTACK_STATE_SCRIPT)
+	s.name = "ranged_attack"
+	s.animation_name = ""
+	state_machine.add_child(s)
+
+
+## Creates and attaches the runtime "block" state — the blocker's frontal guard.
+## Injected for blocker enemies (gated by the caller), same pattern as the others.
+func _ensure_block_state() -> void:
+	if state_machine == null or state_machine.has_node("block"):
+		return
+	var s := Node.new()
+	s.set_script(_BLOCK_STATE_SCRIPT)
+	s.name = "block"
+	s.animation_name = "block"
+	state_machine.add_child(s)
+
+
+## Block readiness gate + cooldown (mirrors can_attack / start_attack_cooldown).
+func can_block() -> bool:
+	return Time.get_ticks_msec() >= _block_ready_at
+
+
+func start_block_cooldown() -> void:
+	_block_ready_at = Time.get_ticks_msec() + int(BLOCK_COOLDOWN * 1000.0)
+
+
+## Set by the block state for the duration of the guard.
+func set_guarding(on: bool) -> void:
+	_guarding = on
+
+
+## [Server] Frontal-guard mitigation, called from HealthComponent.take_damage via
+## the generic `guard_reduced_damage` hook. A guarding blocker takes only
+## BLOCK_FRONTAL_DAMAGE_TAKEN of a hit that comes from the side it faces; hits from
+## behind (e.g. a dagger flank) pass through at full damage. Non-guarding / non-
+## frontal returns the amount unchanged.
+func guard_reduced_damage(amount: int, source: Node) -> int:
+	if not _guarding:
+		return amount
+	var attacker: Node2D = _resolve_character(source)
+	if attacker == null:
+		# Unattributed (DoT/environment) — treat as unblockable so guards can't
+		# trivialise damage-over-time.
+		return amount
+	var from_dir: float = signf(attacker.global_position.x - global_position.x)
+	# Frontal when the attacker is on the side the enemy is facing.
+	if from_dir == 0.0 or int(from_dir) == facing_direction:
+		_block_react_pending = true  # tell the block state to play its impact frames
+		return maxi(1, roundi(float(amount) * BLOCK_FRONTAL_DAMAGE_TAKEN))
+	return amount
+
+
+## True (once) when a frontal hit has been absorbed since the last check — the
+## block state polls this to fire its impact-frame reaction.
+func consume_block_react() -> bool:
+	if _block_react_pending:
+		_block_react_pending = false
+		return true
+	return false
+
+
 ## [Boss] Creates and attaches the runtime "boss_special" state — the telegraphed
 ## AoE windup. Only injected for bosses (gated by the caller). animation_name is
 ## left empty: bosses reuse a base enemy's SpriteFrames, which has no dedicated
@@ -1270,6 +1494,10 @@ func acquire_target() -> Node2D:
 		var node: Node2D = PlayerManager.get_player_node(pid)
 		if not is_valid_target(node):
 			continue
+		# Vertical aggro clamp: ignore targets more than a few tiles up/down so an
+		# enemy doesn't notice a player on a far-higher/lower platform.
+		if absf(node.global_position.y - global_position.y) > AGGRO_VERTICAL_REACH:
+			continue
 		var d: float = global_position.distance_to(node.global_position)
 		if d < best_dist:
 			best_dist = d
@@ -1292,10 +1520,114 @@ func get_aggro_target() -> Node2D:
 	return current_target
 
 
-## True when this enemy has a melee attack state — i.e. it swings rather than
-## simply charging into its target.
+## The attack state this enemy hands off to from chase when in range — the
+## ranged-cast state for a RANGED / MAGIC enemy, else the melee slash. null when
+## the enemy has neither (it simply rams its body hitbox into the target).
+func get_attack_state_node() -> Node:
+	if state_machine == null:
+		return null
+	var ranged := state_machine.get_node_or_null("ranged_attack")
+	if ranged != null:
+		return ranged
+	return state_machine.get_node_or_null("slash_attack")
+
+
+## True when this enemy has an attack state — i.e. it stops in range and attacks
+## rather than simply charging its body into the target.
 func has_attack_state() -> bool:
-	return state_machine != null and state_machine.has_node("slash_attack")
+	return get_attack_state_node() != null
+
+
+## True when `target` is inside this enemy's attack box: within attack_range
+## HORIZONTALLY and within ±1 tile VERTICALLY. The split (vs a single radius) is
+## what keeps a ranged enemy from firing at a target several platforms up/down —
+## it only engages the same platform or one tile above/below.
+func target_in_attack_zone(target) -> bool:
+	if enemy_data == null or not is_valid_target(target):
+		return false
+	return position_in_attack_box(global_position, target.global_position, enemy_data.attack_range)
+
+
+## Pure geometry of the attack box: `to` is reachable from `from` when within
+## `attack_range` horizontally and ATTACK_VERTICAL_REACH (±1 tile) vertically.
+## Static + dependency-free so the ±1-tile rule is unit-testable.
+static func position_in_attack_box(from: Vector2, to: Vector2, attack_range: float) -> bool:
+	return absf(to.x - from.x) <= attack_range and absf(to.y - from.y) <= ATTACK_VERTICAL_REACH
+
+
+## True when `target` is on roughly the enemy's level (within the ±1-tile band) —
+## i.e. closing the horizontal gap could let it attack. When false the target is
+## on another platform the enemy can't reach without pathfinding, so chasing it is
+## pointless and the enemy should pace the area instead.
+func target_vertically_reachable(target) -> bool:
+	if not is_valid_target(target):
+		return false
+	return absf(target.global_position.y - global_position.y) <= ATTACK_VERTICAL_REACH
+
+
+## [Server] Fires a homing projectile at `target`, mirroring the player's
+## projectile spawn (AbilityComponent.spawn_projectile): the server owns the
+## authoritative projectile (hit detection), and every same-map client gets a
+## visual copy via MapManager.spawn_projectile_visual (routed through the autoload
+## so it resolves for bots too). The hit resolves through this enemy's own
+## damage_on_overlap (see projectile.gd), so it deals exactly what its melee does.
+func fire_projectile(target: Node2D) -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
+		return
+	if not is_valid_target(target):
+		return
+	var map_node := _get_map_node()
+	if map_node == null:
+		return
+
+	var scene: PackedScene = enemy_data.ranged_projectile_scene
+	if scene == null:
+		scene = _DEFAULT_PROJECTILE_SCENE
+
+	var spawn_pos: Vector2 = global_position
+	var aim := get_node_or_null("AimTarget")
+	if aim != null:
+		spawn_pos = (aim as Node2D).global_position
+
+	var target_pos: Vector2 = target.global_position
+	var aim_t := target.get_node_or_null("AimTarget")
+	if aim_t != null:
+		target_pos = (aim_t as Node2D).global_position
+	var to_target: Vector2 = target_pos - spawn_pos
+	var direction: Vector2 = to_target.normalized() if to_target.is_finite() and not to_target.is_zero_approx() else Vector2(facing_direction, 0.0)
+	var speed: float = enemy_data.ranged_projectile_speed
+
+	var container := map_node.get_node_or_null("Projectiles")
+	if container == null:
+		container = Node.new()
+		container.name = "Projectiles"
+		map_node.add_child(container)
+
+	var projectile = scene.instantiate()
+	var proj_name := "EnemyProj_%d_%d" % [Time.get_ticks_msec(), randi()]
+	projectile.name = proj_name
+	# Mask players, not enemies (mirror of the player projectile's enemy mask).
+	projectile.collision_mask = PLAYER_HITBOX_LAYER
+	projectile.initialize(self, target, null, null, speed, direction)
+	# Set LOCAL position before add_child so physics interpolation doesn't streak
+	# it from (0,0) — same proven order as AbilityComponent.spawn_projectile.
+	projectile.position = spawn_pos - container.global_position
+	container.add_child(projectile, true)
+
+	var map_name: String = map_node.name.replace("Map_", "")
+	var scene_path: String = scene.resource_path
+	var target_path: NodePath = target.get_path()
+	MapManager.broadcast_to_map(map_name, func(peer_id): MapManager.spawn_projectile_visual.rpc_id(peer_id, proj_name, scene_path, spawn_pos, direction, speed, target_path), true, true)
+
+
+## This enemy's owning map scene node (the `map_base`-group ancestor), or null.
+func _get_map_node() -> Node:
+	var p := get_parent()
+	while p != null:
+		if p.is_in_group("map_base"):
+			return p
+		p = p.get_parent()
+	return null
 
 
 func can_attack() -> bool:

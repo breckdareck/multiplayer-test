@@ -753,6 +753,13 @@ func _execute_hit(target_enemy: Node, ability: AbilityData, level_stats: Ability
 		if ambush_mult > 1.0:
 			damage_to_deal = roundi(damage_to_deal * ambush_mult)
 
+		# Blocker frontal guard (ADR-0018): a raised shield cuts the hit (and flags
+		# the impact frames). No-op for non-guarding / non-blocker enemies. Applied
+		# HERE — at the final damage — so the damage NUMBER and the HP both reflect
+		# the reduction (melee + projectiles both route through _execute_hit).
+		if target_enemy.has_method("guard_reduced_damage"):
+			damage_to_deal = target_enemy.guard_reduced_damage(damage_to_deal, owner_node)
+
 		damage_values.append(damage_to_deal)
 		crit_values.append(is_crit)
 		if damage_to_deal > max_landed_damage:

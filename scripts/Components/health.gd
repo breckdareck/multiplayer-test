@@ -205,6 +205,8 @@ func take_damage(amount: int, source: Node = null, ignore_invuln: bool = false, 
 	# Resolve), Banner DR, and the smoke-choke debuff reduce incoming damage; before
 	# this, the number always showed the full pre-reduction hit, making those effects
 	# look like they did nothing. Returns `amount` unchanged off-server / non-player.
+	# Enemy blocker guard reduction is applied upstream in CombatComponent._execute_hit
+	# (so the damage number matches), not here — see ADR-0018.
 	var final_amount: int = _compute_incoming_amount(amount, source) if is_player else amount
 
 	##print("HealthComponent.take_damage: amount=%d, show_number=%s, is_player=%s, is_server=%s" % [amount, show_number, is_player, multiplayer.is_server()])
