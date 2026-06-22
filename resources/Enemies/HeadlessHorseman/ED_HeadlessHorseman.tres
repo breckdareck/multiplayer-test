@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
+[ext_resource type="SpriteFrames" path="res://resources/Enemies/HeadlessHorseman/SF_HeadlessHorseman.tres" id="3_sf"]
+
+[sub_resource type="RectangleShape2D" id="Shape_atk"]
+size = Vector2(64, 37)
+
+[sub_resource type="CapsuleShape2D" id="Shape_body"]
+radius = 13.0
+height = 34.0
+
+[sub_resource type="CircleShape2D" id="Shape_col"]
+radius = 6.0
+
+[sub_resource type="Resource" id="Resource_coin"]
+script = ExtResource("1_drop")
+item_name = "Coin"
+drop_chance = 0.9
+min_amount = 18
+max_amount = 30
+metadata/_custom_type_script = "uid://cucvsoha2s1kj"
+
+[resource]
+script = ExtResource("2_ed")
+monster_name = "HeadlessHorseman"
+monster_level = 60
+movement_speed = 100
+is_leaper = true
+is_aggressive = true
+sprite_frames = ExtResource("3_sf")
+character_collision_shape = SubResource("Shape_col")
+body_hitbox_shape = SubResource("Shape_body")
+attack_hitbox_shape = SubResource("Shape_atk")
+item_drops = Array[ExtResource("1_drop")]([SubResource("Resource_coin")])
+metadata/_custom_type_script = "uid://dv7aj5x3e50cg"
