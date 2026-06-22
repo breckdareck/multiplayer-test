@@ -29,7 +29,6 @@ monster_level = 41
 movement_speed = 45.0
 is_aggressive = true
 archetype = 2
-is_blocker = true
 attack_range = 38.0
 attack_cooldown = 1.7
 sprite_frames = ExtResource("3_sf")
