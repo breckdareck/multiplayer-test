@@ -1409,7 +1409,15 @@ func _ensure_secondary_attack_state() -> void:
 
 ## True when this enemy has a configured secondary attack (projectile + clip).
 func has_secondary_attack() -> bool:
-	return enemy_data != null and enemy_data.secondary_projectile_scene != null and enemy_data.secondary_attack_anim != ""
+	if enemy_data == null or enemy_data.secondary_attack_anim == "":
+		return false
+	return enemy_data.secondary_vfx_key != "" or enemy_data.secondary_projectile_scene != null
+
+
+## True when the secondary is the BREATH flavour (mouth VFX + frontal cone) rather
+## than a projectile. secondary_vfx_key wins when both are set.
+func secondary_is_breath() -> bool:
+	return enemy_data != null and enemy_data.secondary_vfx_key != ""
 
 
 func can_use_secondary() -> bool:
@@ -1426,6 +1434,52 @@ func fire_secondary_projectile(target: Node2D) -> void:
 	if enemy_data == null:
 		return
 	fire_projectile(target, enemy_data.secondary_projectile_scene, enemy_data.secondary_projectile_speed)
+
+
+## BREATH-flavoured secondary: plays the secondary_vfx_key effect at this enemy's
+## MOUTH (its AimTarget, pushed forward by facing) on every peer, and damages every
+## living player in a frontal cone within secondary_attack_range. No projectile —
+## the fire is an animation coming off the enemy. Server-only.
+func fire_secondary_breath(_target: Node2D) -> void:
+	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null or stats_component == null:
+		return
+	var dir: int = facing_direction
+	# Mouth anchor: AimTarget if present, else body; pushed forward so the fire
+	# erupts in FRONT of the mouth rather than sitting on the sprite.
+	var mouth: Vector2 = global_position
+	var aim := get_node_or_null("AimTarget")
+	if aim != null:
+		mouth = (aim as Node2D).global_position
+	var reach: float = enemy_data.secondary_attack_range
+	var vfx_pos: Vector2 = mouth + Vector2(dir * reach * 0.45, 0.0)
+
+	# Show the breath plume on every peer (autoload-routed, so bots' victims see it too).
+	var emap := _get_map_id()
+	if emap != "":
+		MapManager.broadcast_vfx_everywhere(emap, enemy_data.secondary_vfx_key, vfx_pos, 1.0, 0.0, dir < 0)
+		AudioManager.play_sfx_for_map(emap, "res://assets/sounds/generated/sword_heavy.wav", global_position, 1.0)
+
+	# Frontal-cone damage: in front of the facing direction, within reach, ±vertical band.
+	var att_stat: int = Constants.StatType.MAGICATTACK if enemy_data.is_magic_attacker else Constants.StatType.WEAPONATTACK
+	if not stats_component.stats.has(att_stat):
+		return
+	var base_att: float = float(stats_component.stats.get(att_stat).total_value)
+	var dmg: int = maxi(1, roundi(base_att * enemy_data.secondary_attack_damage_mult))
+	for pid in _get_players_on_same_map():
+		var node: Node2D = PlayerManager.get_player_node(pid)
+		if not is_valid_target(node):
+			continue
+		var dx: float = node.global_position.x - global_position.x
+		var dy: float = node.global_position.y - global_position.y
+		# In front (the side the enemy faces) and within reach + a tile-ish band.
+		if signf(dx) != float(dir) and absf(dx) > 8.0:
+			continue
+		if absf(dx) > reach or absf(dy) > ATTACK_VERTICAL_REACH * 1.5:
+			continue
+		var health: HealthComponent = node.get_node_or_null("Components/Health")
+		if health == null or health.is_dead:
+			continue
+		health.take_damage(dmg, self, false)
 
 
 ## Creates and attaches the runtime "block" state — the blocker's frontal guard.

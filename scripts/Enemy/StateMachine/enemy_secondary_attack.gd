@@ -39,7 +39,10 @@ func process_frame(delta: float) -> State:
 	if not _fired and _elapsed >= _FIRE_TIME:
 		_fired = true
 		if is_instance_valid(enemy.current_target):
-			enemy.fire_secondary_projectile(enemy.current_target)
+			if enemy.secondary_is_breath():
+				enemy.fire_secondary_breath(enemy.current_target)
+			else:
+				enemy.fire_secondary_projectile(enemy.current_target)
 
 	if _fired and _elapsed >= _FIRE_TIME + _RECOVER_TAIL:
 		return _recover_state()

@@ -3,8 +3,6 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://dytk0do3008em" path="res://resources/Enemies/RedDragon/SF_RedDragon.tres" id="3_sf"]
-[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="4_bad"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/monster_fireball.tscn" id="5_proj"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(80, 48)
@@ -35,11 +33,11 @@ is_aggressive = true
 detection_radius = 420.0
 attack_range = 60.0
 attack_cooldown = 2.0
-secondary_projectile_scene = ExtResource("5_proj")
-secondary_projectile_speed = 240.0
+secondary_vfx_key = "monster_fire_breath"
 secondary_attack_anim = "attack_2"
 secondary_attack_cooldown = 6.0
-secondary_attack_range = 260.0
+secondary_attack_range = 200.0
+secondary_attack_damage_mult = 1.4
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

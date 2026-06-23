@@ -150,19 +150,31 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var ranged_projectile_speed: float = 200.0
 
 @export_category("Secondary Attack")
-## Optional SECOND attack — a projectile/spell on its own cooldown, played with
-## secondary_attack_anim, layered on top of the primary. For enemies whose sheet
-## has a distinct second attack/cast clip that reads as a throw/cast (verify the
-## sprite per enemy — some second attacks are just melee swings and want no
-## projectile). Leave scene + anim empty to disable.
+## Optional SECOND attack on its own cooldown, played with secondary_attack_anim,
+## layered on top of the primary. Two flavours (pick by which field you fill):
+##   - PROJECTILE: set secondary_projectile_scene → fires a homing bolt/spell
+##     (e.g. a caster's second orb), exactly like the ranged attack.
+##   - BREATH: set secondary_vfx_key → no projectile; plays that VfxCatalog effect
+##     AT THE ENEMY'S MOUTH (its AimTarget, pushed forward by facing) and damages
+##     players in a frontal cone within secondary_attack_range. Use for a dragon's
+##     fire breath etc. — the fire is an animation coming off the enemy, not a flying
+##     orb. secondary_vfx_key wins if both are set.
+## For enemies whose sheet has a distinct second attack/cast clip — verify the sprite
+## per enemy (some second attacks are just melee swings and want neither). Leave the
+## scene/key AND anim empty to disable.
 @export var secondary_projectile_scene: PackedScene = null
 @export var secondary_projectile_speed: float = 200.0
+## VfxCatalog key for a BREATH-flavoured secondary (e.g. "monster_fire_breath").
+## When set, the secondary is a mouth-anchored frontal cone, not a projectile.
+@export var secondary_vfx_key: String = ""
 ## Animation clip the secondary attack plays (e.g. "attack_2" or "spell").
 @export var secondary_attack_anim: String = ""
 ## Seconds between secondary attacks.
 @export var secondary_attack_cooldown: float = 5.0
-## Horizontal range the secondary fires at (often longer than the melee attack_range).
+## Horizontal range the secondary reaches (often longer than the melee attack_range).
 @export var secondary_attack_range: float = 160.0
+## Breath damage as a multiple of the enemy's normal attack (BREATH flavour only).
+@export var secondary_attack_damage_mult: float = 1.0
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

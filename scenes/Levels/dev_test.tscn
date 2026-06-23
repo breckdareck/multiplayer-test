@@ -585,7 +585,7 @@ tile_set = ExtResource("8_n0oke")
 
 [node name="Platform" type="TileMapLayer" parent="TileMap" unique_id=1569818607]
 use_parent_material = true
-tile_map_data = PackedByteArray("AAAYAA4AAQARAAkAAAAZAA4AAQASAAkAAAAaAA4AAQASAAkAAAAbAA4AAQASAAkAAAAcAA4AAQASAAkAAAAdAA4AAQASAAkAAAAeAA4AAQATAAkAAAA=")
+tile_map_data = PackedByteArray("AAAYAA4AAQARAAkAAAAZAA4AAQASAAkAAAAaAA4AAQASAAkAAAAbAA4AAQASAAkAAAAcAA4AAQASAAkAAAAdAA4AAQASAAkAAAAeAA4AAQATAAkAAADp/xMAAQARAAkAAADq/xMAAQASAAkAAADr/xMAAQASAAkAAADs/xMAAQASAAkAAADt/xMAAQASAAkAAADu/xMAAQASAAkAAADv/xMAAQASAAkAAADw/xMAAQASAAkAAADx/xMAAQASAAkAAADy/xMAAQASAAkAAADz/xMAAQASAAkAAAD0/xMAAQASAAkAAAD1/xMAAQASAAkAAAD2/xMAAQASAAkAAAD3/xMAAQASAAkAAAD4/xMAAQASAAkAAAD5/xMAAQASAAkAAAD6/xMAAQASAAkAAAD7/xMAAQASAAkAAAD8/xMAAQASAAkAAAD9/xMAAQATAAkAAAA=")
 tile_set = ExtResource("8_n0oke")
 
 [node name="Mid" type="TileMapLayer" parent="TileMap" unique_id=1940062479]
@@ -619,6 +619,25 @@ script = ExtResource("10_3lv2j")
 shape = SubResource("RectShape_C0")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C0" unique_id=2042741946]
+offset_left = -2.0
+offset_top = -52.0
+offset_right = 2.0
+offset_bottom = 52.0
+texture = SubResource("AtlasTexture_p47w5")
+patch_margin_top = 2
+patch_margin_bottom = 2
+axis_stretch_vertical = 1
+
+[node name="C1" type="Area2D" parent="Ropes" unique_id=308218804]
+position = Vector2(-161, 86)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("10_3lv2j")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ropes/C1" unique_id=839607954]
+shape = SubResource("RectShape_C0")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="Ropes/C1" unique_id=1156641767]
 offset_left = -2.0
 offset_top = -52.0
 offset_right = 2.0
@@ -679,7 +698,7 @@ respawnable = true
 position = Vector2(-239, 146)
 
 [node name="RedDragon" parent="Enemies" unique_id=343998451 instance=ExtResource("18_dragon")]
-position = Vector2(-386, 147)
+position = Vector2(-339, 35)
 respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=268993879]
