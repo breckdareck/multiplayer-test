@@ -24,8 +24,10 @@ const CHASE_SPEED_MULTIPLIER: float = 1.5
 ## when it's engaged but can't reach the target.
 const WANDER_TIME_MIN: float = 0.8
 const WANDER_TIME_MAX: float = 2.0
-## Drop the target once it gets this many times the detection radius away.
-const LOSE_TARGET_FACTOR: float = 1.6
+## Drop the target once it gets this many times the detection radius away. A small
+## (>1) hysteresis margin past the detection range so chase doesn't flip-flop at the
+## boundary, while still giving up shortly after the player leaves aggro range.
+const LOSE_TARGET_FACTOR: float = 1.2
 ## Give up if the chase carries the enemy this far from where it began.
 const LEASH_RADIUS: float = 480.0
 ## Range of the randomized reaction delay before the enemy turns to face a
