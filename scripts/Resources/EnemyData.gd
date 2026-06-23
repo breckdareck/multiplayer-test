@@ -154,19 +154,22 @@ func get_special_attacks() -> Array[BossAttackData]:
 ## layered on top of the primary. Two flavours (pick by which field you fill):
 ##   - PROJECTILE: set secondary_projectile_scene → fires a homing bolt/spell
 ##     (e.g. a caster's second orb), exactly like the ranged attack.
-##   - BREATH: set secondary_vfx_key → no projectile; plays that VfxCatalog effect
-##     AT THE ENEMY'S MOUTH (its AimTarget, pushed forward by facing) and damages
-##     players in a frontal cone within secondary_attack_range. Use for a dragon's
-##     fire breath etc. — the fire is an animation coming off the enemy, not a flying
-##     orb. secondary_vfx_key wins if both are set.
+##   - BREATH: set secondary_breath_sprite → no projectile; SHOWS+PLAYS a child
+##     AnimatedSprite2D on the enemy scene (authored at the mouth, flips with facing)
+##     for the duration of the attack and damages players in a frontal cone within
+##     secondary_attack_range. Use for a dragon's fire breath etc. — the fire is a
+##     looping sprite on the enemy, placed in the editor, not a flying orb. Breath
+##     wins if both are set.
 ## For enemies whose sheet has a distinct second attack/cast clip — verify the sprite
 ## per enemy (some second attacks are just melee swings and want neither). Leave the
-## scene/key AND anim empty to disable.
+## scene/path AND anim empty to disable.
 @export var secondary_projectile_scene: PackedScene = null
 @export var secondary_projectile_speed: float = 200.0
-## VfxCatalog key for a BREATH-flavoured secondary (e.g. "monster_fire_breath").
-## When set, the secondary is a mouth-anchored frontal cone, not a projectile.
-@export var secondary_vfx_key: String = ""
+## NodePath (relative to the enemy root) of a child AnimatedSprite2D to play for a
+## BREATH-flavoured secondary — e.g. a fire plume parented at the mouth, hidden by
+## default. When set, the secondary is that mouth sprite + a frontal cone, not a
+## projectile. The sprite plays its "play" animation (looped) while the attack runs.
+@export var secondary_breath_sprite: NodePath = ^""
 ## Animation clip the secondary attack plays (e.g. "attack_2" or "spell").
 @export var secondary_attack_anim: String = ""
 ## Seconds between secondary attacks.

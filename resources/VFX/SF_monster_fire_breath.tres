@@ -1,0 +1,74 @@
+[gd_resource type="SpriteFrames" load_steps=11 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="1_wxd75"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_to2b1"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(0, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j7lmg"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(64, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f64va"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(128, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5nit6"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(192, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k1fjq"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(256, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7on73"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(320, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6m2u"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(384, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_16yvt"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(448, 0, 64, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mll2r"]
+atlas = ExtResource("1_wxd75")
+region = Rect2(512, 0, 64, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_to2b1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_j7lmg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f64va")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5nit6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k1fjq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7on73")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l6m2u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_16yvt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mll2r")
+}],
+"loop": true,
+"name": &"play",
+"speed": 16.0
+}]

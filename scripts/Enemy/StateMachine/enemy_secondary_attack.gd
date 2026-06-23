@@ -26,10 +26,10 @@ func enter() -> void:
 	if is_instance_valid(enemy.current_target):
 		enemy.face_toward(enemy.current_target.global_position)
 	_play_secondary(enemy)
-	# Breath flavour: start the sustained mouth plume NOW so the fire is out for the
-	# whole attack (it's a cast, not an impact). Projectile flavour fires at _FIRE_TIME.
+	# Breath flavour: show the mouth plume NOW so the fire is out for the whole attack
+	# (a cast, not an impact); hidden again in exit(). Projectile fires at _FIRE_TIME.
 	if enemy.secondary_is_breath():
-		enemy.play_secondary_breath_vfx(_FIRE_TIME + _RECOVER_TAIL)
+		enemy.play_secondary_breath_vfx()
 
 
 func process_frame(delta: float) -> State:
@@ -68,6 +68,8 @@ func exit() -> void:
 		animations.speed_scale = 1.0
 	var enemy := parent as EnemyBase
 	if enemy:
+		if enemy.secondary_is_breath():
+			enemy.stop_secondary_breath_vfx()
 		enemy.start_secondary_cooldown()
 
 

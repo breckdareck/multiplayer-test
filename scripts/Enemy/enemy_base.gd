@@ -1414,10 +1414,10 @@ func has_secondary_attack() -> bool:
 	return enemy_data.secondary_vfx_key != "" or enemy_data.secondary_projectile_scene != null
 
 
-## True when the secondary is the BREATH flavour (mouth VFX + frontal cone) rather
-## than a projectile. secondary_vfx_key wins when both are set.
+## True when the secondary is the BREATH flavour (mouth sprite + frontal cone) rather
+## than a projectile. Breath wins when both are set.
 func secondary_is_breath() -> bool:
-	return enemy_data != null and enemy_data.secondary_vfx_key != ""
+	return enemy_data != null and not enemy_data.secondary_breath_sprite.is_empty()
 
 
 func can_use_secondary() -> bool:
@@ -1436,25 +1436,43 @@ func fire_secondary_projectile(target: Node2D) -> void:
 	fire_projectile(target, enemy_data.secondary_projectile_scene, enemy_data.secondary_projectile_speed)
 
 
-## BREATH-flavoured secondary, VFX half: plays the secondary_vfx_key effect at this
-## enemy's MOUTH (its AimTarget, nudged forward by facing) on every peer, sustained
-## for `duration` seconds so the plume reads as a CAST that lasts the whole attack
-## (the catalog effect must loop). Called at attack START. Server-only.
-func play_secondary_breath_vfx(duration: float) -> void:
-	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
+## BREATH-flavoured secondary, VFX half: SHOWS + plays the child breath sprite (a
+## fire plume authored at the mouth). Runs on EVERY peer — called from the secondary
+## state's enter(), which replicates — so each peer animates its own copy; no
+## broadcast needed. Mirrors the sprite to the enemy's facing (read off the replicated
+## main-sprite flip_h so it's correct on clients too).
+func play_secondary_breath_vfx() -> void:
+	if enemy_data == null:
 		return
-	var dir: int = facing_direction
-	# Mouth anchor: AimTarget if present, else body; nudged a little forward so the
-	# plume's base sits at the mouth and erupts outward.
-	var mouth: Vector2 = global_position
-	var aim := get_node_or_null("AimTarget")
-	if aim != null:
-		mouth = (aim as Node2D).global_position
-	var vfx_pos: Vector2 = mouth + Vector2(dir * 32.0, 0.0)
-	var emap := _get_map_id()
-	if emap != "":
-		MapManager.broadcast_vfx_everywhere(emap, enemy_data.secondary_vfx_key, vfx_pos, 1.0, 0.0, dir < 0, maxf(0.1, duration))
-		AudioManager.play_sfx_for_map(emap, "res://assets/sounds/generated/sword_heavy.wav", global_position, 1.0)
+	var fx := get_node_or_null(enemy_data.secondary_breath_sprite) as AnimatedSprite2D
+	if fx == null:
+		return
+	var face_left: bool = animated_sprite != null and animated_sprite.flip_h
+	# Cache the authored |x| once, then mirror it by facing so the plume stays in front.
+	if not fx.has_meta("breath_base_x"):
+		fx.set_meta("breath_base_x", absf(fx.position.x))
+	fx.position.x = float(fx.get_meta("breath_base_x")) * (-1.0 if face_left else 1.0)
+	fx.flip_h = face_left
+	fx.visible = true
+	fx.frame = 0
+	fx.play("play")
+	# The breath roar — host only renders it for itself; clients hear it via the
+	# state replication running this same path, so route through the map for parity.
+	if multiplayer.is_server():
+		var emap := _get_map_id()
+		if emap != "":
+			AudioManager.play_sfx_for_map(emap, "res://assets/sounds/generated/sword_heavy.wav", global_position, 1.0)
+
+
+## Hides the breath sprite again. Called from the secondary state's exit() on every peer.
+func stop_secondary_breath_vfx() -> void:
+	if enemy_data == null:
+		return
+	var fx := get_node_or_null(enemy_data.secondary_breath_sprite) as AnimatedSprite2D
+	if fx == null:
+		return
+	fx.stop()
+	fx.visible = false
 
 
 ## BREATH-flavoured secondary, damage half: damages every living player in a frontal
