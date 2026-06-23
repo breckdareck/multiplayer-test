@@ -145,6 +145,12 @@ func get_special_attacks() -> Array[BossAttackData]:
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames
+## OPTIONAL shape OVERRIDES. When set, enemy_base._set_collision_shapes copies these
+## onto the scene nodes at spawn (CollisionShape2D / BodyHitbox/EnemyBody /
+## AttackHitbox/MeleeCollisionShape), so they WIN over whatever the scene authored.
+## Leave NULL to author the shape directly on the scene node (WYSIWYG) — that's the
+## preferred path (e.g. the Red Dragon's melee hitbox). A non-null value here makes
+## editing the scene shape have no effect (the override clobbers it on spawn).
 @export var character_collision_shape: Shape2D
 @export var body_hitbox_shape: Shape2D
 @export var attack_hitbox_shape: Shape2D

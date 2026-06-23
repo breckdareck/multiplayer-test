@@ -21,7 +21,7 @@
 [ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/fireball.tscn" id="sec_fb"]
+[ext_resource type="PackedScene" uid="uid://7v8f1uwug0qe" path="res://scenes/Gameplay/Projectiles/fireball.tscn" id="sec_fb"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -241,13 +241,16 @@ animation_name = "hit"
 
 [node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("return_state")]
 script = ExtResource("mig_ranged_attack")
+attack_anim = "attack_1"
+cooldown = 3.0
 return_state = NodePath("../idle")
 animation_name = "attack_1"
 
 [node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("return_state")]
 script = ExtResource("mig_ranged_attack")
+projectile_scene = ExtResource("sec_fb")
+attack_anim = "attack_2"
+cooldown = 10.0
+reach = 150.0
 return_state = NodePath("../idle")
 animation_name = "attack_2"
-projectile_scene = ExtResource("sec_fb")
-cooldown = 3.0
-reach = 150.0
