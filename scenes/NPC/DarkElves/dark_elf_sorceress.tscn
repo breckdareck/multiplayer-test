@@ -254,4 +254,3 @@ projectile_scene = ExtResource("sec_mb2")
 projectile_speed = 210.0
 attack_anim = "attack_2"
 cooldown = 6.0
-reach = 180.0

@@ -22,13 +22,23 @@ var _hit_targets: Array[Node] = []
 var _ready_at: int = 0
 
 
-## Poll predicate for chase: off this swing's cooldown AND the target is in the attack
-## box (attack_range horizontally, ±1 tile vertically). Facing is gated by chase.
+## Poll predicate for chase: off this swing's cooldown AND the target is inside the
+## swing reach. Facing is gated by chase.
 func can_start(enemy: EnemyBase, target: Node2D) -> bool:
 	if not is_instance_valid(target):
 		return false
 	if Time.get_ticks_msec() < _ready_at:
 		return false
+	return in_reach(enemy, target)
+
+
+## Reach = the swing hitbox you author and SEE in the editor (WYSIWYG) — the enemy
+## swings when the target enters its visible swing zone. Chase also polls this
+## (cooldown aside) to decide when to stop closing and hold. Unset shape = fall back
+## to the enemy-wide attack_range box.
+func in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	if melee_hitbox_shape != null and melee_hitbox_shape.shape != null:
+		return target_in_reach_shape(enemy, target, melee_hitbox_shape)
 	return enemy.target_in_attack_zone(target)
 
 

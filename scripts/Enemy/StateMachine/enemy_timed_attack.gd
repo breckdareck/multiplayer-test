@@ -1,7 +1,7 @@
 extends EnemyAttackState
 ## Shared base for TIME-WINDOWED enemy attacks: a wind-up (telegraph), an active
 ## delivery window, then a recovery tail before returning to chase. Each attack node
-## OWNS its own config (anim/cooldown/reach + delivery specifics on the subclass) and
+## OWNS its own config (anim/cooldown + a reach CollisionShape2D and delivery specifics) and
 ## its own cooldown clock; chase polls can_start() to decide when to enter it.
 ## Concrete deliveries:
 ##   - EnemyProjectileAttack — fires a homing projectile when the window opens.
@@ -25,9 +25,6 @@ extends EnemyAttackState
 @export var attack_anim: String = ""
 ## Seconds between uses of THIS attack. 0 = inherit enemy_data.attack_cooldown.
 @export var cooldown: float = 0.0
-## Horizontal reach chase will enter this attack at. 0 = inherit
-## enemy_data.attack_range (projectile); a breath ignores this and uses its hitbox.
-@export var reach: float = 0.0
 
 var _elapsed: float = 0.0
 var _active_open: bool = false
@@ -41,17 +38,18 @@ var _ready_at: int = 0
 # --- Poll interface (chase calls these) -------------------------------------
 
 ## Can chase enter this attack right now? Off this attack's own cooldown AND the
-## target is inside its reach. (Facing/reaction-delay is gated by chase.)
+## target is inside its reach shape. (Facing/reaction-delay is gated by chase.)
 func can_start(enemy: EnemyBase, target: Node2D) -> bool:
 	if not is_instance_valid(target):
 		return false
 	if Time.get_ticks_msec() < _ready_at:
 		return false
-	return _in_reach(enemy, target)
+	return in_reach(enemy, target)
 
 
-## Subclass: is the target inside this attack's reach? (range box / hitbox bounds)
-func _in_reach(_enemy: EnemyBase, _target: Node2D) -> bool:
+## Subclass: is the target inside this attack's reach shape? Chase also polls this —
+## cooldown aside — to decide when to stop closing in and hold to wind up / cool down.
+func in_reach(_enemy: EnemyBase, _target: Node2D) -> bool:
 	return false
 
 

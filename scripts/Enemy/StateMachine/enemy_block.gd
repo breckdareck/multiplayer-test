@@ -34,10 +34,17 @@ var _anim_t: float = 0.0
 
 
 ## Poll predicate for chase: raise the guard when off the block cooldown and the
-## target is in the attack box. Authored BEFORE melee_attack in the StateMachine so
-## a guard preempts a swing (child order = poll priority).
+## target is in reach. Authored BEFORE melee_attack in the StateMachine so a guard
+## preempts a swing (child order = poll priority).
 func can_start(enemy: EnemyBase, target: Node2D) -> bool:
-	return is_instance_valid(target) and enemy.can_block() and enemy.target_in_attack_zone(target)
+	return is_instance_valid(target) and enemy.can_block() and in_reach(enemy, target)
+
+
+## Reach for the guard — the enemy-wide attack zone (a guard has no hitbox of its own;
+## it's a reaction to a target being in striking distance). Chase also polls this to
+## decide when to stop closing and hold the guard.
+func in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	return enemy.target_in_attack_zone(target)
 
 
 func enter() -> void:

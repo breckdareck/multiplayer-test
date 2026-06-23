@@ -272,14 +272,19 @@ The node types: `melee_attack` (frame-windowed hitbox swing), `ranged_attack` /
 player uses), and a breath (`EnemyHitboxAttack` — a plume sprite + a cone hitbox).
 `chase` polls each attack node's `can_start()` in child order and enters the first
 ready one (presence-based dispatch; child order = priority). Each node owns its own
-projectile/anim/cooldown/reach (`EnemyData` keeps only enemy-wide defaults —
-`attack_range`, `attack_cooldown`). Orthogonal to `is_magic_attacker`, the
-*damage axis* (physical vs magic).
-_Avoid_: attack type (the removed enum), attack mode.
+projectile/anim/cooldown and its **reach shape** — an editor-authored `CollisionShape2D`
+you can SEE (melee → its swing hitbox, breath → its cone, projectile → a `reach_shape`
+cast-range box), not a blind number. `chase` stops closing in when the target enters
+any attack's reach shape, the same shape the attack triggers on. (`EnemyData` keeps
+only enemy-wide fallbacks — `attack_range`, `attack_cooldown` — used until a node's
+shape/cooldown is authored.) Orthogonal to `is_magic_attacker`, the *damage axis*
+(physical vs magic).
+_Avoid_: attack type (the removed enum), attack mode, reach number (now a shape).
 
 **Ranged caster**:
 An enemy that authors a `ranged_attack` (projectile) state node: from `chase` it
-stops at its `attack_range` and fires a homing projectile (the same one the player uses) at its
+stops at its cast range (its `reach_shape`, or the `attack_range` box until one is
+authored) and fires a homing projectile (the same one the player uses) at its
 target instead of contact-swinging. Only engages targets within the **attack
 box** (see below), and has no kiting AI — enemies have no pathfinding — so it
 keeps casting at point-blank once meleed and dies fast (squishy by design; that

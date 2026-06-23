@@ -127,6 +127,15 @@ func process_frame(_delta: float) -> State:
 	return null
 
 
+## True when the target is inside ANY attack node's reach shape (cooldown aside) — the
+## locomotion "stop and hold here" gate, kept consistent with what the attacks trigger on.
+func _any_attack_in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	for atk in _attack_state_nodes():
+		if atk.has_method("in_reach") and atk.in_reach(enemy, target):
+			return true
+	return false
+
+
 ## The StateMachine's attack-state children — those exposing can_start() — in child
 ## order. That order is the poll priority chase enters them in.
 func _attack_state_nodes() -> Array:
@@ -159,7 +168,10 @@ func physics_update(delta: float) -> State:
 	var chase_speed: float = enemy.movement_speed * CHASE_SPEED_MULTIPLIER
 
 	var has_atk := enemy.has_attack_state()
-	var in_zone := has_atk and enemy.target_in_attack_zone(target)
+	# Stop closing in and hold (to wind up / wait out cooldown) when the target is
+	# inside ANY of this enemy's attack reach shapes — the same authored CollisionShape2D
+	# each attack triggers on (cooldown aside), so the stop distance matches the swing.
+	var in_zone := has_atk and _any_attack_in_reach(enemy, target)
 	var is_leaper: bool = enemy.enemy_data != null and enemy.enemy_data.is_leaper
 
 	# Pick the direction (0 = hold) and speed to move this frame.

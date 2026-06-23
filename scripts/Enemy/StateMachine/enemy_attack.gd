@@ -98,6 +98,42 @@ func damage_overlapping(enemy: EnemyBase, hit_targets: Array) -> void:
 		enemy.damage_on_overlap(body)
 
 
+## Half-extents (rx, ry) of a CollisionShape2D, measured from the enemy origin with the
+## shape's local offset taken SYMMETRICALLY (abs) — so the reach box is centred on the
+## enemy and the check is facing-agnostic (the hitbox is mirrored to facing on enter,
+## but reach is polled before that). Rectangle / Circle / Capsule supported; ZERO for
+## an unset/odd shape.
+static func shape_reach_extents(cs: CollisionShape2D) -> Vector2:
+	if cs == null or cs.shape == null:
+		return Vector2.ZERO
+	var s: Shape2D = cs.shape
+	var half := Vector2.ZERO
+	if s is RectangleShape2D:
+		half = (s as RectangleShape2D).size * 0.5
+	elif s is CircleShape2D:
+		var r: float = (s as CircleShape2D).radius
+		half = Vector2(r, r)
+	elif s is CapsuleShape2D:
+		var c := s as CapsuleShape2D
+		half = Vector2(c.radius, c.height * 0.5)
+	else:
+		return Vector2.ZERO
+	return Vector2(absf(cs.position.x) + half.x, absf(cs.position.y) + half.y)
+
+
+## True when `target` is within this attack's reach shape — an editor-authored
+## CollisionShape2D you can SEE, instead of a blind number. WYSIWYG: the box drawn in
+## the editor IS the range chase commits the attack at. Facing-agnostic (abs offset).
+static func target_in_reach_shape(enemy: EnemyBase, target: Node2D, cs: CollisionShape2D) -> bool:
+	if enemy == null or not is_instance_valid(target):
+		return false
+	var ext := shape_reach_extents(cs)
+	if ext == Vector2.ZERO:
+		return false
+	return absf(target.global_position.x - enemy.global_position.x) <= ext.x \
+		and absf(target.global_position.y - enemy.global_position.y) <= ext.y
+
+
 ## Plays `anim` time-stretched to fill `total` seconds, so a clip authored at any
 ## fps reads in sync with the attack's wind-up/active window.
 func play_clip_stretched(anim: String, total: float) -> void:

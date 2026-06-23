@@ -26,6 +26,19 @@ add a `secondary_attack` node, etc. Each attack node owns its `projectile_scene/
 which applies boss phase/enrage). `boss_special` stays on its own boss timer (ADR-0005),
 out of the poll.
 
+**Reach is an editor-authored `CollisionShape2D`, not a number.** Each attack node
+declares an `in_reach(enemy, target)` predicate measured against a `CollisionShape2D`
+you author and SEE in the editor (melee → its swing hitbox `melee_hitbox_shape`,
+breath → its damage cone `breath_hitbox`, projectile → a dedicated `reach_shape`
+cast-range box). The shared `EnemyAttackState.target_in_reach_shape` helper reads the
+shape's bounds (Rectangle/Circle/Capsule, offset taken symmetrically so it's
+facing-agnostic). `chase` calls the same `in_reach` (cooldown aside) for its "stop
+closing in and hold" decision, so the stop distance always matches what the attack
+triggers on. The old blind `reach: float` export is gone; a node with no shape
+authored falls back to the enemy-wide `attack_range` box. Rationale: a number you
+can't visualise is impossible to tune — the shape is WYSIWYG and reuses the hitbox
+that already defines the swing/cone.
+
 `EnemyData` keeps only **enemy-wide defaults** an attack node inherits when its own
 field is unset: `attack_range` and `attack_cooldown`. Every per-attack field is gone
 from `EnemyData` — `attack_type`, the entire Secondary Attack block, the Ranged Attack

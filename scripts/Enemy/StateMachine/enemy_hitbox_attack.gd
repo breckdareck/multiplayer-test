@@ -23,15 +23,9 @@ func _clip_anim(_enemy: EnemyBase) -> String:
 	return attack_anim
 
 
-func _in_reach(enemy: EnemyBase, target: Node2D) -> bool:
-	var cs := _hit_shape(enemy)
-	if cs == null or not (cs.shape is RectangleShape2D):
-		return false
-	var sz: Vector2 = (cs.shape as RectangleShape2D).size
-	var rx: float = absf(cs.position.x) + sz.x * 0.5
-	var ry: float = absf(cs.position.y) + sz.y * 0.5
-	return absf(target.global_position.x - enemy.global_position.x) <= rx \
-		and absf(target.global_position.y - enemy.global_position.y) <= ry
+func in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	# The breath's reach IS its damage cone — the same authored CollisionShape2D.
+	return target_in_reach_shape(enemy, target, _hit_shape(enemy))
 
 
 func _attack_enter(enemy: EnemyBase) -> void:

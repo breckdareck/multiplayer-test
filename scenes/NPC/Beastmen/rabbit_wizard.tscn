@@ -255,6 +255,5 @@ projectile_scene = ExtResource("sec_fb")
 projectile_speed = 180.0
 attack_anim = "attack_2"
 cooldown = 10.0
-reach = 150.0
 return_state = NodePath("../idle")
 animation_name = "attack_2"

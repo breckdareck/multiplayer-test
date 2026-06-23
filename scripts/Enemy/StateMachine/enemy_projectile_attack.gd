@@ -17,6 +17,13 @@ const _CAST_ANIMS: Array[String] = ["spell", "cast", "attack_2", "attack_1", "at
 ## Projectile travel speed in px/sec (0 = a sane default).
 @export var projectile_speed: float = 200.0
 
+@export_group("Range")
+## CollisionShape2D defining the CAST RANGE — author it and SEE it in the editor,
+## exactly like the melee swing hitbox / breath cone. The caster stops here and fires.
+## (It's a measurement region, never armed for damage — the projectile is homing.)
+## Unset = fall back to the enemy-wide attack_range box.
+@export var reach_shape: CollisionShape2D = null
+
 
 func _clip_anim(enemy: EnemyBase) -> String:
 	if attack_anim != "":
@@ -32,9 +39,11 @@ func _clip_anim(enemy: EnemyBase) -> String:
 	return ""
 
 
-func _in_reach(enemy: EnemyBase, target: Node2D) -> bool:
-	var r: float = reach if reach > 0.0 else (enemy.enemy_data.attack_range if enemy.enemy_data else 36.0)
-	return EnemyBase.position_in_attack_box(enemy.global_position, target.global_position, r)
+func in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	if reach_shape != null and reach_shape.shape != null:
+		return target_in_reach_shape(enemy, target, reach_shape)
+	# No cast-range shape authored yet — fall back to the enemy-wide attack_range box.
+	return enemy.target_in_attack_zone(target)
 
 
 func _active_start(enemy: EnemyBase) -> void:
