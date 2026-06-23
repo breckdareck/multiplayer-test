@@ -167,17 +167,22 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var secondary_projectile_speed: float = 200.0
 ## NodePath (relative to the enemy root) of a child AnimatedSprite2D to play for a
 ## BREATH-flavoured secondary — e.g. a fire plume parented at the mouth, hidden by
-## default. When set, the secondary is that mouth sprite + a frontal cone, not a
+## default. When set, the secondary is that mouth sprite + a hitbox, not a
 ## projectile. The sprite plays its "play" animation (looped) while the attack runs.
 @export var secondary_breath_sprite: NodePath = ^""
+## NodePath of the CollisionShape2D (on the enemy's AttackHitbox) that defines the
+## BREATH's DAMAGE AREA — authored in the editor exactly like the slash's
+## SlashCollisionShape, mirrored to facing and armed during the attack's active
+## window. Overlapping players take damage_on_overlap (same calc as the melee swing:
+## respects i-frames + the level hit-roll). Leave empty for no breath damage.
+@export var secondary_hitbox_shape: NodePath = ^""
 ## Animation clip the secondary attack plays (e.g. "attack_2" or "spell").
 @export var secondary_attack_anim: String = ""
 ## Seconds between secondary attacks.
 @export var secondary_attack_cooldown: float = 5.0
-## Horizontal range the secondary reaches (often longer than the melee attack_range).
+## Range at which the enemy DECIDES to use the secondary (the chase trigger). For a
+## breath the actual damage reach is the hitbox shape; keep this ~matched to it.
 @export var secondary_attack_range: float = 160.0
-## Breath damage as a multiple of the enemy's normal attack (BREATH flavour only).
-@export var secondary_attack_damage_mult: float = 1.0
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

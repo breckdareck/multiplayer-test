@@ -89,6 +89,9 @@ border_width_bottom = 2
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
 size = Vector2(44, 30.5)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_breath"]
+size = Vector2(110, 48)
+
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
 radius = 16.0
 height = 52.0
@@ -210,6 +213,11 @@ monitorable = false
 [node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1507020920]
 position = Vector2(37, -14.75)
 shape = SubResource("RectangleShape2D_17tps")
+disabled = true
+
+[node name="BreathCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1507020921]
+position = Vector2(40, -16)
+shape = SubResource("RectangleShape2D_breath")
 disabled = true
 
 [node name="BodyHitbox" type="Area2D" parent="." unique_id=1528638466]

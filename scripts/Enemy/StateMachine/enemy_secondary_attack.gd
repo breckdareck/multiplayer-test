@@ -1,18 +1,25 @@
 extends EnemyState
-## Secondary attack for an enemy that carries a second projectile/spell on top of
-## its primary (EnemyData.secondary_*). Entered from chase on the secondary
-## cooldown when the target is within secondary_attack_range. Plays the configured
-## secondary clip (secondary_attack_anim, e.g. "attack_2"/"spell") and fires the
-## secondary projectile, then returns to chase. Mirrors enemy_ranged_attack but on
-## the secondary scene/anim/cooldown.
+## Secondary attack on top of an enemy's primary (EnemyData.secondary_*). Entered
+## from chase on the secondary cooldown when the target is within
+## secondary_attack_range. Plays the secondary clip (secondary_attack_anim, e.g.
+## "attack_2"/"spell"), then returns to chase. Two flavours:
+##   - PROJECTILE (secondary_projectile_scene): fires a homing bolt at _FIRE_TIME.
+##   - BREATH (secondary_breath_sprite): shows the mouth plume for the whole attack
+##     and arms a collision hitbox (secondary_hitbox_shape) during the active window,
+##     damaging overlapping players once each via damage_on_overlap — the SAME
+##     hitbox-driven model as the melee slash, so the breath's reach/shape is the
+##     editor-authored CollisionShape2D, not distance math.
 ##
-## Injected at runtime by EnemyBase._ensure_secondary_attack_state(); server-only.
+## Injected at runtime by EnemyBase._ensure_secondary_attack_state().
 
 const _FIRE_TIME: float = 0.45
 const _RECOVER_TAIL: float = 0.25
 
 var _elapsed: float = 0.0
 var _fired: bool = false
+var _hitbox_on: bool = false
+## Bodies already struck this breath — each target is hit at most once.
+var _hit_targets: Array[Node] = []
 
 
 func enter() -> void:
@@ -20,16 +27,21 @@ func enter() -> void:
 	allow_flip = false
 	_elapsed = 0.0
 	_fired = false
+	_hit_targets.clear()
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
 	if is_instance_valid(enemy.current_target):
 		enemy.face_toward(enemy.current_target.global_position)
 	_play_secondary(enemy)
-	# Breath flavour: show the mouth plume NOW so the fire is out for the whole attack
-	# (a cast, not an impact); hidden again in exit(). Projectile fires at _FIRE_TIME.
+	# Breath flavour: show the mouth plume for the whole attack (a cast, not an
+	# impact; hidden again in exit), and arm the breath hitbox mirrored to facing.
 	if enemy.secondary_is_breath():
 		enemy.play_secondary_breath_vfx()
+		var shape := _breath_shape(enemy)
+		if shape:
+			shape.position.x = absf(shape.position.x) * enemy.facing_direction
+		_set_breath_hitbox(enemy, false)
 
 
 func process_frame(delta: float) -> State:
@@ -40,15 +52,14 @@ func process_frame(delta: float) -> State:
 		return _recover_state()
 
 	_elapsed += delta
-	if not _fired and _elapsed >= _FIRE_TIME:
+	if enemy.secondary_is_breath():
+		_update_breath_hitbox(enemy)
+	elif not _fired and _elapsed >= _FIRE_TIME:
 		_fired = true
 		if is_instance_valid(enemy.current_target):
-			if enemy.secondary_is_breath():
-				enemy.apply_secondary_breath_damage()
-			else:
-				enemy.fire_secondary_projectile(enemy.current_target)
+			enemy.fire_secondary_projectile(enemy.current_target)
 
-	if _fired and _elapsed >= _FIRE_TIME + _RECOVER_TAIL:
+	if _elapsed >= _FIRE_TIME + _RECOVER_TAIL:
 		return _recover_state()
 	return null
 
@@ -69,6 +80,7 @@ func exit() -> void:
 	var enemy := parent as EnemyBase
 	if enemy:
 		if enemy.secondary_is_breath():
+			_set_breath_hitbox(enemy, false)
 			enemy.stop_secondary_breath_vfx()
 		enemy.start_secondary_cooldown()
 
@@ -87,6 +99,42 @@ func _play_secondary(enemy: EnemyBase) -> void:
 		if frames > 0 and fps > 0.0:
 			var native: float = float(frames) / fps
 			animations.speed_scale = clampf(native / (_FIRE_TIME + _RECOVER_TAIL), 0.05, 20.0)
+
+
+## The breath's damage CollisionShape2D (EnemyData.secondary_hitbox_shape), or null.
+func _breath_shape(enemy: EnemyBase) -> CollisionShape2D:
+	if enemy.enemy_data == null or enemy.enemy_data.secondary_hitbox_shape.is_empty():
+		return null
+	return enemy.get_node_or_null(enemy.enemy_data.secondary_hitbox_shape) as CollisionShape2D
+
+
+## Arms the breath hitbox during the active window and damages every valid target
+## caught inside it (once each) — the slash's model, applied to the breath shape.
+func _update_breath_hitbox(enemy: EnemyBase) -> void:
+	var active: bool = _elapsed >= _FIRE_TIME and _elapsed < _FIRE_TIME + _RECOVER_TAIL
+	if active != _hitbox_on:
+		_set_breath_hitbox(enemy, active)
+	if not _hitbox_on:
+		return
+	var hitbox: Area2D = enemy.attack_hitbox
+	if hitbox == null or not hitbox.monitoring:
+		return
+	for body in hitbox.get_overlapping_bodies():
+		if body in _hit_targets:
+			continue
+		if not enemy.is_valid_target(body):
+			continue
+		_hit_targets.append(body)
+		enemy.damage_on_overlap(body)
+
+
+func _set_breath_hitbox(enemy: EnemyBase, on: bool) -> void:
+	_hitbox_on = on
+	var shape := _breath_shape(enemy)
+	if shape:
+		shape.disabled = not on
+	if enemy.attack_hitbox:
+		enemy.attack_hitbox.monitoring = on
 
 
 func _recover_state() -> State:

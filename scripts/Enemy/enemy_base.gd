@@ -1475,35 +1475,6 @@ func stop_secondary_breath_vfx() -> void:
 	fx.visible = false
 
 
-## BREATH-flavoured secondary, damage half: damages every living player in a frontal
-## cone within secondary_attack_range. Called mid-attack (when the fire is out).
-func apply_secondary_breath_damage() -> void:
-	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null or stats_component == null:
-		return
-	var dir: int = facing_direction
-	var reach: float = enemy_data.secondary_attack_range
-	var att_stat: int = Constants.StatType.MAGICATTACK if enemy_data.is_magic_attacker else Constants.StatType.WEAPONATTACK
-	if not stats_component.stats.has(att_stat):
-		return
-	var base_att: float = float(stats_component.stats.get(att_stat).total_value)
-	var dmg: int = maxi(1, roundi(base_att * enemy_data.secondary_attack_damage_mult))
-	for pid in _get_players_on_same_map():
-		var node: Node2D = PlayerManager.get_player_node(pid)
-		if not is_valid_target(node):
-			continue
-		var dx: float = node.global_position.x - global_position.x
-		var dy: float = node.global_position.y - global_position.y
-		# In front (the side the enemy faces) and within reach + a tile-ish band.
-		if signf(dx) != float(dir) and absf(dx) > 8.0:
-			continue
-		if absf(dx) > reach or absf(dy) > ATTACK_VERTICAL_REACH * 1.5:
-			continue
-		var health: HealthComponent = node.get_node_or_null("Components/Health")
-		if health == null or health.is_dead:
-			continue
-		health.take_damage(dmg, self, false)
-
-
 ## Creates and attaches the runtime "block" state — the blocker's frontal guard.
 ## Injected for blocker enemies (gated by the caller), same pattern as the others.
 func _ensure_block_state() -> void:
