@@ -328,7 +328,10 @@ func _target_below(target: Node2D) -> bool:
 func _apply_locomotion_anim(moving: bool) -> void:
 	if animations == null or animations.sprite_frames == null:
 		return
-	var desired := "patrol" if moving else "idle"
+	# Moving uses this chase node's authored animation_name (default "patrol"); when
+	# paused-in-place (aggroed but can't reach) it drops to "idle".
+	var move_anim := animation_name if animation_name != "" else "patrol"
+	var desired := move_anim if moving else "idle"
 	if animations.animation != desired and animations.sprite_frames.has_animation(desired):
 		animations.play(desired)
 

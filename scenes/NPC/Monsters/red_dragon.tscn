@@ -194,7 +194,7 @@ show_percentage = false
 position = Vector2(2, -19.000002)
 scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("9_7f1la")
-animation = &"idle"
+animation = &"run"
 autoplay = "idle"
 
 [node name="BreathFX" type="AnimatedSprite2D" parent="." unique_id=1596292353]
@@ -272,7 +272,8 @@ animation_name = "death"
 
 [node name="chase" type="Node" parent="StateMachine" unique_id=945922677]
 script = ExtResource("mig_chase")
-animation_name = "patrol"
+animation_name = "run"
+move_speed = 150.0
 
 [node name="hit" type="Node" parent="StateMachine" unique_id=1869169331]
 script = ExtResource("mig_hit")
