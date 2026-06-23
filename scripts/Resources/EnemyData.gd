@@ -149,6 +149,21 @@ func get_special_attacks() -> Array[BossAttackData]:
 ## Projectile travel speed in px/sec.
 @export var ranged_projectile_speed: float = 200.0
 
+@export_category("Secondary Attack")
+## Optional SECOND attack — a projectile/spell on its own cooldown, played with
+## secondary_attack_anim, layered on top of the primary. For enemies whose sheet
+## has a distinct second attack/cast clip that reads as a throw/cast (verify the
+## sprite per enemy — some second attacks are just melee swings and want no
+## projectile). Leave scene + anim empty to disable.
+@export var secondary_projectile_scene: PackedScene = null
+@export var secondary_projectile_speed: float = 200.0
+## Animation clip the secondary attack plays (e.g. "attack_2" or "spell").
+@export var secondary_attack_anim: String = ""
+## Seconds between secondary attacks.
+@export var secondary_attack_cooldown: float = 5.0
+## Horizontal range the secondary fires at (often longer than the melee attack_range).
+@export var secondary_attack_range: float = 160.0
+
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames
 @export var character_collision_shape: Shape2D

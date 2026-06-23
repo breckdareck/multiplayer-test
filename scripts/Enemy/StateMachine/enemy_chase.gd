@@ -114,6 +114,16 @@ func process_frame(_delta: float) -> State:
 		if block_state:
 			return block_state as State
 
+	# Secondary attack: on its own cooldown, when the target is within the (often
+	# longer) secondary range and roughly level, fire the second projectile/spell.
+	if enemy.has_secondary_attack() and enemy.can_use_secondary():
+		var sdx := absf(target.global_position.x - parent.global_position.x)
+		var sdy := absf(target.global_position.y - parent.global_position.y)
+		if sdx <= enemy.enemy_data.secondary_attack_range and sdy <= EnemyBase.ATTACK_VERTICAL_REACH:
+			var sec := get_node_or_null("../secondary_attack")
+			if sec:
+				return sec as State
+
 	# In the attack zone and armed: attack, but only once the enemy has actually
 	# turned to face the target (so the reaction delay is respected) and the
 	# attack is off cooldown. The zone is attack_range horizontally AND ±1 tile

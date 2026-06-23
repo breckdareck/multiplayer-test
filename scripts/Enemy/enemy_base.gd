@@ -114,6 +114,9 @@ const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_cha
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
 const _RANGED_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_ranged_attack.gd")
+const _SECONDARY_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_secondary_attack.gd")
+## Clock gate for the next secondary attack.
+var _secondary_ready_at: int = 0
 const _BLOCK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_block.gd")
 ## Fraction of damage a blocker still takes from a FRONTAL hit while guarding
 ## (0.2 = 80% reduced). Hits from behind ignore the guard entirely.
@@ -404,6 +407,9 @@ func _ready() -> void:
 	# Inject the frontal-guard state for blocker enemies.
 	if enemy_data != null and enemy_data.is_blocker:
 		_ensure_block_state()
+	# Inject the secondary-attack state for enemies with a second projectile/spell.
+	if has_secondary_attack():
+		_ensure_secondary_attack_state()
 	# [Boss] Inject the telegraphed-special state. Created on every peer (gated by
 	# the data flag, identical everywhere) so the state-name sync resolves on
 	# clients; its windup/damage only advances on the server.
@@ -1389,6 +1395,39 @@ func _ensure_ranged_attack_state() -> void:
 	state_machine.add_child(s)
 
 
+## Creates the runtime "secondary_attack" state for enemies that carry a second
+## projectile/spell. Same injection pattern as the other states.
+func _ensure_secondary_attack_state() -> void:
+	if state_machine == null or state_machine.has_node("secondary_attack"):
+		return
+	var s := Node.new()
+	s.set_script(_SECONDARY_ATTACK_STATE_SCRIPT)
+	s.name = "secondary_attack"
+	s.animation_name = ""
+	state_machine.add_child(s)
+
+
+## True when this enemy has a configured secondary attack (projectile + clip).
+func has_secondary_attack() -> bool:
+	return enemy_data != null and enemy_data.secondary_projectile_scene != null and enemy_data.secondary_attack_anim != ""
+
+
+func can_use_secondary() -> bool:
+	return Time.get_ticks_msec() >= _secondary_ready_at
+
+
+func start_secondary_cooldown() -> void:
+	var cd: float = enemy_data.secondary_attack_cooldown if enemy_data else 5.0
+	_secondary_ready_at = Time.get_ticks_msec() + int(maxf(0.1, cd) * 1000.0)
+
+
+## Fires the secondary projectile/spell at `target` (its own scene + speed).
+func fire_secondary_projectile(target: Node2D) -> void:
+	if enemy_data == null:
+		return
+	fire_projectile(target, enemy_data.secondary_projectile_scene, enemy_data.secondary_projectile_speed)
+
+
 ## Creates and attaches the runtime "block" state — the blocker's frontal guard.
 ## Injected for blocker enemies (gated by the caller), same pattern as the others.
 func _ensure_block_state() -> void:
@@ -1571,7 +1610,9 @@ func target_vertically_reachable(target) -> bool:
 ## visual copy via MapManager.spawn_projectile_visual (routed through the autoload
 ## so it resolves for bots too). The hit resolves through this enemy's own
 ## damage_on_overlap (see projectile.gd), so it deals exactly what its melee does.
-func fire_projectile(target: Node2D) -> void:
+## Fires the enemy's projectile at `target`. With no overrides it uses the primary
+## ranged_projectile_scene/speed; the secondary attack passes its own scene/speed.
+func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_override: float = -1.0) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
 		return
 	if not is_valid_target(target):
@@ -1580,7 +1621,7 @@ func fire_projectile(target: Node2D) -> void:
 	if map_node == null:
 		return
 
-	var scene: PackedScene = enemy_data.ranged_projectile_scene
+	var scene: PackedScene = scene_override if scene_override != null else enemy_data.ranged_projectile_scene
 	if scene == null:
 		scene = _DEFAULT_PROJECTILE_SCENE
 
@@ -1595,7 +1636,7 @@ func fire_projectile(target: Node2D) -> void:
 		target_pos = (aim_t as Node2D).global_position
 	var to_target: Vector2 = target_pos - spawn_pos
 	var direction: Vector2 = to_target.normalized() if to_target.is_finite() and not to_target.is_zero_approx() else Vector2(facing_direction, 0.0)
-	var speed: float = enemy_data.ranged_projectile_speed
+	var speed: float = speed_override if speed_override > 0.0 else enemy_data.ranged_projectile_speed
 
 	var container := map_node.get_node_or_null("Projectiles")
 	if container == null:
