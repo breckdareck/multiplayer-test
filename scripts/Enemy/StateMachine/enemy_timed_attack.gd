@@ -1,21 +1,14 @@
 extends EnemyAttackState
 ## Shared base for TIME-WINDOWED enemy attacks: a wind-up (telegraph), an active
-## delivery window, then a recovery tail before returning to chase. Subclasses plug
-## in the delivery via the _active_* / _clip_anim hooks; the lifecycle, timing,
-## clip-stretch, plant-physics, recover and cooldown are owned here once.
-##
-## Replaces the copy-pasted timing/recover/physics that used to live in each of
-## enemy_ranged_attack and enemy_secondary_attack. Concrete deliveries:
+## delivery window, then a recovery tail before returning to chase. Each attack node
+## OWNS its own config (anim/cooldown/reach + delivery specifics on the subclass) and
+## its own cooldown clock; chase polls can_start() to decide when to enter it.
+## Concrete deliveries:
 ##   - EnemyProjectileAttack — fires a homing projectile when the window opens.
 ##   - EnemyHitboxAttack      — arms a damage hitbox + shows a breath plume.
 ##
-## Authored as a scene state node OR injected by EnemyBase; runs on every peer
-## (enter/exit replicate; the server-only delivery happens in process_frame).
-
-## Which EnemyData fields + cooldown this attack draws on: PRIMARY = the ranged_* /
-## main attack cooldown; SECONDARY = the secondary_* fields / secondary cooldown.
-enum Config { PRIMARY, SECONDARY }
-@export var config: Config = Config.PRIMARY
+## Authored as a scene state node under StateMachine; chase enters it via the poll
+## (first attack-state child whose can_start is true, in child order).
 
 @export_group("Timing")
 ## Wind-up seconds before the delivery window opens (the telegraph / cast read).
@@ -26,12 +19,50 @@ enum Config { PRIMARY, SECONDARY }
 ## Recovery seconds held after the window closes before returning to chase.
 @export var recover: float = 0.25
 
+@export_group("Attack")
+## Clip to play for this attack (stretched to windup+active+recover). "" = the
+## subclass default (a projectile auto-picks a cast pose; a breath has no default).
+@export var attack_anim: String = ""
+## Seconds between uses of THIS attack. 0 = inherit enemy_data.attack_cooldown.
+@export var cooldown: float = 0.0
+## Horizontal reach chase will enter this attack at. 0 = inherit
+## enemy_data.attack_range (projectile); a breath ignores this and uses its hitbox.
+@export var reach: float = 0.0
+
 var _elapsed: float = 0.0
 var _active_open: bool = false
 ## Latches once the active window has opened this attack, so a zero-length window
 ## (a fire-once projectile, active = 0) can't re-trigger _active_start every frame.
 var _active_started: bool = false
+## This attack's own cooldown clock (msec); chase won't enter it until now >= this.
+var _ready_at: int = 0
 
+
+# --- Poll interface (chase calls these) -------------------------------------
+
+## Can chase enter this attack right now? Off this attack's own cooldown AND the
+## target is inside its reach. (Facing/reaction-delay is gated by chase.)
+func can_start(enemy: EnemyBase, target: Node2D) -> bool:
+	if not is_instance_valid(target):
+		return false
+	if Time.get_ticks_msec() < _ready_at:
+		return false
+	return _in_reach(enemy, target)
+
+
+## Subclass: is the target inside this attack's reach? (range box / hitbox bounds)
+func _in_reach(_enemy: EnemyBase, _target: Node2D) -> bool:
+	return false
+
+
+## Resolved cooldown seconds — this node's export, else the enemy-wide default.
+func _resolved_cooldown(enemy: EnemyBase) -> float:
+	if cooldown > 0.0:
+		return cooldown
+	return enemy.enemy_data.attack_cooldown if enemy.enemy_data else 1.4
+
+
+# --- Lifecycle --------------------------------------------------------------
 
 func enter() -> void:
 	super.enter()  # zeroes velocity
@@ -89,17 +120,15 @@ func exit() -> void:
 	if _active_open:
 		_active_open = false
 		_active_end(enemy)
-	if config == Config.SECONDARY:
-		enemy.start_secondary_cooldown()
-	else:
-		enemy.start_attack_cooldown()
+	# Arm THIS attack's own cooldown (boss enrage/phase applied by enemy_base).
+	_ready_at = enemy.attack_cooldown_until(_resolved_cooldown(enemy))
 
 
 # --- Delivery hooks (override in subclasses; all no-ops by default) ----------
 
 ## The animation clip to play for this attack (stretched to the full duration).
 func _clip_anim(_enemy: EnemyBase) -> String:
-	return ""
+	return attack_anim
 
 ## Called once on enter, after facing + clip start (e.g. show a breath plume).
 func _attack_enter(_enemy: EnemyBase) -> void:

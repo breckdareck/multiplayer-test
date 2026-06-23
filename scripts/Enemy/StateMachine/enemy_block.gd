@@ -32,6 +32,13 @@ var _phase: int = Phase.RAISE
 var _anim_t: float = 0.0
 
 
+## Poll predicate for chase: raise the guard when off the block cooldown and the
+## target is in the attack box. Authored BEFORE melee_attack in the StateMachine so
+## a guard preempts a swing (child order = poll priority).
+func can_start(enemy: EnemyBase, target: Node2D) -> bool:
+	return is_instance_valid(target) and enemy.can_block() and enemy.target_in_attack_zone(target)
+
+
 func enter() -> void:
 	super.enter()  # selects the "block" clip
 	allow_flip = false

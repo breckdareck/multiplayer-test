@@ -12,10 +12,24 @@ extends EnemyAttackState
 ## 0-3 wind-up, 4-7 the swing-through where the weapon connects).
 @export var HIT_FRAME_START: int = 4
 @export var HIT_FRAME_END: int = 7
+## Seconds between swings. 0 = inherit enemy_data.attack_cooldown.
+@export var cooldown: float = 0.0
 
 var _hitbox_active: bool = false
 ## Bodies already struck this swing — each target is hit at most once.
 var _hit_targets: Array[Node] = []
+## This attack's own cooldown clock (msec); chase won't enter it until now >= this.
+var _ready_at: int = 0
+
+
+## Poll predicate for chase: off this swing's cooldown AND the target is in the attack
+## box (attack_range horizontally, ±1 tile vertically). Facing is gated by chase.
+func can_start(enemy: EnemyBase, target: Node2D) -> bool:
+	if not is_instance_valid(target):
+		return false
+	if Time.get_ticks_msec() < _ready_at:
+		return false
+	return enemy.target_in_attack_zone(target)
 
 
 func enter() -> void:
@@ -44,7 +58,9 @@ func exit() -> void:
 	_set_hitbox_enabled(false)
 	var enemy := parent as EnemyBase
 	if enemy:
-		enemy.start_attack_cooldown()
+		# Arm this swing's own cooldown (boss enrage/phase applied by enemy_base).
+		var cd: float = cooldown if cooldown > 0.0 else (enemy.enemy_data.attack_cooldown if enemy.enemy_data else 1.4)
+		_ready_at = enemy.attack_cooldown_until(cd)
 	super.exit()
 
 

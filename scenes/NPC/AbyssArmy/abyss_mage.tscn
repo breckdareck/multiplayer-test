@@ -217,23 +217,15 @@ script = ExtResource("5_yyaat")
 starting_state = NodePath("idle")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "melee_attack_state")]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("12_nadka")
 patrol_state = NodePath("../patrol")
-melee_attack_state = NodePath("../melee_attack")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "melee_attack_state")]
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
 script = ExtResource("6_u21pb")
 idle_state = NodePath("../idle")
-melee_attack_state = NodePath("../melee_attack")
 animation_name = "patrol"
-
-[node name="melee_attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("melee_hitbox_shape", "return_state")]
-script = ExtResource("14_17tps")
-melee_hitbox_shape = NodePath("../../AttackHitbox/MeleeCollisionShape")
-return_state = NodePath("../idle")
-animation_name = "attack_1"
 
 [node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("15_y64qe")

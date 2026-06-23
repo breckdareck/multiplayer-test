@@ -1,25 +1,42 @@
 extends "res://scripts/Enemy/StateMachine/enemy_timed_attack.gd"
-## Hitbox-delivery attack: arms a CollisionShape2D (EnemyData.secondary_hitbox_shape)
-## during the active window and damages every overlapping player once via
-## damage_on_overlap — the same hitbox-driven model as the melee slash, applied to a
-## breath/cone. Shows the breath plume sprite (EnemyData.secondary_breath_sprite) for
-## the whole attack. Reach/shape is the editor-authored CollisionShape2D, not math.
+## Hitbox-delivery (breath) attack: shows a child plume sprite at the mouth and arms a
+## CollisionShape2D during the active window, damaging every overlapping player once via
+## damage_on_overlap — the same hitbox-driven model as the melee swing, applied to a
+## breath/cone. Reach/shape is the editor-authored CollisionShape2D, not math.
 ##
-## Currently the SECONDARY breath delivery. Defaults: windup 0.12 (mouth opens),
-## active 0.55 (fire is live), recover 0. Injected by EnemyBase or authored in a scene.
+## Owns both node paths itself (no EnemyData fields). Defaults: windup 0.12 (mouth opens),
+## active 0.55 (fire is live), recover 0.
+
+@export_group("Breath")
+## Child AnimatedSprite2D plume (authored at the mouth, hidden by default). Shown +
+## looped ("play") for the whole attack, mirrored to facing.
+@export var breath_sprite: NodePath = ^""
+## CollisionShape2D (on the AttackHitbox) that defines the breath's damage area —
+## mirrored to facing and armed during the active window.
+@export var breath_hitbox: NodePath = ^""
 
 ## Bodies already struck this attack — each target is hit at most once.
 var _hit_targets: Array[Node] = []
 
 
-func _clip_anim(enemy: EnemyBase) -> String:
-	return enemy.enemy_data.secondary_attack_anim if enemy.enemy_data else ""
+func _clip_anim(_enemy: EnemyBase) -> String:
+	return attack_anim
+
+
+func _in_reach(enemy: EnemyBase, target: Node2D) -> bool:
+	var cs := _hit_shape(enemy)
+	if cs == null or not (cs.shape is RectangleShape2D):
+		return false
+	var sz: Vector2 = (cs.shape as RectangleShape2D).size
+	var rx: float = absf(cs.position.x) + sz.x * 0.5
+	var ry: float = absf(cs.position.y) + sz.y * 0.5
+	return absf(target.global_position.x - enemy.global_position.x) <= rx \
+		and absf(target.global_position.y - enemy.global_position.y) <= ry
 
 
 func _attack_enter(enemy: EnemyBase) -> void:
 	_hit_targets.clear()
-	# Show the mouth plume for the whole attack (a cast, not an impact).
-	enemy.play_secondary_breath_vfx()
+	_show_breath(enemy, true)
 	# Mirror the damage shape to facing, then start disarmed (armed on window open).
 	var shape := _hit_shape(enemy)
 	if shape:
@@ -41,19 +58,40 @@ func _active_end(enemy: EnemyBase) -> void:
 
 func exit() -> void:
 	var enemy := parent as EnemyBase
-	super.exit()  # disarms (via _active_end) + starts the cooldown
+	super.exit()  # disarms (via _active_end) + arms this attack's cooldown
 	if enemy:
-		enemy.stop_secondary_breath_vfx()
+		_show_breath(enemy, false)
 
 
 # --- helpers ---------------------------------------------------------------
 
-## The breath's damage CollisionShape2D (EnemyData.secondary_hitbox_shape), or null.
 func _hit_shape(enemy: EnemyBase) -> CollisionShape2D:
-	if enemy.enemy_data == null or enemy.enemy_data.secondary_hitbox_shape.is_empty():
+	if breath_hitbox.is_empty():
 		return null
-	return enemy.get_node_or_null(enemy.enemy_data.secondary_hitbox_shape) as CollisionShape2D
+	return enemy.get_node_or_null(breath_hitbox) as CollisionShape2D
 
 
 func _arm(enemy: EnemyBase, on: bool) -> void:
 	arm_attack_hitbox(_hit_shape(enemy), on)
+
+
+## Show/hide the plume, mirrored to the enemy's facing (read off the replicated
+## main-sprite flip_h so it's correct on clients). Runs on every peer via enter/exit.
+func _show_breath(enemy: EnemyBase, on: bool) -> void:
+	if breath_sprite.is_empty():
+		return
+	var fx := enemy.get_node_or_null(breath_sprite) as AnimatedSprite2D
+	if fx == null:
+		return
+	if not on:
+		fx.stop()
+		fx.visible = false
+		return
+	var face_left: bool = enemy.animated_sprite != null and enemy.animated_sprite.flip_h
+	if not fx.has_meta("breath_base_x"):
+		fx.set_meta("breath_base_x", absf(fx.position.x))
+	fx.position.x = float(fx.get_meta("breath_base_x")) * (-1.0 if face_left else 1.0)
+	fx.flip_h = face_left
+	fx.visible = true
+	fx.frame = 0
+	fx.play("play")

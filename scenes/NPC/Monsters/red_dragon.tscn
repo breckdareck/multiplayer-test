@@ -258,12 +258,15 @@ animation_name = "attack_1"
 
 [node name="secondary_attack" type="Node" parent="StateMachine" unique_id=1279422921 node_paths=PackedStringArray("return_state")]
 script = ExtResource("21_secatk")
-config = 1
 windup = 0.12
 active = 0.55
 recover = 0.0
 return_state = NodePath("../idle")
 animation_name = "attack_2"
+attack_anim = "attack_2"
+cooldown = 6.0
+breath_sprite = NodePath("BreathFX")
+breath_hitbox = NodePath("AttackHitbox/BreathCollisionShape")
 
 [node name="death" type="Node" parent="StateMachine" unique_id=1172058628 node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("15_y64qe")

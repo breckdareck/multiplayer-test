@@ -395,24 +395,15 @@ func _ready() -> void:
 		name_label.text = monster_name
 	else:
 		name_label.text = "Lv.%d %s" % [monster_level, monster_name]
-	# Inject the AI chase state, then initialize the state machine with the
-	# same pattern as the player.
+	# Inject the AI chase + hit states (no per-attack config), then init the state
+	# machine. ATTACK states (melee/ranged/secondary/breath) are AUTHORED scene nodes
+	# now — chase dispatches on node presence, so there's no attack injection here.
 	_ensure_chase_state()
 	_ensure_hit_state()
-	# Inject the ranged-attack state for RANGED / MAGIC enemies (telegraphed-zone
-	# caster). Created on every peer so the state-name sync resolves on clients;
-	# its telegraph/damage only advances on the server.
-	if enemy_data != null and enemy_data.attack_type != Constants.AttackType.MELEE:
-		_ensure_ranged_attack_state()
-	# Inject the frontal-guard state for blocker enemies.
+	# Frontal-guard + boss-special states are authored too, but keep these injections
+	# as a safety net for enemies that haven't authored them (gated by the data flag).
 	if enemy_data != null and enemy_data.is_blocker:
 		_ensure_block_state()
-	# Inject the secondary-attack state for enemies with a second projectile/spell.
-	if has_secondary_attack():
-		_ensure_secondary_attack_state()
-	# [Boss] Inject the telegraphed-special state. Created on every peer (gated by
-	# the data flag, identical everywhere) so the state-name sync resolves on
-	# clients; its windup/damage only advances on the server.
 	if enemy_data != null and enemy_data.is_boss:
 		_ensure_boss_special_state()
 	state_machine.init(self, animated_sprite)
@@ -1761,6 +1752,19 @@ func start_attack_cooldown() -> void:
 	if speed_mult > 0.0:
 		cd /= speed_mult
 	_attack_cooldown_until = Time.get_ticks_msec() + int(cd * 1000.0)
+
+
+## Cooldown end-clock (msec) for a `base_seconds` cooldown, with the boss phase +
+## enrage attack-speed multipliers applied. Each attack STATE node arms its own
+## cooldown through this so the per-attack clock lives on the node, not here.
+func attack_cooldown_until(base_seconds: float) -> int:
+	var cd: float = maxf(0.05, base_seconds)
+	var speed_mult: float = _boss_attack_speed_mult
+	if enemy_data != null and enemy_data.is_boss and _boss_enraged:
+		speed_mult *= maxf(0.01, enemy_data.enrage_attack_speed_mult)
+	if speed_mult > 0.0:
+		cd /= speed_mult
+	return Time.get_ticks_msec() + int(cd * 1000.0)
 
 
 ## Points facing (and the sprite) in a horizontal direction (-1 or +1).

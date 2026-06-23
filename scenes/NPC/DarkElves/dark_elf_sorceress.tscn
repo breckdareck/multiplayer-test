@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_secondary_proj"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/darkelf_magicball2.tscn" id="sec_mb2"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -218,23 +219,15 @@ script = ExtResource("5_yyaat")
 starting_state = NodePath("idle")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "melee_attack_state")]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("12_nadka")
 patrol_state = NodePath("../patrol")
-melee_attack_state = NodePath("../melee_attack")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "melee_attack_state")]
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
 script = ExtResource("6_u21pb")
 idle_state = NodePath("../idle")
-melee_attack_state = NodePath("../melee_attack")
 animation_name = "patrol"
-
-[node name="melee_attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("melee_hitbox_shape", "return_state")]
-script = ExtResource("14_17tps")
-melee_hitbox_shape = NodePath("../../AttackHitbox/MeleeCollisionShape")
-return_state = NodePath("../idle")
-animation_name = "attack_1"
 
 [node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("15_y64qe")
@@ -255,4 +248,8 @@ config = 0
 
 [node name="secondary_attack" type="Node" parent="StateMachine"]
 script = ExtResource("mig_secondary_proj")
-config = 1
+projectile_scene = ExtResource("sec_mb2")
+projectile_speed = 210.0
+attack_anim = "attack_2"
+cooldown = 6.0
+reach = 180.0

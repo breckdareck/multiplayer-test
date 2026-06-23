@@ -113,36 +113,31 @@ func process_frame(_delta: float) -> State:
 	if parent.global_position.distance_to(enemy.leash_anchor) > LEASH_RADIUS:
 		return _give_up()
 
-	# Blocker: when the player is in threatening (attack) range and the guard is off
-	# cooldown, raise the frontal guard instead of this attack cycle.
-	if enemy.enemy_data != null and enemy.enemy_data.is_blocker and enemy.can_block() and enemy.target_in_attack_zone(target):
-		var block_state := get_node_or_null("../block")
-		if block_state:
-			return block_state as State
-
-	# Secondary attack: on its own cooldown, when the target is within reach. For a
-	# breath that reach is the damage hitbox's own bounds (so it never fires out of
-	# range); for a projectile it's secondary_attack_range / ±1 tile.
-	if enemy.has_secondary_attack() and enemy.can_use_secondary():
-		var reach := enemy.secondary_trigger_reach()
-		var sdx := absf(target.global_position.x - parent.global_position.x)
-		var sdy := absf(target.global_position.y - parent.global_position.y)
-		if sdx <= reach.x and sdy <= reach.y:
-			var sec := get_node_or_null("../secondary_attack")
-			if sec:
-				return sec as State
-
-	# In the attack zone and armed: attack, but only once the enemy has actually
-	# turned to face the target (so the reaction delay is respected) and the
-	# attack is off cooldown. The zone is attack_range horizontally AND ±1 tile
-	# vertically, so a ranged enemy won't fire at a target several platforms away.
-	if enemy.has_attack_state() and enemy.can_attack() and enemy.target_in_attack_zone(target):
-		var dx := target.global_position.x - parent.global_position.x
-		if signf(dx) == float(_move_dir) or absf(dx) < 8.0:
-			var atk := enemy.get_attack_state_node()
-			if atk:
+	# Attack poll: once the enemy has actually turned toward the target (so the
+	# reaction delay is respected), enter the first attack-state child that reports
+	# can_start() — child order under StateMachine IS the priority (block authored
+	# before melee so a guard preempts a swing). Presence of a node is the dispatch:
+	# there's no attack_type / has_secondary branching here. Each attack owns its
+	# cooldown + reach + projectile/breath config.
+	var dx := target.global_position.x - parent.global_position.x
+	if signf(dx) == float(_move_dir) or absf(dx) < 8.0:
+		for atk in _attack_state_nodes():
+			if atk.can_start(enemy, target):
 				return atk as State
 	return null
+
+
+## The StateMachine's attack-state children — those exposing can_start() — in child
+## order. That order is the poll priority chase enters them in.
+func _attack_state_nodes() -> Array:
+	var sm := get_parent()
+	if sm == null:
+		return []
+	var out: Array = []
+	for child in sm.get_children():
+		if child != self and child.has_method("can_start"):
+			out.append(child)
+	return out
 
 
 func physics_update(delta: float) -> State:
