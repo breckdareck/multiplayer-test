@@ -170,6 +170,9 @@ func physics_update(delta: float) -> State:
 	# Pick the direction (0 = hold) and speed to move this frame.
 	var step_dir := 0
 	var step_speed := chase_speed
+	# True when this frame is PACING (wandering the area because the target can't be
+	# reached) rather than actively closing in — pacing reads as patrol, not run.
+	var pacing := false
 	if in_zone:
 		# In range and able to hit — hold still to wind up / wait out cooldown.
 		_backoff_timer = 0.0
@@ -186,6 +189,7 @@ func physics_update(delta: float) -> State:
 		# of either freezing or thrashing across the attack-range boundary.
 		step_dir = _wander_step(enemy, delta)
 		step_speed = enemy.movement_speed
+		pacing = true
 	elif _backoff_timer > 0.0:
 		# Pacing away from an obstacle; cut it short if this way is blocked too.
 		_backoff_timer -= delta
@@ -216,9 +220,10 @@ func physics_update(delta: float) -> State:
 
 	parent.velocity.y += gravity * delta
 	parent.move_and_slide()
-	# Play the walk clip while moving, idle while holding — so an enemy waiting in
-	# range (or out of cooldown) stops "running on the spot".
-	_apply_locomotion_anim(step_dir != 0)
+	# Play the run clip while actively pursuing, the patrol clip while just pacing an
+	# unreachable target, idle while holding — so an enemy that can't reach you reads
+	# as wandering (like a no-attack mob), not sprinting in place.
+	_apply_locomotion_anim(step_dir != 0, pacing)
 	return null
 
 
@@ -331,12 +336,13 @@ func _target_below(target: Node2D) -> bool:
 
 ## Switches between the walk ("patrol") and "idle" clips so a stationary enemy
 ## isn't stuck running on the spot. Only re-plays on an actual change.
-func _apply_locomotion_anim(moving: bool) -> void:
+func _apply_locomotion_anim(moving: bool, pacing: bool = false) -> void:
 	if animations == null or animations.sprite_frames == null:
 		return
-	# Moving uses this chase node's authored animation_name (default "patrol"); when
-	# paused-in-place (aggroed but can't reach) it drops to "idle".
-	var move_anim := animation_name if animation_name != "" else "patrol"
+	# Active pursuit uses this chase node's authored animation_name (default "patrol");
+	# PACING an unreachable target reads as a patrol wander, not a sprint; holding
+	# still drops to "idle".
+	var move_anim := "patrol" if pacing else (animation_name if animation_name != "" else "patrol")
 	var desired := move_anim if moving else "idle"
 	if animations.animation != desired and animations.sprite_frames.has_animation(desired):
 		animations.play(desired)
