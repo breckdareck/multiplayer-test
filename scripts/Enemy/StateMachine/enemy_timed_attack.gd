@@ -28,6 +28,9 @@ enum Config { PRIMARY, SECONDARY }
 
 var _elapsed: float = 0.0
 var _active_open: bool = false
+## Latches once the active window has opened this attack, so a zero-length window
+## (a fire-once projectile, active = 0) can't re-trigger _active_start every frame.
+var _active_started: bool = false
 
 
 func enter() -> void:
@@ -35,6 +38,7 @@ func enter() -> void:
 	allow_flip = false
 	_elapsed = 0.0
 	_active_open = false
+	_active_started = false
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
@@ -52,7 +56,8 @@ func process_frame(delta: float) -> State:
 		return attack_recover_state()
 
 	_elapsed += delta
-	if not _active_open and _elapsed >= windup:
+	if not _active_started and _elapsed >= windup:
+		_active_started = true
 		_active_open = true
 		_active_start(enemy)
 	if _active_open:
