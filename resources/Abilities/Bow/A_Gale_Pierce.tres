@@ -12,7 +12,7 @@
 [ext_resource type="Resource" uid="uid://cugtuedcs7vla" path="res://resources/Abilities/Bow/Upgrades/U_GP_Galeforce.tres" id="12_upg"]
 [ext_resource type="Resource" uid="uid://cugtufxi65v6a" path="res://resources/Abilities/Bow/Upgrades/U_GP_HurricaneDraw.tres" id="13_upg"]
 [ext_resource type="Script" uid="uid://baupgr1sword3" path="res://scripts/Resources/AbilitySystem/AbilityUpgradeData.gd" id="14_aud"]
-[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/projectile_base.tscn" id="30_proj"]
+[ext_resource type="PackedScene" uid="uid://d0ig4oiimrnei" path="res://scenes/Gameplay/Projectiles/projectile_base.tscn" id="30_proj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
 size = Vector2(190, 40)

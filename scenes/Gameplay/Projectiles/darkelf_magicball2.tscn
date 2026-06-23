@@ -1,7 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cw18e32vy0vvx"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_proj"]
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/MagicBall2-Sheet.png" id="2_tex"]
+[ext_resource type="Texture2D" uid="uid://dfhoc3wbxfg5a" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/MagicBall2-Sheet.png" id="2_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
 size = Vector2(10, 10)
@@ -10,13 +10,13 @@ size = Vector2(10, 10)
 atlas = ExtResource("2_tex")
 region = Rect2(0, 0, 32, 32)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=540298776 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_proj")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=291327926]
 shape = SubResource("RectangleShape2D_col")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1312035907]
 texture = SubResource("AtlasTexture_ball")

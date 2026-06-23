@@ -8,6 +8,8 @@
 [ext_resource type="Resource" uid="uid://yk34asjyy3di" path="res://resources/DropTables/Generated/Mithril_Arcanist_Mail.tres" id="4_vdfpd"]
 [ext_resource type="Resource" uid="uid://dvis2xjm15j8n" path="res://resources/DropTables/Generated/Mithril_Arcanist_Boots.tres" id="5_aakxn"]
 [ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="7_124sg"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/element_lightning.tscn" id="7_vdfpd"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/fireball.tscn" id="8_fb"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -37,6 +39,13 @@ detection_radius = 240.0
 attack_range = 150.0
 attack_cooldown = 2.2
 attack_type = 2
+ranged_projectile_scene = ExtResource("7_vdfpd")
+secondary_projectile_scene = ExtResource("8_fb")
+secondary_attack_anim = "attack_2"
+secondary_attack_cooldown = 3.0
+secondary_attack_range = 150.0
+secondary_breath_sprite = null
+secondary_hitbox_shape = null
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

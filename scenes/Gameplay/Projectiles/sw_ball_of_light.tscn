@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://noykd20ind2n"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_22vhk"]
 [ext_resource type="Texture2D" uid="uid://cghiaax4paic5" path="res://assets/sprites/MiniStarWanderers/MiniStarWanderers/Ball of light-Sheet.png" id="1_tex"]
@@ -8,16 +8,15 @@ size = Vector2(8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_22vhk"]
 atlas = ExtResource("1_tex")
-region = Rect2(0, 0, 16, 16)
+region = Rect2(5, 8, 16, 16)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=445706144 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_22vhk")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 0)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1531767259]
 shape = SubResource("RectangleShape2D_22vhk")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=972616132]
 texture = SubResource("AtlasTexture_22vhk")

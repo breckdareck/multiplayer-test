@@ -1,22 +1,23 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cnmj0pashd02h"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_proj"]
 [ext_resource type="Texture2D" uid="uid://cslymto51tm6v" path="res://assets/sprites/MiniElementsHeroes/WindEffect-Sheet.png" id="2_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
-size = Vector2(12, 12)
+size = Vector2(22, 27)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_swirl"]
 atlas = ExtResource("2_tex")
-region = Rect2(128, 0, 32, 32)
+region = Rect2(126, 3, 28, 28)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=1041117975 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_proj")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=803170201]
+position = Vector2(0, 0.5)
 shape = SubResource("RectangleShape2D_col")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1814040641]
 texture = SubResource("AtlasTexture_swirl")

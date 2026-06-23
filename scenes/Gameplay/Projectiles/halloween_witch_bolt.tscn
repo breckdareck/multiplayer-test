@@ -1,22 +1,20 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://ce7o2dxsrxh8a"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_proj"]
-[ext_resource type="Texture2D" uid="uid://be25wvo0jbiq3" path="res://assets/sprites/MiniHalloweenMonsters/MiniHalloweenMonsters/Effect-1-Sheet.png" id="2_fx"]
+[ext_resource type="Texture2D" uid="uid://bpydyvo6frvwj" path="res://assets/sprites/MiniHalloweenMonsters/MiniHalloweenMonsters/Effect-2-Sheet.png" id="2_wqrg5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bolt"]
 size = Vector2(10, 6)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bolt"]
-atlas = ExtResource("2_fx")
-region = Rect2(0, 0, 32, 32)
-
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=434605533 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_proj")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1571195543]
 shape = SubResource("RectangleShape2D_bolt")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = SubResource("AtlasTexture_bolt")
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1324457388]
+texture = ExtResource("2_wqrg5")
+region_enabled = true
+region_rect = Rect2(7, 7, 16, 16)

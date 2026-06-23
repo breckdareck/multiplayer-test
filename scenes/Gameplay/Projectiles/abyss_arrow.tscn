@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://c30t6udcbkmqv"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_proj"]
 [ext_resource type="Texture2D" uid="uid://b6lgbk0b1cm6t" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Arrow1-Sheet.png" id="1_tex"]
@@ -10,14 +10,15 @@ size = Vector2(8, 3)
 atlas = ExtResource("1_tex")
 region = Rect2(0, 0, 32, 32)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=24566831 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_proj")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=396523886]
 position = Vector2(1, 0.5)
 shape = SubResource("RectangleShape2D_proj")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=910542075]
+position = Vector2(0, -8)
 texture = SubResource("AtlasTexture_proj")

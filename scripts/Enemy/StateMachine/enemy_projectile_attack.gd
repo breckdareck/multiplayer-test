@@ -18,6 +18,11 @@ func _clip_anim(enemy: EnemyBase) -> String:
 		return ""
 	if config == Config.SECONDARY:
 		return enemy.enemy_data.secondary_attack_anim
+	# PRIMARY: honor the authored animation_name on this node — lets a multi-spell
+	# caster pin its primary cast clip (e.g. "attack_1") so it doesn't collide with
+	# the secondary's clip. Falls back to auto-picking a cast pose when left blank.
+	if animation_name != "":
+		return animation_name
 	var sf: SpriteFrames = enemy.enemy_data.sprite_frames
 	if sf == null:
 		return ""

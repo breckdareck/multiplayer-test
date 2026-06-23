@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cfy80nmncxik2"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_22vhk"]
 [ext_resource type="Texture2D" uid="uid://dc6t2uajmpr30" path="res://assets/sprites/MiniGnolls/MiniGnolls/Outline/Arrow-Sheet.png" id="1_arrow"]
@@ -8,16 +8,16 @@ size = Vector2(8, 3)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_22vhk"]
 atlas = ExtResource("1_arrow")
-region = Rect2(0, 0, 32, 32)
+region = Rect2(9, 13, 16, 16)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[node name="ProjectileBase" type="Area2D" unique_id=935804235 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_22vhk")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2005981269]
 position = Vector2(1, 0.5)
 shape = SubResource("RectangleShape2D_22vhk")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1820035911]
 texture = SubResource("AtlasTexture_22vhk")

@@ -136,7 +136,7 @@ var _block_react_pending: bool = false
 var _split_gen_left: int = -1
 ## True on an enemy spawned as a split child (gets scaled down + reduced HP).
 var _is_split_child: bool = false
-const _DEFAULT_PROJECTILE_SCENE := preload("res://scenes/Gameplay/projectile_base.tscn")
+const _DEFAULT_PROJECTILE_SCENE := preload("res://scenes/Gameplay/Projectiles/projectile_base.tscn")
 ## Vertical engagement window for an attack: a target must be within this many
 ## pixels of the enemy's own Y to be attackable. 16px = one tile; the +8 slack
 ## lets "same platform" jitter and exactly one tile up/down pass, while two tiles
