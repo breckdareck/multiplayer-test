@@ -667,27 +667,27 @@ position = Vector2(-112, 145)
 respawnable = true
 
 [node name="FeralHare" parent="Enemies" unique_id=1412713115 instance=ExtResource("17_fh")]
-position = Vector2(-454, 145)
+position = Vector2(-454, 33)
 respawnable = true
 
 [node name="FeralHare2" parent="Enemies" unique_id=565096709 instance=ExtResource("17_fh")]
-position = Vector2(-422, 145)
+position = Vector2(-422, 33)
 respawnable = true
 
 [node name="FeralHare3" parent="Enemies" unique_id=1912057649 instance=ExtResource("17_fh")]
-position = Vector2(-390, 145)
+position = Vector2(-390, 33)
 respawnable = true
 
 [node name="FeralHare4" parent="Enemies" unique_id=297012419 instance=ExtResource("17_fh")]
-position = Vector2(-358, 145)
+position = Vector2(-358, 33)
 respawnable = true
 
 [node name="FeralHare5" parent="Enemies" unique_id=74271740 instance=ExtResource("17_fh")]
-position = Vector2(-326, 145)
+position = Vector2(-326, 33)
 respawnable = true
 
 [node name="FeralHare6" parent="Enemies" unique_id=1918468149 instance=ExtResource("17_fh")]
-position = Vector2(-294, 145)
+position = Vector2(-294, 33)
 respawnable = true
 
 [node name="Boar" parent="Enemies" unique_id=1793524746 instance=ExtResource("16_wvsnn")]
@@ -698,8 +698,7 @@ respawnable = true
 position = Vector2(-239, 146)
 
 [node name="RedDragon" parent="Enemies" unique_id=343998451 instance=ExtResource("18_dragon")]
-position = Vector2(-341, 34)
-respawnable = true
+position = Vector2(-409, 145)
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=268993879]
 

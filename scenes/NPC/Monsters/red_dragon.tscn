@@ -15,11 +15,11 @@
 [ext_resource type="Script" uid="uid://cptesvvlfbytw" path="res://scripts/Resources/StatSystem/StatData.gd" id="7_xxpon"]
 [ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_numl0"]
 [ext_resource type="SpriteFrames" uid="uid://dytk0do3008em" path="res://resources/Enemies/RedDragon/SF_RedDragon.tres" id="9_7f1la"]
-[ext_resource type="SpriteFrames" path="res://resources/VFX/SF_monster_fire_breath.tres" id="20_breath"]
 [ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_awmsx"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
 [ext_resource type="Script" uid="uid://cw62omerhwsyl" path="res://scripts/Enemy/StateMachine/enemy_slash_attack.gd" id="14_17tps"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
+[ext_resource type="SpriteFrames" uid="uid://b5im187ec2wtt" path="res://resources/VFX/SF_monster_fire_breath.tres" id="20_breath"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -188,16 +188,18 @@ show_percentage = false
 position = Vector2(4, -19)
 scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("9_7f1la")
-animation = &"attack_2"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="BreathFX" type="AnimatedSprite2D" parent="." unique_id=1596292353]
 visible = false
-position = Vector2(40, -16)
-scale = Vector2(2, 2)
 z_index = 50
+position = Vector2(49, -23)
+scale = Vector2(2, 2)
 sprite_frames = ExtResource("20_breath")
 animation = &"play"
+frame = 8
+frame_progress = 1.0
 
 [node name="AttackHitbox" type="Area2D" parent="." unique_id=806759617]
 collision_layer = 0

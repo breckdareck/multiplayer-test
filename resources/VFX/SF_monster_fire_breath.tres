@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=11 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b5im187ec2wtt"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="1_wxd75"]
+[ext_resource type="Texture2D" uid="uid://bbule4vpgnarv" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="1_wxd75"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_to2b1"]
 atlas = ExtResource("1_wxd75")
@@ -68,7 +68,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_mll2r")
 }],
-"loop": true,
+"loop": 0,
 "name": &"play",
-"speed": 16.0
+"speed": 15.0
 }]

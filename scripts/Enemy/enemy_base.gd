@@ -1411,7 +1411,7 @@ func _ensure_secondary_attack_state() -> void:
 func has_secondary_attack() -> bool:
 	if enemy_data == null or enemy_data.secondary_attack_anim == "":
 		return false
-	return enemy_data.secondary_vfx_key != "" or enemy_data.secondary_projectile_scene != null
+	return not enemy_data.secondary_breath_sprite.is_empty() or enemy_data.secondary_projectile_scene != null
 
 
 ## True when the secondary is the BREATH flavour (mouth sprite + frontal cone) rather
