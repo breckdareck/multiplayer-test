@@ -3,22 +3,29 @@ extends EnemyState
 ## from chase on the secondary cooldown when the target is within
 ## secondary_attack_range. Plays the secondary clip (secondary_attack_anim, e.g.
 ## "attack_2"/"spell"), then returns to chase. Two flavours:
-##   - PROJECTILE (secondary_projectile_scene): fires a homing bolt at _FIRE_TIME.
+##   - PROJECTILE (secondary_projectile_scene): fires a homing bolt at fire_time.
 ##   - BREATH (secondary_breath_sprite): shows the mouth plume for the whole attack
 ##     and arms a collision hitbox (secondary_hitbox_shape) during the active window,
 ##     damaging overlapping players once each via damage_on_overlap — the SAME
 ##     hitbox-driven model as the melee slash, so the breath's reach/shape is the
 ##     editor-authored CollisionShape2D, not distance math.
 ##
-## Injected at runtime by EnemyBase._ensure_secondary_attack_state().
+## Author this as a child of StateMachine in the enemy scene (named
+## "secondary_attack") to tune its timing in the inspector; enemies that DON'T author
+## it get one injected with these defaults by EnemyBase._ensure_secondary_attack_state().
 
-const _FIRE_TIME: float = 0.45
-const _RECOVER_TAIL: float = 0.25
-# Breath flavour timing: a SHORT wind-up (mouth opens / fire ignites) then the hitbox
-# is live for the rest, so the fire bites almost as soon as it's visible instead of
-# the long projectile-style cast. Total breath = _BREATH_WINDUP + _BREATH_ACTIVE.
-const _BREATH_WINDUP: float = 0.12
-const _BREATH_ACTIVE: float = 0.55
+@export_group("Projectile timing")
+## Seconds into the attack the projectile fires (its cast point).
+@export var fire_time: float = 0.45
+## Recovery seconds after the projectile fires before returning to chase.
+@export var recover_tail: float = 0.25
+
+@export_group("Breath timing")
+## Wind-up seconds before the fire hitbox goes live (the mouth opens / fire ignites).
+## Short = the fire bites almost as soon as it's visible. Total breath = windup + active.
+@export var breath_windup: float = 0.12
+## Seconds the fire hitbox stays live and damaging (while the plume pours).
+@export var breath_active: float = 0.55
 
 var _elapsed: float = 0.0
 var _fired: bool = false
@@ -59,7 +66,7 @@ func process_frame(delta: float) -> State:
 	_elapsed += delta
 	if enemy.secondary_is_breath():
 		_update_breath_hitbox(enemy)
-	elif not _fired and _elapsed >= _FIRE_TIME:
+	elif not _fired and _elapsed >= fire_time:
 		_fired = true
 		if is_instance_valid(enemy.current_target):
 			enemy.fire_secondary_projectile(enemy.current_target)
@@ -109,8 +116,8 @@ func _play_secondary(enemy: EnemyBase) -> void:
 ## Total length of the secondary, by flavour — breath uses its snappier window.
 func _total_duration(enemy: EnemyBase) -> float:
 	if enemy.secondary_is_breath():
-		return _BREATH_WINDUP + _BREATH_ACTIVE
-	return _FIRE_TIME + _RECOVER_TAIL
+		return breath_windup + breath_active
+	return fire_time + recover_tail
 
 
 ## The breath's damage CollisionShape2D (EnemyData.secondary_hitbox_shape), or null.
@@ -123,7 +130,7 @@ func _breath_shape(enemy: EnemyBase) -> CollisionShape2D:
 ## Arms the breath hitbox during the active window and damages every valid target
 ## caught inside it (once each) — the slash's model, applied to the breath shape.
 func _update_breath_hitbox(enemy: EnemyBase) -> void:
-	var active: bool = _elapsed >= _BREATH_WINDUP and _elapsed < _BREATH_WINDUP + _BREATH_ACTIVE
+	var active: bool = _elapsed >= breath_windup and _elapsed < breath_windup + breath_active
 	if active != _hitbox_on:
 		_set_breath_hitbox(enemy, active)
 	if not _hitbox_on:
