@@ -1642,7 +1642,7 @@ func get_attack_state_node() -> Node:
 	var ranged := state_machine.get_node_or_null("ranged_attack")
 	if ranged != null:
 		return ranged
-	return state_machine.get_node_or_null("slash_attack")
+	return state_machine.get_node_or_null("melee_attack")
 
 
 ## True when this enemy has an attack state — i.e. it stops in range and attacks

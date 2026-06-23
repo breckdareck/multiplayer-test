@@ -51,9 +51,10 @@ its `enemy_data` assigned.
 
 6. **Wire the animation names.** Each state node under `StateMachine` has an
    `animation_name` that must EXACTLY match an animation in your SpriteFrames —
-   see "Animation name contract" below. If your sheet uses `attack_1`/`attack_2`
-   but you duplicated a scene whose attack state plays `slash_attack`, either
-   rename the SF animation or set that state's `animation_name = "attack_1"`.
+   see "Animation name contract" below. The melee state node is `melee_attack`
+   (script `enemy_melee_attack.gd`); if your sheet uses `attack_1`/`attack_2` but
+   the template's `melee_attack` plays a different clip, either rename the SF
+   animation or set that state's `animation_name = "attack_1"`.
 
 7. **Place it.** Add the enemy (or a spawner) into a map scene under that map's
    `Enemies` node. Stats (`WEAPONATTACK`, `DEFENSE`, HP, EXP, …) are computed from
@@ -133,9 +134,10 @@ The names in the SpriteFrames must match what the code/scene plays:
   node's `animation_name` in the scene. These two loop.
 - **`hit`** — OPTIONAL, this exact name. `enemy_base.gd` auto-plays it on damage
   only if `sprite_frames.has_animation("hit")`.
-- **attack** — the attack state's `animation_name`. Current scene templates use
-  **`slash_attack`**; the MiniBeastmens sheets provide **`attack_1`** (and
-  `attack_2`). Pick one and make the SF animation name and the state's
+- **attack** — the `melee_attack` state's `animation_name` (its hit window is the
+  `HIT_FRAME_START`/`HIT_FRAME_END` exports on the node). Templates vary
+  (`slash_attack` or `attack_1`); the MiniBeastmens sheets provide **`attack_1`**
+  (and `attack_2`). Pick one and make the SF animation and the state's
   `animation_name` agree.
 - **jump / fall / land** — only needed if you add states that play them; enemies
   don't by default, so the jump/fall/land row is normally skipped.
