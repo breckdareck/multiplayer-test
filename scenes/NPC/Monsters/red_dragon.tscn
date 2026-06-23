@@ -20,7 +20,7 @@
 [ext_resource type="Script" uid="uid://cw62omerhwsyl" path="res://scripts/Enemy/StateMachine/enemy_slash_attack.gd" id="14_17tps"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
 [ext_resource type="SpriteFrames" uid="uid://b5im187ec2wtt" path="res://resources/VFX/SF_monster_fire_breath.tres" id="20_breath"]
-[ext_resource type="Script" uid="uid://co15mq12qbpm" path="res://scripts/Enemy/StateMachine/enemy_secondary_attack.gd" id="21_secatk"]
+[ext_resource type="Script" path="res://scripts/Enemy/StateMachine/enemy_hitbox_attack.gd" id="21_secatk"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -254,10 +254,11 @@ animation_name = "attack_1"
 
 [node name="secondary_attack" type="Node" parent="StateMachine" unique_id=1279422921]
 script = ExtResource("21_secatk")
-fire_time = 0.45
-recover_tail = 0.25
-breath_windup = 0.12
-breath_active = 0.55
+config = 1
+windup = 0.12
+active = 0.55
+recover = 0.0
+animation_name = "attack_2"
 
 [node name="death" type="Node" parent="StateMachine" unique_id=1172058628 node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("15_y64qe")

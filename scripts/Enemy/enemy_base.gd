@@ -113,8 +113,8 @@ var _activation_asleep: bool = false
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
-const _RANGED_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_ranged_attack.gd")
-const _SECONDARY_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_secondary_attack.gd")
+const _PROJECTILE_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd")
+const _HITBOX_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hitbox_attack.gd")
 ## Clock gate for the next secondary attack.
 var _secondary_ready_at: int = 0
 const _BLOCK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_block.gd")
@@ -1382,26 +1382,37 @@ func _ensure_hit_state() -> void:
 
 
 ## Creates and attaches the runtime "ranged_attack" state — the telegraphed-zone
-## caster attack. Injected for RANGED / MAGIC enemies (gated by the caller) using
-## the same code-injection pattern as chase/hit, so no per-scene wiring is needed.
-## animation_name is left empty: the state picks a cast clip from the SpriteFrames.
+## caster attack (a PRIMARY projectile delivery). Injected for RANGED / MAGIC enemies
+## (gated by the caller), same code-injection pattern as chase/hit. animation_name is
+## left empty: the state picks a cast clip from the SpriteFrames.
 func _ensure_ranged_attack_state() -> void:
 	if state_machine == null or state_machine.has_node("ranged_attack"):
 		return
 	var s := Node.new()
-	s.set_script(_RANGED_ATTACK_STATE_SCRIPT)
+	s.set_script(_PROJECTILE_ATTACK_STATE_SCRIPT)
+	s.config = 0  # EnemyTimedAttack.Config.PRIMARY
 	s.name = "ranged_attack"
 	s.animation_name = ""
 	state_machine.add_child(s)
 
 
 ## Creates the runtime "secondary_attack" state for enemies that carry a second
-## projectile/spell. Same injection pattern as the other states.
+## attack. Picks the delivery by flavour — a BREATH (secondary_breath_sprite) gets the
+## hitbox delivery, otherwise a projectile — and runs it off the SECONDARY config.
+## Skipped when the enemy scene already authors a "secondary_attack" node (e.g. so a
+## dragon can tune its breath in the inspector).
 func _ensure_secondary_attack_state() -> void:
 	if state_machine == null or state_machine.has_node("secondary_attack"):
 		return
 	var s := Node.new()
-	s.set_script(_SECONDARY_ATTACK_STATE_SCRIPT)
+	if secondary_is_breath():
+		s.set_script(_HITBOX_ATTACK_STATE_SCRIPT)
+		s.windup = 0.12
+		s.active = 0.55
+		s.recover = 0.0
+	else:
+		s.set_script(_PROJECTILE_ATTACK_STATE_SCRIPT)
+	s.config = 1  # EnemyTimedAttack.Config.SECONDARY
 	s.name = "secondary_attack"
 	s.animation_name = ""
 	state_machine.add_child(s)
