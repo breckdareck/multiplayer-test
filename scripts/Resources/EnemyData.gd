@@ -132,57 +132,16 @@ func get_special_attacks() -> Array[BossAttackData]:
 ## docs/adr/0018-blocker-enemy-frontal-guard.md.
 @export var is_blocker: bool = false
 
-## Attack DELIVERY (not damage axis — that's is_magic_attacker). MELEE = the
-## contact slash_attack state. RANGED / MAGIC = the telegraphed ranged-zone
-## state (enemy_ranged_attack), injected at runtime by enemy_base. A caster sets
-## MAGIC + is_magic_attacker; a physical archer sets RANGED + is_magic_attacker
-## off. See docs/adr/0016-enemy-attack-patterns-ranged-delivery.md.
-@export var attack_type: Constants.AttackType = Constants.AttackType.MELEE
-
 @export_category("Ranged Attack")
-## Projectile a RANGED / MAGIC enemy fires at its target, mirroring the player's
-## homing projectile (scripts/Gameplay/projectile.gd). Leave null to use the
-## shared default scene (scenes/Gameplay/projectile_base.tscn). The hit resolves
-## through the enemy's own damage_on_overlap, so a projectile deals exactly what
-## the enemy's melee would. See docs/adr/0016-enemy-attack-patterns-ranged-delivery.md.
+## Default homing projectile a ranged enemy's primary ranged_attack node fires
+## (scripts/Gameplay/projectile.gd) when the node's own projectile_scene is unset —
+## the enemy-wide PRIMARY-ranged default. A node may override it; a SECOND spell node
+## sets its own. Null on both = the shared default scene. Per-attack config (secondary
+## spells, breath sprite/hitbox, per-attack cooldown/anim) now lives on the attack
+## STATE nodes, not here.
 @export var ranged_projectile_scene: PackedScene = null
-## Projectile travel speed in px/sec.
+## Default projectile travel speed (px/sec) for the primary ranged_attack node.
 @export var ranged_projectile_speed: float = 200.0
-
-@export_category("Secondary Attack")
-## Optional SECOND attack on its own cooldown, played with secondary_attack_anim,
-## layered on top of the primary. Two flavours (pick by which field you fill):
-##   - PROJECTILE: set secondary_projectile_scene → fires a homing bolt/spell
-##     (e.g. a caster's second orb), exactly like the ranged attack.
-##   - BREATH: set secondary_breath_sprite → no projectile; SHOWS+PLAYS a child
-##     AnimatedSprite2D on the enemy scene (authored at the mouth, flips with facing)
-##     for the duration of the attack and damages players in a frontal cone within
-##     secondary_attack_range. Use for a dragon's fire breath etc. — the fire is a
-##     looping sprite on the enemy, placed in the editor, not a flying orb. Breath
-##     wins if both are set.
-## For enemies whose sheet has a distinct second attack/cast clip — verify the sprite
-## per enemy (some second attacks are just melee swings and want neither). Leave the
-## scene/path AND anim empty to disable.
-@export var secondary_projectile_scene: PackedScene = null
-@export var secondary_projectile_speed: float = 200.0
-## NodePath (relative to the enemy root) of a child AnimatedSprite2D to play for a
-## BREATH-flavoured secondary — e.g. a fire plume parented at the mouth, hidden by
-## default. When set, the secondary is that mouth sprite + a hitbox, not a
-## projectile. The sprite plays its "play" animation (looped) while the attack runs.
-@export var secondary_breath_sprite: NodePath = ^""
-## NodePath of the CollisionShape2D (on the enemy's AttackHitbox) that defines the
-## BREATH's DAMAGE AREA — authored in the editor exactly like the slash's
-## MeleeCollisionShape, mirrored to facing and armed during the attack's active
-## window. Overlapping players take damage_on_overlap (same calc as the melee swing:
-## respects i-frames + the level hit-roll). Leave empty for no breath damage.
-@export var secondary_hitbox_shape: NodePath = ^""
-## Animation clip the secondary attack plays (e.g. "attack_2" or "spell").
-@export var secondary_attack_anim: String = ""
-## Seconds between secondary attacks.
-@export var secondary_attack_cooldown: float = 5.0
-## Range at which the enemy DECIDES to use the secondary (the chase trigger). For a
-## breath the actual damage reach is the hitbox shape; keep this ~matched to it.
-@export var secondary_attack_range: float = 160.0
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

@@ -101,8 +101,6 @@ var initial_position: Vector2
 var current_target: Node2D = null
 ## Where the enemy stood when it began chasing — used to leash the pursuit.
 var leash_anchor: Vector2
-## Time.get_ticks_msec() at which the next attack becomes available.
-var _attack_cooldown_until: int = 0
 ## Proximity-activation sleep (ADR 0007). Distinct from pool-deactivate (death):
 ## an asleep enemy keeps its visible body, collision, and synchronizer but pauses
 ## AI processing. The MapManager scanner toggles this so enemies far from every
@@ -113,10 +111,6 @@ var _activation_asleep: bool = false
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
-const _PROJECTILE_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd")
-const _HITBOX_ATTACK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hitbox_attack.gd")
-## Clock gate for the next secondary attack.
-var _secondary_ready_at: int = 0
 const _BLOCK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_block.gd")
 ## Fraction of damage a blocker still takes from a FRONTAL hit while guarding
 ## (0.2 = 80% reduced). Hits from behind ignore the guard entirely.
@@ -995,7 +989,6 @@ func pool_reset() -> void:
 		return
 
 	current_target = null
-	_attack_cooldown_until = 0
 	# A freshly respawned enemy is awake; the scanner decides on the next tick.
 	_activation_asleep = false
 
@@ -1375,127 +1368,6 @@ func _ensure_hit_state() -> void:
 	state_machine.add_child(hit)
 
 
-## Creates and attaches the runtime "ranged_attack" state — the telegraphed-zone
-## caster attack (a PRIMARY projectile delivery). Injected for RANGED / MAGIC enemies
-## (gated by the caller), same code-injection pattern as chase/hit. animation_name is
-## left empty: the state picks a cast clip from the SpriteFrames.
-func _ensure_ranged_attack_state() -> void:
-	if state_machine == null or state_machine.has_node("ranged_attack"):
-		return
-	var s := Node.new()
-	s.set_script(_PROJECTILE_ATTACK_STATE_SCRIPT)
-	s.config = 0  # EnemyTimedAttack.Config.PRIMARY
-	s.name = "ranged_attack"
-	s.animation_name = ""
-	state_machine.add_child(s)
-
-
-## Creates the runtime "secondary_attack" state for enemies that carry a second
-## attack. Picks the delivery by flavour — a BREATH (secondary_breath_sprite) gets the
-## hitbox delivery, otherwise a projectile — and runs it off the SECONDARY config.
-## Skipped when the enemy scene already authors a "secondary_attack" node (e.g. so a
-## dragon can tune its breath in the inspector).
-func _ensure_secondary_attack_state() -> void:
-	if state_machine == null or state_machine.has_node("secondary_attack"):
-		return
-	var s := Node.new()
-	if secondary_is_breath():
-		s.set_script(_HITBOX_ATTACK_STATE_SCRIPT)
-		s.windup = 0.12
-		s.active = 0.55
-		s.recover = 0.0
-	else:
-		s.set_script(_PROJECTILE_ATTACK_STATE_SCRIPT)
-	s.config = 1  # EnemyTimedAttack.Config.SECONDARY
-	s.name = "secondary_attack"
-	s.animation_name = ""
-	state_machine.add_child(s)
-
-
-## True when this enemy has a configured secondary attack (projectile + clip).
-func has_secondary_attack() -> bool:
-	if enemy_data == null or enemy_data.secondary_attack_anim == "":
-		return false
-	return not enemy_data.secondary_breath_sprite.is_empty() or enemy_data.secondary_projectile_scene != null
-
-
-## True when the secondary is the BREATH flavour (mouth sprite + frontal cone) rather
-## than a projectile. Breath wins when both are set.
-func secondary_is_breath() -> bool:
-	return enemy_data != null and not enemy_data.secondary_breath_sprite.is_empty()
-
-
-## Half-extents (x = horizontal, y = vertical) the chase trigger checks before
-## starting the secondary. For a BREATH this is derived from its damage hitbox bounds
-## (offset + half-size) so the enemy only breathes when the target is actually within
-## the fire — no out-of-range casting when the hitbox is retuned. Projectile flavour
-## (and any non-rect breath shape) falls back to secondary_attack_range / ±1 tile.
-func secondary_trigger_reach() -> Vector2:
-	if enemy_data == null:
-		return Vector2.ZERO
-	if secondary_is_breath() and not enemy_data.secondary_hitbox_shape.is_empty():
-		var cs := get_node_or_null(enemy_data.secondary_hitbox_shape) as CollisionShape2D
-		if cs != null and cs.shape is RectangleShape2D:
-			var sz: Vector2 = (cs.shape as RectangleShape2D).size
-			return Vector2(absf(cs.position.x) + sz.x * 0.5, absf(cs.position.y) + sz.y * 0.5)
-	return Vector2(enemy_data.secondary_attack_range, ATTACK_VERTICAL_REACH)
-
-
-func can_use_secondary() -> bool:
-	return Time.get_ticks_msec() >= _secondary_ready_at
-
-
-func start_secondary_cooldown() -> void:
-	var cd: float = enemy_data.secondary_attack_cooldown if enemy_data else 5.0
-	_secondary_ready_at = Time.get_ticks_msec() + int(maxf(0.1, cd) * 1000.0)
-
-
-## Fires the secondary projectile/spell at `target` (its own scene + speed).
-func fire_secondary_projectile(target: Node2D) -> void:
-	if enemy_data == null:
-		return
-	fire_projectile(target, enemy_data.secondary_projectile_scene, enemy_data.secondary_projectile_speed)
-
-
-## BREATH-flavoured secondary, VFX half: SHOWS + plays the child breath sprite (a
-## fire plume authored at the mouth). Runs on EVERY peer — called from the secondary
-## state's enter(), which replicates — so each peer animates its own copy; no
-## broadcast needed. Mirrors the sprite to the enemy's facing (read off the replicated
-## main-sprite flip_h so it's correct on clients too).
-func play_secondary_breath_vfx() -> void:
-	if enemy_data == null:
-		return
-	var fx := get_node_or_null(enemy_data.secondary_breath_sprite) as AnimatedSprite2D
-	if fx == null:
-		return
-	var face_left: bool = animated_sprite != null and animated_sprite.flip_h
-	# Cache the authored |x| once, then mirror it by facing so the plume stays in front.
-	if not fx.has_meta("breath_base_x"):
-		fx.set_meta("breath_base_x", absf(fx.position.x))
-	fx.position.x = float(fx.get_meta("breath_base_x")) * (-1.0 if face_left else 1.0)
-	fx.flip_h = face_left
-	fx.visible = true
-	fx.frame = 0
-	fx.play("play")
-	# The breath roar — host only renders it for itself; clients hear it via the
-	# state replication running this same path, so route through the map for parity.
-	if multiplayer.is_server():
-		var emap := _get_map_id()
-		if emap != "":
-			AudioManager.play_sfx_for_map(emap, "res://assets/sounds/generated/sword_heavy.wav", global_position, 1.0)
-
-
-## Hides the breath sprite again. Called from the secondary state's exit() on every peer.
-func stop_secondary_breath_vfx() -> void:
-	if enemy_data == null:
-		return
-	var fx := get_node_or_null(enemy_data.secondary_breath_sprite) as AnimatedSprite2D
-	if fx == null:
-		return
-	fx.stop()
-	fx.visible = false
-
-
 ## Creates and attaches the runtime "block" state — the blocker's frontal guard.
 ## Injected for blocker enemies (gated by the caller), same pattern as the others.
 func _ensure_block_state() -> void:
@@ -1737,21 +1609,6 @@ func _get_map_node() -> Node:
 			return p
 		p = p.get_parent()
 	return null
-
-
-func can_attack() -> bool:
-	return Time.get_ticks_msec() >= _attack_cooldown_until
-
-
-func start_attack_cooldown() -> void:
-	var cd: float = enemy_data.attack_cooldown if enemy_data else 1.4
-	# [Boss] Phase + enrage attack-speed divisor (>1 = faster). 1.0 otherwise.
-	var speed_mult: float = _boss_attack_speed_mult
-	if enemy_data != null and enemy_data.is_boss and _boss_enraged:
-		speed_mult *= maxf(0.01, enemy_data.enrage_attack_speed_mult)
-	if speed_mult > 0.0:
-		cd /= speed_mult
-	_attack_cooldown_until = Time.get_ticks_msec() + int(cd * 1000.0)
 
 
 ## Cooldown end-clock (msec) for a `base_seconds` cooldown, with the boss phase +

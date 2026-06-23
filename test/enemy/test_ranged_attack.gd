@@ -8,9 +8,12 @@ const TILE := 16.0
 
 
 func test_melee_default_is_unchanged() -> void:
-	# A plain enemy defaults to MELEE so existing content is untouched.
+	# Delivery is presence-based now (no attack_type enum): a melee enemy authors a
+	# melee_attack node, a caster a ranged_attack node. A plain EnemyData has no ranged
+	# projectile + physical damage — i.e. melee by default.
 	var ed := EnemyData.new()
-	assert_eq(ed.attack_type, Constants.AttackType.MELEE, "attack_type defaults to MELEE")
+	assert_null(ed.ranged_projectile_scene, "no ranged projectile by default")
+	assert_false(ed.is_magic_attacker, "physical damage axis by default")
 
 
 func test_projectile_speed_has_a_sane_default() -> void:
@@ -120,6 +123,6 @@ func test_rabbit_wizard_is_a_ranged_magic_caster() -> void:
 	# and an engagement range that reads as ranged without being excessive.
 	var ed: EnemyData = load("res://resources/Enemies/RabbitWizard/ED_RabbitWizard.tres")
 	assert_not_null(ed, "RabbitWizard EnemyData loads")
-	assert_eq(ed.attack_type, Constants.AttackType.MAGIC, "delivers a ranged MAGIC attack")
+	assert_not_null(ed.ranged_projectile_scene, "has a primary ranged projectile (caster)")
 	assert_true(ed.is_magic_attacker, "damage axis is magic")
 	assert_true(ed.attack_range >= 120.0 and ed.attack_range <= 170.0, "ranged but not excessive")

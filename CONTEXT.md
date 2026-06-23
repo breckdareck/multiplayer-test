@@ -264,13 +264,18 @@ moment-to-moment rather than only on the character sheet. See
 _Avoid_: AI type, behaviour profile, archetype (reserved for the defensive
 stat-multiplier `MonsterArchetype`).
 
-**Attack type**:
-The `EnemyData` field (`Constants.AttackType`) selecting attack *delivery*:
-`MELEE` = the contact `slash_attack`; `RANGED`/`MAGIC` = a homing projectile via
-the injected `enemy_ranged_attack` state. Orthogonal to `is_magic_attacker`, which
-is the *damage axis* (physical vs magic) — a caster sets both, a physical archer
-sets `RANGED` with `is_magic_attacker = false`.
-_Avoid_: attack mode, attack delivery (informal).
+**Attack delivery**:
+*How* an enemy attacks — expressed by **which attack STATE node it authors** under its
+`StateMachine`, NOT by a data field (the old `EnemyData.attack_type` enum was removed).
+The node types: `melee_attack` (frame-windowed hitbox swing), `ranged_attack` /
+`secondary_attack` (`EnemyProjectileAttack` — homing projectile, the same one the
+player uses), and a breath (`EnemyHitboxAttack` — a plume sprite + a cone hitbox).
+`chase` polls each attack node's `can_start()` in child order and enters the first
+ready one (presence-based dispatch; child order = priority). Each node owns its own
+projectile/anim/cooldown/reach (`EnemyData` keeps only enemy-wide defaults —
+`attack_range`, `attack_cooldown`, `ranged_projectile_scene/speed`). Orthogonal to
+`is_magic_attacker`, the *damage axis* (physical vs magic).
+_Avoid_: attack type (the removed enum), attack mode.
 
 **Ranged caster**:
 An enemy whose `attack_type` is `RANGED`/`MAGIC`: from `chase` it stops at its
