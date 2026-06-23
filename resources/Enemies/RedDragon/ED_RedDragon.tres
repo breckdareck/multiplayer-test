@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
 [ext_resource type="SpriteFrames" uid="uid://dytk0do3008em" path="res://resources/Enemies/RedDragon/SF_RedDragon.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="4_bad"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(80, 48)

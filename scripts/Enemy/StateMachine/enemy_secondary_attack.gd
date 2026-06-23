@@ -26,6 +26,10 @@ func enter() -> void:
 	if is_instance_valid(enemy.current_target):
 		enemy.face_toward(enemy.current_target.global_position)
 	_play_secondary(enemy)
+	# Breath flavour: start the sustained mouth plume NOW so the fire is out for the
+	# whole attack (it's a cast, not an impact). Projectile flavour fires at _FIRE_TIME.
+	if enemy.secondary_is_breath():
+		enemy.play_secondary_breath_vfx(_FIRE_TIME + _RECOVER_TAIL)
 
 
 func process_frame(delta: float) -> State:
@@ -40,7 +44,7 @@ func process_frame(delta: float) -> State:
 		_fired = true
 		if is_instance_valid(enemy.current_target):
 			if enemy.secondary_is_breath():
-				enemy.fire_secondary_breath(enemy.current_target)
+				enemy.apply_secondary_breath_damage()
 			else:
 				enemy.fire_secondary_projectile(enemy.current_target)
 

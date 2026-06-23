@@ -698,7 +698,7 @@ respawnable = true
 position = Vector2(-239, 146)
 
 [node name="RedDragon" parent="Enemies" unique_id=343998451 instance=ExtResource("18_dragon")]
-position = Vector2(-339, 35)
+position = Vector2(-341, 34)
 respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=268993879]

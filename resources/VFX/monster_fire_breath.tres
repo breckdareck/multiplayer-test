@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="VfxEffectData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="VfxEffectData" format=3 uid="uid://bnnchxbypig5o"]
 
 [ext_resource type="Script" uid="uid://nblkvwf7wtfw" path="res://scripts/Resources/VfxEffectData.gd" id="1_fb"]
 [ext_resource type="Texture2D" uid="uid://bbule4vpgnarv" path="res://assets/sprites/MiniMonsters/MiniMonsters/Fire.png" id="2_fb"]
@@ -6,9 +6,9 @@
 [resource]
 script = ExtResource("1_fb")
 effect_key = "monster_fire_breath"
-category = "impact"
+category = "cast"
 sheet = ExtResource("2_fb")
-row = 0
+frame_width = 64
 fps = 16.0
+loop = true
 scale = 2.0
-face_direction = true
