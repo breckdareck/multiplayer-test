@@ -73,6 +73,31 @@ func plant_physics(delta: float) -> void:
 	parent.move_and_slide()
 
 
+## Enables/disables one attack hitbox `shape` and the shared AttackHitbox area's
+## monitoring together. Used by every hitbox-delivery attack (melee slash, breath).
+func arm_attack_hitbox(shape: CollisionShape2D, on: bool) -> void:
+	if shape:
+		shape.disabled = not on
+	var enemy := parent as EnemyBase
+	if enemy and enemy.attack_hitbox:
+		enemy.attack_hitbox.monitoring = on
+
+
+## Damages every valid body overlapping the AttackHitbox, once each — appends struck
+## bodies to `hit_targets` so a single swing/breath can't multi-hit one target.
+func damage_overlapping(enemy: EnemyBase, hit_targets: Array) -> void:
+	var hitbox: Area2D = enemy.attack_hitbox if enemy else null
+	if hitbox == null or not hitbox.monitoring:
+		return
+	for body in hitbox.get_overlapping_bodies():
+		if body in hit_targets:
+			continue
+		if not enemy.is_valid_target(body):
+			continue
+		hit_targets.append(body)
+		enemy.damage_on_overlap(body)
+
+
 ## Plays `anim` time-stretched to fill `total` seconds, so a clip authored at any
 ## fps reads in sync with the attack's wind-up/active window.
 func play_clip_stretched(anim: String, total: float) -> void:

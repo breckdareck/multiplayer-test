@@ -61,26 +61,13 @@ func _update_hitbox() -> void:
 
 	if not _hitbox_active:
 		return
-
-	var hitbox: Area2D = enemy.attack_hitbox
-	if hitbox == null or not hitbox.monitoring:
-		return
-	for body in hitbox.get_overlapping_bodies():
-		if body in _hit_targets:
-			continue
-		if not enemy.is_valid_target(body):
-			continue
-		_hit_targets.append(body)
-		enemy.damage_on_overlap(body)
+	# Shared hitbox-delivery helper (also used by the breath hitbox attack).
+	damage_overlapping(enemy, _hit_targets)
 
 
 func _set_hitbox_enabled(on: bool) -> void:
 	_hitbox_active = on
-	if slash_hitbox_shape:
-		slash_hitbox_shape.disabled = not on
-	var enemy := parent as EnemyBase
-	if enemy and enemy.attack_hitbox:
-		enemy.attack_hitbox.monitoring = on
+	arm_attack_hitbox(slash_hitbox_shape, on)
 
 
 func _current_slash_frame(enemy: EnemyBase) -> int:

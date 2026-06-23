@@ -1,4 +1,4 @@
-extends EnemyState
+extends EnemyAttackState
 ## Frontal guard for a blocker enemy (ADR-0018). Entered from chase, on the block
 ## cooldown, when the target is in attack range. While guarding, EnemyBase reports
 ## `_guarding` true, so frontal hits are heavily reduced and the flinch is
@@ -54,9 +54,9 @@ func enter() -> void:
 func process_frame(delta: float) -> State:
 	var enemy := parent as EnemyBase
 	if enemy == null:
-		return _recover_state()
+		return attack_recover_state()
 	if enemy.health_component == null or enemy.health_component.is_dead:
-		return _recover_state()
+		return attack_recover_state()
 
 	_elapsed += delta
 
@@ -85,16 +85,13 @@ func process_frame(delta: float) -> State:
 			_set_frame(rf)
 
 	if _elapsed >= BLOCK_DURATION:
-		return _recover_state()
+		return attack_recover_state()
 	return null
 
 
 func physics_update(delta: float) -> State:
 	# Plant and guard — hold position behind the shield.
-	if parent != null:
-		parent.velocity.x = move_toward(parent.velocity.x, 0.0, 600.0 * delta)
-		parent.velocity.y += gravity * delta
-		parent.move_and_slide()
+	plant_physics(delta)
 	return null
 
 
@@ -112,15 +109,3 @@ func exit() -> void:
 func _set_frame(f: int) -> void:
 	if animations != null and animations.frame != f:
 		animations.frame = f
-
-
-func _recover_state() -> State:
-	var enemy := parent as EnemyBase
-	if enemy != null and enemy.is_valid_target(enemy.current_target):
-		var chase := get_node_or_null("../chase")
-		if chase:
-			return chase
-	var fallback := get_node_or_null("../patrol")
-	if fallback == null:
-		fallback = get_node_or_null("../idle")
-	return fallback
