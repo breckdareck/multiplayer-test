@@ -242,4 +242,4 @@ animation_name = "hit"
 
 [node name="ranged_attack" type="Node" parent="StateMachine"]
 script = ExtResource("mig_ranged_attack")
-config = 0
+projectile_speed = 200.0

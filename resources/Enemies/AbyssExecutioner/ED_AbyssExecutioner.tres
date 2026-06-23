@@ -31,7 +31,6 @@ is_magic_attacker = false
 archetype = 4
 attack_mult = 1.4
 is_aggressive = true
-attack_type = 0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")

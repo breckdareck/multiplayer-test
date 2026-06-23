@@ -7,19 +7,33 @@ extends "res://test/test_case.gd"
 const TILE := 16.0
 
 
+## Reads a scene file as raw text (the headless harness can't safely instantiate
+## enemy scenes — they reference autoloads). Lets us assert the AUTHORED structure:
+## which attack STATE nodes a scene carries and what config sits on them.
+func _scene_text(path: String) -> String:
+	var f := FileAccess.open(path, FileAccess.READ)
+	assert_not_null(f, "scene file opens: " + path)
+	if f == null:
+		return ""
+	var t := f.get_as_text()
+	f.close()
+	return t
+
+
 func test_melee_default_is_unchanged() -> void:
 	# Delivery is presence-based now (no attack_type enum): a melee enemy authors a
-	# melee_attack node, a caster a ranged_attack node. A plain EnemyData has no ranged
-	# projectile + physical damage — i.e. melee by default.
+	# melee_attack node, a caster a ranged_attack node. Per-attack projectile config
+	# lives on the STATE node, not EnemyData. A plain EnemyData is physical by default.
 	var ed := EnemyData.new()
-	assert_null(ed.ranged_projectile_scene, "no ranged projectile by default")
 	assert_false(ed.is_magic_attacker, "physical damage axis by default")
 
 
-func test_projectile_speed_has_a_sane_default() -> void:
-	var ed := EnemyData.new()
-	assert_true(ed.ranged_projectile_speed > 0.0, "projectile speed defaults positive")
-	assert_null(ed.ranged_projectile_scene, "null scene = use the shared default projectile")
+func test_projectile_config_lives_on_the_state_node() -> void:
+	# The caster's projectile + speed are authored on its ranged_attack node, not on
+	# EnemyData (which no longer has any ranged_projectile_* fields).
+	var t := _scene_text("res://scenes/NPC/Beastmen/rabbit_wizard.tscn")
+	assert_true(t.contains('name="ranged_attack"'), "authors a ranged_attack state node")
+	assert_true(t.contains("projectile_scene"), "the node carries its own projectile_scene")
 
 
 func test_attack_box_same_platform_and_one_tile() -> void:
@@ -55,21 +69,18 @@ func test_boar_is_a_leaper() -> void:
 	assert_true(ed.is_aggressive, "Boar actively chases")
 
 
-func test_blocker_defaults_off() -> void:
-	var ed := EnemyData.new()
-	assert_false(ed.is_blocker, "is_blocker defaults off")
-
-
 func test_sw_knight_is_an_armored_blocker() -> void:
-	# Locks the blocker config: ARMORED archetype + the block flag, and the
-	# SpriteFrames actually has the "block" clip the guard state plays.
+	# Blocking is presence-based now (no is_blocker field): the SW Knight authors an
+	# enemy_block state node. The ED still carries the ARMORED profile, and the
+	# SpriteFrames has the "block" clip the guard state plays.
 	var ed: EnemyData = load("res://resources/Enemies/SWKnight/ED_SWKnight.tres")
 	assert_not_null(ed, "SWKnight EnemyData loads")
-	assert_true(ed.is_blocker, "SWKnight raises a guard")
 	assert_eq(ed.archetype, Constants.MonsterArchetype.ARMORED, "armored profile")
 	assert_not_null(ed.sprite_frames, "has SpriteFrames")
 	assert_true(ed.sprite_frames.has_animation("block"), "SpriteFrames has a 'block' clip")
 	assert_true(ed.sprite_frames.has_animation("attack_1"), "SpriteFrames has the attack clip")
+	var t := _scene_text("res://scenes/NPC/sw_knight.tscn")
+	assert_true(t.contains("enemy_block.gd"), "authors an enemy_block guard state node")
 
 
 func test_sw_knight_scene_loads() -> void:
@@ -123,6 +134,5 @@ func test_rabbit_wizard_is_a_ranged_magic_caster() -> void:
 	# and an engagement range that reads as ranged without being excessive.
 	var ed: EnemyData = load("res://resources/Enemies/RabbitWizard/ED_RabbitWizard.tres")
 	assert_not_null(ed, "RabbitWizard EnemyData loads")
-	assert_not_null(ed.ranged_projectile_scene, "has a primary ranged projectile (caster)")
 	assert_true(ed.is_magic_attacker, "damage axis is magic")
 	assert_true(ed.attack_range >= 120.0 and ed.attack_range <= 170.0, "ranged but not excessive")

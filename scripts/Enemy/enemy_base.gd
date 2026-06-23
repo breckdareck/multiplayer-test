@@ -111,7 +111,6 @@ var _activation_asleep: bool = false
 const _CHASE_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_chase.gd")
 const _HIT_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_hit.gd")
 const _BOSS_SPECIAL_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_boss_special.gd")
-const _BLOCK_STATE_SCRIPT := preload("res://scripts/Enemy/StateMachine/enemy_block.gd")
 ## Fraction of damage a blocker still takes from a FRONTAL hit while guarding
 ## (0.2 = 80% reduced). Hits from behind ignore the guard entirely.
 const BLOCK_FRONTAL_DAMAGE_TAKEN := 0.2
@@ -394,10 +393,8 @@ func _ready() -> void:
 	# now — chase dispatches on node presence, so there's no attack injection here.
 	_ensure_chase_state()
 	_ensure_hit_state()
-	# Frontal-guard + boss-special states are authored too, but keep these injections
-	# as a safety net for enemies that haven't authored them (gated by the data flag).
-	if enemy_data != null and enemy_data.is_blocker:
-		_ensure_block_state()
+	# boss_special is authored too but kept as a safety-net injection (gated by is_boss).
+	# block + the attacks are dispatched purely by node presence — no injection.
 	if enemy_data != null and enemy_data.is_boss:
 		_ensure_boss_special_state()
 	state_machine.init(self, animated_sprite)
@@ -1368,18 +1365,6 @@ func _ensure_hit_state() -> void:
 	state_machine.add_child(hit)
 
 
-## Creates and attaches the runtime "block" state — the blocker's frontal guard.
-## Injected for blocker enemies (gated by the caller), same pattern as the others.
-func _ensure_block_state() -> void:
-	if state_machine == null or state_machine.has_node("block"):
-		return
-	var s := Node.new()
-	s.set_script(_BLOCK_STATE_SCRIPT)
-	s.name = "block"
-	s.animation_name = "block"
-	state_machine.add_child(s)
-
-
 ## Block readiness gate + cooldown (mirrors can_attack / start_attack_cooldown).
 func can_block() -> bool:
 	return Time.get_ticks_msec() >= _block_ready_at
@@ -1550,8 +1535,8 @@ func target_vertically_reachable(target) -> bool:
 ## visual copy via MapManager.spawn_projectile_visual (routed through the autoload
 ## so it resolves for bots too). The hit resolves through this enemy's own
 ## damage_on_overlap (see projectile.gd), so it deals exactly what its melee does.
-## Fires the enemy's projectile at `target`. With no overrides it uses the primary
-## ranged_projectile_scene/speed; the secondary attack passes its own scene/speed.
+## The calling attack STATE node owns the projectile config and passes its own
+## scene/speed; a null scene falls back to the shared default, speed <= 0 to 200.
 func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_override: float = -1.0) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
 		return
@@ -1561,9 +1546,8 @@ func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_o
 	if map_node == null:
 		return
 
-	var scene: PackedScene = scene_override if scene_override != null else enemy_data.ranged_projectile_scene
-	if scene == null:
-		scene = _DEFAULT_PROJECTILE_SCENE
+	# The caller (an attack node) supplies the projectile; null = the shared default.
+	var scene: PackedScene = scene_override if scene_override != null else _DEFAULT_PROJECTILE_SCENE
 
 	var spawn_pos: Vector2 = global_position
 	var aim := get_node_or_null("AimTarget")
@@ -1576,7 +1560,7 @@ func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_o
 		target_pos = (aim_t as Node2D).global_position
 	var to_target: Vector2 = target_pos - spawn_pos
 	var direction: Vector2 = to_target.normalized() if to_target.is_finite() and not to_target.is_zero_approx() else Vector2(facing_direction, 0.0)
-	var speed: float = speed_override if speed_override > 0.0 else enemy_data.ranged_projectile_speed
+	var speed: float = speed_override if speed_override > 0.0 else 200.0
 
 	var container := map_node.get_node_or_null("Projectiles")
 	if container == null:

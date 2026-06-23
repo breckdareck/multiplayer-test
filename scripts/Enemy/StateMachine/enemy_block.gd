@@ -12,7 +12,8 @@ extends EnemyAttackState
 ## the guard ends. (Server-driven via process_frame, so the host sees it; remote
 ## clients see the clip play once from enter — an accepted limitation.)
 ##
-## Injected at runtime by EnemyBase._ensure_block_state(); server-only.
+## Authored as a scene node under the enemy's StateMachine (presence = the enemy is a
+## blocker); chase polls its `can_start`. Server-driven.
 
 ## How long the guard stays up.
 const BLOCK_DURATION: float = 3.0

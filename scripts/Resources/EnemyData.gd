@@ -89,17 +89,17 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var is_aggressive: bool = false
 ## How far (in pixels) the enemy can spot a target.
 @export var detection_radius: float = 160.0
-## Distance at which an enemy that has an attack state begins its swing. For a
-## ranged attack_type, set this LARGE (e.g. 180-240): the enemy stops out here
-## and casts instead of closing to melee.
+## Enemy-wide DEFAULT engagement distance (px) — an attack state node falls back to
+## this when its own `reach` is unset. For a ranged caster, set this LARGE (e.g.
+## 180-240): the enemy stops out here and casts instead of closing to melee.
 @export var attack_range: float = 36.0
 ## Seconds the enemy must wait between consecutive attacks.
 @export var attack_cooldown: float = 1.4
 
 ## Leaper locomotion: when chasing, the enemy moves by HOPPING and can jump up or
 ## drop down ~one platform to follow its target (a "ribbon pig"). The only enemies
-## that can change platforms — everyone else stays on its own. Orthogonal to
-## attack_type (a leaper can be a melee rammer or carry an attack). See
+## that can change platforms — everyone else stays on its own. Orthogonal to the
+## attack delivery (a leaper can be a melee rammer or carry any attack state). See
 ## docs/adr/0017-leaper-enemy-hopping-locomotion.md.
 @export var is_leaper: bool = false
 
@@ -124,24 +124,6 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var explode_radius: float = 64.0
 ## Burst damage as a multiple of the enemy's normal attack.
 @export var explode_damage_mult: float = 1.5
-
-## Blocker: while chasing, the enemy periodically raises a frontal guard (plays
-## its "block" clip) that heavily reduces damage taken from the FRONT and suppresses
-## its flinch for the window. Counterplay = wait it out, hit on the drop, or flank
-## it (a hit from behind ignores the guard). See
-## docs/adr/0018-blocker-enemy-frontal-guard.md.
-@export var is_blocker: bool = false
-
-@export_category("Ranged Attack")
-## Default homing projectile a ranged enemy's primary ranged_attack node fires
-## (scripts/Gameplay/projectile.gd) when the node's own projectile_scene is unset —
-## the enemy-wide PRIMARY-ranged default. A node may override it; a SECOND spell node
-## sets its own. Null on both = the shared default scene. Per-attack config (secondary
-## spells, breath sprite/hitbox, per-attack cooldown/anim) now lives on the attack
-## STATE nodes, not here.
-@export var ranged_projectile_scene: PackedScene = null
-## Default projectile travel speed (px/sec) for the primary ranged_attack node.
-@export var ranged_projectile_speed: float = 200.0
 
 @export_category("Visuals")
 @export var sprite_frames: SpriteFrames

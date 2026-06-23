@@ -11,12 +11,11 @@ extends "res://scripts/Enemy/StateMachine/enemy_timed_attack.gd"
 const _CAST_ANIMS: Array[String] = ["spell", "cast", "attack_2", "attack_1", "attack"]
 
 @export_group("Projectile")
-## The homing projectile this attack fires. Null = inherit the enemy-wide
-## EnemyData.ranged_projectile_scene (the primary-ranged default); a SECOND spell
-## node must set its own. Null on both = the shared default projectile.
+## The homing projectile this attack fires. Null = the shared default projectile
+## (scenes/Gameplay/projectile_base.tscn).
 @export var projectile_scene: PackedScene = null
-## Projectile travel speed in px/sec. 0 = inherit EnemyData.ranged_projectile_speed.
-@export var projectile_speed: float = 0.0
+## Projectile travel speed in px/sec (0 = a sane default).
+@export var projectile_speed: float = 200.0
 
 
 func _clip_anim(enemy: EnemyBase) -> String:
@@ -41,10 +40,4 @@ func _in_reach(enemy: EnemyBase, target: Node2D) -> bool:
 func _active_start(enemy: EnemyBase) -> void:
 	if not is_instance_valid(enemy.current_target):
 		return
-	var scene: PackedScene = projectile_scene
-	if scene == null and enemy.enemy_data != null:
-		scene = enemy.enemy_data.ranged_projectile_scene
-	var speed: float = projectile_speed
-	if speed <= 0.0 and enemy.enemy_data != null:
-		speed = enemy.enemy_data.ranged_projectile_speed
-	enemy.fire_projectile(enemy.current_target, scene, speed)
+	enemy.fire_projectile(enemy.current_target, projectile_scene, projectile_speed)

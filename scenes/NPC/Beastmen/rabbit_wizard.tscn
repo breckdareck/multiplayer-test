@@ -18,6 +18,7 @@
 [ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_awmsx"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/element_lightning.tscn" id="22_8mmtm"]
 [ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
@@ -115,7 +116,7 @@ delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
 [node name="AimTarget" type="Marker2D" parent="." unique_id=770479982]
-position = Vector2(0, -20)
+position = Vector2(0, -9)
 
 [node name="DmgNumOrigin" type="Node2D" parent="." unique_id=617302583]
 position = Vector2(0, -47)
@@ -241,6 +242,8 @@ animation_name = "hit"
 
 [node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("return_state")]
 script = ExtResource("mig_ranged_attack")
+projectile_scene = ExtResource("22_8mmtm")
+projectile_speed = 180.0
 attack_anim = "attack_1"
 cooldown = 3.0
 return_state = NodePath("../idle")
@@ -249,6 +252,7 @@ animation_name = "attack_1"
 [node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("return_state")]
 script = ExtResource("mig_ranged_attack")
 projectile_scene = ExtResource("sec_fb")
+projectile_speed = 180.0
 attack_anim = "attack_2"
 cooldown = 10.0
 reach = 150.0

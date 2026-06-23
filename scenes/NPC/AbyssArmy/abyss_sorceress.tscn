@@ -22,6 +22,7 @@
 [ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
+[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/abyss_ball.tscn" id="mig_rproj"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -242,4 +243,5 @@ animation_name = "hit"
 
 [node name="ranged_attack" type="Node" parent="StateMachine"]
 script = ExtResource("mig_ranged_attack")
-config = 0
+projectile_scene = ExtResource("mig_rproj")
+projectile_speed = 210.0

@@ -273,13 +273,13 @@ player uses), and a breath (`EnemyHitboxAttack` — a plume sprite + a cone hitb
 `chase` polls each attack node's `can_start()` in child order and enters the first
 ready one (presence-based dispatch; child order = priority). Each node owns its own
 projectile/anim/cooldown/reach (`EnemyData` keeps only enemy-wide defaults —
-`attack_range`, `attack_cooldown`, `ranged_projectile_scene/speed`). Orthogonal to
-`is_magic_attacker`, the *damage axis* (physical vs magic).
+`attack_range`, `attack_cooldown`). Orthogonal to `is_magic_attacker`, the
+*damage axis* (physical vs magic).
 _Avoid_: attack type (the removed enum), attack mode.
 
 **Ranged caster**:
-An enemy whose `attack_type` is `RANGED`/`MAGIC`: from `chase` it stops at its
-`attack_range` and fires a homing projectile (the same one the player uses) at its
+An enemy that authors a `ranged_attack` (projectile) state node: from `chase` it
+stops at its `attack_range` and fires a homing projectile (the same one the player uses) at its
 target instead of contact-swinging. Only engages targets within the **attack
 box** (see below), and has no kiting AI — enemies have no pathfinding — so it
 keeps casting at point-blank once meleed and dies fast (squishy by design; that
@@ -304,8 +304,8 @@ See [docs/adr/0017-leaper-enemy-hopping-locomotion.md](docs/adr/0017-leaper-enem
 _Avoid_: jumper, charger (the role), dasher (a dash is the rejected boss-style variant).
 
 **Blocker**:
-An enemy (`is_blocker`) that periodically raises a **frontal guard** (`enemy_block`
-state, plays its `block` clip) while chasing: for the guard window, damage from the
+An enemy that authors an `enemy_block` state node and periodically raises a
+**frontal guard** (plays its `block` clip) while chasing: for the guard window, damage from the
 front is heavily reduced and its flinch is suppressed, but a hit from **behind**
 ignores the guard. The defensive member of the attack-pattern set — punishes
 hold-to-attack spam, rewards timing (strike on the drop) and flanking (dagger

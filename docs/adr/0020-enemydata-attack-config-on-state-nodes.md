@@ -27,12 +27,14 @@ which applies boss phase/enrage). `boss_special` stays on its own boss timer (AD
 out of the poll.
 
 `EnemyData` keeps only **enemy-wide defaults** an attack node inherits when its own
-field is unset: `attack_range`, `attack_cooldown`, and `ranged_projectile_scene/speed`
-(the primary-ranged default; a second-spell node sets its own). Removed: `attack_type`
-and the entire Secondary Attack block, plus the now-dead `enemy_base` helpers
-(`has_secondary_attack`, `can_use_secondary`, `start_secondary_cooldown`,
+field is unset: `attack_range` and `attack_cooldown`. Every per-attack field is gone
+from `EnemyData` — `attack_type`, the entire Secondary Attack block, the Ranged Attack
+block (`ranged_projectile_scene/speed` — each `ranged_attack` node now carries its own
+`projectile_scene/speed`), and `is_blocker` (a blocker is now an enemy that authors an
+`enemy_block` node — presence, not a flag). Also removed: the now-dead `enemy_base`
+helpers (`has_secondary_attack`, `can_use_secondary`, `start_secondary_cooldown`,
 `fire_secondary_projectile`, `secondary_trigger_reach`, `play/stop_secondary_breath_vfx`,
-`can_attack`, `start_attack_cooldown`, the `_ensure_ranged/secondary` injectors).
+`can_attack`, `start_attack_cooldown`, the `_ensure_ranged/secondary/block` injectors).
 
 **2. The three collision-shape fields STAY on `EnemyData` as optional overrides.**
 `character_collision_shape`, `body_hitbox_shape`, `attack_hitbox_shape` remain. When

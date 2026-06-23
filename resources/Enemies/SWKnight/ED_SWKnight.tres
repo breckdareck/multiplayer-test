@@ -29,7 +29,6 @@ monster_level = 30
 movement_speed = 35.0
 archetype = 2
 is_aggressive = true
-is_blocker = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
