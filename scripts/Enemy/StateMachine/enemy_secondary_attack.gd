@@ -14,6 +14,11 @@ extends EnemyState
 
 const _FIRE_TIME: float = 0.45
 const _RECOVER_TAIL: float = 0.25
+# Breath flavour timing: a SHORT wind-up (mouth opens / fire ignites) then the hitbox
+# is live for the rest, so the fire bites almost as soon as it's visible instead of
+# the long projectile-style cast. Total breath = _BREATH_WINDUP + _BREATH_ACTIVE.
+const _BREATH_WINDUP: float = 0.12
+const _BREATH_ACTIVE: float = 0.55
 
 var _elapsed: float = 0.0
 var _fired: bool = false
@@ -59,7 +64,7 @@ func process_frame(delta: float) -> State:
 		if is_instance_valid(enemy.current_target):
 			enemy.fire_secondary_projectile(enemy.current_target)
 
-	if _elapsed >= _FIRE_TIME + _RECOVER_TAIL:
+	if _elapsed >= _total_duration(enemy):
 		return _recover_state()
 	return null
 
@@ -98,7 +103,14 @@ func _play_secondary(enemy: EnemyBase) -> void:
 		var fps: float = sf.get_animation_speed(anim)
 		if frames > 0 and fps > 0.0:
 			var native: float = float(frames) / fps
-			animations.speed_scale = clampf(native / (_FIRE_TIME + _RECOVER_TAIL), 0.05, 20.0)
+			animations.speed_scale = clampf(native / _total_duration(enemy), 0.05, 20.0)
+
+
+## Total length of the secondary, by flavour — breath uses its snappier window.
+func _total_duration(enemy: EnemyBase) -> float:
+	if enemy.secondary_is_breath():
+		return _BREATH_WINDUP + _BREATH_ACTIVE
+	return _FIRE_TIME + _RECOVER_TAIL
 
 
 ## The breath's damage CollisionShape2D (EnemyData.secondary_hitbox_shape), or null.
@@ -111,7 +123,7 @@ func _breath_shape(enemy: EnemyBase) -> CollisionShape2D:
 ## Arms the breath hitbox during the active window and damages every valid target
 ## caught inside it (once each) — the slash's model, applied to the breath shape.
 func _update_breath_hitbox(enemy: EnemyBase) -> void:
-	var active: bool = _elapsed >= _FIRE_TIME and _elapsed < _FIRE_TIME + _RECOVER_TAIL
+	var active: bool = _elapsed >= _BREATH_WINDUP and _elapsed < _BREATH_WINDUP + _BREATH_ACTIVE
 	if active != _hitbox_on:
 		_set_breath_hitbox(enemy, active)
 	if not _hitbox_on:
