@@ -18,6 +18,8 @@
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="8_720f0"]
 [ext_resource type="Curve" uid="uid://1b70eda8f0b1" path="res://assets/curves/monster_magic_def_curve.tres" id="8_sh7cw"]
 [ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_r3u2d"]
+[ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
+[ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -222,3 +224,11 @@ animation_name = "patrol"
 script = ExtResource("8_720f0")
 respawn_state = NodePath("../idle")
 animation_name = "death"
+
+[node name="chase" type="Node" parent="StateMachine"]
+script = ExtResource("mig_chase")
+animation_name = "patrol"
+
+[node name="hit" type="Node" parent="StateMachine"]
+script = ExtResource("mig_hit")
+animation_name = "hit"

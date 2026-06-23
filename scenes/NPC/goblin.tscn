@@ -19,6 +19,8 @@
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
 [ext_resource type="Script" uid="uid://cw62omerhwsyl" path="res://scripts/Enemy/StateMachine/enemy_slash_attack.gd" id="14_17tps"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
+[ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
+[ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
@@ -236,3 +238,11 @@ animation_name = "slash_attack"
 script = ExtResource("15_y64qe")
 respawn_state = NodePath("../idle")
 animation_name = "death"
+
+[node name="chase" type="Node" parent="StateMachine"]
+script = ExtResource("mig_chase")
+animation_name = "patrol"
+
+[node name="hit" type="Node" parent="StateMachine"]
+script = ExtResource("mig_hit")
+animation_name = "hit"
