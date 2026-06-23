@@ -90,7 +90,7 @@ border_width_right = 2
 border_width_bottom = 2
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
-size = Vector2(56, 27.5)
+size = Vector2(85, 27.5)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
 height = 26.0
@@ -199,8 +199,8 @@ collision_mask = 2
 monitoring = false
 monitorable = false
 
-[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1409796347]
-position = Vector2(24, -14.25)
+[node name="RangedCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1409796347]
+position = Vector2(38.5, -14.25)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
 
@@ -240,19 +240,21 @@ animation_name = "patrol"
 script = ExtResource("mig_hit")
 animation_name = "hit"
 
-[node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("return_state")]
+[node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("reach_shape", "return_state")]
 script = ExtResource("mig_ranged_attack")
 projectile_scene = ExtResource("22_8mmtm")
 projectile_speed = 180.0
+reach_shape = NodePath("../../AttackHitbox/RangedCollisionShape")
 attack_anim = "attack_1"
 cooldown = 3.0
 return_state = NodePath("../idle")
 animation_name = "attack_1"
 
-[node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("return_state")]
+[node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("reach_shape", "return_state")]
 script = ExtResource("mig_ranged_attack")
 projectile_scene = ExtResource("sec_fb")
 projectile_speed = 180.0
+reach_shape = NodePath("../../AttackHitbox/RangedCollisionShape")
 attack_anim = "attack_2"
 cooldown = 10.0
 return_state = NodePath("../idle")
