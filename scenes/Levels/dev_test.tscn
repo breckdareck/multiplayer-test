@@ -18,6 +18,7 @@
 [ext_resource type="PackedScene" uid="uid://betkg72vd7iav" path="res://scenes/NPC/Minifolks/boar.tscn" id="16_wvsnn"]
 [ext_resource type="PackedScene" uid="uid://dppxdoxl4kf2k" path="res://scenes/NPC/Beastmen/rabbit_wizard.tscn" id="17_851r2"]
 [ext_resource type="PackedScene" path="res://scenes/NPC/Minifolks/feral_hare.tscn" id="17_fh"]
+[ext_resource type="PackedScene" uid="uid://7f6s64bpm0r2" path="res://scenes/NPC/Monsters/red_dragon.tscn" id="18_dragon"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("4_wvsnn")
@@ -676,6 +677,10 @@ respawnable = true
 
 [node name="RabbitWizard" parent="Enemies" unique_id=1185779887 instance=ExtResource("17_851r2")]
 position = Vector2(-239, 146)
+
+[node name="RedDragon" parent="Enemies" unique_id=343998451 instance=ExtResource("18_dragon")]
+position = Vector2(-386, 147)
+respawnable = true
 
 [node name="Projectiles" type="Node2D" parent="." unique_id=268993879]
 

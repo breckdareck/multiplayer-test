@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=39 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://u6ccdaxpj7bb"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniStarWanderers/MiniStarWanderers/Outline/MiniSWAssassin-Sheet.png" id="1_wmrib"]
+[ext_resource type="Texture2D" uid="uid://d3j4wxinn0b1v" path="res://assets/sprites/MiniStarWanderers/MiniStarWanderers/Outline/MiniSWAssassin-Sheet.png" id="1_wmrib"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1ky82"]
 atlas = ExtResource("1_wmrib")
@@ -180,7 +180,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_pm8wa")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -218,7 +218,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_qu5hs")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_2",
 "speed": 10.0
 }, {
@@ -238,7 +238,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0y1t3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -249,7 +249,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_jge6x")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -266,7 +266,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_e4w1l")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -289,7 +289,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2bm7v")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]
