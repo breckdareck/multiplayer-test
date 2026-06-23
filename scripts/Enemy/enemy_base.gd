@@ -1253,6 +1253,9 @@ func apply_knockback(knockback: Vector2) -> void:
 	# Invincible training dummies stay rooted — ignore knockback impulses.
 	if health_component and health_component.invincible:
 		return
+	# Bosses are immovable — they're never knocked back.
+	if enemy_data != null and enemy_data.is_boss:
+		return
 	# A blocker with its guard up is braced — hits don't shove it.
 	if _guarding:
 		return

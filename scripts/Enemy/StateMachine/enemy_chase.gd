@@ -84,7 +84,11 @@ func enter() -> void:
 	var enemy := parent as EnemyBase
 	if enemy == null:
 		return
-	enemy.leash_anchor = enemy.global_position
+	# Leash to the enemy's HOME (spawn), not to where this chase happened to start —
+	# otherwise an enemy that attacks mid-chase re-anchors every cycle and can follow
+	# the player across the whole map, never giving up. Anchored to spawn, it gives up
+	# once it strays LEASH_RADIUS from home and returns to patrol.
+	enemy.leash_anchor = enemy.initial_position
 	# _move_dir and _last_target persist on this node between state changes;
 	# _update_move_dir() snaps onto a genuinely new target and lags when
 	# re-orienting toward the same one. The reaction/backoff state resets here.
