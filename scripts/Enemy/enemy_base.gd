@@ -281,7 +281,7 @@ func _apply_enemy_data() -> void:
 	if body_hitbox_shape_node and enemy_data.body_hitbox_shape:
 		body_hitbox_shape_node.shape = enemy_data.body_hitbox_shape
 		
-	var attack_hitbox_shape_node: CollisionShape2D = $AttackHitbox/SlashCollisionShape
+	var attack_hitbox_shape_node: CollisionShape2D = $AttackHitbox/MeleeCollisionShape
 	if attack_hitbox_shape_node and enemy_data.attack_hitbox_shape:
 		attack_hitbox_shape_node.shape = enemy_data.attack_hitbox_shape
 

@@ -1,7 +1,7 @@
 extends EnemyState
 
 @export var patrol_state: EnemyState
-@export var slash_attack_state: EnemyState
+@export var melee_attack_state: EnemyState
 
 var idle_timer: float
 

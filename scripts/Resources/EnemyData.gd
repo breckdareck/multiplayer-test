@@ -172,7 +172,7 @@ func get_special_attacks() -> Array[BossAttackData]:
 @export var secondary_breath_sprite: NodePath = ^""
 ## NodePath of the CollisionShape2D (on the enemy's AttackHitbox) that defines the
 ## BREATH's DAMAGE AREA — authored in the editor exactly like the slash's
-## SlashCollisionShape, mirrored to facing and armed during the attack's active
+## MeleeCollisionShape, mirrored to facing and armed during the attack's active
 ## window. Overlapping players take damage_on_overlap (same calc as the melee swing:
 ## respects i-frames + the level hit-roll). Leave empty for no breath damage.
 @export var secondary_hitbox_shape: NodePath = ^""

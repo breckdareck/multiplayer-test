@@ -198,7 +198,7 @@ collision_mask = 2
 monitoring = false
 monitorable = false
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
 position = Vector2(27, -19.75)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
@@ -216,21 +216,21 @@ script = ExtResource("5_yyaat")
 starting_state = NodePath("idle")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "slash_attack_state")]
+[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state", "melee_attack_state")]
 script = ExtResource("12_nadka")
 patrol_state = NodePath("../patrol")
-slash_attack_state = NodePath("../melee_attack")
+melee_attack_state = NodePath("../melee_attack")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "slash_attack_state")]
+[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state", "melee_attack_state")]
 script = ExtResource("6_u21pb")
 idle_state = NodePath("../idle")
-slash_attack_state = NodePath("../melee_attack")
+melee_attack_state = NodePath("../melee_attack")
 animation_name = "patrol"
 
-[node name="melee_attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("slash_hitbox_shape", "return_state")]
+[node name="melee_attack" type="Node" parent="StateMachine" node_paths=PackedStringArray("melee_hitbox_shape", "return_state")]
 script = ExtResource("14_17tps")
-slash_hitbox_shape = NodePath("../../AttackHitbox/SlashCollisionShape")
+melee_hitbox_shape = NodePath("../../AttackHitbox/MeleeCollisionShape")
 return_state = NodePath("../idle")
 animation_name = "attack_1"
 

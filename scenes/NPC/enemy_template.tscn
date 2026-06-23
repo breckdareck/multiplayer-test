@@ -197,7 +197,7 @@ collision_mask = 2
 monitoring = false
 monitorable = false
 
-[node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
 visible = false
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")

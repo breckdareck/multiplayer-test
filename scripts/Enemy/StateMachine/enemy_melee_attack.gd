@@ -5,7 +5,7 @@ extends EnemyAttackState
 ## the player's CombatComponent uses (and the breath's EnemyHitboxAttack reuses the
 ## shared arm/damage helpers). Authored as the "melee_attack" state node per enemy.
 
-@export var slash_hitbox_shape: CollisionShape2D
+@export var melee_hitbox_shape: CollisionShape2D
 
 ## Animation-frame window (inclusive) during which the hitbox deals damage — author
 ## per enemy to match its attack clip timing (default tuned for an 8-frame swing:
@@ -28,8 +28,8 @@ func enter() -> void:
 		# trick CombatComponent.turn_on_hitbox uses for the player).
 		if is_instance_valid(enemy.current_target):
 			enemy.face_toward(enemy.current_target.global_position)
-		if slash_hitbox_shape:
-			slash_hitbox_shape.position.x = absf(slash_hitbox_shape.position.x) * enemy.facing_direction
+		if melee_hitbox_shape:
+			melee_hitbox_shape.position.x = absf(melee_hitbox_shape.position.x) * enemy.facing_direction
 
 	# Start the swing with the hitbox off — it only arms on the contact frames.
 	_set_hitbox_enabled(false)
@@ -68,7 +68,7 @@ func _update_hitbox() -> void:
 
 func _set_hitbox_enabled(on: bool) -> void:
 	_hitbox_active = on
-	arm_attack_hitbox(slash_hitbox_shape, on)
+	arm_attack_hitbox(melee_hitbox_shape, on)
 
 
 func _current_attack_frame(enemy: EnemyBase) -> int:
