@@ -87,10 +87,10 @@ border_width_right = 2
 border_width_bottom = 2
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_17tps"]
-size = Vector2(44, 30.5)
+size = Vector2(35.5, 31.25)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_breath"]
-size = Vector2(110, 48)
+size = Vector2(81, 45)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
 radius = 16.0
@@ -123,7 +123,7 @@ position = Vector2(4, -12)
 position = Vector2(0, -47)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=586926957]
-position = Vector2(0, -7)
+position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_a0il2")
 
 [node name="Health" type="Node" parent="." unique_id=76683687 node_paths=PackedStringArray("damage_number_origin")]
@@ -188,7 +188,7 @@ value = 73.0
 show_percentage = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1596292352]
-position = Vector2(4, -19)
+position = Vector2(2, -19.000002)
 scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("9_7f1la")
 animation = &"idle"
@@ -201,8 +201,7 @@ position = Vector2(49, -23)
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("20_breath")
 animation = &"play"
-frame = 8
-frame_progress = 1.0
+frame = 2
 
 [node name="AttackHitbox" type="Area2D" parent="." unique_id=806759617]
 collision_layer = 0
@@ -211,12 +210,12 @@ monitoring = false
 monitorable = false
 
 [node name="SlashCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1507020920]
-position = Vector2(37, -14.75)
+position = Vector2(41.75, -14.625)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
 
 [node name="BreathCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1507020921]
-position = Vector2(40, -16)
+position = Vector2(64.5, -21.5)
 shape = SubResource("RectangleShape2D_breath")
 disabled = true
 

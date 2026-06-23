@@ -5,9 +5,6 @@
 [ext_resource type="SpriteFrames" uid="uid://dytk0do3008em" path="res://resources/Enemies/RedDragon/SF_RedDragon.tres" id="3_sf"]
 [ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="4_bad"]
 
-[sub_resource type="RectangleShape2D" id="Shape_atk"]
-size = Vector2(80, 48)
-
 [sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 18.0
 height = 44.0
@@ -42,7 +39,6 @@ secondary_attack_range = 200.0
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")
 body_hitbox_shape = SubResource("Shape_body")
-attack_hitbox_shape = SubResource("Shape_atk")
 is_boss = true
 boss_title = "Red Dragon"
 boss_subtitle = "Its breath remembers the Emberfall."
