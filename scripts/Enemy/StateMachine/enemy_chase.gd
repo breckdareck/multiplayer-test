@@ -114,12 +114,14 @@ func process_frame(_delta: float) -> State:
 		if block_state:
 			return block_state as State
 
-	# Secondary attack: on its own cooldown, when the target is within the (often
-	# longer) secondary range and roughly level, fire the second projectile/spell.
+	# Secondary attack: on its own cooldown, when the target is within reach. For a
+	# breath that reach is the damage hitbox's own bounds (so it never fires out of
+	# range); for a projectile it's secondary_attack_range / ±1 tile.
 	if enemy.has_secondary_attack() and enemy.can_use_secondary():
+		var reach := enemy.secondary_trigger_reach()
 		var sdx := absf(target.global_position.x - parent.global_position.x)
 		var sdy := absf(target.global_position.y - parent.global_position.y)
-		if sdx <= enemy.enemy_data.secondary_attack_range and sdy <= EnemyBase.ATTACK_VERTICAL_REACH:
+		if sdx <= reach.x and sdy <= reach.y:
 			var sec := get_node_or_null("../secondary_attack")
 			if sec:
 				return sec as State

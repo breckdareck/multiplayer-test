@@ -1420,6 +1420,22 @@ func secondary_is_breath() -> bool:
 	return enemy_data != null and not enemy_data.secondary_breath_sprite.is_empty()
 
 
+## Half-extents (x = horizontal, y = vertical) the chase trigger checks before
+## starting the secondary. For a BREATH this is derived from its damage hitbox bounds
+## (offset + half-size) so the enemy only breathes when the target is actually within
+## the fire — no out-of-range casting when the hitbox is retuned. Projectile flavour
+## (and any non-rect breath shape) falls back to secondary_attack_range / ±1 tile.
+func secondary_trigger_reach() -> Vector2:
+	if enemy_data == null:
+		return Vector2.ZERO
+	if secondary_is_breath() and not enemy_data.secondary_hitbox_shape.is_empty():
+		var cs := get_node_or_null(enemy_data.secondary_hitbox_shape) as CollisionShape2D
+		if cs != null and cs.shape is RectangleShape2D:
+			var sz: Vector2 = (cs.shape as RectangleShape2D).size
+			return Vector2(absf(cs.position.x) + sz.x * 0.5, absf(cs.position.y) + sz.y * 0.5)
+	return Vector2(enemy_data.secondary_attack_range, ATTACK_VERTICAL_REACH)
+
+
 func can_use_secondary() -> bool:
 	return Time.get_ticks_msec() >= _secondary_ready_at
 
