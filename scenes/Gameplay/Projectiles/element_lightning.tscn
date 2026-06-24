@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3 uid="uid://cvslr1360fo7x"]
 
 [ext_resource type="Script" uid="uid://dpe8y7w1xqk1y" path="res://scripts/Gameplay/projectile.gd" id="1_proj"]
 [ext_resource type="Texture2D" uid="uid://cplmwo6o2ttnc" path="res://assets/sprites/MiniElementsHeroes/LightningEffect-Sheet.png" id="2_tex"]
@@ -6,17 +6,69 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_col"]
 size = Vector2(10, 10)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_bolt"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_bn6o8"]
 atlas = ExtResource("2_tex")
 region = Rect2(0, 0, 32, 32)
 
-[node name="ProjectileBase" type="Area2D" groups=["networked_entities"]]
+[sub_resource type="AtlasTexture" id="AtlasTexture_rgr3p"]
+atlas = ExtResource("2_tex")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_syt4x"]
+atlas = ExtResource("2_tex")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tihog"]
+atlas = ExtResource("2_tex")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g3nk1"]
+atlas = ExtResource("2_tex")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_asmxw"]
+atlas = ExtResource("2_tex")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4b4iv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bn6o8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rgr3p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_syt4x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tihog")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g3nk1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_asmxw")
+}],
+"loop": 0,
+"name": &"hit",
+"speed": 15.0
+}]
+
+[node name="ProjectileBase" type="Area2D" unique_id=2143144422 groups=["networked_entities"]]
 collision_layer = 0
 collision_mask = 8
 script = ExtResource("1_proj")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=620852465]
 shape = SubResource("RectangleShape2D_col")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = SubResource("AtlasTexture_bolt")
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=1003094356]
+sprite_frames = SubResource("SpriteFrames_4b4iv")
+autoplay = "default"

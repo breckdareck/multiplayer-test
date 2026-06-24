@@ -1,5 +1,7 @@
 extends Node
 
+const MapScope := preload("res://scripts/Gameplay/map_scope.gd")
+
 ## Sentinel's Mark (sword active) — MARK + PAYOFF (combo-refund). Tags one
 ## enemy with a Sentinel's Mark for 8 seconds. While the mark is active,
 ## every sword hit on the marked target deals +DAMAGE_BONUS_PCT and has a
@@ -117,11 +119,14 @@ static func spread_on_death(died_enemy: Node) -> void:
 		return
 	var dmg_bonus: float = float(died_enemy.get_meta(DMG_BONUS_META)) if died_enemy.has_meta(DMG_BONUS_META) else DAMAGE_BONUS_PCT
 	var origin: Vector2 = died_enemy.global_position
+	var origin_map: Node = MapScope.map_of(died_enemy)
 	var best: Node = null
 	var best_d: float = SPREAD_RADIUS
 	for e in died_enemy.get_tree().get_nodes_in_group("Enemies"):
 		if e == died_enemy or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		if e.has_meta(MARK_META):
 			continue
 		var hc = e.get("health_component")

@@ -277,8 +277,11 @@ you can SEE (melee → its swing hitbox, breath → its cone, projectile → a `
 cast-range box), not a blind number. `chase` stops closing in when the target enters
 any attack's reach shape, the same shape the attack triggers on. (`EnemyData` keeps
 only enemy-wide fallbacks — `attack_range`, `attack_cooldown` — used until a node's
-shape/cooldown is authored.) Orthogonal to `is_magic_attacker`, the *damage axis*
-(physical vs magic).
+shape/cooldown is authored.) Each node also picks its own **damage axis** (`damage_axis`:
+PHYSICAL → WEAPONATTACK vs DEFENSE for a melee swing / arrow, MAGIC → MAGICATTACK vs
+MAGICDEFENSE for a spell / breath, INHERIT → the enemy-wide `is_magic_attacker`), so one
+enemy can carry both a weapon attack and a spell scaling off different stats. A spawn
+marker (`spawn_point`) lets each attack launch from its own cast origin.
 _Avoid_: attack type (the removed enum), attack mode, reach number (now a shape).
 
 **Ranged caster**:

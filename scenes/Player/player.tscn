@@ -401,7 +401,7 @@ public_visibility = false
 script = ExtResource("2_hxkm2")
 
 [node name="AimTarget" type="Marker2D" parent="." unique_id=78133361]
-position = Vector2(0, -20)
+position = Vector2(0, -7)
 
 [node name="DmgNumOrigin" type="Node2D" parent="." unique_id=2077816586]
 position = Vector2(0, -30)

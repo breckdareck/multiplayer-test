@@ -11,10 +11,12 @@ extends Resource
 ## reads full. Damage numbers still show — it's a punching bag for testing.
 @export var is_invincible: bool = false
 
-## When true, this enemy's attacks deal MAGIC damage — scaled by its MAGICATTACK
-## and mitigated by the target's MAGICDEFENSE — instead of the default physical
-## (WEAPONATTACK vs DEFENSE). Use for elemental / caster enemies so the magic-
-## defense axis (magic armor) actually matters. See enemy_base.damage_on_overlap.
+## Enemy-wide DEFAULT damage axis: when true, attacks deal MAGIC damage (MAGICATTACK
+## vs the target's MAGICDEFENSE) instead of physical (WEAPONATTACK vs DEFENSE). It's
+## the fallback — each attack STATE node can override it per-attack via `damage_axis`
+## (a melee swing PHYSICAL, a spell MAGIC), and INHERIT defers here. Also governs
+## body-ram contact damage. Use for elemental / caster enemies so magic armor matters.
+## See EnemyAttackState.is_magic_damage + enemy_base.damage_on_overlap.
 @export var is_magic_attacker: bool = false
 
 @export_category("Stat Tuning")

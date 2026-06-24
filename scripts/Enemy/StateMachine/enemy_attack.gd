@@ -3,6 +3,26 @@ class_name EnemyAttackState
 
 @export var return_state: EnemyState
 
+## Damage axis for THIS attack. INHERIT = the enemy-wide enemy_data.is_magic_attacker
+## (back-compat default). Set PHYSICAL for a melee swing / arrow (WEAPONATTACK vs the
+## target's DEFENSE) or MAGIC for a spell / elemental breath (MAGICATTACK vs MAGICDEFENSE),
+## so one enemy can carry both a weapon attack and a spell that scale off different stats.
+enum DamageAxis { INHERIT, PHYSICAL, MAGIC }
+@export var damage_axis: DamageAxis = DamageAxis.INHERIT
+
+
+## Resolves this attack's damage axis to a concrete bool (INHERIT defers to the enemy's
+## is_magic_attacker). Passed to enemy.damage_on_overlap so the hit scales/mitigates on
+## the right stat pair.
+func is_magic_damage(enemy: EnemyBase) -> bool:
+	match damage_axis:
+		DamageAxis.PHYSICAL:
+			return false
+		DamageAxis.MAGIC:
+			return true
+		_:
+			return enemy != null and enemy.enemy_data != null and enemy.enemy_data.is_magic_attacker
+
 ## Failsafe: if the attack animation never reports finished (missing or looping
 ## animation), bail out anyway so the enemy can't get stuck mid-swing.
 const MAX_ATTACK_TIME: float = 1.5
@@ -89,13 +109,14 @@ func damage_overlapping(enemy: EnemyBase, hit_targets: Array) -> void:
 	var hitbox: Area2D = enemy.attack_hitbox if enemy else null
 	if hitbox == null or not hitbox.monitoring:
 		return
+	var magic := is_magic_damage(enemy)
 	for body in hitbox.get_overlapping_bodies():
 		if body in hit_targets:
 			continue
 		if not enemy.is_valid_target(body):
 			continue
 		hit_targets.append(body)
-		enemy.damage_on_overlap(body)
+		enemy.damage_on_overlap(body, magic)
 
 
 ## Half-extents (rx, ry) of a CollisionShape2D, measured from the enemy origin with the

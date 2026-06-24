@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=33 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://d0vfuimjh4du8"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniHalloweenMonsters/MiniHalloweenMonsters/Outline/MiniBat-Sheet.png" id="1_ypl6g"]
+[ext_resource type="Texture2D" uid="uid://bb0fjt51rccoi" path="res://assets/sprites/MiniHalloweenMonsters/MiniHalloweenMonsters/Outline/MiniBat-Sheet.png" id="1_ypl6g"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_sm7va"]
 atlas = ExtResource("1_ypl6g")
@@ -147,7 +147,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ki32n")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -188,7 +188,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nm7fc")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -199,7 +199,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wfmji")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -219,7 +219,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ga1p0")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -242,7 +242,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_7wc7x")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

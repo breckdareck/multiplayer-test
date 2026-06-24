@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=30 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bk6q4wxixwo6p"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Outline/MiniDarkElfRider-Sheet.png" id="1_7wumv"]
+[ext_resource type="Texture2D" uid="uid://dgkohsb4jeypv" path="res://assets/sprites/MiniDarkElves/MiniDarkElves/Outline/MiniDarkElfRider-Sheet.png" id="1_7wumv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qbmdn"]
 atlas = ExtResource("1_7wumv")
@@ -144,7 +144,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ctrti")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -170,7 +170,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3dotk")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -181,7 +181,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_p6uy4")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -198,7 +198,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_y31jr")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -221,7 +221,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_w078g")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

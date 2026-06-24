@@ -20,6 +20,20 @@ func _scene_text(path: String) -> String:
 	return t
 
 
+func test_attack_damage_axis_resolves() -> void:
+	# Each attack node picks its own damage axis: PHYSICAL (melee/arrow → WEAPONATTACK)
+	# or MAGIC (spell/breath → MAGICATTACK), independent of the enemy-wide flag. INHERIT
+	# (the default) defers to enemy_data.is_magic_attacker — here, no enemy → physical.
+	var atk := EnemyAttackState.new()
+	atk.damage_axis = EnemyAttackState.DamageAxis.PHYSICAL
+	assert_false(atk.is_magic_damage(null), "PHYSICAL forces weapon damage")
+	atk.damage_axis = EnemyAttackState.DamageAxis.MAGIC
+	assert_true(atk.is_magic_damage(null), "MAGIC forces magic damage")
+	atk.damage_axis = EnemyAttackState.DamageAxis.INHERIT
+	assert_false(atk.is_magic_damage(null), "INHERIT with no enemy defaults to physical")
+	atk.free()
+
+
 func test_melee_default_is_unchanged() -> void:
 	# Delivery is presence-based now (no attack_type enum): a melee enemy authors a
 	# melee_attack node, a caster a ranged_attack node. Per-attack projectile config

@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3]
+[gd_scene format=3 uid="uid://bvrf4k00uhxp7"]
 
 [ext_resource type="Script" uid="uid://cj6lu2r6oxt6o" path="res://scripts/Enemy/enemy_base.gd" id="1_nadka"]
 [ext_resource type="Script" uid="uid://dhhn4ks2uixk8" path="res://scripts/Components/health.gd" id="2_0x8hd"]
@@ -17,18 +17,17 @@
 [ext_resource type="SpriteFrames" path="res://resources/Enemies/DarkElfSpellstealer/SF_DarkElfSpellstealer.tres" id="9_7f1la"]
 [ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_awmsx"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
-[ext_resource type="Script" uid="uid://cw62omerhwsyl" path="res://scripts/Enemy/StateMachine/enemy_melee_attack.gd" id="14_17tps"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
 [ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/darkelf_magicball.tscn" id="mig_rproj"]
+[ext_resource type="PackedScene" uid="uid://beyufy76oycp5" path="res://scenes/Gameplay/Projectiles/darkelf_magicball.tscn" id="mig_rproj"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 2
-properties/1/path = NodePath("AnimatedSprite2D:flip_h")
+properties/1/path = NodePath(".:facing_direction")
 properties/1/spawn = true
 properties/1/replication_mode = 2
 properties/2/path = NodePath("Health:is_dead")
@@ -93,10 +92,10 @@ border_width_bottom = 2
 size = Vector2(64, 37)
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_y64qe"]
-radius = 13.0
-height = 34.0
+radius = 7.0
+height = 20.0
 
-[node name="DarkElfSpellstealer" type="CharacterBody2D" node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
+[node name="DarkElfSpellstealer" type="CharacterBody2D" unique_id=1046816795 node_paths=PackedStringArray("health_component", "stats_component", "name_label") groups=["Enemies", "networked_entities"]]
 collision_layer = 8
 collision_mask = 5
 script = ExtResource("1_nadka")
@@ -112,26 +111,26 @@ magic_def_curve = ExtResource("8_numl0")
 monies_curve = ExtResource("9_awmsx")
 name_label = NodePath("NameLabel")
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=88753776]
 delta_interval = 0.015
 replication_config = SubResource("SceneReplicationConfig_n6pvg")
 
-[node name="AimTarget" type="Marker2D" parent="."]
+[node name="AimTarget" type="Marker2D" parent="." unique_id=1661324057]
 position = Vector2(0, -20)
 
-[node name="DmgNumOrigin" type="Node2D" parent="."]
+[node name="DmgNumOrigin" type="Node2D" parent="." unique_id=1213392348]
 position = Vector2(0, -47)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(1, -6)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1821343619]
+position = Vector2(0, -6)
 shape = SubResource("CircleShape2D_a0il2")
 
-[node name="Health" type="Node" parent="." node_paths=PackedStringArray("damage_number_origin")]
+[node name="Health" type="Node" parent="." unique_id=716239561 node_paths=PackedStringArray("damage_number_origin")]
 script = ExtResource("2_0x8hd")
 damage_number_origin = NodePath("../DmgNumOrigin")
 health_bar_path = NodePath("../HealthBar")
 
-[node name="Stats" type="Node" parent="."]
+[node name="Stats" type="Node" parent="." unique_id=317347883]
 script = ExtResource("6_vbub7")
 stats = Dictionary[int, Object]({
 8: SubResource("Resource_numl0"),
@@ -140,7 +139,7 @@ stats = Dictionary[int, Object]({
 13: SubResource("Resource_7q2hv")
 })
 
-[node name="StateLabel" type="Label" parent="."]
+[node name="StateLabel" type="Label" parent="." unique_id=2111847527]
 visible = false
 offset_left = -20.0
 offset_top = -50.0
@@ -151,7 +150,7 @@ theme_override_font_sizes/font_size = 8
 text = "State"
 horizontal_alignment = 1
 
-[node name="NameLabel" type="Label" parent="."]
+[node name="NameLabel" type="Label" parent="." unique_id=1362711272]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -174,11 +173,11 @@ text = "Lv.0 Pookie"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="HealthBar" type="ProgressBar" parent="." unique_id=1419866445]
 offset_left = -11.0
-offset_top = -40.0
+offset_top = -26.0
 offset_right = 89.0
-offset_bottom = -30.0
+offset_bottom = -16.0
 scale = Vector2(0.225, 0.225)
 mouse_filter = 2
 theme_override_styles/background = SubResource("StyleBoxFlat_0x8hd")
@@ -187,61 +186,62 @@ step = 1.0
 value = 73.0
 show_percentage = false
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -26)
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1925045987]
+position = Vector2(0, -19)
+scale = Vector2(1.3, 1.3)
 sprite_frames = ExtResource("9_7f1la")
 animation = &"idle"
 autoplay = "idle"
 
-[node name="AttackHitbox" type="Area2D" parent="."]
+[node name="AttackHitbox" type="Area2D" parent="." unique_id=795352628]
 collision_layer = 0
 collision_mask = 2
 monitoring = false
 monitorable = false
 
-[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox"]
+[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=790126765]
 visible = false
 position = Vector2(20, -19.5)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
 
-[node name="BodyHitbox" type="Area2D" parent="."]
+[node name="BodyHitbox" type="Area2D" parent="." unique_id=1684907177]
 collision_layer = 8
 collision_mask = 2
 
-[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox"]
-position = Vector2(1, -17)
+[node name="EnemyBody" type="CollisionShape2D" parent="BodyHitbox" unique_id=44399842]
+position = Vector2(0, -10)
 shape = SubResource("CapsuleShape2D_y64qe")
 
-[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("starting_state", "state_label")]
+[node name="StateMachine" type="Node" parent="." unique_id=7097732 node_paths=PackedStringArray("starting_state", "state_label")]
 script = ExtResource("5_yyaat")
 starting_state = NodePath("idle")
 state_label = NodePath("../StateLabel")
 
-[node name="idle" type="Node" parent="StateMachine" node_paths=PackedStringArray("patrol_state")]
+[node name="idle" type="Node" parent="StateMachine" unique_id=1206881818 node_paths=PackedStringArray("patrol_state")]
 script = ExtResource("12_nadka")
 patrol_state = NodePath("../patrol")
 animation_name = "idle"
 
-[node name="patrol" type="Node" parent="StateMachine" node_paths=PackedStringArray("idle_state")]
+[node name="patrol" type="Node" parent="StateMachine" unique_id=2041791512 node_paths=PackedStringArray("idle_state")]
 script = ExtResource("6_u21pb")
 idle_state = NodePath("../idle")
 animation_name = "patrol"
 
-[node name="death" type="Node" parent="StateMachine" node_paths=PackedStringArray("respawn_state")]
+[node name="death" type="Node" parent="StateMachine" unique_id=1716212395 node_paths=PackedStringArray("respawn_state")]
 script = ExtResource("15_y64qe")
 respawn_state = NodePath("../idle")
 animation_name = "death"
 
-[node name="chase" type="Node" parent="StateMachine"]
+[node name="chase" type="Node" parent="StateMachine" unique_id=1787019084]
 script = ExtResource("mig_chase")
 animation_name = "patrol"
 
-[node name="hit" type="Node" parent="StateMachine"]
+[node name="hit" type="Node" parent="StateMachine" unique_id=2115358580]
 script = ExtResource("mig_hit")
 animation_name = "hit"
 
-[node name="ranged_attack" type="Node" parent="StateMachine"]
+[node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1858112217]
 script = ExtResource("mig_ranged_attack")
 projectile_scene = ExtResource("mig_rproj")
 projectile_speed = 220.0

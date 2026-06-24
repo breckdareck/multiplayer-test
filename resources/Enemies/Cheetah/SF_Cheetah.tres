@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=25 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b2lwhen52njhv"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniFolksPlusAnimals/MiniFolksPlusAnimals/Outline/MiniCheetah-Sheet.png" id="1_lefiv"]
+[ext_resource type="Texture2D" uid="uid://b6j2ngidhw5lo" path="res://assets/sprites/MiniFolksPlusAnimals/MiniFolksPlusAnimals/Outline/MiniCheetah-Sheet.png" id="1_lefiv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ymunc"]
 atlas = ExtResource("1_lefiv")
@@ -118,7 +118,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_tv8wk")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -135,7 +135,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nr4yk")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -146,7 +146,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_hia0t")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -163,7 +163,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nibkl")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -186,7 +186,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_r0kxg")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

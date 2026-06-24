@@ -1,18 +1,17 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://8ve6i15j5vo7"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/Rhino/SF_Rhino.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_806vs"]
+[ext_resource type="SpriteFrames" uid="uid://ct2slpdw3caof" path="res://resources/Enemies/Rhino/SF_Rhino.tres" id="3_sf"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(78, 44)
 
 [sub_resource type="CapsuleShape2D" id="Shape_body"]
 radius = 11.0
-height = 30.0
 
 [sub_resource type="CircleShape2D" id="Shape_col"]
-radius = 10.0
 
 [sub_resource type="Resource" id="Resource_coin"]
 script = ExtResource("1_drop")
@@ -28,10 +27,10 @@ monster_name = "Rhino"
 monster_level = 55
 movement_speed = 40.0
 archetype = 6
+health_mult = 1.2
 is_aggressive = true
 detection_radius = 200.0
 attack_cooldown = 1.7
-health_mult = 1.2
 is_leaper = true
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

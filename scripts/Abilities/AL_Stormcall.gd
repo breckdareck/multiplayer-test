@@ -1,5 +1,7 @@
 extends Node
 
+const MapScope := preload("res://scripts/Gameplay/map_scope.gd")
+
 ## Stormcall (staff active) — CHANNEL + GROUND-ZONE (Lightning-themed).
 ## Channels a sustained storm in a target area; random lightning strikes
 ## any enemy currently inside every 0.5 seconds for the channel duration.
@@ -119,10 +121,13 @@ func _chain_strike(struck: Node, owner_node: Node) -> void:
 	if _chain_targets <= 0 or not is_instance_valid(struck):
 		return
 	var origin: Vector2 = struck.global_position
+	var origin_map: Node = MapScope.map_of(struck)
 	var candidates: Array = []
 	for e in struck.get_tree().get_nodes_in_group("Enemies"):
 		if e == struck or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		var hc = e.get("health_component")
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
 			continue

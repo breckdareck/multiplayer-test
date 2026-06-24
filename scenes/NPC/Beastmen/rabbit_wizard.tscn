@@ -18,17 +18,17 @@
 [ext_resource type="Curve" uid="uid://321810bf3a5a" path="res://assets/curves/monster_monies_curve.tres" id="9_awmsx"]
 [ext_resource type="Script" uid="uid://u6b813y5rtm4" path="res://scripts/Enemy/StateMachine/enemy_idle.gd" id="12_nadka"]
 [ext_resource type="Script" uid="uid://bfh8yeyv2wu0g" path="res://scripts/Player/StateMachine/death.gd" id="15_y64qe"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/element_lightning.tscn" id="22_8mmtm"]
+[ext_resource type="PackedScene" uid="uid://cvslr1360fo7x" path="res://scenes/Gameplay/Projectiles/element_lightning.tscn" id="22_8mmtm"]
+[ext_resource type="PackedScene" uid="uid://noykd20ind2n" path="res://scenes/Gameplay/Projectiles/sw_ball_of_light.tscn" id="23_8mmtm"]
 [ext_resource type="Script" uid="uid://c1yixl28217fi" path="res://scripts/Enemy/StateMachine/enemy_chase.gd" id="mig_chase"]
 [ext_resource type="Script" uid="uid://c8hrwsi8wt4sv" path="res://scripts/Enemy/StateMachine/enemy_hit.gd" id="mig_hit"]
 [ext_resource type="Script" uid="uid://x4f6ec0l486x" path="res://scripts/Enemy/StateMachine/enemy_projectile_attack.gd" id="mig_ranged_attack"]
-[ext_resource type="PackedScene" uid="uid://7v8f1uwug0qe" path="res://scenes/Gameplay/Projectiles/fireball.tscn" id="sec_fb"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_n6pvg"]
 properties/0/path = NodePath(".:position")
 properties/0/spawn = true
 properties/0/replication_mode = 2
-properties/1/path = NodePath("AnimatedSprite2D:flip_h")
+properties/1/path = NodePath(".:facing_direction")
 properties/1/spawn = true
 properties/1/replication_mode = 2
 properties/2/path = NodePath("Health:is_dead")
@@ -118,6 +118,12 @@ replication_config = SubResource("SceneReplicationConfig_n6pvg")
 [node name="AimTarget" type="Marker2D" parent="." unique_id=770479982]
 position = Vector2(0, -9)
 
+[node name="Attack_1_Spawn" type="Marker2D" parent="." unique_id=1379235237]
+position = Vector2(16, -14)
+
+[node name="Attack_2_Spawn" type="Marker2D" parent="." unique_id=431743455]
+position = Vector2(-1, -23)
+
 [node name="DmgNumOrigin" type="Node2D" parent="." unique_id=617302583]
 position = Vector2(0, -47)
 
@@ -187,10 +193,10 @@ value = 73.0
 show_percentage = false
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=205962243]
-position = Vector2(1, -20.000002)
 scale = Vector2(1.3, 1.3)
+position = Vector2(1, -20.000002)
 sprite_frames = ExtResource("9_7f1la")
-animation = &"attack_1"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="AttackHitbox" type="Area2D" parent="." unique_id=2112212649]
@@ -199,7 +205,12 @@ collision_mask = 2
 monitoring = false
 monitorable = false
 
-[node name="RangedCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1409796347]
+[node name="MeleeCollisionShape" type="CollisionShape2D" parent="AttackHitbox" unique_id=1409796347]
+position = Vector2(38.5, -14.25)
+shape = SubResource("RectangleShape2D_17tps")
+disabled = true
+
+[node name="RangedCollisionShape2" type="CollisionShape2D" parent="AttackHitbox" unique_id=691350667]
 position = Vector2(38.5, -14.25)
 shape = SubResource("RectangleShape2D_17tps")
 disabled = true
@@ -240,22 +251,26 @@ animation_name = "patrol"
 script = ExtResource("mig_hit")
 animation_name = "hit"
 
-[node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("reach_shape", "return_state")]
+[node name="ranged_attack" type="Node" parent="StateMachine" unique_id=1276446384 node_paths=PackedStringArray("reach_shape", "spawn_point", "return_state")]
 script = ExtResource("mig_ranged_attack")
 projectile_scene = ExtResource("22_8mmtm")
 projectile_speed = 180.0
-reach_shape = NodePath("../../AttackHitbox/RangedCollisionShape")
+reach_shape = NodePath("../../AttackHitbox/MeleeCollisionShape")
+spawn_point = NodePath("../../Attack_1_Spawn")
 attack_anim = "attack_1"
-cooldown = 3.0
+cooldown = 2.0
 return_state = NodePath("../idle")
 animation_name = "attack_1"
 
-[node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("reach_shape", "return_state")]
+[node name="secondary_attack" type="Node" parent="StateMachine" unique_id=161450104 node_paths=PackedStringArray("reach_shape", "spawn_point", "return_state")]
 script = ExtResource("mig_ranged_attack")
-projectile_scene = ExtResource("sec_fb")
+projectile_scene = ExtResource("23_8mmtm")
 projectile_speed = 180.0
-reach_shape = NodePath("../../AttackHitbox/RangedCollisionShape")
+reach_shape = NodePath("../../AttackHitbox/MeleeCollisionShape")
+spawn_point = NodePath("../../Attack_2_Spawn")
+windup = 1.0
+recover = 1.0
 attack_anim = "attack_2"
-cooldown = 10.0
+cooldown = 8.0
 return_state = NodePath("../idle")
 animation_name = "attack_2"

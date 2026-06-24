@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://beuam5x74b0kq"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/AbyssExecutioner/SF_AbyssExecutioner.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_lf5mm"]
+[ext_resource type="SpriteFrames" uid="uid://b0khdibdxacua" path="res://resources/Enemies/AbyssExecutioner/SF_AbyssExecutioner.tres" id="3_sf"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -27,7 +28,6 @@ script = ExtResource("2_ed")
 monster_name = "Abyss Executioner"
 monster_level = 86
 movement_speed = 50.0
-is_magic_attacker = false
 archetype = 4
 attack_mult = 1.4
 is_aggressive = true

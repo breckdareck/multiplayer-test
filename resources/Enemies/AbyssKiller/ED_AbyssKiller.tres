@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://4v0we4dkgqmo"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/AbyssKiller/SF_AbyssKiller.tres" id="3_sf"]
+[ext_resource type="SpriteFrames" uid="uid://c4hvdo4f0gipt" path="res://resources/Enemies/AbyssKiller/SF_AbyssKiller.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_wrj2t"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -27,7 +28,6 @@ script = ExtResource("2_ed")
 monster_name = "Abyss Killer"
 monster_level = 78
 movement_speed = 95.0
-is_magic_attacker = false
 archetype = 5
 is_aggressive = true
 sprite_frames = ExtResource("3_sf")

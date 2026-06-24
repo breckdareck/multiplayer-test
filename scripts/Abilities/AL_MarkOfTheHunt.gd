@@ -1,5 +1,7 @@
 extends Node
 
+const MapScope := preload("res://scripts/Gameplay/map_scope.gd")
+
 ## Mark of the Hunt (bow active) — MARK + PAYOFF (auto-crit-next-spender).
 ## Tags one enemy with a Hunter's Mark for 8 seconds. While the mark is
 ## active, the NEXT momentum-spender cast against the marked target is an
@@ -92,10 +94,13 @@ func _nearby_enemies(origin: Node, radius: float, count: int) -> Array:
 	if not is_instance_valid(origin):
 		return out
 	var origin_pos: Vector2 = origin.global_position
+	var origin_map: Node = MapScope.map_of(origin)
 	var candidates: Array = []
 	for e in origin.get_tree().get_nodes_in_group("Enemies"):
 		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		var hc = e.get("health_component")
 		if hc != null and is_instance_valid(hc) and hc.is_dead:
 			continue
@@ -145,10 +150,13 @@ static func sunder_spread(_owner_node: Node, origin: Node) -> void:
 	var origin_pos: Vector2 = origin.global_position
 	var expire_at_ms: int = Time.get_ticks_msec() + int(MARK_DURATION * 1000.0)
 	var marked := 0
+	var origin_map: Node = MapScope.map_of(origin)
 	var candidates: Array = []
 	for e in origin.get_tree().get_nodes_in_group("Enemies"):
 		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		var hc = e.get("health_component")
 		if hc != null and is_instance_valid(hc) and hc.is_dead:
 			continue

@@ -24,6 +24,13 @@ const _CAST_ANIMS: Array[String] = ["spell", "cast", "attack_2", "attack_1", "at
 ## Unset = fall back to the enemy-wide attack_range box.
 @export var reach_shape: CollisionShape2D = null
 
+@export_group("Spawn")
+## Marker2D (any Node2D) the projectile spawns FROM — place it at this attack's cast
+## origin in the animation (staff tip, mouth, off-hand), so each spell can launch from
+## a different spot. Mirrored to the enemy's facing. Unset = the enemy's AimTarget node,
+## else its origin.
+@export var spawn_point: Node2D = null
+
 
 func _clip_anim(enemy: EnemyBase) -> String:
 	if attack_anim != "":
@@ -49,4 +56,14 @@ func in_reach(enemy: EnemyBase, target: Node2D) -> bool:
 func _active_start(enemy: EnemyBase) -> void:
 	if not is_instance_valid(enemy.current_target):
 		return
-	enemy.fire_projectile(enemy.current_target, projectile_scene, projectile_speed)
+	enemy.fire_projectile(enemy.current_target, projectile_scene, projectile_speed, _spawn_position(enemy), is_magic_damage(enemy))
+
+
+## World position the projectile launches from: the spawn_point marker's offset from
+## the enemy, mirrored to the enemy's facing (markers are authored on one side). Returns
+## Vector2.INF when no marker is set, so fire_projectile uses the enemy default.
+func _spawn_position(enemy: EnemyBase) -> Vector2:
+	if spawn_point == null or not is_instance_valid(spawn_point):
+		return Vector2.INF
+	var off: Vector2 = spawn_point.global_position - enemy.global_position
+	return enemy.global_position + Vector2(absf(off.x) * enemy.facing_direction, off.y)

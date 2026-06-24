@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=36 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://t60twc8s72gv"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Outline/MiniAbyssGuardian-Sheet.png" id="1_0ap4g"]
+[ext_resource type="Texture2D" uid="uid://7yu17od6t0dj" path="res://assets/sprites/MiniFolksPlusAbyssArmy/MiniFolksPlusAbyssArmy/Outline/MiniAbyssGuardian-Sheet.png" id="1_0ap4g"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y2cwc"]
 atlas = ExtResource("1_0ap4g")
@@ -49,18 +49,6 @@ region = Rect2(128, 128, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_nbefw"]
 atlas = ExtResource("1_0ap4g")
 region = Rect2(160, 128, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_m2t3i"]
-atlas = ExtResource("1_0ap4g")
-region = Rect2(0, 64, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_rynwy"]
-atlas = ExtResource("1_0ap4g")
-region = Rect2(32, 64, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_puh2j"]
-atlas = ExtResource("1_0ap4g")
-region = Rect2(64, 64, 32, 32)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_b71qr"]
 atlas = ExtResource("1_0ap4g")
@@ -159,7 +147,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0sjt3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"attack_1",
 "speed": 10.0
 }, {
@@ -182,21 +170,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_nbefw")
 }],
-"loop": false,
-"name": &"attack_2",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_m2t3i")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rynwy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_puh2j")
-}],
-"loop": false,
+"loop": 0,
 "name": &"block",
 "speed": 10.0
 }, {
@@ -222,7 +196,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_y81ej")
 }],
-"loop": false,
+"loop": 0,
 "name": &"death",
 "speed": 10.0
 }, {
@@ -233,7 +207,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_54xpb")
 }],
-"loop": false,
+"loop": 0,
 "name": &"hit",
 "speed": 10.0
 }, {
@@ -250,7 +224,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3ktj3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 10.0
 }, {
@@ -273,7 +247,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ue0x8")
 }],
-"loop": true,
+"loop": 1,
 "name": &"patrol",
 "speed": 10.0
 }]

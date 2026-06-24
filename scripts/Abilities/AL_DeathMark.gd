@@ -1,5 +1,7 @@
 extends Node
 
+const MapScope := preload("res://scripts/Gameplay/map_scope.gd")
+
 ## Death Mark (dagger active) — MARK + PAYOFF (crit theme). Tags one enemy
 ## with a Death Mark for 8 seconds. While the mark is active, every dagger
 ## hit against the marked target gains a flat +CRIT_CHANCE_BONUS to its
@@ -98,10 +100,13 @@ func _nearby_enemies(origin: Node, radius: float, count: int) -> Array:
 	if not is_instance_valid(origin):
 		return out
 	var origin_pos: Vector2 = origin.global_position
+	var origin_map: Node = MapScope.map_of(origin)
 	var candidates: Array = []
 	for e in origin.get_tree().get_nodes_in_group("Enemies"):
 		if e == origin or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		var hc = e.get("health_component")
 		if hc != null and is_instance_valid(hc) and hc.is_dead:
 			continue
@@ -152,11 +157,14 @@ static func spread_on_death(died_enemy: Node) -> void:
 		return
 	var crit_bonus: float = float(died_enemy.get_meta(CRIT_BONUS_META)) if died_enemy.has_meta(CRIT_BONUS_META) else CRIT_CHANCE_BONUS
 	var origin: Vector2 = died_enemy.global_position
+	var origin_map: Node = MapScope.map_of(died_enemy)
 	var best: Node = null
 	var best_d: float = SPREAD_RADIUS
 	for e in died_enemy.get_tree().get_nodes_in_group("Enemies"):
 		if e == died_enemy or not (e is EnemyBase) or not is_instance_valid(e):
 			continue
+		if not MapScope.contains(origin_map, e):
+			continue  # different map — skip (global group)
 		if e.has_meta(MARK_META):
 			continue
 		var hc = e.get("health_component")

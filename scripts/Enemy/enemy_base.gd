@@ -92,7 +92,13 @@ var experience_reward: int = 0:
 		return 0
 var post_death_delay: float = 1.5 # Time to wait after death animation before disappearing.
 var damage_by_player: Dictionary = {} # player_id : damage_amount
-var facing_direction: int = 1
+## Facing (-1 left / +1 right). REPLICATED to clients (the enemy's MultiplayerSynchronizer
+## syncs this property), and its setter applies the flip on every peer — so clients face
+## correctly even though they don't run the enemy's physics. We flip via the sprite's
+## scale.x SIGN (not flip_h): scale mirrors the node's whole local space — including a
+## static `offset.x` — around its origin, so an off-centre sprite (non-square frame)
+## re-centred with `offset.x` flips on its own body with NO per-flip position snap.
+var facing_direction: int = 1: set = _set_facing_direction
 var _is_being_cleaned_up: bool = false
 var initial_position: Vector2
 
@@ -313,6 +319,10 @@ func _potion_tier_for_level(level: int) -> String:
 
 
 func _ready() -> void:
+	# Apply current facing to the sprite on every peer (a client may have received a
+	# replicated facing_direction before its AnimatedSprite2D was ready).
+	_apply_sprite_facing()
+
 	if not is_multiplayer_authority():
 		set_process(false)
 		set_physics_process(false)
@@ -1072,9 +1082,7 @@ func _update_facing() -> void:
 		return
 
 	if velocity.x != 0:
-		facing_direction = 1 if velocity.x > 0 else -1
-		if animated_sprite and is_instance_valid(animated_sprite):
-			animated_sprite.flip_h = facing_direction < 0
+		facing_direction = 1 if velocity.x > 0 else -1  # setter applies the flip
 
 
 func _on_body_hitbox_body_entered(body: Node) -> void:
@@ -1130,7 +1138,10 @@ func _get_b_coefficient(level_diff: int) -> float:
 	return 0.50 # -30 or lower
 
 
-func damage_on_overlap(body: Node):
+## `force_magic`: null = use the enemy-wide enemy_data.is_magic_attacker (body-ram
+## contact damage); true/false = this specific ATTACK's axis (a spell forces MAGIC, an
+## arrow/melee forces PHYSICAL), passed by the attack state / projectile that hit.
+func damage_on_overlap(body: Node, force_magic = null):
 	if not stats_component:
 		push_warning("Enemy %s is missing a StatsComponent! Cannot calculate damage." % name)
 		return
@@ -1147,10 +1158,12 @@ func damage_on_overlap(body: Node):
 			return
 
 		# --- New Monster Damage Calculation ---
-		# Magic attackers (is_magic_attacker) scale on MAGICATTACK and are mitigated
-		# by the target's MAGICDEFENSE; everyone else uses WEAPONATTACK vs DEFENSE.
-		# This is what makes "magic armor" (MAGICDEFENSE) matter on the player side.
-		var is_magic: bool = enemy_data != null and enemy_data.is_magic_attacker
+		# Magic hits scale on MAGICATTACK and are mitigated by the target's MAGICDEFENSE;
+		# physical hits use WEAPONATTACK vs DEFENSE (this is what makes "magic armor"
+		# matter). The axis is PER-ATTACK: the attack state / projectile passes force_magic
+		# (a spell → magic, an arrow/melee → physical). null = the enemy-wide default for
+		# body-ram contact damage.
+		var is_magic: bool = bool(force_magic) if force_magic != null else (enemy_data != null and enemy_data.is_magic_attacker)
 		var att_stat: int = Constants.StatType.MAGICATTACK if is_magic else Constants.StatType.WEAPONATTACK
 		var def_stat: int = Constants.StatType.MAGICDEFENSE if is_magic else Constants.StatType.DEFENSE
 		var monster_att = stats_component.stats.get(att_stat).total_value
@@ -1537,7 +1550,7 @@ func target_vertically_reachable(target) -> bool:
 ## damage_on_overlap (see projectile.gd), so it deals exactly what its melee does.
 ## The calling attack STATE node owns the projectile config and passes its own
 ## scene/speed; a null scene falls back to the shared default, speed <= 0 to 200.
-func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_override: float = -1.0) -> void:
+func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_override: float = -1.0, spawn_override: Vector2 = Vector2.INF, force_magic = null) -> void:
 	if not multiplayer.is_server() or _is_being_cleaned_up or enemy_data == null:
 		return
 	if not is_valid_target(target):
@@ -1549,10 +1562,15 @@ func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_o
 	# The caller (an attack node) supplies the projectile; null = the shared default.
 	var scene: PackedScene = scene_override if scene_override != null else _DEFAULT_PROJECTILE_SCENE
 
+	# Spawn position: the attack node's own spawn point (already mirrored to facing) if
+	# it passed one, else the enemy's AimTarget node, else the enemy origin.
 	var spawn_pos: Vector2 = global_position
-	var aim := get_node_or_null("AimTarget")
-	if aim != null:
-		spawn_pos = (aim as Node2D).global_position
+	if spawn_override.is_finite():
+		spawn_pos = spawn_override
+	else:
+		var aim := get_node_or_null("AimTarget")
+		if aim != null:
+			spawn_pos = (aim as Node2D).global_position
 
 	var target_pos: Vector2 = target.global_position
 	var aim_t := target.get_node_or_null("AimTarget")
@@ -1574,6 +1592,9 @@ func fire_projectile(target: Node2D, scene_override: PackedScene = null, speed_o
 	# Mask players, not enemies (mirror of the player projectile's enemy mask).
 	projectile.collision_mask = PLAYER_HITBOX_LAYER
 	projectile.initialize(self, target, null, null, speed, direction)
+	# Carry this attack's damage axis (a spell → magic, an arrow → physical); the
+	# server projectile reads it back in _try_hit. null = the enemy-wide default.
+	projectile.enemy_damage_magic = force_magic
 	# Set LOCAL position before add_child so physics interpolation doesn't streak
 	# it from (0,0) — same proven order as AbilityComponent.spawn_projectile.
 	projectile.position = spawn_pos - container.global_position
@@ -1612,9 +1633,24 @@ func attack_cooldown_until(base_seconds: float) -> int:
 func face_direction(dir: int) -> void:
 	if dir == 0:
 		return
-	facing_direction = dir
-	if animated_sprite and is_instance_valid(animated_sprite):
-		animated_sprite.flip_h = facing_direction < 0
+	facing_direction = dir  # setter applies the flip
+
+
+## facing_direction setter: stores the value and flips the sprite on EVERY peer (the
+## server when it turns, each client when the value replicates in).
+func _set_facing_direction(v: int) -> void:
+	facing_direction = v
+	_apply_sprite_facing()
+
+
+## Applies the current facing to the main sprite by flipping its x-scale SIGN (not flip_h),
+## preserving the live magnitude (the 1.3 zoom). Because scale mirrors the node's local
+## space around its origin, a sprite re-centred with a static `offset.x` flips on its own
+## body — no per-flip position snap. Centred sprites (offset 0) flip just like flip_h did.
+func _apply_sprite_facing() -> void:
+	if animated_sprite == null or not is_instance_valid(animated_sprite):
+		return
+	animated_sprite.scale.x = absf(animated_sprite.scale.x) * facing_direction
 
 
 ## Points facing at a world position. Used while attacking, when velocity is

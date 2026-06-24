@@ -1507,6 +1507,24 @@ func despawn_projectile_visual(proj_name: String) -> void:
 		projectile.queue_free()
 
 
+## [Client] The server resolved a hit on this projectile — play its impact-and-vanish
+## (its "hit" clip, then free) on this peer's visual copy. Mirrors despawn_projectile_visual
+## but lets the projectile animate the impact first; static-sprite projectiles just vanish.
+@rpc("authority", "call_remote", "reliable")
+func play_projectile_hit_visual(proj_name: String) -> void:
+	if multiplayer.is_server():
+		return
+	var map_node = get_current_visible_map()
+	if not is_instance_valid(map_node):
+		return
+	var container = map_node.get_node_or_null("Projectiles")
+	if not is_instance_valid(container):
+		return
+	var projectile = container.get_node_or_null(proj_name)
+	if is_instance_valid(projectile) and projectile.has_method("play_hit_and_die"):
+		projectile.play_hit_and_die()
+
+
 const _LightningArcVfx = preload("res://scripts/VFX/lightning_arc.gd")
 
 ## [Server] Broadcasts a chain-lightning arc VFX to every real client viewing the

@@ -6,9 +6,41 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_proj"]
 size = Vector2(8, 3)
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_proj"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_r420k"]
 atlas = ExtResource("1_tex")
 region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4f7ti"]
+atlas = ExtResource("1_tex")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nlkw6"]
+atlas = ExtResource("1_tex")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sakqw"]
+atlas = ExtResource("1_tex")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_4b4iv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r420k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4f7ti")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nlkw6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sakqw")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 15.0
+}]
 
 [node name="ProjectileBase" type="Area2D" unique_id=24566831 groups=["networked_entities"]]
 collision_layer = 0
@@ -19,6 +51,8 @@ script = ExtResource("1_proj")
 position = Vector2(1, 0.5)
 shape = SubResource("RectangleShape2D_proj")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=910542075]
+[node name="Sprite2D" type="AnimatedSprite2D" parent="." unique_id=784504876]
 position = Vector2(0, -8)
-texture = SubResource("AtlasTexture_proj")
+sprite_frames = SubResource("SpriteFrames_4b4iv")
+autoplay = "default"
+frame_progress = 0.59160066

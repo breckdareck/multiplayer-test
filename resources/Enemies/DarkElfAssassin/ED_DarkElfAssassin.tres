@@ -1,8 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://de8xm43r0rr2n"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/DarkElfAssassin/SF_DarkElfAssassin.tres" id="3_sf"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_1rpa0"]
+[ext_resource type="SpriteFrames" uid="uid://csd64ef5hubd" path="res://resources/Enemies/DarkElfAssassin/SF_DarkElfAssassin.tres" id="3_sf"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -27,9 +28,8 @@ script = ExtResource("2_ed")
 monster_name = "Dark Elf Assassin"
 monster_level = 48
 movement_speed = 105.0
-is_aggressive = true
 archetype = 5
-attack_range = 36.0
+is_aggressive = true
 attack_cooldown = 1.1
 sprite_frames = ExtResource("3_sf")
 character_collision_shape = SubResource("Shape_col")

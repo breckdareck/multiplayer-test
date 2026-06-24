@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://c1mptwors03f8"]
 
 [ext_resource type="Script" uid="uid://cucvsoha2s1kj" path="res://scripts/Resources/ItemSystem/ItemDrop.gd" id="1_drop"]
 [ext_resource type="Script" uid="uid://dv7aj5x3e50cg" path="res://scripts/Resources/EnemyData.gd" id="2_ed"]
-[ext_resource type="SpriteFrames" path="res://resources/Enemies/AbyssHuntress/SF_AbyssHuntress.tres" id="3_sf"]
-[ext_resource type="PackedScene" path="res://scenes/Gameplay/Projectiles/abyss_arrow.tscn" id="4_proj"]
+[ext_resource type="Script" uid="uid://cdsbcru4b1hr8" path="res://scripts/Resources/BossAttackData.gd" id="3_opyh0"]
+[ext_resource type="SpriteFrames" uid="uid://cscy2kpkf4vb3" path="res://resources/Enemies/AbyssHuntress/SF_AbyssHuntress.tres" id="3_sf"]
 
 [sub_resource type="RectangleShape2D" id="Shape_atk"]
 size = Vector2(64, 37)
@@ -27,9 +27,6 @@ metadata/_custom_type_script = "uid://cucvsoha2s1kj"
 script = ExtResource("2_ed")
 monster_name = "Abyss Huntress"
 monster_level = 80
-movement_speed = 60.0
-is_magic_attacker = false
-archetype = 0
 is_aggressive = true
 attack_range = 150.0
 sprite_frames = ExtResource("3_sf")

@@ -70,7 +70,7 @@ func _arm(enemy: EnemyBase, on: bool) -> void:
 
 
 ## Show/hide the plume, mirrored to the enemy's facing (read off the replicated
-## main-sprite flip_h so it's correct on clients). Runs on every peer via enter/exit.
+## replicated facing_direction so it's correct on clients). Runs on every peer via enter/exit.
 func _show_breath(enemy: EnemyBase, on: bool) -> void:
 	if breath_sprite.is_empty():
 		return
@@ -81,7 +81,7 @@ func _show_breath(enemy: EnemyBase, on: bool) -> void:
 		fx.stop()
 		fx.visible = false
 		return
-	var face_left: bool = enemy.animated_sprite != null and enemy.animated_sprite.flip_h
+	var face_left: bool = enemy.facing_direction < 0
 	if not fx.has_meta("breath_base_x"):
 		fx.set_meta("breath_base_x", absf(fx.position.x))
 	fx.position.x = float(fx.get_meta("breath_base_x")) * (-1.0 if face_left else 1.0)

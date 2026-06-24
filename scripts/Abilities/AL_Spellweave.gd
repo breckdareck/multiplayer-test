@@ -1,5 +1,7 @@
 extends Node
 
+const MapScope := preload("res://scripts/Gameplay/map_scope.gd")
+
 ## Spellweave (staff active) — CHANNEL + STANCE-AUGMENT. After a brief
 ## channel, releases an AMPLIFIED version of the current stance's
 ## signature effect at the caster's facing direction. The exact effect
@@ -126,9 +128,12 @@ func _release(owner_node: Node, element: int, facing: int, scale_base: int, reac
 ## the refund condition for Echoing Weave.
 func _enemy_in_reach(owner_node: Node, facing: int) -> bool:
 	var center: Vector2 = owner_node.global_position + Vector2(140.0 * float(facing), 0)
+	var owner_map: Node = MapScope.map_of(owner_node)
 	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
 		if not (enemy is EnemyBase) or not is_instance_valid(enemy):
 			continue
+		if not MapScope.contains(owner_map, enemy):
+			continue  # different map — skip (global group)
 		var hc = enemy.get("health_component")
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
 			continue
@@ -148,12 +153,15 @@ func _fire_wave(owner_node: Node, facing: int, scale_base: int, reach_bonus: flo
 	var r2: float = wave_radius * wave_radius
 	var burst: int = maxi(1, roundi(scale_base * FIRE_WAVE_DAMAGE_PCT))
 	var staff = owner_node.get("staff_element_component")
+	var owner_map: Node = MapScope.map_of(owner_node)
 	var struck: int = 0
 	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
 		if struck >= FIRE_WAVE_MAX_TARGETS:
 			break
 		if not is_instance_valid(enemy) or not (enemy is EnemyBase):
 			continue
+		if not MapScope.contains(owner_map, enemy):
+			continue  # different map — skip (global group)
 		if (enemy.global_position - center).length_squared() > r2:
 			continue
 		var hc = enemy.get("health_component")
@@ -180,11 +188,14 @@ func _ice_freeze(owner_node: Node, facing: int, reach_bonus: float = 0.0) -> voi
 	# Wide Weave widens the freeze radius.
 	var freeze_radius: float = ICE_FREEZE_RADIUS + reach_bonus
 	var r2: float = freeze_radius * freeze_radius
+	var owner_map: Node = MapScope.map_of(owner_node)
 	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
 		if not is_instance_valid(enemy):
 			continue
 		if not (enemy is EnemyBase):
 			continue
+		if not MapScope.contains(owner_map, enemy):
+			continue  # different map — skip (global group)
 		var e := enemy as EnemyBase
 		if (e.global_position - center).length_squared() > r2:
 			continue
@@ -215,11 +226,14 @@ func _lightning_chain(owner_node: Node, scale_base: int, reach_bonus: float = 0.
 	# Wide Weave extends the per-hop reach so the chain travels further.
 	var chain_radius: float = LIGHTNING_CHAIN_RADIUS + reach_bonus
 	var origin: Vector2 = owner_node.global_position
+	var owner_map: Node = MapScope.map_of(owner_node)
 	var first_target: Node = null
 	var best_dist: float = INF
 	for enemy in owner_node.get_tree().get_nodes_in_group("Enemies"):
 		if not is_instance_valid(enemy):
 			continue
+		if not MapScope.contains(owner_map, enemy):
+			continue  # different map — skip (global group)
 		var hc = enemy.get("health_component")
 		if hc == null or not is_instance_valid(hc) or hc.is_dead:
 			continue
@@ -243,6 +257,8 @@ func _lightning_chain(owner_node: Node, scale_base: int, reach_bonus: float = 0.
 		for e2 in owner_node.get_tree().get_nodes_in_group("Enemies"):
 			if not is_instance_valid(e2) or visited.has(e2.get_instance_id()):
 				continue
+			if not MapScope.contains(owner_map, e2):
+				continue  # different map — skip (global group)
 			var hc2 = e2.get("health_component")
 			if hc2 == null or not is_instance_valid(hc2) or hc2.is_dead:
 				continue
