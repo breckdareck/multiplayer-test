@@ -42,6 +42,13 @@ directly instead of through a getter** (e.g. iterating `.values()`), call
 to the `content_ready` signal (or poll `is_content_ready()`) to react to
 completion without blocking.
 
+The recurse → list → load scan itself lives in one place,
+`scripts/Managers/content_library.gd` (`ContentLibrary.scan(path, on_resource)`),
+shared by `ResourceManager`, `QuestManager`, and `PetManager` — each passes a
+callback that does its own type-guard + indexing. It has **no `class_name`** (a
+global class identifier doesn't resolve in headless `--script` runs and would make
+the autoloads fail to compile); consumers `preload()` it by path.
+
 **`QuestData` follows the same pattern, but owned by `QuestManager`** —
 `QuestManager._load_quests_from_resources()` recursively scans
 `resources/Quests/` on `_ready()` and keys each loaded `QuestData` by its
