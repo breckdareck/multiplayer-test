@@ -14,7 +14,7 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 | `PetSystem/` | `PetData` (the static pet variety definition — sprite, walk speed, leash radius, autoloot radius, hunger curve) |
 | `StatSystem/` | `StatData` |
 | `QuestSystem/` | `QuestData` |
-| (root) | `EnemyData.gd` |
+| (root) | `EnemyData.gd`, `BossAttackData.gd` |
 
 ## ResourceManager loads most of this for free
 
@@ -28,6 +28,26 @@ here; the **data instances** (`.tres` files) live under `resources/`.
 
 Look content up with `ResourceManager.get_ability_data(id_or_name)`,
 `get_item_by_name(name)`, etc. — never `load()` content `.tres` at runtime.
+
+**Loading is split for startup speed.** Disciplines + buffs load synchronously in
+`_ready()` (they have early consumers — the character-select portrait, combat
+buffs). The heavy categories — **abilities + items (~800 `.tres`)** — load on a
+**background thread**, because nothing needs them until a player spawns into a
+map; this keeps the login screen from blocking on a disk scan it never reads. The
+`get_ability_data` / `get_item_*` getters call `ResourceManager.ensure_loaded()`
+internally, so normal callers see no difference (an early caller transparently
+blocks until the scan finishes). **If you read `ability_data` / `item_data`
+directly instead of through a getter** (e.g. iterating `.values()`), call
+`ResourceManager.ensure_loaded()` first — the dict may still be filling. Connect
+to the `content_ready` signal (or poll `is_content_ready()`) to react to
+completion without blocking.
+
+The recurse → list → load scan itself lives in one place,
+`scripts/Managers/content_library.gd` (`ContentLibrary.scan(path, on_resource)`),
+shared by `ResourceManager`, `QuestManager`, and `PetManager` — each passes a
+callback that does its own type-guard + indexing. It has **no `class_name`** (a
+global class identifier doesn't resolve in headless `--script` runs and would make
+the autoloads fail to compile); consumers `preload()` it by path.
 
 **`QuestData` follows the same pattern, but owned by `QuestManager`** —
 `QuestManager._load_quests_from_resources()` recursively scans

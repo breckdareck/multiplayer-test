@@ -300,6 +300,9 @@ func _build_dev_max_save(username: String, disc: int) -> Dictionary:
 		secondary[str(i)] = ""
 
 	var slot: int = 0
+	# Reads the ability index directly (not via a getter), so make sure the
+	# background abilities/items scan has finished first.
+	ResourceManager.ensure_loaded()
 	for ab in ResourceManager.ability_data.values():
 		if ab.ability_type != Constants.AbilityType.ACTIVE:
 			continue

@@ -1,6 +1,15 @@
 # ResourceManager.gd - Autoload script
 extends Node
 
+# Preloaded by path (not via class_name) so it resolves in headless --script runs.
+const ContentLibrary = preload("res://scripts/Managers/content_library.gd")
+
+# Emitted on the main thread once the deferred abilities + items scan has
+# finished and the indexes below are fully populated. Listeners that want to
+# react to readiness (rather than block on it) can connect to this; anything
+# that must read the data right now should call ensure_loaded() instead.
+signal content_ready
+
 # Dictionary to store weapon-discipline data by ClassType enum value.
 # (ClassType semantically means "weapon discipline" now — see Constants.gd.)
 var class_data: Dictionary[Constants.ClassType, WeaponDisciplineData] = {}
@@ -14,12 +23,75 @@ var ability_by_name: Dictionary[String, AbilityData] = {}
 var buff_data: Dictionary[String, BuffData] = {}
 var buffs_by_name: Dictionary[String, BuffData] = {}
 
+# Background loader for the heavy abilities + items scan (~800 .tres). See
+# _ready() / ensure_loaded() for the loading strategy.
+var _load_thread: Thread = null
+var _content_loaded: bool = false
+
 func _ready() -> void:
+	# Disciplines (character-select portrait + base stats) and buffs (combat)
+	# total ~23 .tres and have early consumers, so they load synchronously
+	# before the first frame.
 	_load_class_data()
+	_load_buff_data()
+
+	# Abilities + items (~800 .tres, each dragging icons / projectile scenes /
+	# upgrade trees) are not needed until a player spawns into a map. They load
+	# on a background thread so the login screen renders immediately instead of
+	# blocking on a disk scan it never uses. Any consumer that needs them sooner
+	# calls ensure_loaded(), which transparently blocks until the scan finishes;
+	# the public ability/item getters do this automatically.
+	_start_deferred_load()
+
+
+func _start_deferred_load() -> void:
+	_load_thread = Thread.new()
+	var err: int = _load_thread.start(_load_deferred_content)
+	if err != OK:
+		# Threads unavailable on this platform — fall back to a synchronous load
+		# so the indexes are still populated (just without the startup win).
+		push_warning("ResourceManager: background load thread unavailable (err %d); loading synchronously." % err)
+		_load_thread = null
+		_load_item_data()
+		_load_ability_data()
+		_content_loaded = true
+		content_ready.emit()
+
+
+# Runs on the background thread. Must not emit signals or join itself here —
+# both are marshalled back to the main thread via call_deferred.
+func _load_deferred_content() -> void:
 	_load_item_data()
 	_load_ability_data()
-	_load_buff_data()
-	
+	call_deferred("_finish_deferred_load")
+
+
+# Main thread: the worker has signalled completion, so join it and announce.
+func _finish_deferred_load() -> void:
+	ensure_loaded()
+
+
+## Blocks the calling (main) thread until the deferred abilities + items scan has
+## finished, then returns. Idempotent and effectively free once loaded. The
+## public ability/item getters call this for you; call it directly only where the
+## indexes are read without going through a getter (e.g. iterating
+## ability_data.values(), or a test harness that runs on the first frame).
+func ensure_loaded() -> void:
+	if _content_loaded:
+		return
+	if _load_thread != null:
+		# No worse than the old synchronous _ready() for an early caller, and only
+		# paid once by the first consumer that needs the data before it is ready.
+		_load_thread.wait_to_finish()
+		_load_thread = null
+	_content_loaded = true
+	content_ready.emit()
+
+
+## True once the deferred abilities + items scan has completed.
+func is_content_ready() -> bool:
+	return _content_loaded
+
 
 #region Item Data Functions
 
@@ -33,11 +105,11 @@ func _load_item_data() -> void:
 			#print("Loaded item: %s from path: %s" % [resource.name, path])
 			#print("DEBUG: ResourceManager loaded item icon: ", resource.icon)
 			
-	# Call the generic loader
-	_load_resources_recursively(item_folder, process_item)
+	ContentLibrary.scan(item_folder, process_item)
 		
 
 func get_item_data(item_id: String) -> ItemData:
+	ensure_loaded()
 	# If it's a UUID, look it up directly
 	if item_data.has(item_id):
 		return item_data[item_id]
@@ -52,6 +124,7 @@ func get_item_data(item_id: String) -> ItemData:
 	
 	
 func get_item_by_name(item_name: String) -> ItemData:
+	ensure_loaded()
 	return item_by_name.get(item_name)
 	
 #endregion
@@ -67,7 +140,7 @@ func _load_class_data() -> void:
 			class_data[resource.class_type] = resource
 			#print("Loaded discipline: %s from path: %s" % [resource._discipline_name, path])
 
-	_load_resources_recursively(class_folder, process_class)
+	ContentLibrary.scan(class_folder, process_class)
 
 
 func get_class_data(class_type: Constants.ClassType) -> WeaponDisciplineData:
@@ -150,13 +223,14 @@ func _load_ability_data() -> void:
 	var process_ability = func(resource, _path):
 		if resource is AbilityData:
 			ability_data[resource.ability_id] = resource 
-			ability_by_name[resource.ability_name] = resource 
+			ability_by_name[resource.ability_name] = resource
 			#print("Loaded ability: %s from path: %s" % [resource.ability_name, path])
 
-	_load_resources_recursively(ability_folder, process_ability)
+	ContentLibrary.scan(ability_folder, process_ability)
 
 
 func get_ability_data(ability_identifier: String) -> AbilityData:
+	ensure_loaded()
 	# First check by ID
 	if ability_data.has(ability_identifier):
 		return ability_data[ability_identifier]
@@ -170,6 +244,7 @@ func get_ability_data(ability_identifier: String) -> AbilityData:
 	return null
 
 func get_ability_by_name(ability_name: String) -> AbilityData:
+	ensure_loaded()
 	return ability_by_name.get(ability_name)
 
 #endregion
@@ -186,8 +261,8 @@ func _load_buff_data() -> void:
 			buffs_by_name[resource.buff_name] = resource 
 			#print("Loaded buff: %s from path: %s" % [resource.buff_name, path])
 			
-	_load_resources_recursively(buff_folder, process_buff)
-		
+	ContentLibrary.scan(buff_folder, process_buff)
+
 func get_buff_data(buff_identifier: String) -> BuffData:
 	if buff_data.has(buff_identifier):
 		return buff_data[buff_identifier]
@@ -203,27 +278,3 @@ func get_buff_by_name(buff_name: String) -> BuffData:
 
 		
 #endregion
-
-
-func _load_resources_recursively(path: String, process_callable: Callable) -> void:
-	# Get all items (files and directories) in the current path
-	var items = ResourceLoader.list_directory(path)
-	
-	for item_name in items:
-		var full_path = path + item_name
-		
-		# Check if the item is a directory (it will end with "/")
-		if item_name.ends_with("/"):
-			# It's a directory! Call this function again for the subdirectory.
-			# This is the "recursive" step.
-			_load_resources_recursively(full_path, process_callable)
-			
-		# Check if it's a resource file we want to load
-		# This avoids trying to load ".import" files
-		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
-			# It's a file! Load it.
-			var resource = ResourceLoader.load(full_path)
-			
-			if resource:
-				# Call the provided 'Callable' and pass it the loaded resource
-				process_callable.call(resource, full_path)
