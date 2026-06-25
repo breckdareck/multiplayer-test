@@ -38,6 +38,14 @@ func _process(_delta: float) -> bool:
 	if _ran:
 		return true
 	_ran = true
+	# Abilities + items now load on a background thread (see ResourceManager).
+	# The ability suites read ResourceManager.ability_data directly, so block
+	# until that scan has finished before running anything. Autoload globals
+	# aren't compile-time identifiers in a --script entry point, so reach it by
+	# node path rather than by name.
+	var rm := root.get_node_or_null("ResourceManager")
+	if rm != null:
+		rm.ensure_loaded()
 	var any_failed := _run_all()
 	quit(1 if any_failed else 0)
 	return true
