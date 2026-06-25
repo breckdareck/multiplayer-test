@@ -1,4 +1,8 @@
 extends Node
+
+# Preloaded by path (not via class_name) so it resolves in headless --script runs.
+const ContentLibrary = preload("res://scripts/Managers/content_library.gd")
+
 ## PetManager — server-authoritative ownership of player pets.
 ##
 ## See docs/adr/0001-pet-system-architecture.md for the architectural rationale.
@@ -110,23 +114,10 @@ func _process(delta: float) -> void:
 
 
 func _load_pet_data_registry() -> void:
-	var dir := DirAccess.open(PET_DATA_FOLDER)
-	if not dir:
-		# Folder may not exist yet on fresh repos — that's fine, no pets yet.
-		return
-	dir.list_dir_begin()
-	while true:
-		var file := dir.get_next()
-		if file.is_empty():
-			break
-		if dir.current_is_dir():
-			continue
-		if not (file.ends_with(".tres") or file.ends_with(".res")):
-			continue
-		var path := PET_DATA_FOLDER + file
-		var res = load(path)
+	# A missing folder (fresh repo, no pets yet) just yields no resources.
+	ContentLibrary.scan(PET_DATA_FOLDER, func(res: Resource, _path: String) -> void:
 		if res is PetData:
-			_pet_data_cache[res.pet_id] = res
+			_pet_data_cache[res.pet_id] = res)
 
 
 func get_pet_data(pet_data_id: String) -> PetData:

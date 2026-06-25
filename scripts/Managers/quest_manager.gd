@@ -1,5 +1,8 @@
 extends Node
 
+# Preloaded by path (not via class_name) so it resolves in headless --script runs.
+const ContentLibrary = preload("res://scripts/Managers/content_library.gd")
+
 ## QuestManager — Server-authoritative quest tracking and progression.
 ##
 ## Quests are defined in code via _define_quests(). Player progress is tracked
@@ -73,7 +76,9 @@ func _ready() -> void:
 
 func _load_quests_from_resources() -> void:
 	var loaded: Array[QuestData] = []
-	_scan_quests_recursive(QUESTS_DIR, loaded)
+	ContentLibrary.scan(QUESTS_DIR, func(res: Resource, _path: String) -> void:
+		if res is QuestData:
+			loaded.append(res))
 	# Sort by `sort_order` so curated narrative order survives the move from
 	# `_define_quests()` (insertion order) to scanning files off disk
 	# (filesystem/alphabetical order). Dictionary preserves insertion order
@@ -89,21 +94,6 @@ func _load_quests_from_resources() -> void:
 				q.quest_id, q.resource_path, _quests[q.quest_id].resource_path
 			])
 		_quests[q.quest_id] = q
-
-
-## Walk QUESTS_DIR (and any subfolders) for QuestData .tres files. Mirrors
-## ResourceManager._load_resources_recursively but specialized to QuestData
-## so we get the type guard for free.
-func _scan_quests_recursive(path: String, into: Array[QuestData]) -> void:
-	var items: PackedStringArray = ResourceLoader.list_directory(path)
-	for item_name in items:
-		var full_path: String = path + item_name
-		if item_name.ends_with("/"):
-			_scan_quests_recursive(full_path, into)
-		elif full_path.ends_with(".tres") or full_path.ends_with(".res"):
-			var resource: Resource = ResourceLoader.load(full_path)
-			if resource is QuestData:
-				into.append(resource)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
